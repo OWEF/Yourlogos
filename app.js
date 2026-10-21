@@ -90,7 +90,7 @@ function todayHtml(){
     '<div class="quote-footer"><div class="swipe-cue">↑ &nbsp; SWIPE FOR ANOTHER THOUGHT</div>'+
     '<div class="quote-actions">'+
       '<button type="button" aria-label="'+(liked?"Unlike":"Like")+' this quote" aria-pressed="'+liked+'" data-action="toggle-save" class="icon-action heart-button'+(liked?" liked":"")+(heartPulse?" heart-pop":"")+'">'+likedIcon(liked)+'<span>'+(liked?"Liked":"Like")+'</span></button>'+
-      '<button type="button" aria-label="Discover this philosophical idea" data-action="discover" class="icon-action discover-button">'+compassIcon+'<span>Discover</span></button>'+
+      '<button type="button" aria-label="Discover this philosophical idea" data-action="discover" class="icon-action discover-button'+(discoverOpen?' spinning':'')+'">'+compassIcon+'<span>Discover</span></button>'+
     '</div></div></article>';
 }
 function discoverHtml(){
@@ -137,6 +137,11 @@ function render(){
   '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V1</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'');
+  const currentDock=document.querySelector(".dock-glass");
+  if(currentDock && active>=0 && from!==active){
+    currentDock.style.setProperty("--dock-active",String(from));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{if(currentDock.isConnected)currentDock.style.setProperty("--dock-active",String(active))}));
+  }
   if(view==="today"&&!onboarding&&detailId===null)bindQuoteGesture();
 }
 function bindQuoteGesture(){
