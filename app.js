@@ -107,9 +107,17 @@ function listHtml(ids){return ids.length?ids.map(id=>'<button class="quote-card"
 
 function libraryHtml(){
   const current=SCHOOLS.find(s=>s.id===openSchoolId);
+  if(libraryScope==="liked" && !current){
+    return '<section class="view library-v3 library-liked" aria-label="Liked quotes">'+
+      '<button type="button" data-library-root class="school-back" aria-label="Back to all philosophies"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h13"/></svg>All philosophies</button>'+
+      '<div class="library-v3-kicker">YOUR COLLECTION</div><h1>Thoughts kept</h1>'+
+      '<p class="library-liked-sub">Quotes you have chosen to remember.</p>'+
+      '<div class="library-liked-list">'+listHtml(data.saved.slice().reverse())+'</div></section>';
+  }
   if(!current){
     return '<section class="view library-v3" aria-label="Philosophy library">'+
-      '<div class="library-v3-intro"><div class="library-v3-kicker">WAYS OF SEEING</div><h1>Library</h1></div>'+
+      '<div class="library-v3-intro"><div><div class="library-v3-kicker">WAYS OF SEEING</div><h1>Library</h1></div>'+
+      '<button type="button" class="library-save-shortcut" data-library-liked aria-label="View liked quotes" title="Liked quotes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3h11A1.5 1.5 0 0 1 19 4.5V21l-7-4-7 4V4.5Z"/></svg>'+(data.saved.length?'<span class="library-saved-count">'+data.saved.length+'</span>':'')+'</button></div>'+
       '<div class="school-grid">'+SCHOOLS.map(s=>
         '<button type="button" class="school-tile school-'+s.id+'" data-school="'+esc(s.id)+'" aria-label="Explore '+esc(s.name)+'">'+
         '<div class="school-art">'+schoolArtwork(s.id)+'</div><span class="school-name">'+esc(s.name)+'</span></button>'
@@ -201,9 +209,11 @@ function moveQuote(direction){
 
 document.addEventListener("click",async e=>{
   const v=e.target.closest("[data-view]");
-  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;render();haptic();setTimeout(()=>{navPulse=null},750);return}
+  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));if(v.dataset.view==="library"){openSchoolId=null;libraryScope="all"}view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;render();haptic();setTimeout(()=>{navPulse=null},750);return}
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;if(SCHOOLS.some(x=>x.id===candidate)){openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)}return}
   const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;render();return}
+  if(e.target.closest("[data-library-liked]")){openSchoolId=null;libraryScope="liked";render();return}
+  if(e.target.closest("[data-library-root]")){libraryScope="all";openSchoolId=null;render();return}
   const th=e.target.closest("[data-theme]");
   if(th){const t=th.dataset.theme;data.themes=data.themes.includes(t)?data.themes.filter(x=>x!==t):data.themes.length<5?[...data.themes,t]:data.themes;persist();render();return}
   const fil=e.target.closest("[data-filter]");if(fil){selectedTheme=fil.dataset.filter;render();return}
