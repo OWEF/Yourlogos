@@ -1,3 +1,4 @@
+import { SCHOOLS, schoolArtwork } from "./schools.js";
 const QUOTES=[
 ["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning","Twilight of the Idols","What, if anything, gives hardship a direction?"],
 ["Man is the only creature who refuses to be what he is.","Albert Camus","Freedom","The Rebel","What in yourself are you refusing today?"],
@@ -37,7 +38,7 @@ const KEY="yourlogos_web_v1";
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
-let quoteCursor=0,libraryScope="all",discoverOpen=false,swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false;
+let quoteCursor=0,libraryScope="all",discoverOpen=false,swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const dayIndex=()=>{let d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(2026,0,1))/86400000)};
 const pick=()=>{const n=dayIndex(),favorite=data.themes.length?QUOTES.map((q,i)=>({q,i})).filter(x=>data.themes.includes(x.q[2])):[];const all=QUOTES.map((q,i)=>({q,i}));const pool=n%10<3||!favorite.length?all:favorite;return pool[((n%pool.length)+pool.length)%pool.length].i};
@@ -103,12 +104,31 @@ function discoverHtml(){
 
 function listHtml(ids){return ids.length?ids.map(id=>'<button class="quote-card" data-detail="'+id+'"><div class="line">“'+esc(QUOTES[id][0])+'”</div><div class="meta">— '+esc(QUOTES[id][1])+' · '+esc(QUOTES[id][2])+'</div></button>').join(""):'<div class="empty">Nothing here yet. Return to today’s thought.</div>'}
 
+
 function libraryHtml(){
-  const allIds=QUOTES.map((_,i)=>i);
-  const filtered=allIds.filter(i=>(libraryScope==="all"||data.saved.includes(i))&&(selectedTheme==="All"||QUOTES[i][2]===selectedTheme));
-  return '<section class="view library-v2"><div class="section-kicker">YOUR COLLECTION</div><h1>Library</h1><p class="sub">Thoughts to keep, return to, or discover for the first time.</p>'+
-    '<div class="filters library-scope"><button class="filter '+(libraryScope==="all"?"active":"")+'" data-scope="all">All thoughts</button><button class="filter '+(libraryScope==="liked"?"active":"")+'" data-scope="liked">Liked ('+data.saved.length+')</button></div>'+
-    '<div class="filters">'+["All",...THEMES].map(t=>'<button class="filter '+(selectedTheme===t?"active":"")+'" data-filter="'+t+'">'+t+'</button>').join("")+'</div>'+listHtml(filtered)+'</section>';
+  const current=SCHOOLS.find(s=>s.id===openSchoolId);
+  if(!current){
+    return '<section class="view library-v3" aria-label="Philosophy library">'+
+      '<div class="library-v3-intro"><div class="library-v3-kicker">WAYS OF SEEING</div><h1>Library</h1></div>'+
+      '<div class="school-grid">'+SCHOOLS.map(s=>
+        '<button type="button" class="school-tile school-'+s.id+'" data-school="'+esc(s.id)+'" aria-label="Explore '+esc(s.name)+'">'+
+        '<div class="school-art">'+schoolArtwork(s.id)+'</div><span class="school-name">'+esc(s.name)+'</span></button>'
+      ).join('')+'</div>'+
+    '</section>';
+  }
+  return '<section class="view library-v3 school-detail-screen" aria-label="'+esc(current.name)+'">'+
+    '<div class="school-detail-scroll" id="school-detail-scroll">'+
+      '<button type="button" data-school-back class="school-back" aria-label="Back to all philosophies">'+
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h13"/></svg>All philosophies</button>'+
+      '<div class="school-hero school-'+esc(current.id)+'">'+schoolArtwork(current.id)+'</div>'+
+      '<h1 class="school-detail-title">'+esc(current.name)+'</h1>'+
+      '<p class="school-detail-sub">'+esc(current.subtitle)+'</p>'+
+      '<div class="school-section"><div class="school-section-label">THE CENTRAL QUESTION</div><h2 class="school-big-question">'+esc(current.question)+'</h2></div>'+
+      '<div class="school-section"><div class="school-section-label">THE IDEA</div><p>'+esc(current.intro)+'</p></div>'+
+      '<div class="school-section"><div class="school-section-label">KEY VOICES</div><div class="school-voices">'+current.thinkers.map(name=>'<span>'+esc(name)+'</span>').join('')+'</div></div>'+
+      '<div class="school-section"><div class="school-section-label">CORE TENSIONS</div><div class="school-tensions">'+current.tensions.map(t=>'<div>'+esc(t)+'</div>').join('')+'</div></div>'+
+      '<div class="school-section"><div class="school-section-label">A THOUGHT TO CARRY</div><div class="school-reflection">'+esc(current.reflection)+'</div><p class="school-prompt-note">No answer required. Just a place to begin.</p></div>'+
+    '</div></section>';
 }
 
 function savedHtml(){return '<section class="view"><div class="section-kicker">HELD CLOSE</div><h1>Saved</h1><p class="sub">Thoughts you chose to keep.</p>'+listHtml(data.saved.slice().reverse())+'</section>'}
@@ -133,7 +153,7 @@ function render(){
   const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
-  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">DAILY ENCOUNTER<span>'+(String(quoteCursor+1).padStart(2,"0"))+' / '+String(QUOTES.length).padStart(2,"0")+'</span></div></header>'+inner+'</main>'+
+  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"CONSTELLATION":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"IN PROGRESS":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
   '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V1</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'');
@@ -182,6 +202,8 @@ function moveQuote(direction){
 document.addEventListener("click",async e=>{
   const v=e.target.closest("[data-view]");
   if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;render();haptic();setTimeout(()=>{navPulse=null},750);return}
+  const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;if(SCHOOLS.some(x=>x.id===candidate)){openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)}return}
+  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;render();return}
   const th=e.target.closest("[data-theme]");
   if(th){const t=th.dataset.theme;data.themes=data.themes.includes(t)?data.themes.filter(x=>x!==t):data.themes.length<5?[...data.themes,t]:data.themes;persist();render();return}
   const fil=e.target.closest("[data-filter]");if(fil){selectedTheme=fil.dataset.filter;render();return}
