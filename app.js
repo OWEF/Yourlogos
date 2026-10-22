@@ -157,7 +157,7 @@ function detailHtml(){const id=detailId,q=QUOTES[id];return '<section class="vie
 function onboardingHtml(){return '<section class="view onboard"><div class="section-kicker" style="text-align:center;margin-bottom:24px">BEFORE WE BEGIN</div><h1>What are you searching for?</h1><p class="sub">Choose three to five themes that speak to you. Your daily thoughts will draw from these. You can change this later.</p><div class="grid">'+THEMES.map(t=>'<button class="theme-card '+(data.themes.includes(t)?"selected":"")+'" data-theme="'+t+'"><b>'+t+'</b><span>'+esc(PROMPTS[t][1])+'</span></button>').join("")+'</div><div class="count">'+data.themes.length+' of 5 selected</div><div class="actions">'+btn("finish-onboarding",data.started?"Save themes":"Begin your practice","primary")+'</div></section>'}
 
 function render(){
-  const onboarding=!data.started||view==="onboarding";
+  const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
   const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
