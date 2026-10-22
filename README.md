@@ -14,6 +14,7 @@ Mobile-first philosophical discovery app. The current version is a static websit
 - Six glass-inspired cards in a two-column, three-row mobile grid: Stoicism, Existentialism, Nihilism, Skepticism, Daoism, Buddhism.
 - Original vector illustrations and subtle responsive material effects.
 - Tap a school for an introduction, a central question, key thinkers, philosophical tensions and one optional reflection.
+- A discreet bookmark shortcut in the Library header keeps liked quotes accessible without cluttering the six-card grid.
 - Content and card art live in `schools.js`; this first release is editorially curated and expandable.
 
 **Constellation**
@@ -29,7 +30,7 @@ Run a local static HTTP server to preview (`python3 -m http.server 8000`), rathe
 
 ## Known limitations and planned work
 
-- The original theme-selection onboarding remains as V1 scaffolding and needs the agreed more-personal curiosity-led redesign.
+- Theme selection is optional through Constellation; future onboarding may introduce personal curiosity prompts without blocking the daily quote.
 - Quote catalog currently contains a limited 20-quote sample. Before expanding it, verify wording, translations, attributions and primary sources.
 - Discover presents initial prompt-based context, not deeply curated philosophical counter-voices.
 - Likes, interests and practice traces use browser `localStorage`. Clearing browser data removes them; no cross-device synchronization or login. An older Expo app's SQLite data is **not** automatically migrated.
