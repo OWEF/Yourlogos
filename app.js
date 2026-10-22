@@ -230,7 +230,8 @@ document.addEventListener("click",async e=>{
     case"close-discover":discoverOpen=false;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"back":detailId=null;break;
     case"export":{
-      const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");
+      const universe=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();
+       const blob=new Blob([JSON.stringify({...data,universeV2:{events:universe,storage:"local"}},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");
       link.href=url;link.download="yourlogos-practice.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("Practice exported");return;
     }
   }
