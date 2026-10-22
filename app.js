@@ -142,15 +142,11 @@ function libraryHtml(){
 function savedHtml(){return '<section class="view"><div class="section-kicker">HELD CLOSE</div><h1>Saved</h1><p class="sub">Thoughts you chose to keep.</p>'+listHtml(data.saved.slice().reverse())+'</section>'}
 
 function profileHtml(){
-  const liked=data.saved.length,entries=Object.values(data.practice),days=entries.filter(x=>x.posture).length,notes=entries.filter(x=>x.whatStayed).length;
-  const dots=[[47,111],[100,51],[160,91],[213,40],[286,90],[253,165],[157,183],[91,157]];
-  const stars=dots.map((p,i)=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i<Math.min(liked,8)?5:2.5)+'" fill="#E0CFAF" opacity="'+(i<Math.min(liked,8)?1:.35)+'"/>').join("");
-  return '<section class="view portrait-v2"><div class="section-kicker">AN UNFINISHED PORTRAIT</div><h1>Your constellation</h1><p class="sub">The shape of your curiosity, still becoming.</p>'+
-    '<svg class="constellation-art" viewBox="0 0 330 225" aria-label="Illustrative constellation: not a psychological score"><path d="M47 111 100 51 160 91 213 40 286 90 253 165 157 183 91 157 47 111 160 91 253 165M100 51 213 40M160 91 157 183" fill="none" stroke="#82735B" stroke-opacity=".45" stroke-width="1"/>'+stars+'</svg>'+
-    '<div class="stat-grid"><div class="stat"><strong>'+liked+'</strong><span>thoughts liked</span></div><div class="stat"><strong>'+days+'</strong><span>practice days</span></div><div class="stat"><strong>'+notes+'</strong><span>traces kept</span></div></div>'+
-    '<div class="profile-block"><h2>An evolving map</h2><p>The things you like show where your attention goes. They do not tell us what you believe. Philosophical axes will emerge from richer encounters—not from likes alone.</p></div>'+
-    '<div class="profile-block"><h2>Your interests</h2><p>'+esc(data.themes.join(" · ")||"No interests chosen")+'</p><div class="inline-actions">'+btn("edit-themes","Change interests","outline")+'</div></div>'+
-    '<div class="profile-block"><h2>Your thoughts belong to you</h2><p>This edition stores preferences in your current browser. There is no account sync yet; clearing browser data removes local records.</p><div class="inline-actions">'+btn("export","Export my data","outline")+'</div></div></section>';
+  // V2 Constellation now lives inside the existing app shell.
+  // The Encounter and Library views and the three-button navigation are untouched.
+  return '<section class="view living-universe-embed" aria-label="Your living constellation">'+
+    '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living universe of ideas; drag space to travel and touch formations to explore" loading="eager"></iframe>'+
+    '<button type="button" class="cosmos-export" data-action="export" aria-label="Export my YourLogos data">Export my data ↗</button></section>';
 }
 
 function detailHtml(){const id=detailId,q=QUOTES[id];return '<section class="view detail">'+btn("back",svg("back")+" Back","top-back")+'<div class="section-kicker" style="margin-top:35px">'+esc(q[2])+'</div><h1>“'+esc(q[0])+'”</h1><div class="author" style="text-align:left">— '+esc(q[1])+'</div><h2>Source</h2><p>'+esc(q[3])+'</p><h2>To sit with</h2><p>'+esc(PROMPTS[q[2]][0])+'</p><h2>To question</h2><p>'+esc(PROMPTS[q[2]][1])+'</p><div class="inline-actions" style="margin-top:36px">'+btn("detail-save",data.saved.includes(id)?"Remove from saved":"Save this thought","outline")+'</div></section>'}
