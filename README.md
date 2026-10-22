@@ -1,13 +1,41 @@
-# YourLogos — Web Preview
+# YourLogos — Web V1
 
-Browser-native mobile-first YourLogos, deployed to Railway as a static site. Features daily philosophy, Sit with it, Question it, local practice history, saved quotes, themes, and export. 
+Mobile-first philosophical discovery app. The current version is a static website hosted on Railway and sourced from **OWEF/Yourlogos**, branch `main`.
 
-**Important:** This is a first web migration, **not a full fidelity port** of the Expo app. The provided Markdown bundle was reviewed but its raw file was unavailable to the deployment runtime. This web edition currently contains a 20-quote sample adapted from the user's prior source, not the entire 69-quote catalog. Counter-voices are generic probes rather than verified philosopher-specific pairings. No paid billing, user accounts, or cross-device sync yet. Practice is browser-local and should be exported regularly.
+## V1 interfaces
 
-Open index.html to preview locally via a simple static server; Railway Railpack detects the root index.html and serves the static site. No secrets required.
+**Encounter**
+- One featured daily quote, followed by additional perspectives with vertical swipe.
+- Tactile spring-like quote transitions, animated heart likes and compass Discover sheet.
+- Likes are stored in the current browser; no account sync.
+- Floating three-icon navigation: Encounter / Library / Constellation.
 
-## Future migration tasks
-- Import/audit complete original quote corpus, with rigorous attribution/source verification.
-- Port full custom Sit/Question content and evolve dialectical structure.
-- Durable private cross-device storage and auth; explicit migration/import of legacy Expo SQLite (browser cannot access this automatically).
-- Privacy, billing, App Store / PWA launch checks.
+**Library**
+- Six glass-inspired cards in a two-column, three-row mobile grid: Stoicism, Existentialism, Nihilism, Skepticism, Daoism, Buddhism.
+- Original vector illustrations and subtle responsive material effects.
+- Tap a school for an introduction, a central question, key thinkers, philosophical tensions and one optional reflection.
+- Content and card art live in `schools.js`; this first release is editorially curated and expandable.
+
+**Constellation**
+- Experimental representation of liked quotes and attention. Does **not** infer philosophical beliefs from likes.
+
+## Architecture
+
+Pure `index.html`, `styles.css`, ES module `app.js` + `schools.js`, and a service worker `sw.js`. No backend secrets, database or framework are necessary for V1. Railway serves the static files directly.
+
+Offline assets are cached by `sw.js`; bump the cache identifier whenever critical assets change. The service worker prefers fresh network content while online.
+
+Run a local static HTTP server to preview (`python3 -m http.server 8000`), rather than opening `index.html` directly with a `file://` URL (ES modules require HTTP serving).
+
+## Known limitations and planned work
+
+- The original theme-selection onboarding remains as V1 scaffolding and needs the agreed more-personal curiosity-led redesign.
+- Quote catalog currently contains a limited 20-quote sample. Before expanding it, verify wording, translations, attributions and primary sources.
+- Discover presents initial prompt-based context, not deeply curated philosophical counter-voices.
+- Likes, interests and practice traces use browser `localStorage`. Clearing browser data removes them; no cross-device synchronization or login. An older Expo app's SQLite data is **not** automatically migrated.
+- The card illustrations are original symbolic SVG drawings, not verified portraits of historical figures.
+- No actual iOS home-screen widget, paid subscription, live AI companion, or individualized belief inference yet.
+
+## Future data architecture
+
+No Supabase dependency for V1. Add a backend when we need signed-in accounts, cross-device preference/fingerprint sync, an editorial publishing workflow, consented user reflections, content analytics, or recommendation systems. If Supabase is adopted, use a **separate** YourLogos project, enforce row-level security for each user's private data, and never ship secret service-role keys to the browser.
