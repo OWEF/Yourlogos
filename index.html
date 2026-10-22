@@ -113,13 +113,38 @@
   try {const saved=JSON.parse(localStorage.getItem(storeKey)||'[]');history=Array.isArray(saved)?saved.filter(e=>e&&e.type&&e.concept).slice(-2000):[]}catch{history=[]}
   function record(type,concept,quoteId,details={}){
     const date=new Date().toLocaleDateString('en-CA');
+    // A saved thought is a single action, even if its button is tapped on another day.
+    // Reading again on a later day is different: a genuine revisit can count.
+    if(type==='save' && history.some(e=>e.type==='save'&&e.quoteId===quoteId))return false;
     if(history.some(e=>e.type===type&&e.concept===concept&&e.quoteId===quoteId&&e.date===date&&e.target===(details.target||undefined)))return false;
     history.push({type,concept,quoteId,date,stamp:Date.now(),...details});
     try{localStorage.setItem(storeKey,JSON.stringify(history.slice(-2000)))}catch{}
     if(mode==='personal')drawPanel();return true;
   }
-  function facts(id){const e=history.filter(x=>x.concept===id);return {events:e,days:new Set(e.map(a=>a.date)).size,views:e.filter(a=>a.type==='view').length,kept:e.some(a=>a.type==='save'),reads:new Set(e.filter(a=>a.type==='read').map(a=>a.quoteId)).size,schools:new Set(e.filter(a=>a.school).map(a=>a.school)).size,links:new Set(e.filter(a=>a.type==='link').map(a=>a.target)).size};}
-  function personalLevel(id){const f=facts(id);if(!f.kept&&!f.reads)return -1;if(f.days>=3&&f.schools>=3&&f.links>=2)return 4;if(f.days>=2&&f.reads>=2&&f.links>=2)return 3;if(f.reads>=2&&f.schools>=2)return 2;if(f.days>=2&&(f.reads||f.kept))return 1;return 0;}
+  function facts(id){
+    const events=history.filter(x=>x.concept===id);
+    const meaningful=events.filter(e=>['save','read','link'].includes(e.type));
+    const readings=meaningful.filter(e=>e.type==='read');
+    return {events,days:new Set(meaningful.map(e=>e.date)).size,
+      views:events.filter(e=>e.type==='view').length,
+      kept:meaningful.some(e=>e.type==='save'),
+      reads:new Set(readings.map(e=>e.quoteId)).size,
+      readSessions:new Set(readings.map(e=>e.quoteId+'|'+e.date)).size,
+      schools:new Set(meaningful.filter(e=>e.school).map(e=>e.school)).size,
+      links:new Set(meaningful.filter(e=>e.type==='link').map(e=>e.target)).size};
+  }
+  function personalLevel(id){
+    const f=facts(id);
+    // Meaningful activity spans days and different modes of inquiry. Ordinary views
+    // and repeated saves cannot raise maturity. These are provisional editorial rules,
+    // not a score of intelligence or an inference of philosophical agreement.
+    if(!f.kept&&!f.readSessions)return -1;
+    if(f.days>=5&&f.readSessions>=4&&f.links>=3)return 4;
+    if(f.days>=3&&f.readSessions>=3&&f.links>=2)return 3;
+    if(f.days>=2&&f.readSessions>=2&&(f.schools>=2||f.links>=1))return 2;
+    if(f.days>=2&&f.readSessions>=1)return 1;
+    return 0;
+  }
   const sampleStages=[
     {title:'First light',text:'A single thought is kept. A tiny spark appears in the dark.',levels:{agency:0},potential:['identity']},
     {title:'A young star',text:'A question returns on a different day. A luminous body begins to form.',levels:{agency:1,identity:0},potential:['change']},
