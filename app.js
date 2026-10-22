@@ -150,7 +150,7 @@ function libraryHtml(){
   if(!current){
     return '<section class="view library-v3" aria-label="Philosophy library">'+
       '<div class="library-v3-intro"><div><div class="library-v3-kicker">WAYS OF SEEING</div><h1>Library</h1></div>'+
-      '</div>+
+      '</div>'+ 
       '<div class="school-grid">'+SCHOOLS.map(s=>
         '<button type="button" class="school-tile school-'+s.id+'" data-school="'+esc(s.id)+'" aria-label="Explore '+esc(s.name)+'">'+
         '<div class="school-art">'+schoolArtwork(s.id)+'</div><span class="school-name">'+esc(s.name)+'</span></button>'
