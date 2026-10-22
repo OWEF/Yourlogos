@@ -38,7 +38,8 @@ const KEY="yourlogos_web_v1";
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
-let quoteCursor=0,libraryScope="all",discoverOpen=false,swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
+let quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,universePane="sky",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
+if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const dayIndex=()=>{let d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(2026,0,1))/86400000)};
 const pick=()=>{const n=dayIndex(),favorite=data.themes.length?QUOTES.map((q,i)=>({q,i})).filter(x=>data.themes.includes(x.q[2])):[];const all=QUOTES.map((q,i)=>({q,i}));const pool=n%10<3||!favorite.length?all:favorite;return pool[((n%pool.length)+pool.length)%pool.length].i};
@@ -49,8 +50,9 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const svg=(name)=>{let paths={today:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',library:'<path d="M3 4h8v16H3zM13 4h8v16h-8z"/>',saved:'<path d="M5 3h14v18l-7-4-7 4z"/>',profile:'<circle cx="12" cy="8" r="4"/><path d="M4 22c0-6 16-6 16 0"/>',share:'<path d="M12 16V3m-4 4 4-4 4 4M5 13v8h14v-8"/>',back:'<path d="m14 5-7 7 7 7"/>',spark:'<path d="m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(paths[name]||"")+'</svg>'};
 const btn=(id,label,cls="")=>'<button type="button" class="'+cls+'" data-action="'+id+'">'+label+'</button>';
 
-const navs=[["today","Encounter"],["library","Library"],["profile","Constellation"]];
+const navs=[["today","Encounter"],["profile","Universe"],["settings","Settings"]];
 const dockIcons={
+ settings:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="5.3"/><path d="M16 2.5v4M16 25.5v4M2.5 16h4M25.5 16h4M6.5 6.5l3 3M22.5 22.5l3 3M25.5 6.5l-3 3M9.5 22.5l-3 3"/></svg>',
  today:'<svg viewBox="0 0 32 32" aria-hidden="true"><g class="quote-glyph"><path d="M14 6.5C8.5 9 6 13.3 6 19v5.5h8V17H9.5c.5-3.2 2.1-5.6 4.5-7.1M28 6.5C22.5 9 20 13.3 20 19v5.5h8V17h-4.5c.5-3.2 2.1-5.6 4.5-7.1"/></g></svg>',
  library:'<svg viewBox="0 0 32 32" aria-hidden="true"><g class="backpage"><path d="M7 8V5.8C7 4.3 8.3 3 9.8 3H24c1.7 0 3 1.3 3 3v18"/></g><g class="frontpage"><rect x="5" y="8" width="18" height="21" rx="2.5"/><path d="M9.5 14h9M9.5 18h9M9.5 22h5.5"/></g></svg>',
  profile:'<svg viewBox="0 0 32 32" aria-hidden="true"><g class="star-lines"><path d="M7 10.5 17.5 5l8.5 8.5-6 12-13.5-3.5L7 10.5 26 13.5M17.5 5 20 25.5M7 10.5 20 25.5"/></g><circle class="star-one" cx="7" cy="10.5" r="2.5" fill="currentColor"/><circle class="star-two" cx="17.5" cy="5" r="2" fill="currentColor"/><circle class="star-three" cx="26" cy="13.5" r="2.5" fill="currentColor"/><circle class="star-four" cx="20" cy="25.5" r="2.5" fill="currentColor"/><circle cx="6.5" cy="22" r="1.5" fill="currentColor" stroke="none"/></svg>'
@@ -94,12 +96,43 @@ function todayHtml(){
       '<button type="button" aria-label="Discover this philosophical idea" data-action="discover" class="icon-action discover-button'+(discoverOpen?' spinning':'')+'">'+compassIcon+'<span>Discover</span></button>'+
     '</div></div></article>';
 }
+const DISCOVERY_CHALLENGES={
+  Meaning:"What if meaning is something we invent to survive uncertainty?",
+  Suffering:"What if suffering teaches us nothing at all?",
+  Freedom:"What if every choice is shaped by something we never chose?",
+  Mortality:"What if awareness of death makes us miss life?",
+  Love:"What if love sometimes asks us to abandon certainty?",
+  Doubt:"What if your deepest certainty is the thing to question?",
+  Action:"What if being busy is a way of avoiding difficult truths?",
+  Solitude:"What if being alone and being free are not the same?",
+  Beauty:"What if beauty is less about what we see than how we look?",
+  Time:"What if living in the present can also be a way of hiding?"
+};
+const DISCOVERY_RESPONSES=[
+  {id:"resonate",title:"This speaks to my experience",body:"Something here feels true, even if I cannot fully explain it."},
+  {id:"resist",title:"I want to challenge this",body:"An assumption here deserves a closer look."},
+  {id:"ambivalent",title:"Both can be true",body:"I can hold the tension without resolving it."},
+  {id:"curious",title:"I need another perspective",body:"I want to discover how someone else might see this."}
+];
+const DISCOVERY_LENSES=[
+  {id:"experience",title:"My own experience",body:"How does this appear in everyday life?"},
+  {id:"reason",title:"The underlying logic",body:"What assumption holds this claim together?"},
+  {id:"others",title:"Other people",body:"Whose experience might challenge it?"},
+  {id:"time",title:"Change over time",body:"Would I still feel this way years from now?"}
+];
 function discoverHtml(){
-  const id=visibleQuoteId(),q=QUOTES[id],prompt=PROMPTS[q[2]]?.[1]||"What could challenge this thought?";
-  return '<div class="discover-cover" data-action="close-discover"></div><section class="discover-sheet" role="dialog" aria-modal="true" aria-label="Discover this idea">'+
-    '<div class="sheet-handle"></div><div class="sheet-head"><span>ANOTHER WAY TO SEE IT</span><button type="button" data-action="close-discover" class="sheet-close" aria-label="Close discovery">×</button></div>'+
-    '<h2>'+esc(prompt)+'</h2><p>'+esc(q[4])+'</p><div class="source-credit">— '+esc(q[1])+' · '+esc(q[3])+'</div>'+
-    '<div class="discover-foot">Curiosity is enough. No answer required.</div></section>';
+  const id=visibleQuoteId(),q=QUOTES[id],p=data.discovery[id]||{},challenge=DISCOVERY_CHALLENGES[q[2]]||"What if the opposite were true?";
+  const choices=discoverStep===0?DISCOVERY_RESPONSES:DISCOVERY_LENSES;
+  const selected=discoverStep===0?p.response:p.lens;
+  return '<div class="discover-cover" data-action="close-discover"></div><section class="discover-sheet discover-v22" role="dialog" aria-modal="true" aria-label="A philosophical encounter">'+
+    '<div class="sheet-handle"></div><div class="sheet-head"><span>THE QUESTION BEHIND THE QUESTION</span><button type="button" data-action="close-discover" class="sheet-close" aria-label="Close discovery">×</button></div>'+
+    '<div class="discover-progress"><span class="'+(discoverStep===0?"lit":"")+'"></span><span class="'+(discoverStep===1?"lit":"")+'"></span><span class="'+(discoverStep===2?"lit":"")+'"></span></div>'+
+    (discoverStep===0?'<div class="discover-catch">WHAT IF...</div><h2>'+esc(challenge)+'</h2><p class="discover-soft">'+esc(q[4])+'</p><div class="discover-question">How does this land with you?</div>'
+    :discoverStep===1?'<div class="discover-catch">STAY WITH THE QUESTION</div><h2>'+esc(p.response==="resist"?"What assumption troubles you?":p.response==="resonate"?"Where have you felt this in life?":p.response==="ambivalent"?"What remains unresolved for you?":"Which direction draws your curiosity?")+'</h2><p class="discover-soft">There is no correct reaction. Choose a lens you would like to explore.</p><div class="discover-question">Where would you look next?</div>'
+    :'<div class="discover-catch">A TRACE OF YOUR CURIOSITY</div><h2>One question. Many possible ways of seeing.</h2><p class="discover-soft">You approached this with '+esc(DISCOVERY_RESPONSES.find(x=>x.id===p.response)?.title.toLowerCase()||"curiosity")+', looking through '+esc(DISCOVERY_LENSES.find(x=>x.id===p.lens)?.title.toLowerCase()||"a new lens")+'. This records an encounter, not a permanent belief.</p><div class="discover-insight">This choice now contributes to your <strong>Fingerprint</strong> as a pattern of inquiry, never as a personality score.</div>')+
+    (discoverStep<2?'<div class="discover-option-grid">'+choices.map(c=>'<button type="button" data-discover-'+(discoverStep===0?"response":"lens")+'="'+esc(c.id)+'" class="discover-option '+(selected===c.id?"selected":"")+'"><strong>'+esc(c.title)+'</strong><span>'+esc(c.body)+'</span><span class="arrow">↗</span></button>').join("")+'</div>'
+    :'<div class="discover-continue"><button data-action="discover-save" type="button">'+(data.saved.includes(id)?"Thought already saved":"Keep this thought")+' ↗</button><button data-action="discover-universe" type="button">See my fingerprint ↗</button><button data-action="discover-again" type="button">Reconsider my answer</button></div>')+
+    '<div class="discover-foot">'+(discoverStep<2?"Your response can change. Curiosity is enough.":"You can revise or erase your responses in Settings.")+'</div></section>';
 }
 
 function listHtml(ids){return ids.length?ids.map(id=>'<button class="quote-card" data-detail="'+id+'"><div class="line">“'+esc(QUOTES[id][0])+'”</div><div class="meta">— '+esc(QUOTES[id][1])+' · '+esc(QUOTES[id][2])+'</div></button>').join(""):'<div class="empty">Nothing here yet. Return to today’s thought.</div>'}
@@ -117,7 +150,7 @@ function libraryHtml(){
   if(!current){
     return '<section class="view library-v3" aria-label="Philosophy library">'+
       '<div class="library-v3-intro"><div><div class="library-v3-kicker">WAYS OF SEEING</div><h1>Library</h1></div>'+
-      '<button type="button" class="library-save-shortcut" data-library-liked aria-label="View liked quotes" title="Liked quotes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3h11A1.5 1.5 0 0 1 19 4.5V21l-7-4-7 4V4.5Z"/></svg>'+(data.saved.length?'<span class="library-saved-count">'+data.saved.length+'</span>':'')+'</button></div>'+
+      '</div>'+ 
       '<div class="school-grid">'+SCHOOLS.map(s=>
         '<button type="button" class="school-tile school-'+s.id+'" data-school="'+esc(s.id)+'" aria-label="Explore '+esc(s.name)+'">'+
         '<div class="school-art">'+schoolArtwork(s.id)+'</div><span class="school-name">'+esc(s.name)+'</span></button>'
@@ -139,14 +172,41 @@ function libraryHtml(){
     '</div></section>';
 }
 
-function savedHtml(){return '<section class="view"><div class="section-kicker">HELD CLOSE</div><h1>Saved</h1><p class="sub">Thoughts you chose to keep.</p>'+listHtml(data.saved.slice().reverse())+'</section>'}
-
+function savedHtml(){return '<section class="view v22-saved" aria-label="Saved thoughts"><div class="v22-kicker">YOUR COLLECTION</div><h1>Thoughts kept.</h1><p class="v22-sub">The ideas you chose to remember, not necessarily the ones you agree with.</p><div class="v22-saved-count">'+data.saved.length+' saved encounters</div>'+listHtml(data.saved.slice().reverse())+'</section>'}
+const SCHOOL_ASSOCIATIONS={"Seneca":"Stoicism","Marcus Aurelius":"Stoicism","Jean-Paul Sartre":"Existentialism","Laozi":"Daoism","Thích Nhất Hạnh":"Buddhism","Zen koan (Dizang)":"Buddhism"};
+function fingerprintHtml(){
+  const saved=data.saved.map(i=>QUOTES[i]).filter(Boolean);
+  const mentions=(list)=>{const counts={};list.forEach(t=>{if(t)counts[t]=(counts[t]||0)+1});return Object.entries(counts).sort((a,b)=>b[1]-a[1])};
+  const themes=mentions(saved.map(q=>q[2])),authors=mentions(saved.map(q=>q[1])),schools=mentions(saved.map(q=>SCHOOL_ASSOCIATIONS[q[1]]));
+  const reflections=Object.values(data.discovery).filter(x=>x&&x.response);
+  const approaches=mentions(reflections.map(x=>DISCOVERY_RESPONSES.find(y=>y.id===x.response)?.title));
+  const lenses=mentions(reflections.map(x=>DISCOVERY_LENSES.find(y=>y.id===x.lens)?.title));
+  const colors=['#d7bf9d','#98b8cc','#b4a4d4','#b1c9bb','#ca9f9c','#e0d8c0'];
+  let running=0;const grad=themes.length?themes.map((x,i)=>{const begin=running;running+=x[1]/saved.length*100;return colors[i%colors.length]+' '+begin+'% '+running+'%'}).join(', '):'transparent 0 100%';
+  const bars=(counts,empty)=>counts.length?counts.slice(0,6).map(([label,n],i)=>'<div class="v22-bar"><div class="v22-bar-caption"><span>'+esc(label)+'</span><span>'+n+'</span></div><div class="v22-track"><i style="width:'+(n/counts[0][1]*100)+'%;background:'+colors[i%colors.length]+'"></i></div></div>').join(''):'<p class="v22-muted">'+empty+'</p>';
+  return '<section class="view v22-fingerprint" aria-label="Philosophical fingerprint"><div class="v22-kicker">AN UNFINISHED PORTRAIT</div><h1>Your fingerprint.</h1><p class="v22-sub">A readable picture of where your curiosity has wandered—not a personality test or a measure of what you believe.</p>'+
+    '<div class="v22-metrics"><div><b>'+saved.length+'</b><span>Thoughts kept</span></div><div><b>'+reflections.length+'</b><span>Responses</span></div><div><b>'+new Set(saved.map(q=>q[2])).size+'</b><span>Themes visited</span></div></div>'+
+    '<article class="v22-data-card"><div class="v22-card-head"><span>SAVED THEMES</span><small>From your saved quotes</small></div>'+
+    (saved.length?'<div class="v22-donut-wrap"><div class="v22-donut" role="img" aria-label="Theme distribution of saved quotes" style="background:conic-gradient('+grad+')"><div><b>'+saved.length+'</b><small>kept</small></div></div><div class="v22-legend">'+themes.slice(0,6).map(([t,n],i)=>'<div><i style="background:'+colors[i%colors.length]+'"></i><span>'+esc(t)+'</span><b>'+Math.round(n/saved.length*100)+'%</b></div>').join('')+'</div></div>':'<p class="v22-muted">Save a quote in Encounter to begin seeing recurring themes.</p>')+'</article>'+
+    '<article class="v22-data-card"><div class="v22-card-head"><span>AUTHORS YOU KEEP</span><small>Saved quotes, not beliefs</small></div>'+bars(authors,'No authors yet.')+'</article>'+
+    '<article class="v22-data-card"><div class="v22-card-head"><span>PHILOSOPHICAL TRADITIONS</span><small>Where a source has a clear association</small></div>'+bars(schools,'Not enough attributable saved quotes yet.')+'<p class="v22-data-note">A thinker can belong to several traditions. We only use conservative editorial associations here.</p></article>'+
+    '<article class="v22-data-card"><div class="v22-card-head"><span>HOW YOU APPROACH QUESTIONS</span><small>From Discover choices</small></div>'+bars(approaches,'Try Discover and choose how an idea lands with you.')+'<div class="v22-card-head v22-inset"><span>LENSES YOU EXPLORE</span></div>'+bars(lenses,'Choose a second perspective in Discover to populate this section.')+'</article>'+
+    '<p class="v22-fine">Based on this browser’s saved quotes and explicit choices. You can revise or clear your Discover responses in Settings. Nothing here is a diagnosis.</p></section>';
+}
+function settingsHtml(){
+  const responses=Object.keys(data.discovery).length;
+  return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+
+    '<div class="v22-settings-block"><h2>Your data</h2><p>Your quotes, reflections and universe history currently stay on this browser. No account sync yet.</p><button type="button" data-action="export" class="v22-setting-row"><span><strong>Export everything</strong><small>Saved thoughts, Discover choices and universe history</small></span><b>↗</b></button><button type="button" data-action="edit-themes" class="v22-setting-row"><span><strong>Change interests</strong><small>Adjust the questions you chose when starting</small></span><b>↗</b></button></div>'+
+    '<div class="v22-settings-block"><h2>Discovery history</h2><p>'+responses+' quote response'+(responses===1?"":"s")+' recorded. Answers are provisional and editable whenever you revisit Discover.</p>'+
+    (settingsConfirm?'<div class="v22-confirm"><p>Clear all Discover responses from this browser? Your saved quotes and universe readings will remain.</p><button type="button" data-action="confirm-clear-discovery">Yes, clear responses</button><button type="button" data-action="cancel-clear-discovery">Cancel</button></div>':'<button type="button" data-action="clear-discovery" class="v22-setting-row"><span><strong>Clear my Discover responses</strong><small>This does not delete saved quotes</small></span><b>↗</b></button>')+'</div>'+
+    '<div class="v22-settings-block"><h2>About YourLogos</h2><p>A space to encounter ideas, leave traces of questions, and discover where thought leads. There are no scores for being philosophical.</p></div></section>';
+}
+function universeNav(){return '<nav class="v22-universe-nav" aria-label="My universe sections">'+[['sky','Sky'],['saved','Saved'],['fingerprint','Fingerprint'],['library','Library']].map(([id,name])=>'<button type="button" data-universe-pane="'+id+'" class="'+(universePane===id?'active':'')+'" aria-current="'+(universePane===id?'page':'false')+'">'+name+'</button>').join('')+'</nav>'}
 function profileHtml(){
-  // V2 Constellation now lives inside the existing app shell.
-  // The Encounter and Library views and the three-button navigation are untouched.
+  if(universePane!=="sky")return '<div class="universe-v22-content">'+universeNav()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():libraryHtml())+'</div>';
   return '<section class="view living-universe-embed" aria-label="Your living constellation">'+
-    '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living universe of ideas; drag space to travel and touch formations to explore" loading="eager"></iframe>'+
-    '<button type="button" class="cosmos-export" data-action="export" aria-label="Export my YourLogos data">Export my data ↗</button></section>';
+    '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living universe of ideas" loading="eager"></iframe>'+
+    universeNav()+'</section>';
 }
 
 function detailHtml(){const id=detailId,q=QUOTES[id];return '<section class="view detail">'+btn("back",svg("back")+" Back","top-back")+'<div class="section-kicker" style="margin-top:35px">'+esc(q[2])+'</div><h1>“'+esc(q[0])+'”</h1><div class="author" style="text-align:left">— '+esc(q[1])+'</div><h2>Source</h2><p>'+esc(q[3])+'</p><h2>To sit with</h2><p>'+esc(PROMPTS[q[2]][0])+'</p><h2>To question</h2><p>'+esc(PROMPTS[q[2]][1])+'</p><div class="inline-actions" style="margin-top:36px">'+btn("detail-save",data.saved.includes(id)?"Remove from saved":"Save this thought","outline")+'</div></section>'}
@@ -154,11 +214,11 @@ function onboardingHtml(){return '<section class="view onboard"><div class="sect
 
 function render(){
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
-  const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
+  const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="settings"?settingsHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
-  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"CONSTELLATION":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"IN PROGRESS":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
-  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V1</span></div></aside></div>'+
+  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="settings"?"SETTINGS":view==="profile"?"MY UNIVERSE":"DAILY ENCOUNTER")+'<span>'+(view==="settings"?"YOUR DATA":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
+  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.2</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'');
   const currentDock=document.querySelector(".dock-glass");
@@ -205,7 +265,10 @@ function moveQuote(direction){
 
 document.addEventListener("click",async e=>{
   const v=e.target.closest("[data-view]");
-  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));if(v.dataset.view==="library"){openSchoolId=null;libraryScope="all"}view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;render();haptic();setTimeout(()=>{navPulse=null},750);return}
+  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;render();haptic();setTimeout(()=>{navPulse=null},750);return}
+  const tab=e.target.closest("[data-universe-pane]");if(tab){universePane=tab.dataset.universePane;openSchoolId=null;libraryScope="all";detailId=null;render();return}
+  const response=e.target.closest("[data-discover-response]");if(response){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),response:response.dataset.discoverResponse,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();return}
+  const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=2;persist();render();return}
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;if(SCHOOLS.some(x=>x.id===candidate)){openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)}return}
   const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;render();return}
   if(e.target.closest("[data-library-liked]")){openSchoolId=null;libraryScope="liked";render();return}
@@ -226,8 +289,14 @@ document.addEventListener("click",async e=>{
       if(heartPulse)setTimeout(()=>{heartPulse=false},620);
       return;
     }
-    case"discover":discoverOpen=true;haptic();render();document.querySelector(".sheet-close")?.focus();return;
-    case"close-discover":discoverOpen=false;render();document.querySelector('[data-action="discover"]')?.focus();return;
+    case"discover":discoverStep=0;discoverOpen=true;haptic();render();document.querySelector(".sheet-close")?.focus();return;
+    case"close-discover":discoverOpen=false;discoverStep=0;render();document.querySelector('[data-action="discover"]')?.focus();return;
+    case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
+    case"discover-save":{const id=visibleQuoteId();if(!data.saved.includes(id)){data.saved.push(id);persist();}discoverOpen=false;render();toast("Thought kept");return}
+    case"discover-again":discoverStep=0;render();return;
+    case"clear-discovery":settingsConfirm=true;render();return;
+    case"cancel-clear-discovery":settingsConfirm=false;render();return;
+    case"confirm-clear-discovery":data.discovery={};settingsConfirm=false;persist();render();toast("Discover responses cleared");return;
     case"back":detailId=null;break;
     case"export":{
       const universe=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();

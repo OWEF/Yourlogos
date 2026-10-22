@@ -25,6 +25,19 @@
 
 .voice-explore{margin:9px 0 2px;padding:8px 0;border:0;background:transparent;color:#e6c99e;font:11px 'DM Sans',sans-serif;text-align:left}
 .voice-explore:disabled{opacity:.55;cursor:default}
+
+/* v2.2 mobile overlay discipline: own controls, never occlude the meaning sheet. */
+#discovery-pill{max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;bottom:calc(220px + env(safe-area-inset-bottom))}
+#universe-identity.is-quiet{opacity:.10}
+#universe-identity{transition:opacity .3s}
+#discovery-pill[hidden],#idea-panel:not([hidden]) ~ #discovery-pill{display:none!important}
+@media(max-width:700px){
+#discovery-pill{right:16px;bottom:calc(206px + env(safe-area-inset-bottom));font-size:8px;max-width:168px;padding:8px 10px}
+#idea-panel{bottom:calc(178px + env(safe-area-inset-bottom))!important;max-height:29dvh;overflow:auto;padding:13px 16px 15px}
+#idea-panel h2{font-size:clamp(26px,6vw,35px)}
+#universe-identity{top:clamp(104px,17vh,155px)!important}
+}
+
 </style>
 <style id="embedded-constellation-style">
 /* Integrated mode: one app, one navigation system. Keep the proven V1 quote and library. */
@@ -294,7 +307,7 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
     const state=shape(),hasOwn=Object.keys(state.levels).length>0;
     const hasPotential=state.potential.length>0;
     // Never display a suggestion if it has no eligible mature parent.
-    $('discovery-pill').hidden=view!=='universe'||!hasPotential;
+    $('discovery-pill').hidden=view!=='universe'||!hasPotential||!!selected||!$('meaning-sheet').hidden;
     $('empty-universe').hidden=view!=='universe'||mode!=='personal'||hasOwn;
     $('gesture-hint').innerHTML=hasOwn?'DRAG TO TRAVEL <span class="dot">·</span> TOUCH A LIGHT TO DISCOVER':'A QUIET SKY <span class="dot">·</span> BEGIN WITH A THOUGHT';
   }
