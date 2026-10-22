@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 :root{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:#F0EDE5;background:#000;font-synthesis:none;--bg:#000;--surface:#101010;--surface2:#181818;--line:#272726;--cream:#F0EDE5;--sub:#B4B2A9;--muted:#8a8983;--dim:#5f5e5a;--serif:'Lora',Georgia,serif}
@@ -132,3 +133,236 @@ body{background:#090909}
 }
 @media(max-width:360px){.dock-glass{grid-template-columns:repeat(3,65px);gap:12px}.dock-indicator{width:65px;transform:translateX(calc(var(--dock-active) * 77px))}.mobile-tabs .dock-btn{width:65px}.quote-motion .quote{font-size:25px}}
 @media(prefers-reduced-motion:reduce){.heart-button.heart-pop .heart-svg,.heart-button.heart-pop.liked .heart-spark,.discover-button.spinning .compass-needle,.mobile-tabs .dock-btn.icon-moving g,.mobile-tabs .dock-btn.icon-moving circle,.swipe-cue{animation:none!important}.dock-indicator,.discover-sheet,.discover-cover{transition:none!important;animation:none!important}}
+
+
+/* YourLogos Library V1 — six immersive translucent school cards */
+.library-v3{
+  --lib-paper:#f1ece4;
+  position:relative;
+  max-width:690px;
+  width:100%;
+  margin:0 auto;
+  color:var(--lib-paper);
+  isolation:isolate;
+}
+.library-v3:not(.school-detail-screen){
+  display:flex;
+  flex-direction:column;
+  height:calc(100dvh - 102px - 112px);
+  min-height:520px;
+  padding:4px 2px 8px;
+}
+.library-v3:before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:-80px -90px -100px;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 66% 52% at 93% 18%,#60668023,transparent 78%),
+    radial-gradient(ellipse 62% 60% at 8% 85%,#47746d1f,transparent 76%);
+}
+.library-v3-intro{flex-shrink:0;padding:1px 4px 22px}
+.library-v3-kicker,.school-section-label{
+  font:500 10px 'DM Sans',sans-serif;
+  letter-spacing:.17em;
+  color:#bdab90;
+}
+.library-v3-intro h1{
+  font:normal clamp(37px,5vw,48px)/1.06 'Cormorant Garamond',Georgia,serif;
+  letter-spacing:-.025em;
+  margin:6px 0 0;
+}
+.school-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:repeat(3,minmax(0,1fr));
+  gap:13px;
+  min-height:0;
+  flex:1;
+  padding:0 1px 2px;
+}
+.school-tile{
+  position:relative;
+  isolation:isolate;
+  min-height:0;
+  min-width:0;
+  overflow:hidden;
+  padding:0;
+  color:#f4f0e7;
+  border:1px solid #f4efe538;
+  border-radius:24px;
+  background:
+    linear-gradient(146deg,#ffffff24 0%,#f6f2e00c 30%,#ebe3dd07 75%,#e3d6bb1c 100%),
+    radial-gradient(ellipse at 70% 45%,var(--school-tint,#aab0bb3b),transparent 80%),
+    #2122297a;
+  box-shadow:inset 0 1px #ffffff42,inset 1px 0 #ffffff16,inset 0 -1px #ffffff14,0 13px 25px #00000033;
+  backdrop-filter:blur(24px) saturate(145%);
+  -webkit-backdrop-filter:blur(24px) saturate(145%);
+  transition:transform .34s cubic-bezier(.18,1.5,.32,1),box-shadow .34s,border-color .34s;
+}
+.school-tile:before{
+  content:"";
+  position:absolute;
+  z-index:3;
+  pointer-events:none;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(137deg,#ffffff24,transparent 31%,transparent 64%,#ffffff0b 94%);
+}
+.school-tile:after{
+  content:"";
+  position:absolute;
+  z-index:3;
+  inset:-80% -180%;
+  pointer-events:none;
+  background:linear-gradient(112deg,transparent 46%,#ffffff1b 49%,#ffffff04 52%,transparent 55%);
+  transform:translateX(-26%) rotate(2deg);
+  transition:transform .85s;
+}
+.school-tile:hover{border-color:#fffbef9c;box-shadow:inset 0 1px #ffffff58,0 15px 31px #0006}
+.school-tile:hover:after{transform:translateX(38%) rotate(2deg)}
+.school-tile:active{transform:scale(.955)}
+.school-art{
+  position:absolute;
+  inset:3px 7px 32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.school-art svg{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:195px;
+  filter:drop-shadow(0 6px 10px #0005);
+  opacity:.95;
+}
+.school-name{
+  position:absolute;
+  z-index:4;
+  bottom:12px;
+  left:5px;
+  right:5px;
+  text-align:center;
+  color:#f3efe7;
+  text-shadow:0 2px 12px #000c;
+  font:500 clamp(19px,2.8vw,26px)/1.08 'Cormorant Garamond',Georgia,serif;
+}
+.school-stoicism{--school-tint:#c6b69c49}
+.school-existentialism{--school-tint:#839cb251}
+.school-nihilism{--school-tint:#ac8b9252}
+.school-skepticism{--school-tint:#b0a0cf48}
+.school-daoism{--school-tint:#789d9552}
+.school-buddhism{--school-tint:#b59e7f51}
+.school-detail-screen{
+  padding:4px 2px 120px;
+  overflow:visible;
+}
+.school-detail-scroll{width:100%}
+.school-back{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  background:none;
+  border:0;
+  padding:7px 0 18px;
+  color:#b5aea3;
+  font-size:12px;
+}
+.school-back svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6}
+.school-hero{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:245px;
+  width:100%;
+  overflow:hidden;
+  border-radius:24px;
+  border:1px solid #ffffff38;
+  box-shadow:inset 0 1px #ffffff48,0 16px 35px #0003;
+  background:linear-gradient(132deg,#ffffff27,#bba88d0c 50%,#f0e8d21b),
+             radial-gradient(ellipse at center,var(--school-tint),transparent 80%),#26252c93;
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+}
+.school-hero svg{
+  display:block;
+  height:100%;
+  width:auto;
+  max-width:80%;
+  filter:drop-shadow(0 16px 17px #0005);
+}
+.view.school-detail-screen .school-detail-title{
+  font:normal clamp(40px,6vw,57px)/1.03 'Cormorant Garamond',Georgia,serif;
+  letter-spacing:-.026em;
+  margin:24px 0 7px;
+}
+.school-detail-sub{font:italic 20px 'Cormorant Garamond',Georgia,serif;color:#cfba9b;margin:0 0 27px}
+.school-section{padding:20px 0;border-top:1px solid #e9e1d228}
+.school-section-label{margin-bottom:12px}
+.school-section .school-big-question{
+  font:normal clamp(24px,3vw,32px)/1.3 'Cormorant Garamond',Georgia,serif;
+  color:#f0e8da;
+}
+.school-section p{font:15px/1.75 Georgia,serif;color:#d2cdc5;margin:0}
+.school-voices{display:flex;flex-wrap:wrap;gap:8px}
+.school-voices span{
+  border:1px solid #ddd2c635;
+  border-radius:99px;
+  background:#ffffff0c;
+  padding:10px 13px;
+  font-size:11px;
+  color:#cbc5bb;
+}
+.school-tensions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.school-tensions div{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:13px 9px;
+  min-height:68px;
+  text-align:center;
+  border:1px solid #ffffff28;
+  border-radius:13px;
+  background:linear-gradient(125deg,#ffffff14,transparent);
+  font:18px 'Cormorant Garamond',Georgia,serif;
+  color:#e5d9ca;
+}
+.school-reflection{
+  padding:18px;
+  background:#ffffff0c;
+  border:1px solid #b9a58544;
+  border-radius:15px;
+  font:italic 20px/1.42 'Cormorant Garamond',Georgia,serif;
+  color:#e5d8c1;
+}
+.school-section .school-prompt-note{font:11px/1.6 'DM Sans',sans-serif;color:#858077;margin-top:11px}
+.stage:has(.library-v3){background:radial-gradient(ellipse at 87% 20%,#252533 0%,transparent 58%),radial-gradient(ellipse at 5% 83%,#182a2c 0%,transparent 61%),#0b0c11}
+@media(max-width:700px){
+  .stage:has(.library-v3){padding:0 17px calc(104px + env(safe-area-inset-bottom));overflow:visible}
+  .library-v3:not(.school-detail-screen){
+    height:calc(100dvh - 80px - 105px - env(safe-area-inset-bottom));
+    min-height:0;
+    padding:2px 0 7px;
+  }
+  .library-v3-intro{padding:0 3px 14px}
+  .library-v3-intro h1{font-size:37px;margin:5px 0 0}
+  .library-v3-kicker{font-size:9px}
+  .school-grid{gap:10px}
+  .school-tile{border-radius:21px}
+  .school-art{inset:3px 4px 29px}
+  .school-name{font-size:clamp(18px,5.5vw,23px);bottom:10px}
+  .school-detail-screen{padding:2px 1px 100px}
+  .school-hero{height:210px}
+  .view.school-detail-screen .school-detail-title{font-size:44px}
+}
+@media(max-height:650px) and (max-width:700px){
+  .school-grid{gap:7px}
+  .library-v3-intro{padding-bottom:7px}
+  .library-v3-intro h1{font-size:31px}
+  .school-name{font-size:18px;bottom:8px}
+  .school-art{bottom:25px}
+}
+@media(prefers-reduced-motion:reduce){.school-tile,.school-tile:after{transition:none!important}}
