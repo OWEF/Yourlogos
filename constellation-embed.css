@@ -1,0 +1,26 @@
+/* YourLogos V2: immersive universe occupies the existing Constellation tab.
+   Quote and Library retain their previously approved layout and CSS. */
+.stage:has(.living-universe-embed){
+  padding:0!important;overflow:hidden;background:#050812;
+  min-height:100dvh;height:100dvh;
+}
+.stage:has(.living-universe-embed) .stage-top{display:none}
+.view.living-universe-embed{
+  position:relative;display:block;width:100%;height:100dvh;min-height:0;
+  margin:0!important;padding:0!important;max-width:none!important;overflow:hidden;
+  background:#050812;
+}
+.living-universe-embed iframe{
+  display:block;width:100%;height:100%;border:0;background:#050812;
+  touch-action:auto;
+}
+.living-universe-embed .cosmos-export{
+  position:absolute;bottom:30px;left:22px;z-index:3;border:1px solid #d2c2a74a;
+  border-radius:99px;padding:8px 11px;color:#b2a38c;background:#0c1420b8;
+  backdrop-filter:blur(12px);font:10px 'DM Sans',sans-serif;letter-spacing:.03em;
+}
+@media(max-width:700px){
+  .stage:has(.living-universe-embed){padding:0!important;height:100dvh}
+  .living-universe-embed .cosmos-export{bottom:calc(110px + env(safe-area-inset-bottom));left:14px;padding:7px 9px;font-size:9px;opacity:.77}
+}
+@media(prefers-reduced-motion:reduce){.living-universe-embed *{animation:none!important;transition:none!important}}
