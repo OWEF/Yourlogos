@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#050812"><meta name="color-scheme" content="dark">
 <meta name="description" content="YourLogos — A living universe of ideas, shaped by encounters that stay with you.">
-<title>YourLogos — A Universe in Becoming (V2 study)</title>
+<title>YourLogos — Living Universe V2.1</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500;600&display=swap');
 :root{--cream:#f3eadd;--muted:#9babbc;--gold:#edcf9d;--glass:rgba(16,23,38,.65);color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#050812;color:var(--cream);overflow:hidden}body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:3px}[hidden]{display:none!important}
 .app{position:relative;isolation:isolate;width:100%;height:100vh;height:100dvh;overflow:hidden;background:radial-gradient(ellipse at 48% 40%,#18233d,#070a13 65%,#04060b)}#cosmos{position:absolute;inset:0;width:100%;height:100%;z-index:0;touch-action:none;cursor:grab;display:block}#cosmos.dragging{cursor:grabbing}.ambient-still{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 57% 53%,#18223b77,transparent 55%)}.cloud{position:absolute;display:block;border-radius:50%;filter:blur(46px);opacity:.22}.cloud-a{width:440px;height:380px;left:14%;top:21%;background:#617baf}.cloud-b{width:340px;height:370px;right:5%;bottom:16%;background:#426877}.cloud-c{width:310px;height:310px;left:18%;bottom:4%;background:#735a86}.still-star{position:absolute;width:10px;height:10px;border-radius:50%;background:#dfcda7;box-shadow:0 0 28px 11px #e9bb9c29,0 0 2px 1px #fff}.star-a{left:36%;top:42%}.star-b{left:66%;top:54%;background:#a8e4e4}.star-c{left:72%;top:27%;width:6px;height:6px}.star-d{left:28%;top:68%;width:6px;height:6px}.vignette{position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 130px 20px #02040ab8}
 .topbar{position:absolute;z-index:4;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;padding:calc(env(safe-area-inset-top) + 24px) max(29px,6.2vw) 0;pointer-events:none}.topbar button{pointer-events:auto}.wordmark{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(27px,4.3vw,35px);line-height:1;letter-spacing:-.048em}.sigil{color:var(--gold);font-size:.56em;vertical-align:top;margin-left:1px}.brand-sub,.location{color:#9fabb8;font-size:9px;letter-spacing:.16em;font-weight:500}.brand-sub{margin-top:13px}.top-actions{display:flex;align-items:center;gap:21px}.location{padding-top:13px}.icon-btn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#1019269c;color:#c9d8dd;border:1px solid #ffffff27}.icon-btn svg{width:20px;fill:none;stroke:currentColor;stroke-width:1.1}
-.view{position:absolute;inset:0;z-index:2}.universe-view{pointer-events:none}.universe-identity{position:absolute;top:clamp(135px,18vh,186px);left:0;right:0;text-align:center;padding:0 18px;pointer-events:none;transition:opacity .6s,transform .6s}.universe-identity.is-quiet{opacity:.26;transform:translateY(-12px)}.eyebrow{font-size:10px;letter-spacing:.22em;color:#dfc397;font-weight:500}.universe-identity h1{font:400 clamp(49px,7vw,89px)/1 'Cormorant Garamond',Georgia,serif;margin:23px 0 12px;letter-spacing:-.028em}.universe-identity p{font:italic 400 clamp(17px,2.1vw,24px)/1.3 'Cormorant Garamond',Georgia,serif;color:#aab0bb;margin:0}.overlay-bottom{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 114px);left:0;right:0;text-align:center;pointer-events:none}.overlay-bottom span{font-size:9px;letter-spacing:.17em;color:#94a4b5}.overlay-bottom .dot{color:#d2bf9c;padding:0 9px}.discovery-pill{position:absolute;z-index:2;right:6%;bottom:calc(env(safe-area-inset-bottom) + 186px);border:1px solid #89bac033;border-radius:40px;background:#0a17239a;color:#92c8d2;padding:11px 14px;display:flex;align-items:center;gap:10px;font-size:9px;letter-spacing:.1em;pointer-events:auto;backdrop-filter:blur(12px);transition:opacity .3s}.discovery-pulse{height:5px;width:5px;border-radius:50%;background:#a4dae8;box-shadow:0 0 10px 5px #7fbacd5e;animation:pulse 3s infinite}@keyframes pulse{50%{opacity:.4;transform:scale(1.7)}}
+.view{position:absolute;inset:0;z-index:2}.universe-view{pointer-events:none}.universe-identity{position:absolute;top:clamp(135px,18vh,186px);left:0;right:0;text-align:center;padding:0 18px;pointer-events:none;transition:opacity .6s,transform .6s}.universe-identity.is-quiet{opacity:.26;transform:translateY(-12px)}.eyebrow{font-size:10px;letter-spacing:.22em;color:#dfc397;font-weight:500}.universe-identity h1{font:400 clamp(49px,7vw,89px)/1 'Cormorant Garamond',Georgia,serif;margin:23px 0 12px;letter-spacing:-.028em}.universe-identity p{font:italic 400 clamp(17px,2.1vw,24px)/1.3 'Cormorant Garamond',Georgia,serif;color:#aab0bb;margin:0}.overlay-bottom{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 114px);left:0;right:0;text-align:center;pointer-events:none}.overlay-bottom span{font-size:9px;letter-spacing:.17em;color:#94a4b5}.overlay-bottom .dot{color:#d2bf9c;padding:0 9px}.discovery-pill{position:absolute;z-index:2;right:6%;bottom:calc(env(safe-area-inset-bottom) + 186px);border:1px solid #89bac033;border-radius:40px;background:#0a17239a;color:#92c8d2;padding:11px 14px;display:flex;align-items:center;gap:10px;font-size:9px;letter-spacing:.1em;pointer-events:auto;backdrop-filter:blur(12px);transition:opacity .3s}.empty-universe{position:absolute;left:50%;top:67%;transform:translate(-50%,-50%);width:min(83vw,310px);text-align:center;pointer-events:none;opacity:.86}.empty-universe span{font-size:9px;letter-spacing:.22em;color:#d9c5a5}.empty-universe p{font:italic 18px/1.42 'Cormorant Garamond',Georgia,serif;color:#a9b4c3;margin:11px 0 0}.discovery-pulse{height:5px;width:5px;border-radius:50%;background:#a4dae8;box-shadow:0 0 10px 5px #7fbacd5e;animation:pulse 3s infinite}@keyframes pulse{50%{opacity:.4;transform:scale(1.7)}}
 .idea-panel{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 116px);width:min(calc(100vw - 38px),445px);transform:translateX(-50%);padding:17px 22px 18px;background:linear-gradient(155deg,#20293bd9,#121a28df);border:1px solid #dbcab73b;border-radius:19px;box-shadow:inset 0 1px #fff3,0 17px 50px #0008;backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);pointer-events:auto;animation:rise .28s cubic-bezier(.2,1,.25,1)}@keyframes rise{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}.panel-close{position:absolute;right:12px;top:10px;background:transparent;border:0;color:#a8b1bb;font-size:22px}.panel-eyebrow{letter-spacing:.16em;font-size:9px;color:#debf91}.panel-title{font:400 32px/1 'Cormorant Garamond',Georgia,serif;margin:8px 0 4px}.panel-question{font:italic 17px/1.15 'Cormorant Garamond',Georgia,serif;color:#d5c7b4;margin:0 0 11px}.panel-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px}.panel-bottom>span{font-size:9px;color:#9eafb9;letter-spacing:.1em}.panel-bottom button{border:0;background:transparent;color:#eacba1;font-size:11px}
 .dock{position:absolute;z-index:6;bottom:calc(env(safe-area-inset-bottom) + 23px);left:50%;transform:translateX(-50%);display:flex;gap:16px;border:1px solid #f0eee83a;border-radius:28px;padding:8px 14px;background:linear-gradient(135deg,#ffffff24,#ffffff0d);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);box-shadow:inset 0 1px #fff3,0 15px 35px #0007}.dock-btn{width:66px;height:48px;border:0;border-radius:16px;color:#8d9dad;background:transparent;display:flex;align-items:center;justify-content:center;transition:background .24s,color .24s,transform .24s}.dock-btn.active{background:#efe8de27;color:#f0e9df}.dock-btn:active{transform:scale(.92)}.dock-btn svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}.dock-btn circle{fill:currentColor;stroke:none}.preview-mark{position:absolute;z-index:3;left:26px;bottom:25px;color:#6f8196;font-size:9px;letter-spacing:.16em}.journey-launch{position:absolute;z-index:7;right:24px;bottom:calc(env(safe-area-inset-bottom) + 25px);height:53px;display:flex;align-items:center;gap:9px;padding:0 13px;background:#0c1422bd;border:1px solid #c5c3b640;color:#d9c4a1;border-radius:50px;backdrop-filter:blur(20px);box-shadow:0 8px 25px #0006;font-size:9px;letter-spacing:.09em}.launch-orbit{font-size:26px;font-family:Georgia,serif}
 .journey-panel{position:absolute;z-index:8;bottom:calc(env(safe-area-inset-bottom) + 100px);right:23px;width:min(365px,calc(100vw - 46px));padding:20px 21px 17px;border:1px solid #dbc09c57;border-radius:22px;background:linear-gradient(150deg,#182436ed,#0d1321f5);box-shadow:0 15px 60px #000b;backdrop-filter:blur(22px);animation:appear .3s ease}.journey-head{display:flex;justify-content:space-between;align-items:start}.journey-head h2{font:400 29px/1.1 'Cormorant Garamond',Georgia,serif;margin:9px 0 0}.close-journey{color:#b1bac3;background:transparent;border:0;font-size:24px}.journey-panel>p{font:13px/1.5 'Cormorant Garamond',Georgia,serif;color:#aeb7c2;margin:10px 0 14px}.mode-row{display:flex;padding:4px;border:1px solid #fff2;border-radius:27px;gap:4px}.mode{width:50%;padding:9px 7px;border:0;border-radius:24px;background:transparent;color:#92a2b4;font-size:11px}.mode.active{background:#cbb58f2b;color:#f1dcc0}.stage-control{display:block;margin-top:22px}.stage-control>span,.stage-control strong{display:inline-block;font-size:10px;letter-spacing:.12em;color:#aeb3c0}.stage-control strong{float:right;color:#efcfa4}.stage-control input{width:100%;height:5px;accent-color:#e4c89e;margin:18px 0 8px}.stage-labels{display:flex;justify-content:space-between;color:#8999ab;letter-spacing:.12em;font-size:8px}.stage-description{min-height:35px}.maturity-legend{border-top:1px solid #ffffff21;margin-top:14px;padding-top:12px;display:flex;gap:8px;justify-content:space-between;align-items:center;font-size:10px;color:#a5adbb}.legend-spark,.legend-orbit,.legend-system{font-size:18px;color:#ddc39a}
@@ -68,7 +68,8 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
       <div class="panel-eyebrow" id="panel-origin">AN IDEA THAT STAYED</div><div class="panel-title" id="panel-title">Freedom & choice</div>
       <p class="panel-question" id="panel-question">What can I really control?</p><div class="panel-bottom"><span id="panel-state">SPARK</span><button id="open-meaning">Explore this idea <span aria-hidden="true">↗</span></button></div>
     </section>
-    <button class="discovery-pill" id="discovery-pill" aria-label="Travel toward an unexplored idea"><span class="discovery-pulse"></span><span>AN UNEXPLORED POSSIBILITY</span><span>↗</span></button>
+    <div class="empty-universe" id="empty-universe" hidden><span>YOUR FIRST LIGHT</span><p>Keep a thought in Encounter.<br>Your universe will begin there.</p></div>
+    <button class="discovery-pill" id="discovery-pill" aria-label="Travel toward an unexplored idea" hidden><span class="discovery-pulse"></span><span>AN UNEXPLORED POSSIBILITY</span><span>↗</span></button>
   </section>
   <section id="encounter-view" class="view encounter-view" hidden>
     <div class="inner-scene"><span class="eyebrow">AN ENCOUNTER IN PHILOSOPHY</span><div class="counter" id="quote-counter">01 / 08</div>
@@ -86,7 +87,7 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
     </div>
   </section>
   <nav class="dock" aria-label="Main navigation"><button class="dock-btn" data-view="encounter" aria-label="Encounter" title="Encounter"><svg viewBox="0 0 32 32"><path d="M14 7C9 10 7 13 7 19v6h8v-8h-5c.6-3.1 2-5.5 4-7zm14 0c-5 3-7 6-7 12v6h8v-8h-5c.6-3.1 2-5.5 4-7z"/></svg></button><button class="dock-btn" data-view="library" aria-label="Library" title="Library"><svg viewBox="0 0 32 32"><rect x="7" y="8" width="18" height="20" rx="2"/><path d="M10 4h17v20M11 14h11M11 18h9"/></svg></button><button class="dock-btn active" data-view="universe" aria-label="My universe" title="My universe"><svg viewBox="0 0 32 32"><path d="M7 10l10-6 9 10-6 12-14-4 1-12 13 4M17 4l3 22M6 22l20-8"/><circle cx="7" cy="10" r="2"/><circle cx="17" cy="4" r="2"/><circle cx="26" cy="14" r="2"/><circle cx="20" cy="26" r="2"/></svg></button></nav>
-  <div class="preview-mark">V2 DESIGN STUDY</div>
+  <div class="preview-mark">V2.1 · AN EXPERIMENT IN CURIOSITY</div>
   <button class="journey-launch" id="journey-launch" aria-label="Open universe evolution preview"><span class="launch-orbit">✧</span><span id="journey-indicator">EVOLUTION</span></button>
   <section class="journey-panel" id="journey-panel" hidden><div class="journey-head"><div><span class="eyebrow">THE UNIVERSE THROUGH TIME</span><h2>Watch an idea become.</h2></div><button class="close-journey" id="close-journey" aria-label="Close evolution panel">×</button></div>
     <p>Preview a possible history without changing your actual encounters.</p>
@@ -186,25 +187,49 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
     // and repeated saves cannot raise maturity. These are provisional editorial rules,
     // not a score of intelligence or an inference of philosophical agreement.
     if(!f.kept&&!f.readSessions)return -1;
-    if(f.days>=5&&f.readSessions>=4&&f.links>=3)return 4;
-    if(f.days>=3&&f.readSessions>=3&&f.links>=2)return 3;
+    if(f.days>=5&&f.readSessions>=5&&(f.links>=2||f.schools>=3))return 4;
+    if(f.days>=3&&f.readSessions>=3&&(f.links>=2||f.schools>=2))return 3;
     if(f.days>=2&&f.readSessions>=2&&(f.schools>=2||f.links>=1))return 2;
     if(f.days>=2&&f.readSessions>=1)return 1;
     return 0;
   }
+  // A potential direction belongs to an *already developed* source concept.
+  // Source maturity is the gate; curation and meaningful interactions determine
+  // which distinct neighboring question is invited into view.
+  const UNLOCK_LEVEL = 3; // Idea System, never a save or a casual revisit.
+  function emergingPossibilities(levels){
+    const owned=new Set(Object.keys(levels));
+    const scores=new Map();
+    for(const id of owned){
+      const level=levels[id];if(level<UNLOCK_LEVEL)continue;
+      const concept=cMap.get(id);if(!concept)continue;
+      const f=facts(id);
+      // Ranked for meaningful relationship, not raw clicks or session duration.
+      // School breadth and links are bounded so one action type cannot dominate.
+      const evidence=level*3+Math.min(3,f.schools)*1.5+Math.min(3,f.links)*1.4+Math.min(5,f.readSessions)*.65;
+      for(const candidate of concept.relations){
+        if(owned.has(candidate)||!cMap.has(candidate))continue;
+        const old=scores.get(candidate);
+        const entry={id:candidate,score:evidence,from:id,level};
+        if(!old||entry.score>old.score)scores.set(candidate,entry);
+      }
+    }
+    // Introduce at most one unknown until an idea reaches Living Constellation.
+    const cap=Object.values(levels).some(n=>n>=4)?2:1;
+    return [...scores.values()].sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id)).slice(0,cap);
+  }
   const sampleStages=[
-    {title:'First light',text:'A single thought is kept. A tiny spark appears in the dark.',levels:{agency:0},potential:['identity']},
-    {title:'A young star',text:'A question returns on a different day. A luminous body begins to form.',levels:{agency:1,identity:0},potential:['change']},
-    {title:'Becoming radiant',text:'Different perspectives begin to reshape the original light.',levels:{agency:2,identity:1,alone:0,values:0},potential:['change','knowing']},
-    {title:'An orbiting system',text:'Following contrasting ideas forms satellites and a local system of thought.',levels:{agency:3,identity:2,alone:1,values:1,change:1,knowing:0},potential:['connection']},
-    {title:'A living constellation',text:'Years of curiosity weave several independent questions into a luminous region.',levels:{agency:4,identity:3,alone:2,values:2,change:3,knowing:2,connection:2},potential:['wonder']}
+    {title:'First light',text:'A single thought is kept. A tiny spark appears in the dark.',levels:{agency:0},potential:[]},
+    {title:'A young star',text:'A question returns on a different day. A luminous body begins to form.',levels:{agency:1,identity:0},potential:[]},
+    {title:'Becoming radiant',text:'Different perspectives begin to reshape the original light.',levels:{agency:2,identity:1,alone:0,values:0},potential:[]},
+    {title:'An orbiting system',text:'Following contrasting ideas forms satellites and a local system of thought.',levels:{agency:3,identity:3,alone:1,values:1,change:1,knowing:0},potential:['connection']},
+    {title:'A living constellation',text:'Years of curiosity weave several independent questions into a luminous region.',levels:{agency:4,identity:3,alone:2,values:2,change:3,knowing:3,connection:2},potential:['wonder']}
   ];
   function shape(){
     if(mode==='sample')return sampleStages[sampleStep];
     const levels=Object.fromEntries(concepts.map(c=>[c.id,personalLevel(c.id)]).filter(x=>x[1]>=0));
-    const potential=new Set();Object.keys(levels).forEach(id=>cMap.get(id)?.relations.forEach(x=>{if(levels[x]===undefined)potential.add(x)}));
-    if(!Object.keys(levels).length)potential.add('agency');
-    return {title:'Your encounters',text:'Your saved thoughts and in-depth reading shape the universe. It never assumes agreement.',levels,potential:[...potential].slice(0,5)};
+    const suggestions=emergingPossibilities(levels);
+    return {title:'Your encounters',text:'Only your encounters appear at first. As you return, read and connect ideas, unfamiliar possibilities gradually emerge.',levels,potential:suggestions.map(s=>s.id),suggestions};
   }
   function nodeSize(level){return [8,16,22,29,32][Math.max(0,Math.min(4,level))]||8}
   function sceneCoord(c){const depth=1+(c.z-.7)*.12;return {x:width/2+(c.x+camera.x)*camera.zoom*depth,y:height/2+(c.y+camera.y)*camera.zoom*depth,z:depth};}
@@ -247,7 +272,8 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
     if(choose){ctx.beginPath();ctx.arc(x,y,Math.max(22,s*2.08)+Math.sin(now*.001)*1.4,0,6.283);ctx.strokeStyle=rgba(col,.25);ctx.lineWidth=1;ctx.stroke();}
   }
   function visual(){const state=shape(),level=state.levels,active=Object.keys(level),potential=state.potential;ambient();
-    if(!active.length){const x=width/2,y=height*.58;glow(x,y,52,[234,194,135],.15);dot(x,y,3,[244,216,170],.85)}
+    // Atmospheric background stars are never presented as someone's actual ideas.
+    // An empty personal history therefore contains zero interactive formations.
     // Connection light only appears near a selected idea and develops with history.
     EDGES.forEach(e=>{const a=cMap.get(e.a),b=cMap.get(e.b);const aIn=active.includes(e.a),bIn=active.includes(e.b),aGhost=potential.includes(e.a),bGhost=potential.includes(e.b);if(!((aIn||aGhost)&&(bIn||bGhost)))return;const highlighted=selected&&(e.a===selected||e.b===selected);const base=highlighted?.96:(level[e.a]>=3||level[e.b]>=3)?.45:.09;if(highlighted||(level[e.a]>=3||level[e.b]>=3))drawLink(a,b,base,(!aIn||!bIn));});
     potential.forEach(id=>drawNode(cMap.get(id),0,true));active.sort((a,b)=>cMap.get(a).z-cMap.get(b).z).forEach(id=>drawNode(cMap.get(id),level[id],false));
@@ -264,7 +290,15 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
   function burst(id){const c=cMap.get(id);for(let i=0;i<55;i++){const angle=rand()*6.28,v=.3+rand()*2.3;sparks.push({x:c.x,y:c.y,z:c.z, vx:Math.cos(angle)*v,vy:Math.sin(angle)*v, r:.35+rand()*1.2,life:.75+rand()*.4,color:c.color})}}
   function choose(id,center=false){if(!cMap.has(id))return;selected=id;burst(id);drawPanel();if(center){const c=cMap.get(id);aim={x:-c.x,y:-c.y+60};}$('universe-identity').classList.add('is-quiet');renderOnce()}
   function clearSelected(){selected=null;$('idea-panel').hidden=true;$('universe-identity').classList.remove('is-quiet');renderOnce()}
-  function drawPanel(){const state=shape(),c=cMap.get(selected);if(!c)return;const level=state.levels[c.id],ghost=level===undefined;const name=['SPARK','YOUNG STAR','RADIANT STAR','IDEA SYSTEM','LIVING CONSTELLATION'];$('idea-panel').hidden=false;$('panel-origin').textContent=ghost?'A POSSIBLE NEW DIRECTION':'AN IDEA THAT STAYED';$('panel-title').textContent=c.name;$('panel-question').textContent=c.question;$('panel-state').textContent=ghost?'UNEXPLORED':name[level];}
+  function syncUniverseHints(){
+    const state=shape(),hasOwn=Object.keys(state.levels).length>0;
+    const hasPotential=state.potential.length>0;
+    // Never display a suggestion if it has no eligible mature parent.
+    $('discovery-pill').hidden=view!=='universe'||!hasPotential;
+    $('empty-universe').hidden=view!=='universe'||mode!=='personal'||hasOwn;
+    $('gesture-hint').innerHTML=hasOwn?'DRAG TO TRAVEL <span class="dot">·</span> TOUCH A LIGHT TO DISCOVER':'A QUIET SKY <span class="dot">·</span> BEGIN WITH A THOUGHT';
+  }
+  function drawPanel(){syncUniverseHints();const state=shape(),c=cMap.get(selected);if(!c)return;const level=state.levels[c.id],ghost=level===undefined;const name=['SPARK','YOUNG STAR','RADIANT STAR','IDEA SYSTEM','LIVING CONSTELLATION'];$('idea-panel').hidden=false;$('panel-origin').textContent=ghost?'A POSSIBLE NEW DIRECTION':'AN IDEA THAT STAYED';$('panel-title').textContent=c.name;$('panel-question').textContent=c.question;$('panel-state').textContent=ghost?'UNEXPLORED':name[level];}
   function showMeaning(){if(!selected)return;const c=cMap.get(selected);$('sheet-title').textContent=c.name;$('sheet-lead').textContent=c.question+' '+c.lead;$('sheet-category').textContent=(shape().levels[selected]===undefined)?'AN UNEXPLORED QUESTION':'THE IDEA BEHIND THIS LIGHT';$('sheet-voices').innerHTML='';for(const [title,body] of c.voices){const row=document.createElement('div');row.className='voice';const name=document.createElement('b'),text=document.createElement('p');name.textContent=title;text.textContent=body;row.append(name,text);
       if(mode==='personal'){
         const explored=document.createElement('button');explored.type='button';explored.className='voice-explore';
@@ -273,14 +307,19 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
         explored.addEventListener('click',()=>{const school=title.includes(' · ')?title.split(' · ').pop():title;
           if(record('read',c.id,key,{school})){explored.textContent='Explored today ✓';explored.disabled=true;toast('Your exploration is remembered.');}
         });row.append(explored)
-      }$('sheet-voices').append(row)}$('sheet-links').innerHTML='';c.relations.forEach(x=>{const b=document.createElement('button');b.type='button';b.dataset.follow=x;b.textContent=cMap.get(x).name+' ↗';$('sheet-links').append(b)});$('modal-mask').hidden=false;$('meaning-sheet').hidden=false;}
+      }$('sheet-voices').append(row)}$('sheet-links').innerHTML='';
+    const revealed=shape();const eligible=c.relations.filter(x=>revealed.levels[x]!==undefined||revealed.potential.includes(x));
+    const linksTitle=document.querySelector('.sheet-section-label');
+    linksTitle.hidden=!eligible.length;
+    for(const x of eligible){const b=document.createElement('button');b.type='button';b.dataset.follow=x;b.textContent=cMap.get(x).name+' ↗';$('sheet-links').append(b)}
+    $('modal-mask').hidden=false;$('meaning-sheet').hidden=false;}
   function hideMeaning(){$('modal-mask').hidden=true;$('meaning-sheet').hidden=true;}
-  function doFollow(target){if(!cMap.has(target))return;const old=selected;if(mode==='personal'&&old)record('link',old,'path:'+old,{target});hideMeaning();switchView('universe');choose(target,true);toast('A new path opens.');}
-  function activateMode(v){mode=v;$('demo-mode').classList.toggle('active',mode==='sample');$('personal-mode').classList.toggle('active',mode==='personal');$('stage-control').hidden=mode==='personal';$('stage-description').textContent=shape().text;if(selected&&shape().levels[selected]===undefined&&!shape().potential.includes(selected))clearSelected();drawPanel();renderOnce();}
-  function updateStage(v){sampleStep=Math.max(0,Math.min(4,Number(v)));$('stage').value=sampleStep;$('stage-name').textContent=sampleStages[sampleStep].title;$('stage-description').textContent=sampleStages[sampleStep].text;const state=shape();if(selected&&state.levels[selected]===undefined&&!state.potential.includes(selected))clearSelected();drawPanel();if(sampleStep===0){aim={x:150,y:-80}}else aim={x:0,y:0};renderOnce();}
+  function doFollow(target){const st=shape();if(!cMap.has(target)||!(st.levels[target]!==undefined||st.potential.includes(target)))return;const old=selected;if(mode==='personal'&&old)record('link',old,'path:'+old,{target});hideMeaning();switchView('universe');choose(target,true);toast('A new path opens.');}
+  function activateMode(v){mode=v;$('demo-mode').classList.toggle('active',mode==='sample');$('personal-mode').classList.toggle('active',mode==='personal');$('stage-control').hidden=mode==='personal';$('stage-description').textContent=shape().text;if(selected&&shape().levels[selected]===undefined&&!shape().potential.includes(selected))clearSelected();drawPanel();syncUniverseHints();renderOnce();}
+  function updateStage(v){sampleStep=Math.max(0,Math.min(4,Number(v)));$('stage').value=sampleStep;$('stage-name').textContent=sampleStages[sampleStep].title;$('stage-description').textContent=sampleStages[sampleStep].text;const state=shape();if(selected&&state.levels[selected]===undefined&&!state.potential.includes(selected))clearSelected();drawPanel();syncUniverseHints();if(sampleStep===0){aim={x:150,y:-80}}else aim={x:0,y:0};renderOnce();}
   let quoteIndex=0;
   function renderQuote(){const q=quoteList[quoteIndex];$('quote-counter').textContent=`${String(quoteIndex+1).padStart(2,'0')} / ${String(quoteList.length).padStart(2,'0')}`;$('quote-text').textContent='“'+q.quote+'”';$('quote-author').textContent=q.author;$('quote-source').textContent=q.source;$('quote-context').hidden=true;$('quote-context-content').textContent=q.context;const f=facts(q.concept);$('save-quote').textContent=history.some(e=>e.type==='save'&&e.quoteId===q.id)?'✓  Thought kept':'✧  Keep this thought';record('view',q.concept,q.id,{school:q.school});}
-  function switchView(next){view=next;app.dataset.view=next;$('universe-view').hidden=next!=='universe';$('encounter-view').hidden=next!=='encounter';$('library-view').hidden=next!=='library';canvas.style.display=next==='universe'?'block':'none';$('journey-launch').hidden=next!=='universe';$('journey-panel').hidden=true;$('recenter').hidden=next!=='universe';$('discovery-pill').hidden=next!=='universe';$('journey-launch').setAttribute('aria-expanded','false');document.querySelectorAll('.dock-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===next));document.querySelector('.location').textContent=next==='universe'?'YOUR UNIVERSE':next.toUpperCase();if(next==='encounter')renderQuote();if(next==='universe')renderOnce();}
+  function switchView(next){view=next;app.dataset.view=next;$('universe-view').hidden=next!=='universe';$('encounter-view').hidden=next!=='encounter';$('library-view').hidden=next!=='library';canvas.style.display=next==='universe'?'block':'none';$('journey-launch').hidden=next!=='universe';$('journey-panel').hidden=true;$('recenter').hidden=next!=='universe';$('discovery-pill').hidden=next!=='universe';$('journey-launch').setAttribute('aria-expanded','false');document.querySelectorAll('.dock-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===next));document.querySelector('.location').textContent=next==='universe'?'YOUR UNIVERSE':next.toUpperCase();if(next==='encounter')renderQuote();if(next==='universe'){syncUniverseHints();renderOnce();}}
   let toastTimeout;function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('show'),2400)}
   const getPoint=e=>({x:e.clientX,y:e.clientY});
   function nodeAt(x,y){const st=shape();const ids=[...Object.keys(st.levels),...st.potential];let found=null,bd=mobile()?45:42;ids.forEach(id=>{const c=cMap.get(id),p=sceneCoord(c),size=st.levels[id]===undefined?23:nodeSize(st.levels[id]);const d=Math.hypot(p.x-x,p.y-y);if(d<Math.max(bd,size*1.28)&&d<bd){found=id;bd=d;}});return found;}
@@ -293,7 +332,7 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
   document.querySelectorAll('.dock-btn[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
   $('close-panel').addEventListener('click',clearSelected);$('open-meaning').addEventListener('click',showMeaning);$('close-sheet').addEventListener('click',hideMeaning);$('modal-mask').addEventListener('click',hideMeaning);$('sheet-links').addEventListener('click',e=>{const b=e.target.closest('[data-follow]');if(b)doFollow(b.dataset.follow)});
   $('recenter').addEventListener('click',()=>{aim={x:0,y:0};camera.zoom=1;camera.vx=camera.vy=0;renderOnce()});
-  $('discovery-pill').addEventListener('click',()=>{const st=shape();choose(st.potential[0]||'wonder',true)});
+  $('discovery-pill').addEventListener('click',()=>{const st=shape();if(st.potential.length)choose(st.potential[0],true)});
   $('journey-launch').addEventListener('click',()=>{$('journey-panel').hidden=false;$('journey-launch').setAttribute('aria-expanded','true');if(true){$('stage').value=sampleStep;$('stage-name').textContent=sampleStages[sampleStep].title;$('stage-description').textContent=shape().text;}});
   $('close-journey').addEventListener('click',()=>{$('journey-panel').hidden=true;$('journey-launch').setAttribute('aria-expanded','false')});
   $('demo-mode').addEventListener('click',()=>activateMode('sample'));$('personal-mode').addEventListener('click',()=>activateMode('personal'));$('stage').addEventListener('input',e=>updateStage(e.target.value));
@@ -305,7 +344,7 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
   window.addEventListener('resize',()=>{fit();renderOnce()});
   if('IntersectionObserver' in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible&&(!anim)&&!reduceMotion)anim=requestAnimationFrame(animate)},{threshold:.01}).observe(app);
   fit(); updateStage(2); activateMode('personal'); if(!reduceMotion)anim=requestAnimationFrame(animate);else{visual();}
-  window.YourLogosV2={getState:()=>({mode,sampleStep,selected,history:history.map(e=>({...e})),progress:Object.fromEntries(concepts.map(c=>[c.id,personalLevel(c.id)])),camera:{...camera}}),resetDemo:()=>{activateMode('sample');updateStage(0)}};
+  window.YourLogosV2={getState:()=>({mode,sampleStep,selected,history:history.map(e=>({...e})),progress:Object.fromEntries(concepts.map(c=>[c.id,personalLevel(c.id)])),camera:{...camera},potential:shape().potential,active:Object.keys(shape().levels),suggestions:shape().suggestions||[]}),resetDemo:()=>{activateMode('sample');updateStage(0)}};
 })();
 
 </script>
