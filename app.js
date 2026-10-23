@@ -1,6 +1,6 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
-import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail } from "./auth-client.js";
+import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes } from "./auth-client.js";
 const QUOTES=[
 ["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning","Twilight of the Idols","What, if anything, gives hardship a direction?"],
 ["Man is the only creature who refuses to be what he is.","Albert Camus","Freedom","The Rebel","What in yourself are you refusing today?"],
@@ -77,7 +77,7 @@ const shiftDate=(key,days)=>{const [y,m,d]=key.split("-").map(Number);const v=ne
 // A seeded full-cycle deck: every daily feature is different for QUOTES.length days.
 // Favorited themes still influence browsing through Discover; daily variety wins over a
 // preference pool small enough to repeat the same quote every few days.
-const DAILY_ORDER=(()=>{
+let DAILY_ORDER=(()=>{
   const ids=QUOTES.map((_,i)=>i);let seed=0x7a3f9201;
   const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
   for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
@@ -436,5 +436,28 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshFor
 window.addEventListener("focus",refreshForLocalDay);
 window.addEventListener("pageshow",refreshForLocalDay);
 setInterval(()=>{if(!document.hidden)refreshForLocalDay()},60000);
-render();if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u){verifiedIdentity=u;if(!data.localName&&u.displayName){data.localName=u.displayName.slice(0,32);persist()}render()}}).catch(()=>{});
+
+async function refreshPublicQuoteCatalogue(){
+ if(!AUTH_ENABLED)return;
+ try{
+   const incoming=await fetchPublishedQuotes(),valid=new Set(THEMES);
+   let added=0;
+   for(const q of incoming){
+     if(!Number.isInteger(q.legacy_id)||q.legacy_id!==QUOTES.length)continue;
+     if(!valid.has(q.theme)||!q.quote_text||!q.author||!q.source||!q.reflection_prompt)continue;
+     QUOTES.push([q.quote_text,q.author,q.theme,q.source,q.reflection_prompt]);added++;
+   }
+   if(added){
+     const count=QUOTES.length;const ids=Array.from({length:count},(_,i)=>i);
+     let seed=0x7a3f9201;
+     const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+     for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+     DAILY_ORDER=ids;
+     if(!discoverOpen&&!settingsOpen)render();
+   }
+ }catch(error){console.warn("YourLogos: cached quote catalogue remains available.",error?.message||error)}
+}
+
+render();if(AUTH_ENABLED)refreshPublicQuoteCatalogue();
+if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u){verifiedIdentity=u;if(!data.localName&&u.displayName){data.localName=u.displayName.slice(0,32);persist()}render()}}).catch(()=>{});
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
