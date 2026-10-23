@@ -1,0 +1,736 @@
+{
+  "schema": 1,
+  "referenceEpoch": "2026-01-01",
+  "quotes": [
+    {
+      "id": 0,
+      "text": "He who has a why to live can bear almost any how.",
+      "author": "Friedrich Nietzsche",
+      "theme": "Meaning",
+      "source": "Twilight of the Idols"
+    },
+    {
+      "id": 1,
+      "text": "Man is the only creature who refuses to be what he is.",
+      "author": "Albert Camus",
+      "theme": "Freedom",
+      "source": "The Rebel"
+    },
+    {
+      "id": 2,
+      "text": "The unexamined life is not worth living.",
+      "author": "Socrates",
+      "theme": "Meaning",
+      "source": "Plato, Apology"
+    },
+    {
+      "id": 3,
+      "text": "We suffer more in imagination than in reality.",
+      "author": "Seneca",
+      "theme": "Suffering",
+      "source": "Letters to Lucilius"
+    },
+    {
+      "id": 4,
+      "text": "Man is condemned to be free.",
+      "author": "Jean-Paul Sartre",
+      "theme": "Freedom",
+      "source": "Existentialism Is a Humanism"
+    },
+    {
+      "id": 5,
+      "text": "He who knows others is wise; he who knows himself is enlightened.",
+      "author": "Laozi",
+      "theme": "Freedom",
+      "source": "Dao De Jing, chapter 33 (translation varies)"
+    },
+    {
+      "id": 6,
+      "text": "It is not death that a man should fear, but he should fear never beginning to live.",
+      "author": "Marcus Aurelius",
+      "theme": "Mortality",
+      "source": "Meditations (translation varies)"
+    },
+    {
+      "id": 7,
+      "text": "Love does not consist of gazing at each other, but in looking outward together in the same direction.",
+      "author": "Antoine de Saint-Exupéry",
+      "theme": "Love",
+      "source": "Wind, Sand and Stars"
+    },
+    {
+      "id": 8,
+      "text": "Whereof one cannot speak, thereof one must be silent.",
+      "author": "Ludwig Wittgenstein",
+      "theme": "Doubt",
+      "source": "Tractatus Logico-Philosophicus, 7"
+    },
+    {
+      "id": 9,
+      "text": "Waste no more time arguing about what a good man should be. Be one.",
+      "author": "Marcus Aurelius",
+      "theme": "Action",
+      "source": "Meditations, 10.16"
+    },
+    {
+      "id": 10,
+      "text": "All of humanity's problems stem from man's inability to sit quietly in a room alone.",
+      "author": "Blaise Pascal",
+      "theme": "Solitude",
+      "source": "Pensées (paraphrased translation)"
+    },
+    {
+      "id": 11,
+      "text": "Two things fill the mind with ever-increasing wonder: the starry sky above me and the moral law within me.",
+      "author": "Immanuel Kant",
+      "theme": "Beauty",
+      "source": "Critique of Practical Reason, conclusion (abridged translation)"
+    },
+    {
+      "id": 12,
+      "text": "How we spend our days is, of course, how we spend our lives.",
+      "author": "Annie Dillard",
+      "theme": "Time",
+      "source": "The Writing Life"
+    },
+    {
+      "id": 13,
+      "text": "It is not enough to have a good mind; the main thing is to use it well.",
+      "author": "René Descartes",
+      "theme": "Action",
+      "source": "Discourse on Method"
+    },
+    {
+      "id": 14,
+      "text": "Not knowing is most intimate.",
+      "author": "Zen koan (Dizang)",
+      "theme": "Doubt",
+      "source": "Book of Serenity"
+    },
+    {
+      "id": 15,
+      "text": "I never found the companion that was so companionable as solitude.",
+      "author": "Henry David Thoreau",
+      "theme": "Solitude",
+      "source": "Walden"
+    },
+    {
+      "id": 16,
+      "text": "The journey of a thousand miles begins with a single step.",
+      "author": "Laozi",
+      "theme": "Action",
+      "source": "Dao De Jing, chapter 64 (translation varies)"
+    },
+    {
+      "id": 17,
+      "text": "The present moment is the only moment available to us, and it is the door to all moments.",
+      "author": "Thích Nhất Hạnh",
+      "theme": "Time",
+      "source": "Attributed; source needs verification"
+    },
+    {
+      "id": 18,
+      "text": "The strongest man in the world is he who stands most alone.",
+      "author": "Henrik Ibsen",
+      "theme": "Solitude",
+      "source": "An Enemy of the People (translation varies)"
+    },
+    {
+      "id": 19,
+      "text": "The most beautiful experience we can have is the mysterious.",
+      "author": "Albert Einstein",
+      "theme": "Beauty",
+      "source": "The World As I See It (translation varies)"
+    },
+    {
+      "id": 20,
+      "text": "I think, therefore I am.",
+      "author": "René Descartes",
+      "theme": "Doubt",
+      "source": "Discourse on Method, Part IV"
+    },
+    {
+      "id": 21,
+      "text": "He who knows only his own side of the case knows little of that.",
+      "author": "John Stuart Mill",
+      "theme": "Doubt",
+      "source": "On Liberty, Chapter II"
+    },
+    {
+      "id": 22,
+      "text": "The philosophers have only interpreted the world, in various ways; the point is to change it.",
+      "author": "Karl Marx",
+      "theme": "Action",
+      "source": "Theses on Feuerbach, Thesis XI (translation varies)"
+    },
+    {
+      "id": 23,
+      "text": "I do not wish them to have power over men; but over themselves.",
+      "author": "Mary Wollstonecraft",
+      "theme": "Freedom",
+      "source": "A Vindication of the Rights of Woman, Chapter IV"
+    },
+    {
+      "id": 24,
+      "text": "All things excellent are as difficult as they are rare.",
+      "author": "Baruch Spinoza",
+      "theme": "Meaning",
+      "source": "Ethics, Part V, Proposition 42, Scholium (translation varies)"
+    },
+    {
+      "id": 25,
+      "text": "The heart has its reasons, which reason does not know.",
+      "author": "Blaise Pascal",
+      "theme": "Love",
+      "source": "Pensées, fragment 277 (Brunschvicg; translation varies)"
+    },
+    {
+      "id": 26,
+      "text": "Reason is, and ought only to be the slave of the passions.",
+      "author": "David Hume",
+      "theme": "Freedom",
+      "source": "A Treatise of Human Nature, Book II, Part III, Section III"
+    },
+    {
+      "id": 27,
+      "text": "The life of man, solitary, poor, nasty, brutish, and short.",
+      "author": "Thomas Hobbes",
+      "theme": "Suffering",
+      "source": "Leviathan, Chapter XIII (excerpt)"
+    },
+    {
+      "id": 28,
+      "text": "A woman must have money and a room of her own if she is to write fiction.",
+      "author": "Virginia Woolf",
+      "theme": "Freedom",
+      "source": "A Room of One's Own, Chapter I"
+    },
+    {
+      "id": 29,
+      "text": "There is nothing either good or bad, but thinking makes it so.",
+      "author": "William Shakespeare",
+      "theme": "Doubt",
+      "source": "Hamlet, Act II, Scene II"
+    },
+    {
+      "id": 30,
+      "text": "Man is by nature a political animal.",
+      "author": "Aristotle",
+      "theme": "Love",
+      "source": "Politics, Book I, 1253a (translation varies)"
+    },
+    {
+      "id": 31,
+      "text": "The true is the whole.",
+      "author": "G. W. F. Hegel",
+      "theme": "Meaning",
+      "source": "Phenomenology of Spirit, Preface (translation varies)"
+    },
+    {
+      "id": 32,
+      "text": "The mind is its own place, and in itself can make a Heaven of Hell, a Hell of Heaven.",
+      "author": "John Milton",
+      "theme": "Doubt",
+      "source": "Paradise Lost, Book I"
+    },
+    {
+      "id": 33,
+      "text": "To be, or not to be, that is the question.",
+      "author": "William Shakespeare",
+      "theme": "Mortality",
+      "source": "Hamlet, Act III, Scene I"
+    },
+    {
+      "id": 34,
+      "text": "Life can only be understood backwards; but it must be lived forwards.",
+      "author": "Søren Kierkegaard",
+      "theme": "Time",
+      "source": "Journals, 1843 (translation varies)"
+    },
+    {
+      "id": 35,
+      "text": "What is the use of a house if you haven't got a tolerable planet to put it on?",
+      "author": "Henry David Thoreau",
+      "theme": "Beauty",
+      "source": "Letter to Harrison Blake, 1860 (commonly quoted)"
+    },
+    {
+      "id": 36,
+      "text": "One does not become enlightened by imagining figures of light, but by making the darkness conscious.",
+      "author": "Carl Jung",
+      "theme": "Doubt",
+      "source": "The Philosophical Tree, Psychology and Alchemy, CW 13 (translation varies)"
+    },
+    {
+      "id": 37,
+      "text": "The world is my representation.",
+      "author": "Arthur Schopenhauer",
+      "theme": "Doubt",
+      "source": "The World as Will and Representation, Book I (translation varies)"
+    },
+    {
+      "id": 38,
+      "text": "You must change your life.",
+      "author": "Rainer Maria Rilke",
+      "theme": "Action",
+      "source": "Archaic Torso of Apollo, New Poems (translation varies)"
+    },
+    {
+      "id": 39,
+      "text": "The only thing we have to fear is fear itself.",
+      "author": "Franklin D. Roosevelt",
+      "theme": "Suffering",
+      "source": "First Inaugural Address, March 4, 1933"
+    },
+    {
+      "id": 40,
+      "text": "If liberty means anything at all, it means the right to tell people what they do not want to hear.",
+      "author": "George Orwell",
+      "theme": "Freedom",
+      "source": "Preface to Animal Farm, 'The Freedom of the Press'"
+    },
+    {
+      "id": 41,
+      "text": "I am no bird; and no net ensnares me.",
+      "author": "Charlotte Brontë",
+      "theme": "Freedom",
+      "source": "Jane Eyre, Chapter XXIII (excerpt)"
+    },
+    {
+      "id": 42,
+      "text": "All men by nature desire to know.",
+      "author": "Aristotle",
+      "theme": "Doubt",
+      "source": "Metaphysics I.1 (translation varies)"
+    },
+    {
+      "id": 43,
+      "text": "Happiness is an activity of soul in accordance with virtue.",
+      "author": "Aristotle",
+      "theme": "Meaning",
+      "source": "Nicomachean Ethics I.7 (translation varies)"
+    },
+    {
+      "id": 44,
+      "text": "Death is nothing to us.",
+      "author": "Epicurus",
+      "theme": "Mortality",
+      "source": "Letter to Menoeceus"
+    },
+    {
+      "id": 45,
+      "text": "By pleasure we mean the absence of pain in the body and of trouble in the soul.",
+      "author": "Epicurus",
+      "theme": "Meaning",
+      "source": "Letter to Menoeceus (translation varies)"
+    },
+    {
+      "id": 46,
+      "text": "Men are disturbed not by things, but by the views which they take of things.",
+      "author": "Epictetus",
+      "theme": "Suffering",
+      "source": "Enchiridion 5, Higginson translation"
+    },
+    {
+      "id": 47,
+      "text": "Of things some are in our power, and others are not.",
+      "author": "Epictetus",
+      "theme": "Freedom",
+      "source": "Enchiridion 1, George Long translation"
+    },
+    {
+      "id": 48,
+      "text": "Seek not that the things which happen should happen as you wish; but wish the things which happen to be as they are.",
+      "author": "Epictetus",
+      "theme": "Action",
+      "source": "Enchiridion 8, George Long translation (excerpt)"
+    },
+    {
+      "id": 49,
+      "text": "Life is long if you know how to use it.",
+      "author": "Seneca",
+      "theme": "Time",
+      "source": "On the Shortness of Life (translation varies)"
+    },
+    {
+      "id": 50,
+      "text": "While we are postponing, life speeds by.",
+      "author": "Seneca",
+      "theme": "Time",
+      "source": "Moral Letters to Lucilius, Letter 1 (translation varies)"
+    },
+    {
+      "id": 51,
+      "text": "Only that day dawns to which we are awake.",
+      "author": "Henry David Thoreau",
+      "theme": "Time",
+      "source": "Walden, Conclusion"
+    },
+    {
+      "id": 52,
+      "text": "The mass of men lead lives of quiet desperation.",
+      "author": "Henry David Thoreau",
+      "theme": "Meaning",
+      "source": "Walden, Economy"
+    },
+    {
+      "id": 53,
+      "text": "Simplify, simplify.",
+      "author": "Henry David Thoreau",
+      "theme": "Action",
+      "source": "Walden, Where I Lived, and What I Lived For"
+    },
+    {
+      "id": 54,
+      "text": "Trust thyself: every heart vibrates to that iron string.",
+      "author": "Ralph Waldo Emerson",
+      "theme": "Freedom",
+      "source": "Essays: First Series, Self-Reliance"
+    },
+    {
+      "id": 55,
+      "text": "A foolish consistency is the hobgoblin of little minds.",
+      "author": "Ralph Waldo Emerson",
+      "theme": "Doubt",
+      "source": "Essays: First Series, Self-Reliance"
+    },
+    {
+      "id": 56,
+      "text": "A wise man proportions his belief to the evidence.",
+      "author": "David Hume",
+      "theme": "Doubt",
+      "source": "An Enquiry Concerning Human Understanding, X"
+    },
+    {
+      "id": 57,
+      "text": "No man's knowledge here can go beyond his experience.",
+      "author": "John Locke",
+      "theme": "Doubt",
+      "source": "An Essay Concerning Human Understanding, IV.iii"
+    },
+    {
+      "id": 58,
+      "text": "To be is to be perceived.",
+      "author": "George Berkeley",
+      "theme": "Doubt",
+      "source": "A Treatise Concerning the Principles of Human Knowledge, §3 (esse est percipi)"
+    },
+    {
+      "id": 59,
+      "text": "Man is born free, and everywhere he is in chains.",
+      "author": "Jean-Jacques Rousseau",
+      "theme": "Freedom",
+      "source": "The Social Contract I.1 (translation varies)"
+    },
+    {
+      "id": 60,
+      "text": "Over himself, over his own body and mind, the individual is sovereign.",
+      "author": "John Stuart Mill",
+      "theme": "Freedom",
+      "source": "On Liberty, I"
+    },
+    {
+      "id": 61,
+      "text": "All that is solid melts into air.",
+      "author": "Karl Marx and Friedrich Engels",
+      "theme": "Time",
+      "source": "Manifesto of the Communist Party, I (Moore translation)"
+    },
+    {
+      "id": 62,
+      "text": "It is not the consciousness of men that determines their existence, but their social existence that determines their consciousness.",
+      "author": "Karl Marx",
+      "theme": "Meaning",
+      "source": "Preface to A Contribution to the Critique of Political Economy, 1859 (translation varies)"
+    },
+    {
+      "id": 63,
+      "text": "The owl of Minerva spreads its wings only with the falling of the dusk.",
+      "author": "G. W. F. Hegel",
+      "theme": "Time",
+      "source": "Elements of the Philosophy of Right, Preface (translation varies)"
+    },
+    {
+      "id": 64,
+      "text": "Anxiety is the dizziness of freedom.",
+      "author": "Søren Kierkegaard",
+      "theme": "Freedom",
+      "source": "The Concept of Anxiety (translation varies)"
+    },
+    {
+      "id": 65,
+      "text": "Existence precedes essence.",
+      "author": "Jean-Paul Sartre",
+      "theme": "Freedom",
+      "source": "Existentialism Is a Humanism"
+    },
+    {
+      "id": 66,
+      "text": "One must imagine Sisyphus happy.",
+      "author": "Albert Camus",
+      "theme": "Meaning",
+      "source": "The Myth of Sisyphus (translation varies)"
+    },
+    {
+      "id": 67,
+      "text": "The limits of my language mean the limits of my world.",
+      "author": "Ludwig Wittgenstein",
+      "theme": "Doubt",
+      "source": "Tractatus Logico-Philosophicus, 5.6"
+    },
+    {
+      "id": 68,
+      "text": "What can be shown cannot be said.",
+      "author": "Ludwig Wittgenstein",
+      "theme": "Doubt",
+      "source": "Tractatus Logico-Philosophicus, 4.1212"
+    },
+    {
+      "id": 69,
+      "text": "The world is everything that is the case.",
+      "author": "Ludwig Wittgenstein",
+      "theme": "Doubt",
+      "source": "Tractatus Logico-Philosophicus, 1"
+    },
+    {
+      "id": 70,
+      "text": "Sapere aude! Have courage to use your own understanding!",
+      "author": "Immanuel Kant",
+      "theme": "Action",
+      "source": "An Answer to the Question: What Is Enlightenment? (translation varies)"
+    },
+    {
+      "id": 71,
+      "text": "Act only according to that maxim whereby you can at the same time will that it should become a universal law.",
+      "author": "Immanuel Kant",
+      "theme": "Action",
+      "source": "Groundwork of the Metaphysics of Morals, II (translation varies)"
+    },
+    {
+      "id": 72,
+      "text": "The good life is one inspired by love and guided by knowledge.",
+      "author": "Bertrand Russell",
+      "theme": "Love",
+      "source": "What I Believe"
+    },
+    {
+      "id": 73,
+      "text": "One is not born, but rather becomes, a woman.",
+      "author": "Simone de Beauvoir",
+      "theme": "Freedom",
+      "source": "The Second Sex, Introduction to Book II (translation varies)"
+    },
+    {
+      "id": 74,
+      "text": "Form is emptiness; emptiness is form.",
+      "author": "The Heart Sutra",
+      "theme": "Doubt",
+      "source": "Prajñāpāramitāhṛdaya Sūtra (translation varies)"
+    },
+    {
+      "id": 75,
+      "text": "Hatred is never appeased by hatred in this world.",
+      "author": "The Dhammapada",
+      "theme": "Suffering",
+      "source": "Dhammapada 5 (translation varies; excerpt)"
+    },
+    {
+      "id": 76,
+      "text": "A frog in a well cannot be talked with about the sea.",
+      "author": "Zhuangzi",
+      "theme": "Doubt",
+      "source": "Zhuangzi, Autumn Floods (translation varies)"
+    },
+    {
+      "id": 77,
+      "text": "Learning without thought is labor lost; thought without learning is perilous.",
+      "author": "Confucius",
+      "theme": "Action",
+      "source": "Analects 2.15 (James Legge translation, wording abridged)"
+    },
+    {
+      "id": 78,
+      "text": "To know what you know and what you do not know, that is true knowledge.",
+      "author": "Confucius",
+      "theme": "Doubt",
+      "source": "Analects 2.17 (translation varies)"
+    },
+    {
+      "id": 79,
+      "text": "One must still have chaos in oneself to be able to give birth to a dancing star.",
+      "author": "Friedrich Nietzsche",
+      "theme": "Beauty",
+      "source": "Thus Spoke Zarathustra, Prologue (translation varies)"
+    },
+    {
+      "id": 80,
+      "text": "Become who you are.",
+      "author": "Friedrich Nietzsche",
+      "theme": "Freedom",
+      "source": "The Gay Science, §270 (translation varies)"
+    },
+    {
+      "id": 81,
+      "text": "God is dead. God remains dead. And we have killed him.",
+      "author": "Friedrich Nietzsche",
+      "theme": "Meaning",
+      "source": "The Gay Science, §125 (translation varies)"
+    },
+    {
+      "id": 82,
+      "text": "I am myself the matter of my book.",
+      "author": "Michel de Montaigne",
+      "theme": "Meaning",
+      "source": "Essays, To the Reader (translation varies)"
+    },
+    {
+      "id": 83,
+      "text": "The path up and down is one and the same.",
+      "author": "Heraclitus",
+      "theme": "Time",
+      "source": "Fragment B60 (translation varies)"
+    },
+    {
+      "id": 84,
+      "text": "Our heart is restless until it rests in you.",
+      "author": "Augustine of Hippo",
+      "theme": "Love",
+      "source": "Confessions I.1 (translation varies)"
+    },
+    {
+      "id": 85,
+      "text": "Nothing can be created from nothing.",
+      "author": "Lucretius",
+      "theme": "Doubt",
+      "source": "On the Nature of Things, Book I (translation varies)"
+    },
+    {
+      "id": 86,
+      "text": "We are all in the gutter, but some of us are looking at the stars.",
+      "author": "Oscar Wilde",
+      "theme": "Beauty",
+      "source": "Lady Windermere's Fan, Act III"
+    },
+    {
+      "id": 87,
+      "text": "The true mystery of the world is the visible, not the invisible.",
+      "author": "Oscar Wilde",
+      "theme": "Beauty",
+      "source": "The Picture of Dorian Gray, Chapter II"
+    },
+    {
+      "id": 88,
+      "text": "One cannot think well, love well, sleep well, if one has not dined well.",
+      "author": "Virginia Woolf",
+      "theme": "Action",
+      "source": "A Room of One's Own, Chapter I"
+    },
+    {
+      "id": 89,
+      "text": "Nothing is so painful to the human mind as a great and sudden change.",
+      "author": "Mary Shelley",
+      "theme": "Suffering",
+      "source": "Frankenstein, Chapter XXIII (1818 edition varies)"
+    },
+    {
+      "id": 90,
+      "text": "The feeling of commiseration is the beginning of humanity.",
+      "author": "Mencius",
+      "theme": "Love",
+      "source": "Mencius 2A:6 (translation varies)"
+    }
+  ],
+  "order": [
+    83,
+    48,
+    18,
+    44,
+    29,
+    9,
+    49,
+    71,
+    31,
+    61,
+    17,
+    0,
+    15,
+    57,
+    47,
+    82,
+    6,
+    77,
+    81,
+    80,
+    33,
+    55,
+    40,
+    45,
+    73,
+    51,
+    25,
+    26,
+    30,
+    19,
+    23,
+    69,
+    8,
+    5,
+    16,
+    22,
+    60,
+    62,
+    50,
+    65,
+    28,
+    87,
+    13,
+    74,
+    63,
+    12,
+    7,
+    14,
+    53,
+    54,
+    36,
+    89,
+    38,
+    84,
+    86,
+    90,
+    35,
+    64,
+    46,
+    32,
+    43,
+    11,
+    88,
+    56,
+    78,
+    39,
+    75,
+    20,
+    42,
+    52,
+    66,
+    24,
+    1,
+    3,
+    4,
+    59,
+    34,
+    41,
+    85,
+    70,
+    72,
+    10,
+    79,
+    37,
+    21,
+    58,
+    67,
+    27,
+    68,
+    76,
+    2
+  ]
+}
