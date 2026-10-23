@@ -1,3 +1,4 @@
+import { resolveTension, findDestination } from "./tension-engine.js";
 // YourLogos V3.3 — Question threads.
 // Small editorial graph: a proposition, three genuine counter-moves, one follow-up,
 // then an optional doorway to a curated Library tradition. No grading or scores.
@@ -59,7 +60,21 @@ const fallback={
  Love:["Can care become a desire to possess?","Love also raises the question of freedom."],
  Solitude:["When is being alone freedom—and when is it avoidance?","Solitude can hide opposing meanings."]
 };
-export function getThoughtThread(quote){
+export function getThoughtThread(quote,quoteId=null){
+  const curated=resolveTension(quote,quoteId);
+  if(curated)return {
+    question:curated.friction,
+    curated:true,
+    tension:{claim:curated.claim,warrant:curated.warrant,poles:curated.poles},
+    branches:curated.moves.map(move=>({title:move.title,followup:move.followup,answers:move.answers}))
+  };
+  if(Number.isInteger(quoteId))return {
+    curated:false,
+    question:"This thought deserves a closer question.",
+    branches:[],
+    message:"We're still developing a faithful philosophical challenge for this quotation. Keep it for now—or continue exploring."
+  };
+
   const text=quote?.[0]||"";
   const found=editorial.find(e=>text.includes(e.match));
   if(found)return found;
@@ -70,8 +85,10 @@ export function getThoughtThread(quote){
     branch("What if we ask a different question?","Could the opposite also reveal something?",answer("Follow changing conditions.","daoism","Not every tension needs to be forced."),answer("Study our response to it.","stoicism","Perspective changes what an event means."))
   ]};
 }
-export function thoughtThreadHtml({quote,step=0,branchIndex=0,answerIndex=0}){
-  const thread=getThoughtThread(quote),branchData=thread.branches[branchIndex]||thread.branches[0];
+export function thoughtThreadHtml({quote,quoteId=null,step=0,branchIndex=0,answerIndex=0}){
+  const thread=getThoughtThread(quote,quoteId);
+  if(!thread.curated && Number.isInteger(quoteId))return '<div class="yl-thread yl-thread-pending" role="status"><div class="yl-thread-progress">AN OPEN QUESTION</div><h2 class="yl-thread-question">'+esc(thread.question)+'</h2><p>'+esc(thread.message)+'</p><button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';
+  const branchData=thread.branches[branchIndex]||thread.branches[0];
   const answerData=branchData.answers[answerIndex]||branchData.answers[0];
   return '<div class="yl-thread" data-thread-step="'+step+'">'+
     (step===0?
@@ -96,8 +113,11 @@ export function thoughtThreadHtml({quote,step=0,branchIndex=0,answerIndex=0}){
         '</div>')+
   '</div>';
 }
-export function thoughtThreadDestination(quote,branchIndex,answerIndex){
- const t=getThoughtThread(quote);
+export function thoughtThreadDestination(quote,branchIndex,answerIndex,quoteId=null){
+ const curated=findDestination(quote,quoteId,branchIndex,answerIndex);
+ if(curated)return curated.school;
+ const t=getThoughtThread(quote,quoteId);
+ if(!t.branches.length)return null;
  return (t.branches[branchIndex]||t.branches[0]).answers[answerIndex]?.school||"skepticism";
 }
 export function thoughtThreadValid(){

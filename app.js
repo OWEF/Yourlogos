@@ -255,7 +255,7 @@ function discoverHtml(){
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
-      thoughtThreadHtml({quote:q,step:discoverStep,branchIndex:threadBranch,answerIndex:threadAnswer})+
+      thoughtThreadHtml({quote:q,quoteId:id,step:discoverStep,branchIndex:threadBranch,answerIndex:threadAnswer})+
     '</section>';
 }
 
@@ -571,7 +571,7 @@ document.addEventListener("click",async e=>{
     const index=Number(threadChoice.dataset.threadAnswer);
     if(!Number.isInteger(index)||index<0||index>1)return;
     threadAnswer=index;discoverStep=2;
-    const id=visibleQuoteId(),destination=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer);
+    const id=visibleQuoteId(),destination=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer,id);
     const event={quoteId:id,theme:QUOTES[id][2],author:QUOTES[id][1],branch:threadBranch,answer:threadAnswer,destination,date:today()};
     const previous=data.thoughtThreadEvents.at(-1);
     if(!previous||["quoteId","branch","answer","date"].some(k=>previous[k]!==event[k]))
@@ -698,7 +698,7 @@ document.addEventListener("click",async e=>{
     case"thread-back":discoverStep=0;render();return;
     case"thread-restart":discoverStep=0;threadBranch=0;threadAnswer=0;render();return;
     case"discover-library":{
-      const id=visibleQuoteId(),target=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer);
+      const id=visibleQuoteId(),target=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer,id);
       discoverOpen=false;discoverStep=0;view="library";openSchoolId=target;schoolSceneIndex=0;schoolChoiceIndex=null;libraryScope="all";render();haptic();return;
     }
     case"clear-discovery":settingsConfirm=true;render();return;
