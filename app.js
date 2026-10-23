@@ -431,11 +431,11 @@ function render(){
       portal.setAttribute("aria-label","Profile and settings");
       document.body.appendChild(portal);
     }
-    // Re-render content only when first opened; keep focus and scroll position
-    // while the user works in the form.
-    if(!previousDialog){
-      portal.innerHTML='<div class="settings-panel" id="yourlogos-settings" tabindex="-1"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div>';
-    }
+    // Keep the native top-layer dialog mounted, but refresh its content on
+    // explicit form/action renders. Preserve scroll position after saving.
+    const previousScroll=portal.scrollTop;
+    portal.innerHTML='<div class="settings-panel" id="yourlogos-settings" tabindex="-1"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div>';
+    portal.scrollTop=previousScroll;
     if(!portal.open){
       if(typeof portal.showModal==="function"){try{portal.showModal()}catch{portal.setAttribute("open","")}}
       else portal.setAttribute("open","");
