@@ -65,6 +65,14 @@ Preserve accessible labels, visible keyboard focus, and modal escape behavior.
 - Web-only iPhone Safari does not expose a generic Taptic Engine API; use truthful visual feedback with native vibration only on supporting hosts.
 - Protect the currently approved Encounter, Library and My World hierarchy, quote readability and living sky gesture system.
 
+## V3.0 — dependable routes and interactive learning
+- The account icon opens a full in-app Settings route, not a modal overlay. The previous destination remains the context for Back. It must work on mobile Safari even when overlays, transforms or iframe layers are present.
+- The Living Sky hosts its Back control directly in the body, beyond the iframe and animated viewport. Returning to My World must restore its landing tiles.
+- Quote typography is larger and semibold where space allows; long quotes use responsive density classes rather than overflowing mobile height.
+- Each Library school offers two one-question encounters with three plausible choices, an animated philosophical tension axis, and short editorial interpretation. This is not a right/wrong quiz and does not assign scores or personalities. Long-form copy is available under a collapsed deep-dive.
+- Distinct historical images remain attributed. Prefer same-origin prewarmed reduced-size artwork; keep a remote Commons fallback if the thumbnail fetch fails.
+- Verify mobile taps/back/focus, slow image loading, alt/fallback, reduced motion and cloud guest mode before release.
+
 ## Release gate
 Review JavaScript syntax, quote IDs and rotation, RLS policy SQL, navigation,
 Discover, Sky, Saved, Library, Mirror, Settings, iPhone touch/scroll/safe-area

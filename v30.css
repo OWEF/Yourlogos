@@ -1,0 +1,168 @@
+/* YourLogos V3.0 — reliable controls, readable encounters, playful philosophy.
+   Keep the existing nocturnal liquid-glass visual identity. */
+
+/* QUOTES: visual hierarchy and readability without clipping longer citations. */
+.today-v2 .quote-motion .quote{
+  font-family:'Cormorant Garamond','Libre Caslon Display',Georgia,serif;
+  font-weight:600;letter-spacing:-.012em;
+  font-size:clamp(33px,9.5vw,49px);
+  line-height:1.22;
+  text-wrap:pretty;
+  color:#f6f1e8;
+  text-shadow:0 2px 12px #0005;
+}
+.today-v2 .quote-motion .quote.quote-medium{font-size:clamp(30px,8vw,42px)}
+.today-v2 .quote-motion .quote.quote-dense{font-size:clamp(27px,7.15vw,36px)}
+.today-v2 .quote-motion .author{font-size:clamp(14px,3.7vw,16px);font-weight:500;color:#dfd5c8}
+@media(max-width:360px){
+ .today-v2 .quote-motion .quote{font-size:33px}
+ .today-v2 .quote-motion .quote.quote-medium{font-size:29px}
+ .today-v2 .quote-motion .quote.quote-dense{font-size:26px}
+}
+@media(max-height:680px) and (max-width:700px){
+ .today-v2 .quote-motion .quote{font-size:clamp(29px,8.5vw,38px)}
+ .today-v2 .quote-motion .quote.quote-dense{font-size:clamp(24px,7vw,32px)}
+}
+
+/* ACCOUNT: intentionally a normal route, not a modal that can vanish after
+   WebKit layering, history changes, or deferred render. */
+.settings-route{max-width:690px;width:100%;margin:0 auto;position:relative;z-index:4;
+  padding:12px 0 calc(124px + env(safe-area-inset-bottom));min-height:70dvh}
+.settings-route .v22-settings{max-width:none;padding:0}
+.settings-route-back{
+ display:inline-flex;align-items:center;gap:10px;min-height:44px;
+ color:#e4d5bb;border:1px solid #dfc7a44d;border-radius:18px;
+ background:linear-gradient(130deg,#ffffff1a,#ffffff05);
+ padding:10px 17px;margin:0 0 20px;
+ box-shadow:inset 0 1px #ffffff1d;
+ font:600 12px 'DM Sans',sans-serif;
+ -webkit-tap-highlight-color:transparent;
+ transition:transform .18s,background .18s;
+}
+.settings-route-back:active{transform:scale(.96);background:#d8b88b24}
+.settings-route .v22-settings-block{border-color:#e5d2b12a;background:linear-gradient(155deg,#ffffff09,#ffffff02)}
+.settings-route .account-form input{min-height:45px}
+.settings-launch{z-index:70}
+.settings-route-back:focus-visible,.sky-return:focus-visible{outline:2px solid #e6c797;outline-offset:3px}
+
+/* The celestial viewer is embedded in an iframe. Its Back control belongs
+   to the host document, above the iframe and OUTSIDE animated stage content. */
+body > .sky-return{
+ position:fixed!important;
+ top:calc(82px + env(safe-area-inset-top));left:calc(18px + env(safe-area-inset-left));
+ z-index:95!important;
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:46px;min-width:122px;
+ padding:12px 16px;border:1px solid #e7d0a068;border-radius:999px;
+ background:#101924ee;color:#f2e4c9;
+ backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+ box-shadow:0 9px 28px #0008,inset 0 1px #ffffff32;
+ font:600 12px 'DM Sans',sans-serif;touch-action:manipulation;
+ -webkit-tap-highlight-color:transparent;
+ transition:transform .2s,background .2s;
+}
+body > .sky-return:active{transform:scale(.94);background:#303c47}
+
+/* The 'explain less, experience more' interactive philosophy component. */
+.school-idea-summary{padding-bottom:7px}
+.school-idea-summary p{font:16px/1.55 'Cormorant Garamond',Georgia,serif;color:#d8d3c9}
+.school-play-lab{
+ position:relative;z-index:4;isolation:isolate;
+ margin:18px 0 21px;padding:22px 19px;
+ border:1px solid #ead6b954;border-radius:25px;
+ background:
+  radial-gradient(ellipse at 98% 0%,#af9a7b1d,transparent 54%),
+  radial-gradient(ellipse at 5% 100%,#7299aa13,transparent 70%),
+  linear-gradient(145deg,#33323c99,#14191cdb);
+ backdrop-filter:blur(22px) saturate(135%);-webkit-backdrop-filter:blur(22px) saturate(135%);
+ box-shadow:inset 0 1px #ffffff36,inset 0 -1px #ffffff0c,0 22px 48px #0007;
+ overflow:hidden;
+}
+.school-play-lab::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(130deg,#ffffff09,transparent 39%);z-index:-1}
+.school-play-top{display:flex;justify-content:space-between;gap:10px;
+ font:600 9px 'DM Sans',sans-serif;letter-spacing:.15em;color:#d8bb8e}
+.school-play-top span:last-child{color:#99989c;letter-spacing:.07em}
+.school-play-context{
+ display:inline-flex;align-items:center;margin:23px 0 10px;
+ padding:8px 11px;border:1px solid #d7b88b3e;border-radius:99px;
+ font:600 10px 'DM Sans',sans-serif;letter-spacing:.04em;color:#d7d4ce;
+ background:#d6b68713;
+}
+.school-play-lab h2{
+ margin:0 0 21px;font:500 clamp(25px,6.8vw,37px)/1.18 'Cormorant Garamond',Georgia,serif;
+ color:#f7f0e6;letter-spacing:-.012em;
+}
+.school-play-options{display:grid;gap:10px}
+.school-play-options button{
+ width:100%;min-height:54px;display:flex;align-items:center;gap:13px;
+ text-align:left;padding:11px 13px;border-radius:17px;
+ border:1px solid #d4c5b932;background:linear-gradient(130deg,#ffffff11,#ffffff05);
+ color:#e2dcd3;font:500 12px/1.45 'DM Sans',sans-serif;
+ transition:background .25s,border-color .25s,transform .22s cubic-bezier(.19,1.1,.29,1);
+}
+.school-play-options button:hover,.school-play-options button.chosen{
+ background:linear-gradient(135deg,#d6bc8f35,#d6bc8f14);
+ border-color:#e6c898ab;
+ box-shadow:inset 0 1px #ffffff25,0 0 23px #c5a77c1b;
+}
+.school-play-options button:active{transform:scale(.975)}
+.school-choice-bullet{
+ display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;
+ border:1px solid #eedbc04d;border-radius:50%;background:#12191aaa;
+ color:#ccb89e;font:600 11px 'DM Sans',sans-serif;
+}
+.school-play-options button.chosen .school-choice-bullet{background:#bca17c;color:#15191d}
+.school-play-axis{margin:24px 0 21px;padding:17px 13px 14px;
+ border:1px solid #d1c2ac25;border-radius:17px;background:#0c11188c}
+.school-axis-caption{color:#bcb09f;font:600 9px 'DM Sans',sans-serif;letter-spacing:.14em}
+.school-axis-track{height:6px;border-radius:10px;margin:17px 5px 12px;position:relative;
+ background:linear-gradient(90deg,#9b8094,#b9a67e 48%,#7a9d98);box-shadow:0 0 15px #0006}
+.school-axis-current{
+ position:absolute;left:var(--axis,50%);top:50%;width:23px;height:23px;
+ transform:translate(-50%,-50%);border:4px solid #292a30;border-radius:50%;
+ background:#f0dac0;box-shadow:0 0 0 1px #e6c89e,0 0 16px #f1c78b7e;
+ transition:left .45s cubic-bezier(.2,1.25,.3,1);
+}
+.school-axis-labels{display:flex;justify-content:space-between;gap:15px;
+ color:#b7afa7;font:500 10px/1.35 'DM Sans',sans-serif}
+.school-play-insight{min-height:77px}
+.school-insight-eyebrow{font:600 9px 'DM Sans',sans-serif;letter-spacing:.14em;color:#d9bd90}
+.school-play-insight p{margin:9px 0 6px;
+ font:500 20px/1.32 'Cormorant Garamond',Georgia,serif;color:#f0e4d6}
+.school-play-insight small{font:12px/1.5 'DM Sans',sans-serif;color:#bcb4aa}
+.school-play-actions{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-top:22px}
+.school-play-actions button{min-height:42px;padding:10px 15px;border:1px solid #cfb38b83;
+ border-radius:99px;background:#b89e7830;color:#ecdac0;font:600 11px 'DM Sans',sans-serif}
+.school-play-actions button:active{transform:scale(.97)}
+.school-play-actions span{font:italic 12px 'Cormorant Garamond',Georgia,serif;color:#a6a099}
+.school-deep-dive{position:relative;z-index:3;margin:10px 0 25px;
+ border:1px solid #dbcdb736;border-radius:18px;background:#ffffff08}
+.school-deep-dive summary{cursor:pointer;min-height:54px;padding:15px 18px;
+ color:#dbc8ac;font:600 11px 'DM Sans',sans-serif;list-style:none;
+ display:flex;justify-content:space-between;align-items:center}
+.school-deep-dive summary::-webkit-details-marker{display:none}
+.school-deep-dive[open] summary span{transform:rotate(180deg)}
+.school-deep-dive > .school-section{padding:14px 17px}
+.school-play-lab button:focus-visible,.school-deep-dive summary:focus-visible{
+ outline:2px solid #ecd0a0;outline-offset:3px;
+}
+
+/* Fast loading background: show tinted atmosphere while the thumbnail decodes. */
+.school-detail-screen .school-atmosphere{
+ background:linear-gradient(148deg,#98826e33,#4d596437,#282d374b);
+}
+.school-detail-screen .school-atmosphere img{opacity:1;transition:opacity .2s ease}
+
+@media(max-width:700px){
+ .school-play-lab{padding:19px 15px;margin:16px 0 19px;border-radius:21px}
+ .school-play-lab h2{font-size:clamp(26px,7.5vw,34px)}
+ .school-play-insight p{font-size:19px}
+ .settings-route{padding:3px 1px calc(129px + env(safe-area-inset-bottom))}
+ .school-play-actions span{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ .school-axis-current,.school-play-options button,.settings-route-back,body>.sky-return{
+  transition:none!important;animation:none!important;
+ }
+}

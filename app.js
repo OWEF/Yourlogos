@@ -1,4 +1,5 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
+import { SCHOOL_SCENES } from "./school-scenes.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -112,7 +113,7 @@ const KEY="yourlogos_web_v1";
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
-let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
+let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
 if(typeof data.localName!=="string")data.localName="";
 let verifiedIdentity=null,authBusy=false,authNotice="";
@@ -215,7 +216,7 @@ function todayHtml(){
       '<div class="quote-halo" aria-hidden="true"></div>'+
       '<div class="quote-motion" id="quote-motion">'+
       '<div class="personal-greeting">'+(data.localName?'A thought for you, '+esc(data.localName)+'.':'A moment for your curiosity.')+'</div><div class="today-label">'+(quoteCursor===0?"TODAY’S THOUGHT":"ANOTHER PERSPECTIVE")+'</div>'+
-      '<div class="quote-rule"></div><h1 class="quote">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div>'+
+      '<div class="quote-rule"></div><h1 class="quote '+(q[0].length>158?'quote-dense':q[0].length>108?'quote-medium':'')+'">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div>'+
       '<div class="quote-theme">'+esc(q[2]).toUpperCase()+'</div></div>'+
       '<div class="quote-dots" aria-hidden="true">'+daySequence().slice(0,6).map((_,i)=>'<i class="'+(i===Math.min(quoteCursor,5)?"on":"")+'"></i>').join('')+'</div>'+
     '</div>'+
@@ -296,9 +297,32 @@ const SCHOOL_ART_IMAGES={"stoicism":{name:"Equestrian Statue of Marcus Aurelius"
 "skepticism":{name:"The Incredulity of Saint Thomas",artist:"Caravaggio",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("The Incredulity of Saint Thomas-Caravaggio (1601-2).jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("The Incredulity of Saint Thomas-Caravaggio (1601-2).jpg")},
 "daoism":{name:"Travelers Among Mountains and Streams",artist:"Fan Kuan",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Xsxlt fankuan.jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("Xsxlt fankuan.jpg")},
 "buddhism":{name:"Seated Buddha",artist:"Cleveland Museum of Art, CC0",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Afghanistan, Gandhara, Hadda, late Kushan Period - Seated Buddha - 1967.39 - Cleveland Museum of Art.jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("Afghanistan, Gandhara, Hadda, late Kushan Period - Seated Buddha - 1967.39 - Cleveland Museum of Art.jpg")}};
+function schoolPlayHtml(id){
+  const experience=SCHOOL_SCENES[id];if(!experience)return "";
+  const scene=experience.scenes[schoolSceneIndex%experience.scenes.length];
+  const chosen=schoolChoiceIndex===null?null:scene.options[schoolChoiceIndex];
+  const axis=chosen?chosen[2]:50;
+  return '<section class="school-play-lab" aria-label="Try this philosophy in a real situation">'+
+    '<div class="school-play-top"><span>AN IDEA IN MOTION</span><span>SCENE '+(schoolSceneIndex+1)+' / '+experience.scenes.length+'</span></div>'+
+    '<div class="school-play-context">'+esc(scene.place)+'</div>'+
+    '<h2>'+esc(scene.question)+'</h2>'+
+    '<div class="school-play-options">'+scene.options.map((o,i)=>
+      '<button type="button" data-school-choice="'+i+'" class="'+(schoolChoiceIndex===i?'chosen':'')+'" aria-pressed="'+(schoolChoiceIndex===i)+'"><span class="school-choice-bullet">'+(i+1)+'</span>'+esc(o[0])+'</button>').join('')+'</div>'+
+    '<div class="school-play-axis"><div class="school-axis-caption">'+esc(experience.tag)+'</div>'+
+      '<div class="school-axis-track"><div class="school-axis-current" style="--axis:'+axis+'%"></div></div>'+
+      '<div class="school-axis-labels"><span>'+esc(experience.pole[0])+'</span><span>'+esc(experience.pole[1])+'</span></div></div>'+
+    '<div class="school-play-insight" role="status" aria-live="polite">'+
+      (chosen?'<span class="school-insight-eyebrow">ONE WAY TO SEE IT</span><p>'+esc(chosen[1])+'</p><small>'+esc(scene.insight)+'</small>':
+      '<span class="school-insight-eyebrow">NOT A QUIZ</span><p>Choose an instinct. Watch the perspective shift.</p>')+
+    '</div>'+
+    '<div class="school-play-actions"><button type="button" data-school-scene="next">'+
+      (schoolSceneIndex+1<experience.scenes.length?'Another situation →':'Start again ↺')+
+    '</button><span>No scores. Only perspectives.</span></div>'+
+  '</section>';
+}
 function schoolBackdropHtml(id){
   const art=SCHOOL_ART_IMAGES[id];
-  return art?'<figure class="school-atmosphere" aria-hidden="true"><img alt="" loading="lazy" decoding="async" src="'+art.src+'" onerror="this.hidden=true"/></figure>':'';
+  return art?'<figure class="school-atmosphere" aria-hidden="true"><img alt="" loading="eager" fetchpriority="high" decoding="async" src="/api/school-art/'+id+'" data-fallback="0" onerror="if(this.dataset.fallback===\'0\'){this.dataset.fallback=\'1\';this.src=this.dataset.remote}else this.hidden=true" data-remote="'+esc(art.src)+'"/></figure>':'';
 }
 function schoolArtCreditHtml(id){
   const art=SCHOOL_ART_IMAGES[id];
@@ -332,10 +356,12 @@ function libraryHtml(){
       '<h1 class="school-detail-title">'+esc(current.name)+'</h1>'+
       '<p class="school-detail-sub">'+esc(current.subtitle)+'</p>'+
       '<div class="school-section"><div class="school-section-label">THE CENTRAL QUESTION</div><h2 class="school-big-question">'+esc(current.question)+'</h2></div>'+
-      '<div class="school-section"><div class="school-section-label">THE IDEA</div><p>'+esc(current.intro)+'</p></div>'+
+      '<div class="school-section school-idea-summary"><div class="school-section-label">THE IDEA IN A SENTENCE</div><p>'+esc(current.intro)+'</p></div>'+
+      schoolPlayHtml(current.id)+
+      '<details class="school-deep-dive"><summary>Go deeper into this philosophy <span aria-hidden="true">⌄</span></summary>'+
       '<div class="school-section"><div class="school-section-label">KEY VOICES</div><div class="school-voices">'+current.thinkers.map(name=>'<span>'+esc(name)+'</span>').join('')+'</div></div>'+
       '<div class="school-section"><div class="school-section-label">CORE TENSIONS</div><div class="school-tensions">'+current.tensions.map(t=>'<div>'+esc(t)+'</div>').join('')+'</div></div>'+
-      '<div class="school-section"><div class="school-section-label">A THOUGHT TO CARRY</div><div class="school-reflection">'+esc(current.reflection)+'</div><p class="school-prompt-note">No answer required. Just a place to begin.</p></div>'+
+      '<div class="school-section"><div class="school-section-label">A THOUGHT TO CARRY</div><div class="school-reflection">'+esc(current.reflection)+'</div><p class="school-prompt-note">No answer required. Just a place to begin.</p></div></details>'+
       schoolArtCreditHtml(current.id)+
     '</div></section>';
 }
@@ -389,7 +415,7 @@ function worldBack(){return '<button type="button" data-world-pane="home" class=
 function profileHtml(){
   if(universePane==="sky")return '<section class="view living-universe-embed" aria-label="Your living sky">'+
     '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living sky of ideas" loading="eager"></iframe>'+
-    '<button type="button" data-world-pane="home" class="world-back-floating">← My World</button></section>';
+    '</section>';
   if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName});
   return '<div class="world-detail">'+worldBack()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():mirrorHtml(data.saved.map(i=>QUOTES[i]).filter(Boolean),data.discovery))+'</div>';
 }
@@ -410,38 +436,31 @@ function render(){
   // continues instead of snapping back to a new element every click.
   const persistentNav=document.querySelector("body > .mobile-tabs");
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
-  const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
+  const inner=settingsOpen?
+    '<section class="view settings-route" aria-label="Account and settings"><button type="button" class="settings-route-back" data-action="settings-close">← Back</button>'+settingsHtml()+'</section>':
+    onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
-  '<main class="stage'+(navPulse===view&&from!==active?' motion-tab-entry':'')+'" style="--motion-dir:'+(active>from?1:-1)+'"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
-  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.8</span></div></aside></div>'+
+  '<main class="stage'+(navPulse===view&&from!==active?' motion-tab-entry':'')+'" style="--motion-dir:'+(active>from?1:-1)+'"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(settingsOpen?"SETTINGS":view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
+  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V3.0</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
-  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-haspopup="dialog" aria-controls="yourlogos-settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
+  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
   '';
-  // Native HTMLDialogElement enters the browser top layer: it cannot hide
-  // behind the dock, header, or iPhone WebKit stacking/overflow contexts.
-  const previousDialog=document.querySelector("body > dialog.settings-layer");
-  if(!settingsOpen){previousDialog?.remove()}
-  else{
-    const portal=previousDialog||document.createElement("dialog");
-    if(!previousDialog){
-      portal.className="settings-layer";
-      portal.setAttribute("aria-label","Profile and settings");
-      document.body.appendChild(portal);
-    }
-    // Keep the native top-layer dialog mounted, but refresh its content on
-    // explicit form/action renders. Preserve scroll position after saving.
-    const previousScroll=portal.scrollTop;
-    portal.innerHTML='<div class="settings-panel" id="yourlogos-settings" tabindex="-1"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div>';
-    portal.scrollTop=previousScroll;
-    if(!portal.open){
-      if(typeof portal.showModal==="function"){try{portal.showModal()}catch{portal.setAttribute("open","")}}
-      else portal.setAttribute("open","");
-    }
-  }
+  // Settings is a real app route, not a portal or dialog. It cannot vanish
+  // behind WebKit top layers, transformed scenes, or a stale focus trap.
+  document.querySelector("body > dialog.settings-layer")?.remove();
   document.querySelector('[data-action="settings-open"]')?.setAttribute("aria-expanded",settingsOpen?"true":"false");
+  const oldBack=document.querySelector("body > .sky-return");
+  if(view==="profile"&&universePane==="sky"&&!settingsOpen){
+    if(!oldBack){
+      const back=document.createElement("button");
+      back.type="button";back.className="sky-return";back.dataset.worldPane="home";
+      back.textContent="← My World";back.setAttribute("aria-label","Back to My World");
+      document.body.appendChild(back);
+    }
+  }else oldBack?.remove();
   // Place the dock outside #app once, so subsequent innerHTML updates never
   // detach it. This is what makes the moving selection feel continuous.
   const replacementNav=document.querySelector("#app .mobile-tabs");
@@ -562,18 +581,42 @@ document.addEventListener("click",async e=>{
     setTimeout(()=>{navPulse=null;document.querySelectorAll(".dock-btn.icon-moving").forEach(b=>b.classList.remove("icon-moving"))},610);
     return;
   }
-  const tab=e.target.closest("[data-world-pane]");if(tab){universePane=tab.dataset.worldPane;openSchoolId=null;libraryScope="all";detailId=null;render();haptic();return}
+  const tab=e.target.closest("[data-world-pane]");if(tab){
+    e.preventDefault();
+    const destination=tab.dataset.worldPane;
+    if(!["home","sky","saved","fingerprint","mirror"].includes(destination))return;
+    universePane=destination;openSchoolId=null;libraryScope="all";detailId=null;
+    settingsOpen=false;render();haptic();return;
+  }
   const response=e.target.closest("[data-discover-response]");if(response){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),response:response.dataset.discoverResponse,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();return}
   const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();toast("A new lens added to My World");return}
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;
     if(SCHOOLS.some(x=>x.id===candidate)&&!openSchoolId){
-      school.classList.add("school-entering");haptic("impact");
+      school.classList.add("school-entering");schoolSceneIndex=0;schoolChoiceIndex=null;haptic("impact");
       const delay=window.matchMedia("(prefers-reduced-motion: reduce)").matches?0:180;
       setTimeout(()=>{openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)},delay);
     }
     return;
   }
-  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;render();haptic();return}
+  const lessonChoice=e.target.closest("[data-school-choice]");
+  if(lessonChoice&&openSchoolId){
+    const entry=SCHOOL_SCENES[openSchoolId]?.scenes[schoolSceneIndex];
+    const choice=Number(lessonChoice.dataset.schoolChoice);
+    if(!entry||!Number.isInteger(choice)||choice<0||choice>=entry.options.length)return;
+    schoolChoiceIndex=choice;haptic();
+    const lesson=document.querySelector(".school-play-lab");
+    if(lesson)lesson.outerHTML=schoolPlayHtml(openSchoolId);
+    return;
+  }
+  const lessonNext=e.target.closest("[data-school-scene]");
+  if(lessonNext&&openSchoolId){
+    const count=SCHOOL_SCENES[openSchoolId]?.scenes.length||1;
+    schoolSceneIndex=(schoolSceneIndex+1)%count;schoolChoiceIndex=null;haptic();
+    const lesson=document.querySelector(".school-play-lab");
+    if(lesson)lesson.outerHTML=schoolPlayHtml(openSchoolId);
+    return;
+  }
+  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;schoolChoiceIndex=null;schoolSceneIndex=0;render();haptic();return}
   if(e.target.closest("[data-library-liked]")){openSchoolId=null;libraryScope="liked";render();return}
   if(e.target.closest("[data-library-root]")){libraryScope="all";openSchoolId=null;render();return}
   const th=e.target.closest("[data-theme]");
@@ -583,7 +626,7 @@ document.addEventListener("click",async e=>{
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
-    case"settings-open":settingsOpen=true;render();haptic("impact");document.querySelector("body > .settings-layer .settings-close")?.focus();return;
+    case"settings-open":settingsOpen=!settingsOpen;render();haptic("impact");document.querySelector(settingsOpen?".settings-route-back":'[data-action="settings-open"]')?.focus();return;
     case"settings-close":settingsOpen=false;authNotice="";render();haptic();document.querySelector('[data-action="settings-open"]')?.focus();return;
     case"email-signout":{try{await signOutEmail();verifiedIdentity=null;syncConfirm="";cloudStateInfo="";authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
     case"cloud-save":if(!verifiedIdentity)return;syncConfirm="save";render();return;
