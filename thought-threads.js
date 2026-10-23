@@ -1,4 +1,5 @@
 import { resolveTension, findDestination } from "./tension-engine.js";
+import { getExploratoryThread } from "./tension-explorations.js";
 // YourLogos V3.3 — Question threads.
 // Small editorial graph: a proposition, three genuine counter-moves, one follow-up,
 // then an optional doorway to a curated Library tradition. No grading or scores.
@@ -68,6 +69,8 @@ export function getThoughtThread(quote,quoteId=null){
     tension:{claim:curated.claim,warrant:curated.warrant,poles:curated.poles},
     branches:curated.moves.map(move=>({title:move.title,followup:move.followup,answers:move.answers}))
   };
+  const exploration=getExploratoryThread(quote,quoteId);
+  if(exploration)return exploration;
   if(Number.isInteger(quoteId))return {
     curated:false,
     question:"This thought deserves a closer question.",
@@ -87,7 +90,7 @@ export function getThoughtThread(quote,quoteId=null){
 }
 export function thoughtThreadHtml({quote,quoteId=null,step=0,branchIndex=0,answerIndex=0}){
   const thread=getThoughtThread(quote,quoteId);
-  if(!thread.curated && Number.isInteger(quoteId))return '<div class="yl-thread yl-thread-pending" role="status"><div class="yl-thread-progress">AN OPEN QUESTION</div><h2 class="yl-thread-question">'+esc(thread.question)+'</h2><p>'+esc(thread.message)+'</p><button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';
+  if(!thread.branches.length && Number.isInteger(quoteId))return '<div class="yl-thread yl-thread-pending" role="status"><div class="yl-thread-progress">AN OPEN QUESTION</div><h2 class="yl-thread-question">'+esc(thread.question)+'</h2><p>'+esc(thread.message)+'</p><button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';
   const branchData=thread.branches[branchIndex]||thread.branches[0];
   const answerData=branchData.answers[answerIndex]||branchData.answers[0];
   return '<div class="yl-thread" data-thread-step="'+step+'">'+
