@@ -1,5 +1,4 @@
 // Additional V3.4 editorial reconstructions.
-import { } from "./tension-catalogue-a.js";
 const r=(id,match,claim,warrant,poles,friction,...moves)=>({id,match,claim,warrant,poles,friction,moves});
 const m=(type,target,title,followup,a,b)=>({type,target,title,followup,answers:[a,b]});
 const o=(label,school,concept,insight)=>({label,school,concept,insight});
