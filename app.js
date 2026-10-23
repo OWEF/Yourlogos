@@ -1,4 +1,5 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
+import { availableThoughts, quoteAt, followingThought } from "./encounter-queue.js";
 import { SCHOOL_SCENES } from "./school-scenes.js";
 import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, worldFingerprintEvidence } from "./encounter-v31.js";
 import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } from "./encounter-feedback.js";
@@ -125,6 +126,7 @@ if(typeof data.localName!=="string")data.localName="";
 let verifiedIdentity=null,authBusy=false,authNotice="";
 let threadBranch=0,threadAnswer=0;
 let libraryListScrollY=0;
+let keepPending=null,keepTimer=null;
 if(!Array.isArray(data.thoughtThreadEvents))data.thoughtThreadEvents=[];
 // A return is a gentle, optional act of presence; not a competitive streak.
 if(!Array.isArray(data.arrivals))data.arrivals=[];
@@ -197,7 +199,9 @@ const daySequence=()=>{
   while(rest.length){let index=rest.findIndex(x=>!lastTheme.has(x.theme));if(index<0)index=0;const [next]=rest.splice(index,1);arranged.push(next.id);lastTheme.clear();lastTheme.add(next.theme)}
   return [featured,...arranged];
 };
-const visibleQuoteId=()=>daySequence()[Math.max(0,Math.min(quoteCursor,QUOTES.length-1))];
+const discoveryQueue=()=>availableThoughts(daySequence(),data.saved);
+const visibleQuoteId=()=>quoteAt(discoveryQueue(),quoteCursor);
+const keepCurrentInRange=()=>{const n=discoveryQueue().length;quoteCursor=n?((quoteCursor%n)+n)%n:0};
 const likedIcon=(liked)=>'<svg class="heart-svg" viewBox="0 0 40 40" aria-hidden="true"><path class="heart-path" d="M20 34C14.5 29.3 4 22 4 13.6 4 5 14.4 3.6 20 10.3 25.6 3.6 36 5 36 13.6 36 22 25.5 29.3 20 34Z"/></svg>'+Array.from({length:7},(_,i)=>{const angle=(i*2*Math.PI)/7;return '<i class="heart-spark" style="--dx:'+Math.round(Math.sin(angle)*34)+'px;--dy:'+Math.round(-Math.cos(angle)*34)+'px;--delay:'+(i%3)*20+'ms"></i>'}).join('');
 const questionIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.3a8.8 8.8 0 0 1-9.3 8.8 9.2 9.2 0 0 1-3.5-.7L3 21l1.6-5.1A8.8 8.8 0 1 1 21 11.3Z"/><path d="M9.5 9a2.7 2.7 0 0 1 5.2.8c0 1.9-2.6 2-2.6 3.8"/><circle cx="12.1" cy="16.3" r=".45" fill="currentColor" stroke="none"/></svg>';
 const haptic=(kind="selection")=>{
@@ -212,13 +216,22 @@ const haptic=(kind="selection")=>{
   }catch{}
 };
 
-const toast=msg=>{document.querySelector(".toast")?.remove();const el=document.createElement("div");el.className="toast";el.textContent=msg;document.body.appendChild(el);clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.remove(),2800)};
+const toast=(msg,{undo=false}={})=>{
+  document.querySelector(".toast")?.remove();
+  const el=document.createElement("div");el.className="toast"+(undo?" keep-toast":"");
+  const label=document.createElement("span");label.textContent=msg;el.appendChild(label);
+  if(undo){const b=document.createElement("button");b.type="button";b.textContent="Undo";b.dataset.action="undo-keep";b.setAttribute("aria-label","Undo keeping this thought");el.appendChild(b);}
+  document.body.appendChild(el);clearTimeout(toastTimeout);
+  toastTimeout=setTimeout(()=>{el.remove();if(keepPending?.phase==="completed")keepPending=null},undo?4400:2800);
+};
 const quoteBlock=(id)=>{const q=QUOTES[id];return '<div class="today-label">A THOUGHT FOR TODAY</div><h1 class="quote">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div><div class="source">'+esc(q[3])+'</div>'};
 function sitHtml(q,p){return '<section class="practice"><div class="kicker">01 / DWELLING</div><h2>'+esc(PROMPTS[q[2]][0])+'</h2><p>You need not resolve it now. Carry it through the day. Return when something stays.</p><div class="inline-actions">'+btn("sit-return","What stayed?","outline")+'</div>'+(mode==="sit-return"||p.whatStayed?'<label class="section-kicker" style="display:block;margin-top:27px">WHAT STAYED WITH YOU?</label><textarea id="trace" placeholder="One sentence is enough. You can leave this unanswered." maxlength="1200">'+esc(p.whatStayed||"")+'</textarea><div class="inline-actions">'+btn("save-trace","Keep this trace","primary small")+'</div>':"")+'</section>'}
 function questionHtml(q,p){let opts=[["Receive","The thought offers an insight worth defending."],["Resist","The thought conceals an assumption I cannot accept."],["Reframe","The real question lies beyond this opposition."]];let voices=[["In its defense","What experience makes this claim compelling?"],["Against it","Whose life or experience might contradict it?"]];return '<section class="practice"><div class="kicker">02 / THE DIALECTIC</div><h2>'+esc(PROMPTS[q[2]][1])+'</h2><p>A philosophical proposition is not a command. Put it under pressure.</p><div style="margin-top:23px">'+voices.map(v=>'<div class="countervoice"><div class="name">'+esc(v[0])+'</div><p>'+esc(v[1])+'</p></div>').join('')+'</div><h2 style="margin-top:29px">Where do you stand?</h2><p class="hintline">Choose a provisional position. You can change your mind.</p>'+opts.map((o,i)=>'<button class="stance '+(p.position===i?"selected":"")+'" data-position="'+i+'"><b>'+esc(o[0])+'</b><span>'+esc(o[1])+'</span></button>').join('')+(p.position!==undefined&&p.position!==null?'<div class="saved-note">Position recorded. Your thinking can change.</div>':"")+'</section>'}
 
 function todayHtml(){
-  const id=visibleQuoteId(),q=QUOTES[id],liked=data.saved.includes(id);
+  const queue=discoveryQueue(),id=visibleQuoteId();
+  if(id===null)return '<article class="today today-v2"><div class="encounter-complete" role="status"><div class="encounter-complete-mark" aria-hidden="true">✳</div><div class="section-kicker">YOUR CURIOSITY HAS TRAVELLED</div><h1>Every thought has found a home.</h1><p>Nothing new in your Encounter feed for now. Your saved thoughts are waiting in Library.</p><button type="button" data-action="view-saved-from-encounter">See saved thoughts ↗</button></div></article>';
+  const q=QUOTES[id],liked=data.saved.includes(id);
   return '<article class="today today-v2">'+
     arrivalHtml()+
     '<div class="quote-viewport" id="quote-viewport" tabindex="0" aria-label="Quotes. Swipe up or down, or use arrow keys, to browse ideas.">'+
@@ -227,7 +240,7 @@ function todayHtml(){
       '<div class="personal-greeting">'+(data.localName?'A thought for you, '+esc(data.localName)+'.':'A moment for your curiosity.')+'</div><div class="today-label">'+(quoteCursor===0?"TODAY’S THOUGHT":"ANOTHER PERSPECTIVE")+'</div>'+
       '<div class="quote-rule"></div><h1 class="quote '+(q[0].length>158?'quote-dense':q[0].length>108?'quote-medium':'')+'">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div>'+
       '<div class="quote-theme">'+esc(q[2]).toUpperCase()+'</div></div>'+
-      '<div class="quote-dots" aria-hidden="true">'+daySequence().slice(0,6).map((_,i)=>'<i class="'+(i===Math.min(quoteCursor,5)?"on":"")+'"></i>').join('')+'</div>'+
+      '<div class="quote-dots" aria-hidden="true">'+queue.slice(0,6).map((_,i)=>'<i class="'+(i===Math.min(quoteCursor,5)?"on":"")+'"></i>').join('')+'</div>'+
     '</div>'+
     '<div class="quote-footer"><div class="swipe-cue">↑ &nbsp; SWIPE FOR ANOTHER THOUGHT</div>'+
     '<div class="quote-actions">'+
@@ -478,14 +491,14 @@ function bindQuoteGesture(){
   area.addEventListener("keydown",e=>{if(e.key==="ArrowUp"||e.key==="ArrowDown"){e.preventDefault();moveQuote(e.key==="ArrowDown"?1:-1)}});
 }
 function moveQuote(direction){
-  if(swipeBusy||discoverOpen||view!=="today"||detailId!==null)return;
+  if(swipeBusy||discoverOpen||view!=="today"||detailId!==null||!discoveryQueue().length)return;
   swipeBusy=true;
   const card=document.getElementById("quote-motion"),out=direction>0?-160:160;
   if(!card){swipeBusy=false;return}
   haptic();card.style.transition="transform .2s cubic-bezier(.3,0,.7,.4),opacity .2s";
   card.style.transform="translateY("+out+"px) scale(.93)";card.style.opacity=".08";
   setTimeout(()=>{
-    quoteCursor=(quoteCursor+direction+QUOTES.length)%QUOTES.length;
+    const count=discoveryQueue().length;quoteCursor=count?((quoteCursor+direction+count)%count):0;
     heartPulse=false;render();
     const incoming=document.getElementById("quote-motion");
     if(incoming){
@@ -689,17 +702,52 @@ document.addEventListener("click",async e=>{
     case"finish-onboarding":data.started=true;view="today";break;
     case"edit-themes":settingsOpen=false;view="onboarding";break;
     case"toggle-save":case"detail-save":{
-      const id=a==="detail-save"?detailId:visibleQuoteId(),already=data.saved.includes(id);
-      data.saved=already?data.saved.filter(x=>x!==id):[...data.saved,id];
-      heartPulse=!already;haptic();persist();render();toast(already?"Removed from your library":"A thought worth keeping");
-      if(heartPulse)setTimeout(()=>{heartPulse=false},620);
+      const inFeed=a==="toggle-save",id=inFeed?visibleQuoteId():detailId;
+      if(id===null||!QUOTES[id])return;
+      const already=data.saved.includes(id);
+      if(keepTimer){clearTimeout(keepTimer);keepTimer=null}
+      keepPending=null;
+      if(already){
+        data.saved=data.saved.filter(x=>x!==id);
+        keepCurrentInRange();persist();render();toast("Removed from your saved thoughts");haptic();return;
+      }
+      const before=inFeed?daySequence():null;
+      const next=inFeed?followingThought(before,id,[...data.saved,id]):null;
+      data.saved=[...data.saved,id];
+      heartPulse=inFeed;persist();render();haptic("success");playEncounterTone("choose");
+      if(!inFeed){toast("Thought kept in Library");return}
+      keepPending={id,next,phase:"animating"};
+      toast("Thought kept ✧",{undo:true});
+      keepTimer=setTimeout(()=>{
+        keepTimer=null;
+        if(!keepPending||keepPending.id!==id||keepPending.phase!=="animating")return;
+        quoteCursor=keepPending.next.cursor;keepPending.phase="completed";heartPulse=false;
+        if(view==="today"&&!discoverOpen&&!settingsOpen&&detailId===null){
+          const card=document.getElementById("quote-motion");
+          if(card){card.classList.add("keep-advance-out");setTimeout(()=>{if(keepPending?.id!==id)return;render();document.getElementById("quote-motion")?.classList.add("keep-advance-in")},160)}
+          else render();
+        }
+      },480);
       return;
+    }
+    case"undo-keep":{
+      if(!keepPending)return;
+      const {id}=keepPending;
+      if(keepTimer){clearTimeout(keepTimer);keepTimer=null}
+      keepPending=null;heartPulse=false;
+      data.saved=data.saved.filter(x=>x!==id);
+      const restored=discoveryQueue();
+      const i=restored.indexOf(id);quoteCursor=i>=0?i:0;
+      persist();render();toast("Back in Encounter");haptic();return;
+    }
+    case"view-saved-from-encounter":{
+      view="library";libraryScope="liked";openSchoolId=null;render();return;
     }
     case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
     case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
     case"close-discover":discoverOpen=false;discoverStep=0;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
-    case"discover-save":{const id=visibleQuoteId();if(!data.saved.includes(id)){data.saved.push(id);persist();}discoverOpen=false;render();toast("Thought kept");return}
+    case"discover-save":{const id=visibleQuoteId();if(id===null)return;const next=followingThought(daySequence(),id,[...data.saved,id]);if(!data.saved.includes(id)){data.saved.push(id);persist();}quoteCursor=next.cursor;discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
     case"thread-back":discoverStep=0;render();return;
     case"thread-restart":discoverStep=0;threadBranch=0;threadAnswer=0;render();return;
