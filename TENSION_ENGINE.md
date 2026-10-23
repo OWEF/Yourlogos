@@ -1,7 +1,7 @@
 # YourLogos Tension Engine V3.4
 
 ## Status
-Curated pilot: **22 / 91** bundled quotations. The other quotes are **not** automatically given a synthetic dialectic. Encounter/Keep remains available; Question politely identifies uncurated content.
+Curated draft coverage: **91 / 91** bundled quotations. Every built-in quote has a specific reconstruction, central tension and three editorial moves. Newly fetched remote quotes without reviewed records remain safely uncurated. This is complete structural coverage, not a claim that every historical interpretation has finished scholarly source review.
 
 ## Editorial contract
 The display begins with a genuine pressure point, not "What if X is wrong?".
@@ -36,4 +36,4 @@ This is a philosophical editorial system, **not** a deductive solver. An apparen
 Future models should generate **candidates only** in a review queue, bound to this schema and citing primary/contextual sources. A separate reviewer checks source fidelity, move distinctiveness and conceptual link before a candidate is published. Never show unreviewed live-generated claims to users as authoritative.
 
 ## Limitation
-The pilot's reconstruction and bridges are editorial drafts requiring scholarly fact checking, not yet source-audited line-by-line. All uncurated quotes should remain explicitly labeled until review.
+All records are editorial drafts. Philosophical correctness, translation, attribution and historical context still require selective human/scholarly review before treating them as fully source-verified. The graph currently routes to a school, while concept IDs are retained as structured metadata for deeper Library routes in a later release.
