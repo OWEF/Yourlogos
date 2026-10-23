@@ -194,6 +194,8 @@ const haptic=(kind="selection")=>{
   // Native haptics where a hosting platform supports them. Standalone iPhone
   // browsers have no general JavaScript Taptic Engine access.
   try{
+    const native=window.webkit?.messageHandlers?.yourlogosHaptics;
+    if(native){native.postMessage(kind);return}
     const t=window.Telegram?.WebApp?.HapticFeedback;
     if(t){kind==="success"?t.notificationOccurred("success"):kind==="impact"?t.impactOccurred("light"):t.selectionChanged();return}
     navigator.vibrate?.(kind==="success"?[12,24,12]:8);
