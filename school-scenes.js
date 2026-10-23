@@ -318,5 +318,39 @@ export const SCHOOL_SCENES={
         "insight": "Mindfulness is not a command to feel calm; it is a different relationship to experience."
       }
     ]
+  },
+"confucianism":{"tag":"RITUAL / CARE","pole":["Outer form","Humaneness"],"scenes":[{"place":"A family disagreement","question":"Someone you respect is unfair. How do you respond?","options":[["Keep quiet","Respect without honesty may protect a problem.",19],["Speak with care","A relationship can hold both respect and correction.",82],["Win the argument","Being right is not the only concern.",43]],"insight":"Confucian ethics asks how sincerity and practiced conduct build relationships."}]},
+"epicureanism":{"tag":"DESIRE / ENOUGH","pole":["More","Enough"],"scenes":[{"place":"A new purchase","question":"You want something expensive. What matters most?","options":[["Buy immediately","An impulse can promise more than it delivers.",20],["Ask what you need","Contentment may depend on fewer wants.",84],["Reject every pleasure","A simple life need not reject delight.",45]],"insight":"Epicurean pleasure involves durable tranquility, not endless indulgence."}]},
+"idealism":{"tag":"SELF / RECOGNITION","pole":["Isolated self","Recognized self"],"scenes":[{"place":"A misunderstood intention","question":"You think you know yourself, but your friend sees you differently.","options":[["Ignore their view","Self-certainty can close off understanding.",18],["Consider the relation","Identity can become clearer in recognition.",85],["Accept their judgment","Recognition is not passive conformity.",48]],"insight":"German Idealism investigates self-consciousness through relation and reason."}]},
+"pragmatism":{"tag":"THEORY / PRACTICE","pole":["Abstract belief","Tested idea"],"scenes":[{"place":"A new idea","question":"Two explanations sound convincing. What comes next?","options":[["Choose the elegant one","An elegant explanation may still fail.",20],["Test consequences","Inquiry becomes richer through experience.",85],["Stop asking","Uncertainty need not end curiosity.",47]],"insight":"Pragmatism treats concepts as answerable to inquiry and their practical bearings."}]}
+,
+  "confucianism": {
+    "tag": "CARE / CUSTOM", "pole": ["Habit", "Humaneness"],
+    "scenes": [
+      {"place":"A difficult family dinner","question":"A relative makes an unfair remark. What should guide your reply?","options":[["Maintain appearances","Harmony can become avoidance.",24],["Respond with respectful honesty","Care can include disagreement.",86],["Make a public spectacle","Correctness may lose sight of the relationship.",43]],"insight":"In Confucian ethics, ritual matters when it cultivates humane relationships."},
+      {"place":"A friend needs help","question":"You promised to study, but someone needs your attention.","options":[["Follow the schedule blindly","A rule may eclipse its purpose.",19],["Weigh your responsibilities","Practical care attends to context.",88],["Abandon every commitment","Care also needs discernment.",48]],"insight":"Responsibility is learned through particular relationships, not abstract slogans alone."}
+    ]
+  },
+  "epicureanism": {
+    "tag": "WANT / ENOUGH", "pole": ["Restless desire", "Contentment"],
+    "scenes": [
+      {"place":"One more purchase","question":"You could afford it, but do you actually need it?","options":[["Buy to keep up","Comparison can multiply wants.",20],["Notice whether it brings ease","Pleasure need not mean accumulation.",90],["Refuse every pleasure","Epicureanism is not a rejection of enjoyment.",45]],"insight":"Epicurus asks us to distinguish what satisfies a need from what keeps desire restless."},
+      {"place":"An evening with friends","question":"You have a free night. What feels most nourishing?","options":[["Chase the biggest thrill","Intensity and tranquillity can differ.",25],["Enjoy simple company","Friendship can be a durable pleasure.",90],["Stay alone from fear","Avoidance is not necessarily peace.",48]],"insight":"The Epicurean ideal of pleasure includes friendship and freedom from unnecessary distress."}
+    ]
+  },
+  "idealism": {
+    "tag": "SELF / RELATION", "pole": ["Isolated self", "Recognition"],
+    "scenes": [
+      {"place":"Disagreeing with a friend","question":"Someone challenges a belief that defines you. What changes?","options":[["Protect the label","An identity can harden into an enclosure.",24],["Examine the challenge together","Self-understanding develops through relation.",88],["Borrow their conclusion","Recognition is not simple conformity.",50]],"insight":"German Idealists investigate how reason, freedom and self-consciousness develop through relation."},
+      {"place":"A rule you agreed to","question":"A shared rule now seems unreasonable. What makes it binding?","options":[["Obey without thought","An unexamined rule can feel alien.",20],["Ask if it can be justified","Freedom demands more than raw preference.",89],["Dismiss all shared rules","Freedom does not necessarily mean isolation.",48]],"insight":"From Kant to Hegel, autonomy and shared norms are questions to investigate—not easy opposites."}
+    ]
+  },
+  "pragmatism": {
+    "tag": "BELIEF / TEST", "pole": ["Fixed theory", "Open inquiry"],
+    "scenes": [
+      {"place":"A plan fails in practice","question":"Your idea sounded excellent, but the result surprises you.","options":[["Defend it regardless","A theory can become immune to evidence.",17],["Revise and test again","Inquiry stays answerable to consequences.",91],["Give up on any theory","An unsuccessful test can still teach.",49]],"insight":"Pragmatism approaches belief through inquiry that learns from outcomes."},
+      {"place":"Two possible methods","question":"Two approaches disagree. How might you learn which helps?","options":[["Choose the most fashionable","Prestige does not establish usefulness.",21],["Compare them in context","Consequences help clarify a claim.",88],["Demand perfect certainty first","Inquiry often proceeds without guarantees.",43]],"insight":"For pragmatists, asking what difference an idea makes can sharpen—not replace—reasoning."}
+    ]
   }
+
 };

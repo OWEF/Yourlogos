@@ -116,6 +116,7 @@ const KEY="yourlogos_web_v1";
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
+let libraryBridge=null;
 let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
 if(!data.encounters||typeof data.encounters!=="object")data.encounters={};
@@ -320,6 +321,7 @@ function libraryHtml(){
   }
   return '<section class="view library-v3 school-detail-screen" aria-label="'+esc(current.name)+'">'+
     '<div class="school-detail-scroll" id="school-detail-scroll">'+
+      (libraryBridge&&libraryBridge.school===current.id?'<div class="yl-library-bridge"><span>FROM YOUR QUESTION</span><p>'+esc(libraryBridge.question)+'</p><small>Explore how '+esc(current.name)+' approaches this question.</small></div>':'')+
       '<button type="button" data-school-back class="school-back" aria-label="Back to all philosophies">'+
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h13"/></svg>All philosophies</button>'+
       '<div class="school-hero school-'+esc(current.id)+'">'+schoolArtwork(current.id)+'</div>'+
@@ -700,6 +702,7 @@ document.addEventListener("click",async e=>{
     case"thread-restart":discoverStep=0;threadBranch=0;threadAnswer=0;render();return;
     case"discover-library":{
       const id=visibleQuoteId(),target=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer,id);
+      libraryBridge={school:target,question:QUOTES[id][0]};
       discoverOpen=false;discoverStep=0;view="library";openSchoolId=target;schoolSceneIndex=0;schoolChoiceIndex=null;libraryScope="all";render();haptic();return;
     }
     case"clear-discovery":settingsConfirm=true;render();return;
