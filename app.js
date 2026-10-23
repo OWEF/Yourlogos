@@ -1,6 +1,7 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { SCHOOL_SCENES } from "./school-scenes.js";
 import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, worldFingerprintEvidence } from "./encounter-v31.js";
+import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } from "./encounter-feedback.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -245,9 +246,12 @@ const DISCOVERY_LENSES=[
 function discoverHtml(){
   const id=visibleQuoteId(),q=QUOTES[id];
   return '<div class="discover-cover" data-action="close-discover"></div>'+
-    '<section class="discover-sheet discover-v26 v31-discover" role="dialog" aria-modal="true" aria-label="A little philosophical encounter">'+
+    '<section class="discover-sheet discover-v26 v31-discover v32-discover" role="dialog" aria-modal="true" aria-label="A little philosophical encounter">'+
       '<div class="sheet-handle"></div>'+
-      '<div class="sheet-head"><span>AN ENCOUNTER</span><button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div>'+
+      '<div class="sheet-head"><span>AN ENCOUNTER</span><div class="v32-header-actions">'+
+        '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
+        '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
       encounterPanel({quote:q,quoteId:id,record:data.encounters[id],step:discoverStep})+
     '</section>';
 }
@@ -561,7 +565,7 @@ document.addEventListener("click",async e=>{
     const record={schoolId,sceneIndex,optionIndex:choice,theme:QUOTES[id][2],date:today(),axis:scene.options[choice][2]};
     data.encounters[id]=record;
     data.encounterEvents=recordExploration(data.encounterEvents,{...record,source:"encounter",quoteId:id});
-    discoverStep=1;persist();haptic("success");render();return;
+    discoverStep=1;persist();playEncounterTone("choose");haptic("selection");render();document.querySelector(".v32-flash")?.focus({preventScroll:true});return;
   }
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;
     if(SCHOOLS.some(x=>x.id===candidate)&&!openSchoolId){
@@ -662,7 +666,8 @@ document.addEventListener("click",async e=>{
       if(heartPulse)setTimeout(()=>{heartPulse=false},620);
       return;
     }
-    case"discover":discoverStep=0;discoverOpen=true;haptic("impact");render();document.querySelector(".sheet-close")?.focus();return;
+    case"discover":discoverStep=0;discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
+    case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
     case"close-discover":discoverOpen=false;discoverStep=0;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(!data.saved.includes(id)){data.saved.push(id);persist();}discoverOpen=false;render();toast("Thought kept");return}
