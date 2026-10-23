@@ -12,3 +12,71 @@
 .school-grid .school-art svg{width:100%;height:100%;max-width:100%;max-height:100%}
 @keyframes school-bridge-appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.school-bridge{animation:none}}
+
+/* All ten schools belong to the same continuously scrollable Library.
+   The original six-card layout fixed the grid to 3 rows and compressed new
+   schools to almost zero height. Let content determine the page height. */
+.library-v3:not(.school-detail-screen):not(.library-liked){
+  display:block;
+  height:auto;
+  min-height:0;
+  max-height:none;
+  overflow:visible;
+  padding-bottom:calc(110px + env(safe-area-inset-bottom));
+}
+.library-v3:not(.school-detail-screen) .school-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:none;
+  grid-auto-rows:clamp(175px,24vw,270px);
+  align-items:stretch;
+  height:auto;
+  min-height:0;
+  overflow:visible;
+  flex:none;
+  gap:13px;
+  padding:0 1px 5px;
+}
+.library-v3 .school-grid .school-tile{
+  min-height:0;
+  height:100%;
+  touch-action:pan-y;
+  -webkit-tap-highlight-color:transparent;
+}
+.library-v3 .school-grid .school-tile:focus-visible{
+  outline:2px solid #f0d8b1;
+  outline-offset:3px;
+}
+.library-v3-guide{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:14px 3px 2px;
+  font:500 11px/1.4 'DM Sans',sans-serif;
+  color:#a9a296;
+  letter-spacing:.01em;
+}
+.library-v3-guide .guide-dot{height:4px;width:4px;border-radius:50%;background:#c3ae8e;opacity:.8}
+@media(max-width:700px){
+  .library-v3:not(.school-detail-screen):not(.library-liked){
+    height:auto;
+    min-height:0;
+    max-height:none;
+    overflow:visible;
+    padding:2px 0 calc(135px + env(safe-area-inset-bottom));
+  }
+  .library-v3:not(.school-detail-screen) .school-grid{
+    grid-auto-rows:clamp(165px,47vw,225px);
+    gap:11px;
+  }
+  .library-v3 .school-name{font-size:clamp(17px,5.3vw,23px)}
+  .library-v3 .school-art{inset:4px 5px 30px}
+  .library-v3-guide{font-size:10px;padding-left:2px}
+}
+@media(max-width:360px){
+  .library-v3:not(.school-detail-screen) .school-grid{
+    grid-auto-rows:160px;
+    gap:9px;
+  }
+  .library-v3 .school-name{font-size:17px}
+}
