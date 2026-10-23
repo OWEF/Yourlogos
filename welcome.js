@@ -12,7 +12,7 @@
   function markReady(){
     if(entered||transitioning)return;
     ready=true;failed=false;button.disabled=false;
-    button.textContent="Philosophy it ↗";
+    button.innerHTML='Philosophy it <span class="yl-entrance__arrow" aria-hidden="true">↗</span>';
     status.textContent="";retry.hidden=true;
   }
   function recover(){
