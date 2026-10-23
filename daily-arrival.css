@@ -1,0 +1,86 @@
+/* YourLogos — Quiet daily arrival.
+   Existing serif, dark glass, warm-gold tokens remain authoritative.
+   The small constellation signifies presence, never a performance score. */
+.today-v2{position:relative}
+.arrival-ritual{
+  position:absolute;z-index:8;top:7px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:13px;
+  width:min(94%,430px);max-width:calc(100% - 12px);min-height:62px;
+  border:1px solid rgba(207,185,146,.17);border-radius:21px;
+  background:linear-gradient(110deg,rgba(31,34,39,.73),rgba(14,18,24,.85));
+  box-shadow:0 8px 33px rgba(0,0,0,.22),inset 0 1px rgba(240,219,179,.05);
+  backdrop-filter:blur(19px);-webkit-backdrop-filter:blur(19px);
+  padding:10px 14px;color:#efe7db;
+  animation:arrival-settle .75s cubic-bezier(.2,.8,.25,1) both
+}
+.arrival-constellation{position:relative;display:flex;gap:7px;align-items:center;
+  height:34px;flex:0 0 auto;isolation:isolate}
+.arrival-star{width:4px;height:4px;border-radius:50%;background:#746f69;opacity:.55;
+  border:1px solid rgba(254,234,202,.07);transition:opacity .55s,box-shadow .55s,transform .55s}
+.arrival-star.visited{background:#e7c991;opacity:.92;box-shadow:0 0 8px 2px rgba(231,190,126,.19)}
+.arrival-star.current{width:6px;height:6px}
+.arrival-star.current.visited{box-shadow:0 0 0 4px rgba(226,186,123,.09),0 0 15px 4px rgba(247,215,163,.2)}
+.arrival-copy{min-width:0;flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left}
+.arrival-copy>span{font:500 9px/1.2 'DM Sans',sans-serif;letter-spacing:.15em;color:#d8c39f}
+.arrival-copy small{font:italic 13px/1.2 'Cormorant Garamond',Georgia,serif;color:#acaaa8;white-space:normal}
+.arrival-button{flex:0 0 auto;border:1px solid rgba(210,177,123,.38);
+  background:rgba(219,185,133,.10);color:#f3e5c9;border-radius:99px;padding:10px 11px;
+  font:500 11px/1 'DM Sans',sans-serif;white-space:nowrap;transition:transform .22s,background .22s}
+.arrival-button span{color:#ebc897;margin-left:5px;font-size:13px}
+.arrival-button:hover{background:rgba(219,185,133,.2)}
+.arrival-button:active{transform:scale(.95)}
+.arrival-button:focus-visible,.arrival-setting-row:focus-visible,.tomorrow-close:focus-visible{outline:2px solid #e9c898;outline-offset:3px}
+.arrival-done{flex:0 0 auto;font:26px/1 'Cormorant Garamond',Georgia,serif;color:#e8cba1}
+.arrival-ritual.first-light .arrival-star{animation:arrival-starlight 1.8s ease-in-out both}
+.arrival-ritual.first-light .arrival-star:nth-child(2){animation-delay:90ms}
+.arrival-ritual.first-light .arrival-star:nth-child(3){animation-delay:170ms}
+.arrival-ritual.first-light .arrival-star:nth-child(4){animation-delay:240ms}
+.arrival-ritual.first-light .arrival-star:nth-child(5){animation-delay:320ms}
+.arrival-ritual.first-light .arrival-star:nth-child(6){animation-delay:400ms}
+.arrival-ritual.first-light .arrival-star:nth-child(7){animation-delay:480ms}
+.arrival-ritual.celebrating .arrival-star.current{animation:arrival-awaken 1.15s cubic-bezier(.22,.8,.25,1) both}
+.arrival-ritual.celebrating:after{content:"";pointer-events:none;position:absolute;right:15px;
+  top:50%;height:3px;width:3px;border-radius:50%;background:#e5c38e;
+  box-shadow:0 -20px #f1d9a478,-24px -2px #f1d9a47b,-16px 16px #cba87977,16px 18px #f1d9a478,26px -8px #f1d9a473;
+  animation:arrival-motes 1.2s ease-out both}
+@keyframes arrival-settle{from{opacity:0;transform:translate(-50%,-11px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes arrival-starlight{from{filter:brightness(.35);transform:scale(.5)}55%{filter:brightness(1.8);transform:scale(1.7)}to{filter:brightness(1);transform:scale(1)}}
+@keyframes arrival-awaken{0%{transform:scale(.75)}45%{transform:scale(2.4);box-shadow:0 0 0 7px rgba(229,190,127,.13),0 0 33px 7px #e1be8162}100%{transform:scale(1)}}
+@keyframes arrival-motes{0%{opacity:0;transform:scale(.35)}22%{opacity:1}100%{opacity:0;transform:scale(1.8)}}
+.arrival-settings .arrival-summary{display:flex;align-items:baseline;gap:12px;padding:4px 0 12px}
+.arrival-settings .arrival-count{font:400 46px/1 'Cormorant Garamond',Georgia,serif;color:#f5e6cf}
+.arrival-summary>span:last-child{font:13px 'DM Sans',sans-serif;color:#b4ada2}
+.arrival-seven{display:flex;gap:6px;justify-content:space-between;max-width:370px;padding:12px 3px 18px}
+.arrival-seven>div{display:flex;flex:1;flex-direction:column;align-items:center;gap:10px}
+.arrival-seven span{width:5px;height:5px;border-radius:50%;background:#595852}
+.arrival-seven span.visited{background:#e4c38f;box-shadow:0 0 9px 2px #d2b47c4c}
+.arrival-seven small{font:9px 'DM Sans',sans-serif;color:#95918a;letter-spacing:.01em}
+.tomorrow-preview{position:fixed;z-index:93;left:50%;bottom:0;transform:translateX(-50%);
+  width:min(100%,610px);padding:42px 28px calc(40px + env(safe-area-inset-bottom));
+  background:linear-gradient(160deg,#242321,#101419);border:1px solid rgba(209,184,142,.43);
+  border-bottom:0;border-radius:28px 28px 0 0;box-shadow:0 -18px 75px #000a;
+  text-align:center;animation:tomorrow-rise .44s cubic-bezier(.18,.9,.25,1) both}
+.tomorrow-star{font:34px 'Cormorant Garamond',Georgia,serif;color:#d7b782;margin-bottom:12px}
+.tomorrow-preview h2{font:400 clamp(27px,4.5vw,43px)/1.28 'Libre Caslon Display',Georgia,serif;
+  color:#f4eadf;margin:24px auto 17px;max-width:520px}
+.tomorrow-preview p{font:italic 15px 'Cormorant Garamond',Georgia,serif;color:#ceb997;margin-bottom:19px}
+.tomorrow-preview small{display:block;font:11px 'DM Sans',sans-serif;color:#97918b;line-height:1.5}
+.tomorrow-close{margin-top:28px;border:1px solid rgba(220,196,157,.42);
+  background:rgba(220,196,157,.08);border-radius:99px;padding:13px 24px;color:#f0e6d9;font:12px 'DM Sans',sans-serif}
+@keyframes tomorrow-rise{from{opacity:0;transform:translate(-50%,60px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(max-width:700px){
+ .arrival-ritual{top:6px;width:calc(100% - 8px);padding:9px 11px;gap:9px;min-height:58px}
+ .arrival-constellation{gap:5px}
+ .arrival-copy small{font-size:12px}
+ .arrival-copy>span{font-size:8px}
+ .arrival-button{padding:9px 10px;font-size:10px}
+ .tomorrow-preview{padding:28px 24px calc(32px + env(safe-area-inset-bottom))}
+}
+@media(max-width:340px){
+ .arrival-ritual{gap:7px}.arrival-copy small{font-size:11px}
+ .arrival-constellation{gap:4px}.arrival-button{padding:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ .arrival-ritual,.arrival-ritual.first-light .arrival-star,.arrival-ritual.celebrating .arrival-star.current,
+ .arrival-ritual.celebrating:after,.tomorrow-preview{animation:none!important;transition:none!important}
+}
