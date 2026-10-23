@@ -25,3 +25,13 @@ export async function signOutEmail(){
  const c=await client();const {error}=await c.auth.signOut();
  if(error)throw error;
 }
+
+export async function fetchPublishedQuotes(){
+ if(!AUTH_ENABLED)return [];
+ const c=await client();
+ const {data,error}=await c.from("quotes")
+  .select("legacy_id,quote_text,author,theme,source,reflection_prompt")
+  .eq("is_published",true).order("legacy_id",{ascending:true}).limit(500);
+ if(error)throw error;
+ return Array.isArray(data)?data:[];
+}
