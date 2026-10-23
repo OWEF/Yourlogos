@@ -714,8 +714,12 @@ document.addEventListener("click",async e=>{
       const before=inFeed?daySequence():null;
       const next=inFeed?followingThought(before,id,[...data.saved,id]):null;
       data.saved=[...data.saved,id];
-      heartPulse=inFeed;persist();render();haptic("success");playEncounterTone("choose");
-      if(!inFeed){toast("Thought kept in Library");return}
+      heartPulse=inFeed;persist();haptic("success");playEncounterTone("choose");
+      if(!inFeed){render();toast("Thought kept in Library");return}
+      // Preserve the old card briefly: red-heart feedback precedes the next quote.
+      const heart=document.querySelector('[data-action="toggle-save"]');
+      if(heart){heart.classList.add("liked","heart-pop");heart.setAttribute("aria-pressed","true");heart.setAttribute("aria-label","Thought kept");heart.title="Thought kept";}
+
       keepPending={id,next,phase:"animating"};
       toast("Thought kept ✧",{undo:true});
       keepTimer=setTimeout(()=>{
