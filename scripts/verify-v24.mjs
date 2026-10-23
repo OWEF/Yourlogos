@@ -39,7 +39,8 @@ for(let i=0;i<=chosen.length-QUOTES.length;i++){
 }
 assert.equal(model.ensureDailyFeature(),model.activeQuote(),"Quote should remain stable on same date");
 assert.ok(app.includes('["today","Encounter"],["library","Library"],["profile","My World"]'));
-assert.ok(app.includes('document.body.appendChild(portal)'),"Settings modal should render as body overlay rather than inside clipped shell");
+assert.ok(app.includes('portal.showModal()'),"Settings must use native top layer to prevent disappearing behind stage or dock");
+assert.ok(app.includes('dialog.settings-layer'),"Settings must be an accessible native dialog");
 assert.ok(app.includes("data-action=\"daily-arrive\""));
 assert.ok(app.includes("preview-tomorrow"));
 assert.ok(app.includes('document.body.appendChild(replacementNav)'),"Navigation dock must persist outside content root");

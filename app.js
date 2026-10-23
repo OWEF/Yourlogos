@@ -420,12 +420,26 @@ function render(){
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
   (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-haspopup="dialog" aria-controls="yourlogos-settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
   '';
-  // Render Settings in body to escape shell clipping and stacking contexts.
-  document.querySelector("body > .settings-layer")?.remove();
-  if(settingsOpen){
-    const portal=document.createElement("div");portal.className="settings-layer";
-    portal.innerHTML='<div class="settings-panel" role="dialog" aria-modal="true" aria-label="Profile and settings" id="yourlogos-settings" tabindex="-1"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div>';
-    document.body.appendChild(portal);
+  // Native HTMLDialogElement enters the browser top layer: it cannot hide
+  // behind the dock, header, or iPhone WebKit stacking/overflow contexts.
+  const previousDialog=document.querySelector("body > dialog.settings-layer");
+  if(!settingsOpen){previousDialog?.remove()}
+  else{
+    const portal=previousDialog||document.createElement("dialog");
+    if(!previousDialog){
+      portal.className="settings-layer";
+      portal.setAttribute("aria-label","Profile and settings");
+      document.body.appendChild(portal);
+    }
+    // Keep the native top-layer dialog mounted, but refresh its content on
+    // explicit form/action renders. Preserve scroll position after saving.
+    const previousScroll=portal.scrollTop;
+    portal.innerHTML='<div class="settings-panel" id="yourlogos-settings" tabindex="-1"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div>';
+    portal.scrollTop=previousScroll;
+    if(!portal.open){
+      if(typeof portal.showModal==="function"){try{portal.showModal()}catch{portal.setAttribute("open","")}}
+      else portal.setAttribute("open","");
+    }
   }
   document.querySelector('[data-action="settings-open"]')?.setAttribute("aria-expanded",settingsOpen?"true":"false");
   // Place the dock outside #app once, so subsequent innerHTML updates never
@@ -518,6 +532,12 @@ const releaseTouch=e=>{
 document.addEventListener("pointerup",releaseTouch,{passive:true});
 document.addEventListener("pointercancel",releaseTouch,{passive:true});
 
+document.addEventListener("cancel",e=>{
+  if(e.target instanceof Element&&e.target.matches("dialog.settings-layer")){
+    e.preventDefault();settingsOpen=false;render();
+    document.querySelector('[data-action="settings-open"]')?.focus();
+  }
+},true);
 document.addEventListener("keydown",e=>{
  if(e.key==="Escape"&&settingsOpen){settingsOpen=false;render();document.querySelector('[data-action="settings-open"]')?.focus()}
 });
