@@ -263,7 +263,13 @@ function fingerprintHtml(){
 }
 function settingsHtml(){
   const responses=Object.keys(data.discovery).length;
-  return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+ 
+  return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+
+    '<div class="v22-settings-block"><h2>Your account</h2><p>Personalize the way YourLogos welcomes you. Your display name is kept on this device until account sync is connected.</p>'+
+      '<form id="profile-name-form" class="account-form"><label for="display-name">DISPLAY NAME</label><input id="display-name" name="displayName" required maxlength="32" autocomplete="nickname" placeholder="What should we call you?" value="'+esc(data.localName)+'"/><button type="submit">Save name</button></form>'+
+      (verifiedIdentity?'<p class="account-muted">Verified email: '+esc(verifiedIdentity.email)+' · Your current quote data still lives on this browser until sync is implemented.</p><button type="button" data-action="email-signout" class="v22-setting-row"><span><strong>Sign out from email</strong></span><b>↗</b></button>':
+       AUTH_ENABLED?'<form id="account-email-form" class="account-form"><label for="account-email">EMAIL ADDRESS</label><input id="account-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com"/><button type="submit" '+(authBusy?'disabled':'')+'>Send secure sign-in link</button></form>':
+       '<p class="account-muted">Verified email enrollment will be available when a dedicated YourLogos authentication project is connected. You can still save your name and use the app without an account.</p>')+
+       (authNotice?'<div class="account-notice" role="status">'+esc(authNotice)+'</div>':'')+'</div>'+
     '<div class="v22-settings-block arrival-settings"><h2>Your returns</h2><p>Each day you choose to arrive leaves a small light. No pressure to keep a streak, and missing a day changes nothing.</p>'+
     '<div class="arrival-summary"><span class="arrival-count">'+data.arrivals.length+'</span><span>days you made room for a thought</span></div>'+
     '<div class="arrival-seven">'+arrivalDates().map(x=>'<div><span class="'+(data.arrivals.includes(x)?"visited":"")+'"></span><small>'+x.slice(5)+'</small></div>').join("")+'</div>'+
@@ -302,7 +308,9 @@ function render(){
   '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.2</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
-  (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'');
+  (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
+  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
+  (settingsOpen?'<div class="settings-layer"><div class="settings-panel" role="dialog" aria-modal="true" aria-label="Profile and settings"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div></div>':'');
   const currentDock=document.querySelector(".dock-glass");
   if(currentDock && active>=0 && from!==active){
     currentDock.style.setProperty("--dock-active",String(from));
@@ -362,6 +370,9 @@ document.addEventListener("click",async e=>{
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
+    case"settings-open":settingsOpen=true;render();document.querySelector(".settings-close")?.focus();return;
+    case"settings-close":settingsOpen=false;authNotice="";render();return;
+    case"email-signout":{try{await signOutEmail();verifiedIdentity=null;authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
     case"daily-arrive":{
       const d=today();if(!data.arrivals.includes(d)){data.arrivals.push(d);data.arrivals=data.arrivals.slice(-730);persist();}
       arrivalCelebrating=true;haptic();render();toast("A little light for today");
@@ -371,7 +382,7 @@ document.addEventListener("click",async e=>{
     case"preview-tomorrow":previewTomorrowOpen=true;render();return;
     case"close-preview":previewTomorrowOpen=false;render();return;
     case"finish-onboarding":data.started=true;view="today";break;
-    case"edit-themes":view="onboarding";break;
+    case"edit-themes":settingsOpen=false;view="onboarding";break;
     case"toggle-save":case"detail-save":{
       const id=a==="detail-save"?detailId:visibleQuoteId(),already=data.saved.includes(id);
       data.saved=already?data.saved.filter(x=>x!==id):[...data.saved,id];
@@ -396,7 +407,21 @@ document.addEventListener("click",async e=>{
   }
   persist();render();
 });
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&discoverOpen){discoverOpen=false;render()}});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsOpen){settingsOpen=false;render()}else if(previewTomorrowOpen){previewTomorrowOpen=false;render()}else if(discoverOpen){discoverOpen=false;render()}});
+document.addEventListener("submit",async e=>{
+ if(e.target.id==="profile-name-form"){
+  e.preventDefault();const name=String(new FormData(e.target).get("displayName")||"").trim().replace(/\\s+/g," ").slice(0,32);
+  if(!name)return;data.localName=name;persist();authNotice="Your greeting was saved on this device.";render();return;
+ }
+ if(e.target.id==="account-email-form"){
+  e.preventDefault();if(!AUTH_ENABLED){authNotice="Email login is not configured yet.";render();return}
+  const address=String(new FormData(e.target).get("email")||"").trim();if(!address)return;
+  authBusy=true;authNotice="Sending your one-time sign-in link…";render();
+  try{await requestMagicLink(address,data.localName||"");authNotice="Check your email for a secure sign-in link. No password needed."}
+  catch(err){authNotice=String(err?.message||err)}
+  finally{authBusy=false;render()}return;
+ }
+});
 
 // A backgrounded PWA must update its daily feature on the next foreground entry.
 activeLocalDay=today();
@@ -411,4 +436,5 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshFor
 window.addEventListener("focus",refreshForLocalDay);
 window.addEventListener("pageshow",refreshForLocalDay);
 setInterval(()=>{if(!document.hidden)refreshForLocalDay()},60000);
-render();if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+render();if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u){verifiedIdentity=u;if(!data.localName&&u.displayName){data.localName=u.displayName.slice(0,32);persist()}render()}}).catch(()=>{});
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
