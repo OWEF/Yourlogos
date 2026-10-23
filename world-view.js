@@ -1,8 +1,8 @@
 /* YourLogos personal space; deliberately separate from the star renderer. */
 const PEOPLE=[
-{id:"socrates",name:"Socrates",themes:["Doubt","Meaning"],responses:["curious","ambivalent"],lenses:["reason","others"],description:"You return to challenging familiar assumptions rather than holding onto certainty.",file:"Socrate du Louvre.jpg",credit:"Socrates bust photograph: Eric Gaba (Sting), Wikimedia Commons, CC BY-SA 2.5"},
+{id:"socrates",name:"Socrates",themes:["Doubt","Meaning"],responses:["curious","ambivalent"],lenses:["reason","others"],description:"You return to challenging familiar assumptions rather than holding onto certainty.",file:"Socrate du Louvre.jpg",credit:"Socrates bust photo: Eric Gaba (Sting), CC BY-SA 2.5"},
 {id:"nietzsche",name:"Friedrich Nietzsche",themes:["Meaning","Freedom"],responses:["resist","curious"],lenses:["reason","time"],description:"You are drawn to examining inherited values and asking how a life becomes one's own.",file:"Nietzsche1882.jpg",credit:"Friedrich Nietzsche, Gustav-Adolf Schultze (1882), public domain"},
-{id:"marcus",name:"Marcus Aurelius",themes:["Action","Suffering","Mortality"],responses:["resonate","ambivalent"],lenses:["experience","time"],description:"You revisit the distinction between the events you meet and your response to them.",file:"Rome Capitoline Marcus Aurelius statue original.jpg",credit:"Capitoline Museum, image Wikimedia Commons"},
+{id:"marcus",name:"Marcus Aurelius",themes:["Action","Suffering","Mortality"],responses:["resonate","ambivalent"],lenses:["experience","time"],description:"You revisit the distinction between the events you meet and your response to them.",file:"Rome Capitoline Marcus Aurelius statue original.jpg",credit:"Marcus Aurelius statue photo: Nicholas Hartmann, CC BY-SA 4.0"},
 {id:"kant",name:"Immanuel Kant",themes:["Doubt","Action","Meaning"],responses:["resist","ambivalent"],lenses:["reason","others"],description:"You seek the principles beneath judgments and ask what duties remain when convenience changes.",file:"Immanuel Kant portrait c1790.jpg",credit:"Anonymous portrait of Immanuel Kant, c.1790, public domain"}
 ];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -45,5 +45,5 @@ export function mirrorHtml(saved,discovery){
   (e.ready?'<p class="mirror-reasons">Based on recurring interests: '+esc(p.matching.join(" · ")||"questions and contrasting perspectives")+'</p>':
    '<p class="mirror-reasons">'+e.saved+' saved thoughts · '+e.responses+' Discover responses. Suggested minimum: three saved thoughts and two responses.</p>')+
   '<button type="button" data-world-pane="fingerprint">Explore your fingerprint ↗</button>'+
-  '<p class="mirror-credit">'+esc(p.credit)+'</p></div></section>';
+  '<p class="mirror-credit">'+esc(p.credit)+' · <a href="'+url(p).replace("/wiki/Special:FilePath/","/wiki/File:")+'" target="_blank" rel="noopener noreferrer">Image and license details ↗</a></p></div></section>';
 }
