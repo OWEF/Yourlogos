@@ -318,5 +318,9 @@ export const SCHOOL_SCENES={
         "insight": "Mindfulness is not a command to feel calm; it is a different relationship to experience."
       }
     ]
-  }
+  },
+"confucianism":{"tag":"RITUAL / CARE","pole":["Outer form","Humaneness"],"scenes":[{"place":"A family disagreement","question":"Someone you respect is unfair. How do you respond?","options":[["Keep quiet","Respect without honesty may protect a problem.",19],["Speak with care","A relationship can hold both respect and correction.",82],["Win the argument","Being right is not the only concern.",43]],"insight":"Confucian ethics asks how sincerity and practiced conduct build relationships."}]},
+"epicureanism":{"tag":"DESIRE / ENOUGH","pole":["More","Enough"],"scenes":[{"place":"A new purchase","question":"You want something expensive. What matters most?","options":[["Buy immediately","An impulse can promise more than it delivers.",20],["Ask what you need","Contentment may depend on fewer wants.",84],["Reject every pleasure","A simple life need not reject delight.",45]],"insight":"Epicurean pleasure involves durable tranquility, not endless indulgence."}]},
+"idealism":{"tag":"SELF / RECOGNITION","pole":["Isolated self","Recognized self"],"scenes":[{"place":"A misunderstood intention","question":"You think you know yourself, but your friend sees you differently.","options":[["Ignore their view","Self-certainty can close off understanding.",18],["Consider the relation","Identity can become clearer in recognition.",85],["Accept their judgment","Recognition is not passive conformity.",48]],"insight":"German Idealism investigates self-consciousness through relation and reason."}]},
+"pragmatism":{"tag":"THEORY / PRACTICE","pole":["Abstract belief","Tested idea"],"scenes":[{"place":"A new idea","question":"Two explanations sound convincing. What comes next?","options":[["Choose the elegant one","An elegant explanation may still fail.",20],["Test consequences","Inquiry becomes richer through experience.",85],["Stop asking","Uncertainty need not end curiosity.",47]],"insight":"Pragmatism treats concepts as answerable to inquiry and their practical bearings."}]}
 };
