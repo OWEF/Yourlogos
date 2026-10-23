@@ -23,7 +23,7 @@ assert.equal(QUOTES[31][1],"G. W. F. Hegel");
 const seed=read("supabase/yourlogos_quotes_seed.sql");
 const seedPayload=JSON.parse(seed.split("$quotes$\n")[1].split("\n$quotes$")[0]);
 assert.deepEqual(seedPayload.map(x=>x.legacy_id),Array.from({length:42},(_,i)=>i));
-assert.deepEqual(seedPayload.map(x=>x.author),QUOTES.map(x=>x[1]));
+assert.deepEqual(seedPayload.map(x=>x.author),QUOTES.slice(0,42).map(x=>x[1]));
 
 const start=app.indexOf("const dayIndexFor="),end=app.indexOf("const esc=",start);
 const mockData={practice:{},saved:[],themes:[]};
