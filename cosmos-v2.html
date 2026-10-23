@@ -163,7 +163,7 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
     if(mode==='personal')drawPanel();return true;
   }
   const legacyKey='yourlogos_web_v1';
-  const legacyConceptByIndex=['values','agency','values','change','agency','identity','values','connection','knowing','values','alone','values','change','agency','knowing','alone','change','change','alone','wonder'];
+  const legacyConceptByIndex=['values','agency','values','change','agency','identity','values','connection','knowing','values','alone','values','change','agency','knowing','alone','change','change','alone','wonder','knowing','knowing','values','agency','values','connection','agency','change','agency','knowing','connection','values','knowing','change','change','wonder','knowing','knowing','values','change','agency','agency'];
   function syncV1Likes(){
     let legacy={};try{legacy=JSON.parse(localStorage.getItem(legacyKey)||'{}')||{}}catch{}
     const saved=Array.isArray(legacy.saved)?legacy.saved.filter(x=>Number.isInteger(x)&&x>=0&&x<legacyConceptByIndex.length):[];
@@ -288,7 +288,25 @@ html,body{height:100%;overflow:hidden}body{background:#060a13}
     // Atmospheric background stars are never presented as someone's actual ideas.
     // An empty personal history therefore contains zero interactive formations.
     // Connection light only appears near a selected idea and develops with history.
-    EDGES.forEach(e=>{const a=cMap.get(e.a),b=cMap.get(e.b);const aIn=active.includes(e.a),bIn=active.includes(e.b),aGhost=potential.includes(e.a),bGhost=potential.includes(e.b);if(!((aIn||aGhost)&&(bIn||bGhost)))return;const highlighted=selected&&(e.a===selected||e.b===selected);const base=highlighted?.96:(level[e.a]>=3||level[e.b]>=3)?.45:.09;if(highlighted||(level[e.a]>=3||level[e.b]>=3))drawLink(a,b,base,(!aIn||!bIn));});
+    EDGES.forEach(e=>{
+      const a=cMap.get(e.a),b=cMap.get(e.b);
+      const aIn=active.includes(e.a),bIn=active.includes(e.b);
+      const aGhost=potential.includes(e.a),bGhost=potential.includes(e.b);
+      if(!((aIn||aGhost)&&(bIn||bGhost)))return;
+      if(mode==='sample'){
+        const highlighted=selected&&(e.a===selected||e.b===selected);
+        if(highlighted||level[e.a]>=3||level[e.b]>=3)
+          drawLink(a,b,highlighted?.96:.45,(!aIn||!bIn));
+        return;
+      }
+      // In a real personal universe, no relationship is drawn just because it
+      // appears in the editorial ontology or because a star has matured.
+      const explored=history.filter(entry=>entry.type==='link'&&
+        ((entry.concept===e.a&&entry.target===e.b)||(entry.concept===e.b&&entry.target===e.a)));
+      if(!explored.length)return;
+      const visits=new Set(explored.map(x=>x.date)).size;
+      drawLink(a,b,visits>=2?.87:.5,(!aIn||!bIn));
+    });
     potential.forEach(id=>drawNode(cMap.get(id),0,true));active.sort((a,b)=>cMap.get(a).z-cMap.get(b).z).forEach(id=>drawNode(cMap.get(id),level[id],false));
     for(let i=sparks.length-1;i>=0;i--){const p=sparks[i],s=sceneCoord(p);glow(s.x,s.y,p.r*4,p.color,.11*p.life);dot(s.x,s.y,p.r,p.color,p.life);p.x+=p.vx;p.y+=p.vy;p.life-=.019;if(p.life<=0)sparks.splice(i,1)}
     // Subtle camera motion follows touch direction instead of constant zooming.
