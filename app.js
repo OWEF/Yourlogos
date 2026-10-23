@@ -2,6 +2,7 @@ import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { SCHOOL_SCENES } from "./school-scenes.js";
 import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, worldFingerprintEvidence } from "./encounter-v31.js";
 import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } from "./encounter-feedback.js";
+import { thoughtThreadHtml, thoughtThreadDestination } from "./thought-threads.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -121,6 +122,8 @@ if(!data.encounters||typeof data.encounters!=="object")data.encounters={};
 if(!Array.isArray(data.encounterEvents))data.encounterEvents=[];
 if(typeof data.localName!=="string")data.localName="";
 let verifiedIdentity=null,authBusy=false,authNotice="";
+let threadBranch=0,threadAnswer=0;
+if(!Array.isArray(data.thoughtThreadEvents))data.thoughtThreadEvents=[];
 // A return is a gentle, optional act of presence; not a competitive streak.
 if(!Array.isArray(data.arrivals))data.arrivals=[];
 data.arrivals=[...new Set(data.arrivals.filter(x=>typeof x==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x)))].slice(-730);
@@ -194,7 +197,7 @@ const daySequence=()=>{
 };
 const visibleQuoteId=()=>daySequence()[Math.max(0,Math.min(quoteCursor,QUOTES.length-1))];
 const likedIcon=(liked)=>'<svg class="heart-svg" viewBox="0 0 40 40" aria-hidden="true"><path class="heart-path" d="M20 34C14.5 29.3 4 22 4 13.6 4 5 14.4 3.6 20 10.3 25.6 3.6 36 5 36 13.6 36 22 25.5 29.3 20 34Z"/></svg>'+Array.from({length:7},(_,i)=>{const angle=(i*2*Math.PI)/7;return '<i class="heart-spark" style="--dx:'+Math.round(Math.sin(angle)*34)+'px;--dy:'+Math.round(-Math.cos(angle)*34)+'px;--delay:'+(i%3)*20+'ms"></i>'}).join('');
-const compassIcon='<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="compass-ring" cx="20" cy="20" r="16"/><g class="compass-needle"><path d="M26.3 13.7 22.3 22.3 13.7 26.3 17.7 17.7Z"/><circle cx="20" cy="20" r="1.2" fill="currentColor" stroke="none"/></g></svg>';
+const questionIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.3a8.8 8.8 0 0 1-9.3 8.8 9.2 9.2 0 0 1-3.5-.7L3 21l1.6-5.1A8.8 8.8 0 1 1 21 11.3Z"/><path d="M9.5 9a2.7 2.7 0 0 1 5.2.8c0 1.9-2.6 2-2.6 3.8"/><circle cx="12.1" cy="16.3" r=".45" fill="currentColor" stroke="none"/></svg>';
 const haptic=(kind="selection")=>{
   // Native haptics where a hosting platform supports them. Standalone iPhone
   // browsers have no general JavaScript Taptic Engine access.
@@ -226,8 +229,8 @@ function todayHtml(){
     '</div>'+
     '<div class="quote-footer"><div class="swipe-cue">↑ &nbsp; SWIPE FOR ANOTHER THOUGHT</div>'+
     '<div class="quote-actions">'+
-      '<button type="button" aria-label="'+(liked?"Remove saved":"Keep")+' this quote" aria-pressed="'+liked+'" data-action="toggle-save" class="icon-action heart-button'+(liked?" liked":"")+(heartPulse?" heart-pop":"")+'">'+likedIcon(liked)+'<span>'+(liked?"Kept":"Keep")+'</span></button>'+
-      '<button type="button" aria-label="Discover this philosophical idea" data-action="discover" class="icon-action discover-button'+(discoverOpen?' spinning':'')+'">'+compassIcon+'<span>Discover</span></button>'+
+      '<button type="button" aria-label="'+(liked?"Remove this saved thought":"Keep this thought")+'" title="'+(liked?"Remove saved thought":"Keep this thought")+'" aria-pressed="'+liked+'" data-action="toggle-save" class="icon-action yl-quote-btn heart-button'+(liked?" liked":"")+(heartPulse?" heart-pop":"")+'">'+likedIcon(liked)+'</button>'+
+      '<button type="button" aria-label="Question this thought" title="Question this thought" aria-haspopup="dialog" data-action="discover" class="icon-action yl-quote-btn discover-button">'+questionIcon+'</button>'+
     '</div></div></article>';
 }
 const DISCOVERY_RESPONSES=[
@@ -246,13 +249,13 @@ const DISCOVERY_LENSES=[
 function discoverHtml(){
   const id=visibleQuoteId(),q=QUOTES[id];
   return '<div class="discover-cover" data-action="close-discover"></div>'+
-    '<section class="discover-sheet discover-v26 v31-discover v32-discover" role="dialog" aria-modal="true" aria-label="A little philosophical encounter">'+
+    '<section class="discover-sheet discover-v26 v31-discover v32-discover" role="dialog" aria-modal="true" aria-label="Question this thought">'+
       '<div class="sheet-handle"></div>'+
-      '<div class="sheet-head"><span>AN ENCOUNTER</span><div class="v32-header-actions">'+
+      '<div class="sheet-head"><span>QUESTION THE THOUGHT</span><div class="v32-header-actions">'+
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
-      encounterPanel({quote:q,quoteId:id,record:data.encounters[id],step:discoverStep})+
+      thoughtThreadHtml({quote:q,step:discoverStep,branchIndex:threadBranch,answerIndex:threadAnswer})+
     '</section>';
 }
 
@@ -357,7 +360,7 @@ function fingerprintHtml(){
      '<p class="v22-fine">Based on this browser’s saved quotes and explicit choices. You can revise or clear your Discover responses in Settings. Nothing here is a diagnosis.</p></section>';
 }
 function settingsHtml(){
-  const responses=Object.keys(data.discovery).length+(data.encounterEvents?.length||0);
+  const responses=Object.keys(data.discovery).length+(data.encounterEvents?.length||0)+(data.thoughtThreadEvents?.length||0);
   return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+
     '<div class="v22-settings-block"><h2>Your account</h2><p>Personalize the way YourLogos welcomes you. Your display name is kept on this device until account sync is connected.</p>'+
       '<form id="profile-name-form" class="account-form"><label for="display-name">DISPLAY NAME</label><input id="display-name" name="displayName" required maxlength="32" autocomplete="nickname" placeholder="What should we call you?" value="'+esc(data.localName)+'"/><button type="submit">Save name</button></form>'+
@@ -557,6 +560,25 @@ document.addEventListener("click",async e=>{
     universePane=destination;openSchoolId=null;libraryScope="all";detailId=null;
     settingsOpen=false;render();haptic();return;
   }
+  const threadMove=e.target.closest("[data-thread-branch]");
+  if(threadMove&&discoverOpen){
+    const index=Number(threadMove.dataset.threadBranch);
+    if(!Number.isInteger(index)||index<0||index>2)return;
+    threadBranch=index;discoverStep=1;playEncounterTone("choose");haptic();render();return;
+  }
+  const threadChoice=e.target.closest("[data-thread-answer]");
+  if(threadChoice&&discoverOpen){
+    const index=Number(threadChoice.dataset.threadAnswer);
+    if(!Number.isInteger(index)||index<0||index>1)return;
+    threadAnswer=index;discoverStep=2;
+    const id=visibleQuoteId(),destination=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer);
+    const event={quoteId:id,theme:QUOTES[id][2],author:QUOTES[id][1],branch:threadBranch,answer:threadAnswer,destination,date:today()};
+    const previous=data.thoughtThreadEvents.at(-1);
+    if(!previous||["quoteId","branch","answer","date"].some(k=>previous[k]!==event[k]))
+      data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(-249),event];
+    persist();playEncounterTone("choose");haptic();render();
+    document.querySelector(".yl-thread-ending")?.focus({preventScroll:true});return;
+  }
   const encounterChoice=e.target.closest("[data-encounter-choice]");
   if(encounterChoice && discoverOpen){
     const id=visibleQuoteId(),choice=Number(encounterChoice.dataset.encounterChoice);
@@ -632,6 +654,7 @@ document.addEventListener("click",async e=>{
             discovery:remote.state.discovery&&typeof remote.state.discovery==="object"?remote.state.discovery:{},
             encounters:remote.state.encounters&&typeof remote.state.encounters==="object"?remote.state.encounters:{},
             encounterEvents:Array.isArray(remote.state.encounterEvents)?remote.state.encounterEvents.slice(-350):[],
+            thoughtThreadEvents:Array.isArray(remote.state.thoughtThreadEvents)?remote.state.thoughtThreadEvents.slice(-250):[],
             themes:Array.isArray(remote.state.themes)?remote.state.themes:[],
             arrivals:Array.isArray(remote.state.arrivals)?remote.state.arrivals:[],
             started:Boolean(remote.state.started),
@@ -666,19 +689,21 @@ document.addEventListener("click",async e=>{
       if(heartPulse)setTimeout(()=>{heartPulse=false},620);
       return;
     }
-    case"discover":discoverStep=0;discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
+    case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
     case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
     case"close-discover":discoverOpen=false;discoverStep=0;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(!data.saved.includes(id)){data.saved.push(id);persist();}discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
+    case"thread-back":discoverStep=0;render();return;
+    case"thread-restart":discoverStep=0;threadBranch=0;threadAnswer=0;render();return;
     case"discover-library":{
-      const id=visibleQuoteId(),target=encounterFor(QUOTES[id],id).schoolId;
+      const id=visibleQuoteId(),target=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer);
       discoverOpen=false;discoverStep=0;view="library";openSchoolId=target;schoolSceneIndex=0;schoolChoiceIndex=null;libraryScope="all";render();haptic();return;
     }
     case"clear-discovery":settingsConfirm=true;render();return;
     case"cancel-clear-discovery":settingsConfirm=false;render();return;
-    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
+    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];data.thoughtThreadEvents=[];settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
     case"back":detailId=null;break;
     case"export":{
       const universe=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();
