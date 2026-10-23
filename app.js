@@ -465,6 +465,34 @@ function moveQuote(direction){
 }
 
 
+// Unified, immediate touch feedback across the existing glass control family.
+// Visual response begins at pointer-down instead of waiting for click/route work.
+document.addEventListener("pointerdown",e=>{
+  if(e.isPrimary===false||e.button>0)return;
+  const element=e.target instanceof Element?e.target:null;
+  const button=element?.closest("button");
+  if(!button||!button.matches('[data-view],[data-world-pane],[data-school],[data-school-back],[data-action],.quote-card,.v26-discover-choices button'))return;
+  if(button.disabled)return;
+  button.classList.add("motion-tap","motion-pressed");
+  const rect=button.getBoundingClientRect();
+  if(rect.width&&rect.height){
+    const orb=document.createElement("span");
+    orb.className="motion-ripple";
+    orb.style.setProperty("--touch-x",(e.clientX-rect.left)+"px");
+    orb.style.setProperty("--touch-y",(e.clientY-rect.top)+"px");
+    button.appendChild(orb);
+    requestAnimationFrame(()=>orb.classList.add("rippling"));
+    setTimeout(()=>orb.remove(),510);
+  }
+},{passive:true});
+const releaseTouch=e=>{
+  const element=e.target instanceof Element?e.target:null;
+  const button=element?.closest("button.motion-pressed");
+  if(button)setTimeout(()=>button.classList.remove("motion-pressed"),75);
+};
+document.addEventListener("pointerup",releaseTouch,{passive:true});
+document.addEventListener("pointercancel",releaseTouch,{passive:true});
+
 document.addEventListener("click",async e=>{
   const v=e.target.closest("[data-view]");
   if(v){
