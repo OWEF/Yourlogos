@@ -73,9 +73,12 @@ export function getThoughtThread(quote,quoteId=null){
   if(exploration)return exploration;
   if(Number.isInteger(quoteId))return {
     curated:false,
-    question:"This thought deserves a closer question.",
-    branches:[],
-    message:"We're still developing a faithful philosophical challenge for this quotation. Keep it for now—or continue exploring."
+    question:"What might this thought be overlooking?",
+    branches:[
+      {title:"Does the claim always hold?",followup:"Can you imagine a meaningful exception?",answers:[{label:"Look for a counterexample.",school:"skepticism",insight:"A claim's limits can help clarify its meaning."},{label:"Consider the human consequences.",school:"existentialism",insight:"An idea meets real lives and responsibilities."}]},
+      {title:"What makes this claim convincing?",followup:"What would count as a good reason?",answers:[{label:"Ask for stronger grounds.",school:"skepticism",insight:"A compelling phrase is not yet a proof."},{label:"Examine your own assumptions.",school:"stoicism",insight:"Judgment can be questioned and revised."}]},
+      {title:"What if the central distinction changes?",followup:"Could another perspective transform the question?",answers:[{label:"Look at relationships.",school:"buddhism",insight:"An apparent opposition may rest on interdependence."},{label:"Think of change rather than control.",school:"daoism",insight:"A shift in perspective may reveal another possibility."}]}
+    ]
   };
 
   const text=quote?.[0]||"";
