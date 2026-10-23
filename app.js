@@ -2,7 +2,7 @@ import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { SCHOOL_SCENES } from "./school-scenes.js";
 import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, worldFingerprintEvidence } from "./encounter-v31.js";
 import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } from "./encounter-feedback.js";
-import { thoughtThreadHtml, thoughtThreadDestination } from "./thought-threads.js";
+import { thoughtThreadHtml, thoughtThreadDestination, getThoughtThread } from "./thought-threads.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -117,6 +117,7 @@ const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{retur
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let libraryBridge=null;
+let bridgeFromQuestion=null;
 let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
 if(!data.encounters||typeof data.encounters!=="object")data.encounters={};
@@ -324,6 +325,7 @@ function libraryHtml(){
       (libraryBridge&&libraryBridge.school===current.id?'<div class="yl-library-bridge"><span>FROM YOUR QUESTION</span><p>'+esc(libraryBridge.question)+'</p><small>Explore how '+esc(current.name)+' approaches this question.</small></div>':'')+
       '<button type="button" data-school-back class="school-back" aria-label="Back to all philosophies">'+
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h13"/></svg>All philosophies</button>'+
+      (bridgeFromQuestion?.schoolId===current.id?'<div class="school-bridge"><div class="school-bridge-label">FROM YOUR ENCOUNTER <span aria-hidden="true">✳</span></div><p>'+esc(bridgeFromQuestion.question)+'</p><small>'+esc(bridgeFromQuestion.move.toUpperCase())+' · '+esc(bridgeFromQuestion.challenge)+'</small></div>':'')+
       '<div class="school-hero school-'+esc(current.id)+'">'+schoolArtwork(current.id)+'</div>'+
       schoolBackdropHtml(current.id)+
       '<h1 class="school-detail-title">'+esc(current.name)+'</h1>'+
@@ -703,6 +705,9 @@ document.addEventListener("click",async e=>{
     case"discover-library":{
       const id=visibleQuoteId(),target=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer,id);
       libraryBridge={school:target,question:QUOTES[id][0]};
+      if(!target||!SCHOOLS.some(s=>s.id===target)){discoverOpen=false;discoverStep=0;render();return;}
+      const thread=getThoughtThread(QUOTES[id],id);
+      bridgeFromQuestion={schoolId:target,question:thread.question,move:["resist","doubt","reframe"][threadBranch]||"question",challenge:thread.branches[threadBranch]?.title||thread.question};
       discoverOpen=false;discoverStep=0;view="library";openSchoolId=target;schoolSceneIndex=0;schoolChoiceIndex=null;libraryScope="all";render();haptic();return;
     }
     case"clear-discovery":settingsConfirm=true;render();return;
