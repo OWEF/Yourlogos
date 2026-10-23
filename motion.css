@@ -1,0 +1,139 @@
+/* YourLogos V2.8 — a tactile grammar, not a new visual skin.
+   Gentle Streak-inspired weight/response; iOS/Telegram-like continuous tab travel.
+   Original liquid-glass palette, cards, typography and IA stay intact. */
+:root{
+  --yl-ease-out:cubic-bezier(.2,.9,.23,1);
+  --yl-spring:cubic-bezier(.17,1.27,.28,1);
+  --yl-amber:#dcc5a0;
+}
+
+/* This dock is intentionally kept mounted outside the #app render root.
+   The indicator is the SAME DOM object before and after tab changes. */
+body > .mobile-tabs{
+  z-index:41;
+  contain:layout style;
+}
+body > .mobile-tabs .dock-glass{
+  background:linear-gradient(155deg,rgba(54,51,48,.96),rgba(26,27,29,.95));
+  border:1px solid rgba(232,214,186,.29);
+  box-shadow:
+    0 15px 43px rgba(0,0,0,.56),
+    0 4px 12px rgba(0,0,0,.26),
+    inset 0 1px rgba(255,253,241,.21),
+    inset 0 -1px rgba(2,3,5,.26);
+  transition:box-shadow .35s,border-color .35s;
+}
+body > .mobile-tabs .dock-indicator{
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse at 48% 4%,rgba(244,225,188,.20),transparent 65%),
+    linear-gradient(155deg,#5a554e,#37342f 73%);
+  border:1px solid rgba(233,212,179,.40);
+  box-shadow:
+    0 3px 15px rgba(0,0,0,.36),
+    0 0 19px rgba(223,192,141,.095),
+    inset 0 1px rgba(255,252,239,.34),
+    inset 0 -1px rgba(0,0,0,.26);
+  transition:transform .47s var(--yl-spring),background .25s;
+  will-change:transform;
+}
+body > .mobile-tabs .dock-indicator::before{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(125deg,transparent 14%,rgba(255,251,231,.13) 37%,transparent 61%);
+  transform:translateX(-108%);
+  animation:yl-indicator-shine 3.5s ease-in-out infinite;
+}
+@keyframes yl-indicator-shine{
+  0%,68%,100%{transform:translateX(-108%);opacity:0}
+  77%{opacity:1}
+  87%{transform:translateX(116%);opacity:0}
+}
+body > .mobile-tabs .dock-btn{
+  position:relative;
+  -webkit-tap-highlight-color:transparent;
+  transform:translateY(0) scale(1);
+  transition:color .26s,transform .24s var(--yl-spring),filter .24s;
+}
+body > .mobile-tabs .dock-btn.active{
+  color:#f5ead8;
+  transform:translateY(-2px) scale(1.065);
+  filter:drop-shadow(0 1px 6px #f0dabd36);
+}
+body > .mobile-tabs .dock-btn.motion-pressed{
+  transform:translateY(1px) scale(.86);
+  filter:brightness(1.45);
+}
+body > .mobile-tabs .dock-btn.active.motion-pressed{transform:translateY(1px) scale(.9)}
+body > .mobile-tabs .dock-btn.reaffirm svg{animation:yl-reaffirm .34s var(--yl-spring)}
+body > .mobile-tabs .dock-btn svg{position:relative;z-index:1}
+@keyframes yl-reaffirm{0%,100%{transform:scale(1)}43%{transform:scale(1.17) translateY(-3px)}72%{transform:scale(.95)}}
+
+/* Screen changes are directional, legible and short. The shell/header stays fixed. */
+.stage.motion-tab-entry > .view,
+.stage.motion-tab-entry > .today,
+.stage.motion-tab-entry > .world-home,
+.stage.motion-tab-entry > .living-universe-embed{
+  animation:yl-view-arrive .36s var(--yl-ease-out) both;
+}
+@keyframes yl-view-arrive{
+  0%{opacity:.55;transform:translateX(calc(var(--motion-dir,1) * 15px)) scale(.987)}
+  67%{opacity:1}
+  100%{opacity:1;transform:translateX(0) scale(1)}
+}
+
+/* Every important tap has immediate down-state confirmation and a light wave.
+   The wave is intentionally restrained to match the brass/ivory glass system. */
+button.motion-tap{position:relative;-webkit-tap-highlight-color:transparent}
+button.motion-tap .motion-ripple{
+  position:absolute;left:var(--touch-x,50%);top:var(--touch-y,50%);
+  width:12px;height:12px;border-radius:50%;pointer-events:none;
+  z-index:1;opacity:0;
+  background:radial-gradient(circle,rgba(254,235,198,.32),rgba(219,192,146,.10) 43%,transparent 73%);
+  transform:translate(-50%,-50%) scale(1);
+}
+button.motion-tap .motion-ripple.rippling{
+  animation:yl-touch-wave .49s ease-out both;
+}
+@keyframes yl-touch-wave{
+  0%{opacity:.78;transform:translate(-50%,-50%) scale(.6)}
+  65%{opacity:.42}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(12)}
+}
+.icon-action.motion-pressed,.settings-launch.motion-pressed,.world-back.motion-pressed,
+.world-back-floating.motion-pressed,.school-back.motion-pressed{
+  transform:scale(.9)!important;filter:brightness(1.32);
+}
+.school-tile.motion-pressed,.world-sky-card.motion-pressed{
+  transform:scale(.965) translateY(2px)!important;
+  filter:brightness(1.13);
+}
+.school-tile:focus-visible,.dock-btn:focus-visible,.world-sky-card:focus-visible{
+  outline:2px solid #e4c899;outline-offset:3px;
+}
+.rail .nav-btn{
+  transition:transform .24s var(--yl-spring),border-color .24s,background .24s,color .24s;
+}
+.rail .nav-btn.motion-pressed{transform:translateX(3px) scale(.97);background:#c6a87320}
+
+/* Mobile: retain existing safe-area anchoring and all touch target dimensions. */
+@media(max-width:700px){
+ body > .mobile-tabs .dock-glass{backdrop-filter:blur(24px) saturate(135%);-webkit-backdrop-filter:blur(24px) saturate(135%)}
+ .stage.motion-tab-entry > .view,.stage.motion-tab-entry > .today{animation-duration:.31s}
+}
+
+/* Accessibility: direct state changes without animations on reduced motion. */
+@media(prefers-reduced-motion:reduce){
+ body > .mobile-tabs .dock-indicator,
+ body > .mobile-tabs .dock-btn,
+ .stage.motion-tab-entry > .view,
+ .stage.motion-tab-entry > .today,
+ .stage.motion-tab-entry > .world-home,
+ .stage.motion-tab-entry > .living-universe-embed,
+ button.motion-tap .motion-ripple,
+ body > .mobile-tabs .dock-indicator::before,
+ body > .mobile-tabs .dock-btn.reaffirm svg{
+   animation:none!important;transition:none!important;
+ }
+ .stage.motion-tab-entry > .view,.stage.motion-tab-entry > .today{transform:none!important;opacity:1!important}
+ button.motion-tap .motion-ripple{display:none}
+}
