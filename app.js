@@ -60,7 +60,7 @@ const KEY="yourlogos_web_v1";
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
-let quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,universePane="sky",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
+let quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
 // A return is a gentle, optional act of presence; not a competitive streak.
 if(!Array.isArray(data.arrivals))data.arrivals=[];
@@ -102,7 +102,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const svg=(name)=>{let paths={today:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',library:'<path d="M3 4h8v16H3zM13 4h8v16h-8z"/>',saved:'<path d="M5 3h14v18l-7-4-7 4z"/>',profile:'<circle cx="12" cy="8" r="4"/><path d="M4 22c0-6 16-6 16 0"/>',share:'<path d="M12 16V3m-4 4 4-4 4 4M5 13v8h14v-8"/>',back:'<path d="m14 5-7 7 7 7"/>',spark:'<path d="m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(paths[name]||"")+'</svg>'};
 const btn=(id,label,cls="")=>'<button type="button" class="'+cls+'" data-action="'+id+'">'+label+'</button>';
 
-const navs=[["today","Encounter"],["profile","Universe"],["settings","Settings"]];
+const navs=[["today","Encounter"],["library","Library"],["profile","My World"]];
 const dockIcons={
  settings:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="5.3"/><path d="M16 2.5v4M16 25.5v4M2.5 16h4M25.5 16h4M6.5 6.5l3 3M22.5 22.5l3 3M25.5 6.5l-3 3M9.5 22.5l-3 3"/></svg>',
  today:'<svg viewBox="0 0 32 32" aria-hidden="true"><g class="quote-glyph"><path d="M14 6.5C8.5 9 6 13.3 6 19v5.5h8V17H9.5c.5-3.2 2.1-5.6 4.5-7.1M28 6.5C22.5 9 20 13.3 20 19v5.5h8V17h-4.5c.5-3.2 2.1-5.6 4.5-7.1"/></g></svg>',
@@ -290,10 +290,10 @@ function tomorrowPreviewHtml(){
 
 function render(){
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
-  const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="settings"?settingsHtml():profileHtml();
+  const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
-  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="settings"?"SETTINGS":view==="profile"?"MY UNIVERSE":"DAILY ENCOUNTER")+'<span>'+(view==="settings"?"YOUR DATA":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
+  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
   '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.2</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
@@ -342,8 +342,8 @@ function moveQuote(direction){
 
 document.addEventListener("click",async e=>{
   const v=e.target.closest("[data-view]");
-  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;render();haptic();setTimeout(()=>{navPulse=null},750);return}
-  const tab=e.target.closest("[data-universe-pane]");if(tab){universePane=tab.dataset.universePane;openSchoolId=null;libraryScope="all";detailId=null;render();return}
+  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;settingsOpen=false;if(view==="library"){openSchoolId=null;libraryScope="all"}render();haptic();setTimeout(()=>{navPulse=null},750);return}
+  const tab=e.target.closest("[data-world-pane]");if(tab){universePane=tab.dataset.worldPane;openSchoolId=null;libraryScope="all";detailId=null;render();return}
   const response=e.target.closest("[data-discover-response]");if(response){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),response:response.dataset.discoverResponse,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();return}
   const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=2;persist();render();return}
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;if(SCHOOLS.some(x=>x.id===candidate)){openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)}return}
