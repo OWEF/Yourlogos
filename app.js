@@ -190,7 +190,15 @@ const daySequence=()=>{
 const visibleQuoteId=()=>daySequence()[Math.max(0,Math.min(quoteCursor,QUOTES.length-1))];
 const likedIcon=(liked)=>'<svg class="heart-svg" viewBox="0 0 40 40" aria-hidden="true"><path class="heart-path" d="M20 34C14.5 29.3 4 22 4 13.6 4 5 14.4 3.6 20 10.3 25.6 3.6 36 5 36 13.6 36 22 25.5 29.3 20 34Z"/></svg>'+Array.from({length:7},(_,i)=>{const angle=(i*2*Math.PI)/7;return '<i class="heart-spark" style="--dx:'+Math.round(Math.sin(angle)*34)+'px;--dy:'+Math.round(-Math.cos(angle)*34)+'px;--delay:'+(i%3)*20+'ms"></i>'}).join('');
 const compassIcon='<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="compass-ring" cx="20" cy="20" r="16"/><g class="compass-needle"><path d="M26.3 13.7 22.3 22.3 13.7 26.3 17.7 17.7Z"/><circle cx="20" cy="20" r="1.2" fill="currentColor" stroke="none"/></g></svg>';
-const haptic=()=>{try{navigator.vibrate?.(8)}catch{}};
+const haptic=(kind="selection")=>{
+  // Native haptics where a hosting platform supports them. Standalone iPhone
+  // browsers have no general JavaScript Taptic Engine access.
+  try{
+    const t=window.Telegram?.WebApp?.HapticFeedback;
+    if(t){kind==="success"?t.notificationOccurred("success"):kind==="impact"?t.impactOccurred("light"):t.selectionChanged();return}
+    navigator.vibrate?.(kind==="success"?[12,24,12]:8);
+  }catch{}
+};
 
 const toast=msg=>{document.querySelector(".toast")?.remove();const el=document.createElement("div");el.className="toast";el.textContent=msg;document.body.appendChild(el);clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.remove(),2800)};
 const quoteBlock=(id)=>{const q=QUOTES[id];return '<div class="today-label">A THOUGHT FOR TODAY</div><h1 class="quote">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div><div class="source">'+esc(q[3])+'</div>'};
@@ -381,21 +389,38 @@ function tomorrowPreviewHtml(){
 }
 
 function render(){
+  // Preserve the real dock element across app renders so indicator motion
+  // continues instead of snapping back to a new element every click.
+  const persistentNav=document.querySelector("#app .mobile-tabs");
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
   const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
-  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
+  '<main class="stage'+(navPulse===view&&from!==active?' motion-tab-entry':'')+'" style="--motion-dir:'+(active>from?1:-1)+'"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
   '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.6</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
   (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
   (settingsOpen?'<div class="settings-layer"><div class="settings-panel" role="dialog" aria-modal="true" aria-label="Profile and settings"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div></div>':'');
+  const replacementNav=document.querySelector("#app .mobile-tabs");
+  if(persistentNav&&replacementNav){
+    replacementNav.replaceWith(persistentNav);
+  }
   const currentDock=document.querySelector(".dock-glass");
-  if(currentDock && active>=0 && from!==active){
-    currentDock.style.setProperty("--dock-active",String(from));
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{if(currentDock.isConnected)currentDock.style.setProperty("--dock-active",String(active))}));
+  if(currentDock&&active>=0){
+    // Keep the existing glass indicator mounted for true interpolated motion.
+    currentDock.style.setProperty("--dock-active",String(active));
+    currentDock.querySelectorAll(".dock-btn").forEach(button=>{
+      const chosen=button.dataset.view===view;
+      button.classList.toggle("active",chosen);
+      button.setAttribute("aria-current",chosen?"page":"false");
+      button.classList.remove("icon-moving");
+      if(chosen&&navPulse===view){
+        void button.offsetWidth;
+        button.classList.add("icon-moving");
+      }
+    });
   }
   if(view==="today"&&!onboarding&&detailId===null)bindQuoteGesture();
 }
@@ -436,19 +461,32 @@ function moveQuote(direction){
 
 document.addEventListener("click",async e=>{
   const v=e.target.closest("[data-view]");
-  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;settingsOpen=false;if(view==="library"){openSchoolId=null;libraryScope="all"}render();haptic();setTimeout(()=>{navPulse=null},750);return}
-  const tab=e.target.closest("[data-world-pane]");if(tab){universePane=tab.dataset.worldPane;openSchoolId=null;libraryScope="all";detailId=null;render();return}
+  if(v){
+    const target=v.dataset.view;
+    if(target===view&&detailId===null&&!settingsOpen){
+      const button=document.querySelector('.dock-btn[data-view="'+target+'"]');
+      if(button){button.classList.remove("icon-moving");void button.offsetWidth;button.classList.add("icon-moving");button.classList.add("reaffirm");setTimeout(()=>button.classList.remove("reaffirm"),360)}
+      haptic();return;
+    }
+    navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));
+    view=target;navPulse=view;detailId=null;discoverOpen=false;settingsOpen=false;
+    if(view==="library"){openSchoolId=null;libraryScope="all"}
+    render();haptic();
+    setTimeout(()=>{navPulse=null;document.querySelectorAll(".dock-btn.icon-moving").forEach(b=>b.classList.remove("icon-moving"))},610);
+    return;
+  }
+  const tab=e.target.closest("[data-world-pane]");if(tab){universePane=tab.dataset.worldPane;openSchoolId=null;libraryScope="all";detailId=null;render();haptic();return}
   const response=e.target.closest("[data-discover-response]");if(response){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),response:response.dataset.discoverResponse,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();return}
   const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();toast("A new lens added to My World");return}
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;
     if(SCHOOLS.some(x=>x.id===candidate)&&!openSchoolId){
-      school.classList.add("school-entering");
+      school.classList.add("school-entering");haptic("impact");
       const delay=window.matchMedia("(prefers-reduced-motion: reduce)").matches?0:180;
       setTimeout(()=>{openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)},delay);
     }
     return;
   }
-  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;render();return}
+  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;render();haptic();return}
   if(e.target.closest("[data-library-liked]")){openSchoolId=null;libraryScope="liked";render();return}
   if(e.target.closest("[data-library-root]")){libraryScope="all";openSchoolId=null;render();return}
   const th=e.target.closest("[data-theme]");
@@ -458,8 +496,8 @@ document.addEventListener("click",async e=>{
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
-    case"settings-open":settingsOpen=true;render();document.querySelector(".settings-close")?.focus();return;
-    case"settings-close":settingsOpen=false;authNotice="";render();return;
+    case"settings-open":settingsOpen=true;render();haptic("impact");document.querySelector(".settings-close")?.focus();return;
+    case"settings-close":settingsOpen=false;authNotice="";render();haptic();return;
     case"email-signout":{try{await signOutEmail();verifiedIdentity=null;syncConfirm="";cloudStateInfo="";authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
     case"cloud-save":if(!verifiedIdentity)return;syncConfirm="save";render();return;
     case"cloud-restore":if(!verifiedIdentity)return;syncConfirm="restore";render();return;
@@ -502,7 +540,7 @@ document.addEventListener("click",async e=>{
     }
     case"daily-arrive":{
       const d=today();if(!data.arrivals.includes(d)){data.arrivals.push(d);data.arrivals=data.arrivals.slice(-730);persist();}
-      arrivalCelebrating=true;haptic();render();toast("A little light for today");
+      arrivalCelebrating=true;haptic("success");render();toast("A little light for today");
       setTimeout(()=>{arrivalCelebrating=false;if(view==="today"&&!discoverOpen&&!settingsOpen)render()},870);
       return;
     }
@@ -517,7 +555,7 @@ document.addEventListener("click",async e=>{
       if(heartPulse)setTimeout(()=>{heartPulse=false},620);
       return;
     }
-    case"discover":discoverStep=0;discoverOpen=true;haptic();render();document.querySelector(".sheet-close")?.focus();return;
+    case"discover":discoverStep=0;discoverOpen=true;haptic("impact");render();document.querySelector(".sheet-close")?.focus();return;
     case"close-discover":discoverOpen=false;discoverStep=0;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(!data.saved.includes(id)){data.saved.push(id);persist();}discoverOpen=false;render();toast("Thought kept");return}
