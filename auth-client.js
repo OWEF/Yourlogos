@@ -35,3 +35,42 @@ export async function fetchPublishedQuotes(){
  if(error)throw error;
  return Array.isArray(data)?data:[];
 }
+
+/**
+ * Owner-scoped cloud snapshot. No automatic migration or merge.
+ * RLS on public.user_state enforces user_id = auth.uid().
+ */
+export async function readAccountData(){
+  const c=await client();const identity=await getVerifiedIdentity();
+  if(!identity)throw new Error("Verify your email account before restoring data.");
+  const [profile,state]=await Promise.all([
+    c.from("profiles").select("display_name").eq("user_id",identity.id).maybeSingle(),
+    c.from("user_state").select("state,updated_at").eq("user_id",identity.id).maybeSingle()
+  ]);
+  if(profile.error)throw profile.error;
+  if(state.error)throw state.error;
+  return {name:profile.data?.display_name||identity.displayName||"",state:state.data?.state||null,updatedAt:state.data?.updated_at||null};
+}
+export async function writeAccountData(snapshot){
+  const c=await client();const identity=await getVerifiedIdentity();
+  if(!identity)throw new Error("Verify your email account before saving data.");
+  if(!snapshot || typeof snapshot!=="object" || Array.isArray(snapshot))throw new Error("Invalid account data");
+  const safe={};
+  for(const k of ["saved","practice","discovery","themes","arrivals","started"]){
+    if(Object.prototype.hasOwnProperty.call(snapshot,k))safe[k]=snapshot[k];
+  }
+  const serialized=JSON.stringify(safe);
+  if(serialized.length>800000)throw new Error("Your history is too large for one snapshot. Please export it first.");
+  const {error}=await c.from("user_state").upsert({user_id:identity.id,state:safe,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error)throw error;
+  return true;
+}
+export async function writeAccountName(name){
+  const c=await client();const identity=await getVerifiedIdentity();
+  if(!identity)throw new Error("Verify your email account before saving a cloud display name.");
+  const safe=String(name||"").trim().replace(/\s+/g," ").slice(0,32);
+  if(!safe)throw new Error("A display name is required.");
+  const {error}=await c.from("profiles").upsert({user_id:identity.id,display_name:safe,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error)throw error;
+  return safe;
+}
