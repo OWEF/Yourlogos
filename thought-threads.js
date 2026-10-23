@@ -87,7 +87,8 @@ export function getThoughtThread(quote,quoteId=null){
 }
 export function thoughtThreadHtml({quote,quoteId=null,step=0,branchIndex=0,answerIndex=0}){
   const thread=getThoughtThread(quote,quoteId);
-  if(!thread.curated && Number.isInteger(quoteId))return '<div class="yl-thread yl-thread-pending" role="status"><div class="yl-thread-progress">AN OPEN QUESTION</div><h2 class="yl-thread-question">'+esc(thread.question)+'</h2><p>'+esc(thread.message)+'</p><button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';,branchData=thread.branches[branchIndex]||thread.branches[0];
+  if(!thread.curated && Number.isInteger(quoteId))return '<div class="yl-thread yl-thread-pending" role="status"><div class="yl-thread-progress">AN OPEN QUESTION</div><h2 class="yl-thread-question">'+esc(thread.question)+'</h2><p>'+esc(thread.message)+'</p><button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';
+  const branchData=thread.branches[branchIndex]||thread.branches[0];
   const answerData=branchData.answers[answerIndex]||branchData.answers[0];
   return '<div class="yl-thread" data-thread-step="'+step+'">'+
     (step===0?
