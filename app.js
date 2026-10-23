@@ -391,7 +391,7 @@ function tomorrowPreviewHtml(){
 function render(){
   // Preserve the real dock element across app renders so indicator motion
   // continues instead of snapping back to a new element every click.
-  const persistentNav=document.querySelector("#app .mobile-tabs");
+  const persistentNav=document.querySelector("body > .mobile-tabs");
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
   const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
@@ -403,11 +403,17 @@ function render(){
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
   (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
   (settingsOpen?'<div class="settings-layer"><div class="settings-panel" role="dialog" aria-modal="true" aria-label="Profile and settings"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div></div>':'');
+  // Place the dock outside #app once, so subsequent innerHTML updates never
+  // detach it. This is what makes the moving selection feel continuous.
   const replacementNav=document.querySelector("#app .mobile-tabs");
-  if(persistentNav&&replacementNav){
-    replacementNav.replaceWith(persistentNav);
+  if(onboarding){
+    persistentNav?.remove();
+  }else if(persistentNav){
+    replacementNav?.remove();
+  }else if(replacementNav){
+    document.body.appendChild(replacementNav);
   }
-  const currentDock=document.querySelector(".dock-glass");
+  const currentDock=document.querySelector("body > .mobile-tabs .dock-glass");
   if(currentDock&&active>=0){
     // Keep the existing glass indicator mounted for true interpolated motion.
     currentDock.style.setProperty("--dock-active",String(active));
