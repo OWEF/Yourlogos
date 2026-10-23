@@ -137,3 +137,14 @@ button.motion-tap .motion-ripple.rippling{
  .stage.motion-tab-entry > .view,.stage.motion-tab-entry > .today{transform:none!important;opacity:1!important}
  button.motion-tap .motion-ripple{display:none}
 }
+
+/* Immediate, consistent Settings feedback across mouse and iPhone taps */
+.settings-layer{z-index:120!important;opacity:1;visibility:visible;pointer-events:auto}
+.settings-panel{animation:yl-modal-appear .31s cubic-bezier(.18,.89,.24,1.08) both}
+.settings-launch{transition:transform .2s cubic-bezier(.2,1.3,.3,1),background .2s}
+.settings-launch.motion-pressed{transform:scale(.90);background:#423d35}
+@keyframes yl-modal-appear{
+  from{opacity:.4;transform:translateY(12px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@media(prefers-reduced-motion:reduce){.settings-panel{animation:none!important}}
