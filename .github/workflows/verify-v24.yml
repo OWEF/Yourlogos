@@ -1,0 +1,16 @@
+name: YourLogos V2.4 Checks
+on:
+  pull_request:
+  push:
+    branches:
+      - feature/quiet-daily-arrival-quote-rotation
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify app and quote model
+        run: node scripts/verify-v24.mjs
