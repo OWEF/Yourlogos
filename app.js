@@ -322,7 +322,7 @@ function schoolPlayHtml(id){
 }
 function schoolBackdropHtml(id){
   const art=SCHOOL_ART_IMAGES[id];
-  return art?'<figure class="school-atmosphere" aria-hidden="true"><img alt="" loading="eager" fetchpriority="high" decoding="async" src="/api/school-art/'+id+'" data-fallback="0" onerror="if(this.dataset.fallback===\'0\'){this.dataset.fallback=\'1\';this.src='+JSON.stringify(art.src)+'}else this.hidden=true"/></figure>':'';
+  return art?'<figure class="school-atmosphere" aria-hidden="true"><img alt="" loading="eager" fetchpriority="high" decoding="async" src="/api/school-art/'+id+'" data-fallback="0" onerror="if(this.dataset.fallback===\'0\'){this.dataset.fallback=\'1\';this.src=this.dataset.remote}else this.hidden=true" data-remote="'+esc(art.src)+'"/></figure>':'';
 }
 function schoolArtCreditHtml(id){
   const art=SCHOOL_ART_IMAGES[id];
