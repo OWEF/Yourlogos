@@ -1,0 +1,45 @@
+/* My World V2.4 — continuation of YourLogos' existing midnight/gold design. */
+.personal-greeting{font:italic 16px/1.4 'Cormorant Garamond',Georgia,serif;color:#c2ab89;margin:0 auto 15px}
+.world-home,.world-mirror{max-width:690px!important;margin:0 auto!important;padding:12px 0 150px!important;color:#f1e7d9}
+.world-home-header{margin-bottom:27px}.world-kicker{color:#c9b28c;font:10px 'DM Sans',sans-serif;letter-spacing:.19em}.world-home-header h1{font:400 clamp(45px,8vw,69px)/1 'Cormorant Garamond',Georgia,serif!important;margin:13px 0 8px}.world-home-header h1 span{color:#bca882}.world-home-header p,.world-sub{font:italic 19px/1.48 'Cormorant Garamond',Georgia,serif;color:#b6b0ae;max-width:460px}
+.world-sky-card{display:flex;flex-direction:column;position:relative;isolation:isolate;width:100%;border:1px solid #d4c6b038;border-radius:26px;height:265px;text-align:left;color:#f3e8d7;overflow:hidden;background:linear-gradient(115deg,#091324,#0a0d1a 63%,#101b2c);box-shadow:inset 0 1px #ffffff12,0 14px 40px #0007}
+.world-sky-card:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 65% 80% at 45% 42%,#415c8839,transparent 75%)}
+.world-sky-stars{position:absolute;inset:0;overflow:hidden}.world-sky-stars i{position:absolute;left:var(--x);top:var(--y);height:var(--s);width:var(--s);background:#e4e8f2;border-radius:50%;opacity:.25;box-shadow:0 0 7px #a9cae9a0;animation:world-breathe 5s ease-in-out var(--delay) infinite alternate}.world-sky-lines{position:absolute;width:100%;max-height:200px;top:4px;left:0;filter:drop-shadow(0 0 7px #dbc8a954)}
+.world-sky-title{position:relative;margin-top:auto;z-index:1;padding:20px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:linear-gradient(transparent,#040913d4)}.world-sky-title span:first-child{display:flex;flex-direction:column;gap:8px}.world-sky-title small,.world-mirror-caption small{letter-spacing:.16em;font:9px 'DM Sans',sans-serif;color:#d7b992}.world-sky-title strong{font:400 25px/1.14 'Cormorant Garamond',Georgia,serif;max-width:280px}.world-arrow{font:23px Georgia,serif;color:#d5bd95}
+.world-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
+.world-tile{background:linear-gradient(130deg,#1c2028,#12151a);border:1px solid #ddd0ba23;border-radius:20px;padding:20px 18px;min-height:140px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:11px;color:#eee4d8}
+.world-tile-icon{font:28px 'Cormorant Garamond',Georgia,serif;color:#d7bd91}
+.world-tile strong{font:23px 'Cormorant Garamond',Georgia,serif}.world-tile small{font:11px 'DM Sans',sans-serif;color:#999898}
+.world-mirror-teaser{display:flex;position:relative;align-items:center;gap:18px;width:100%;min-height:143px;margin-top:12px;border:1px solid #e2cdb235;border-radius:21px;background:#1a1b1d;color:#e6dfd5;text-align:left;overflow:hidden}
+.world-mirror-caption{display:flex;flex:1;flex-direction:column;gap:8px;padding:16px 0;min-width:0}.world-mirror-caption strong{font:400 25px/1.15 'Cormorant Garamond',Georgia,serif}.world-mirror-caption span{font:11px 'DM Sans',sans-serif;color:#aca39a}.world-mirror-teaser>b{font-size:19px;color:#d4bb95;margin-right:17px}
+.world-portrait{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 32%,#817663,#252629 69%);isolation:isolate}
+.world-portrait img{height:100%;width:100%;object-fit:cover;filter:grayscale(.85) sepia(.19) contrast(1.06);display:block;position:relative;z-index:1}
+.world-portrait .portrait-initial{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:100px 'Cormorant Garamond',Georgia,serif;color:#d7be978a;z-index:0}
+.world-portrait .portrait-shade{position:absolute;inset:0;background:linear-gradient(0deg,#1a1b1db5,transparent 67%);pointer-events:none;z-index:2}
+.world-portrait.small{flex:0 0 112px;height:143px}
+.world-portrait.large{width:min(100%,465px);height:360px;margin:24px auto 0;border-radius:22px 22px 0 0}
+.world-detail{position:relative;max-width:690px;margin:0 auto;min-height:100dvh;padding:30px 0 125px}
+.world-detail>.view{position:relative}
+.world-back,.world-back-floating{border:1px solid #d7c2a552;background:#20252bbd;color:#f2e8d9;font:11px 'DM Sans',sans-serif;padding:12px 15px;border-radius:99px;backdrop-filter:blur(18px)}
+.world-back{margin:0 0 22px}
+.world-back-floating{position:absolute;top:calc(28px + env(safe-area-inset-top));left:20px;z-index:6;color:#e9d9bd}
+.world-mirror h1{font:400 49px/1.08 'Cormorant Garamond',Georgia,serif!important}
+.mirror-result{text-align:center;max-width:465px;margin:0 auto;padding:28px 23px 37px;border:1px solid #d8c3a938;border-top:0;border-radius:0 0 22px 22px;background:linear-gradient(#242525,#151819)}
+.mirror-result>small{font:10px 'DM Sans',sans-serif;letter-spacing:.15em;color:#cdb68e}
+.mirror-result h2{font:400 39px/1.08 'Cormorant Garamond',Georgia,serif;margin:11px 0 17px}.mirror-result p{font:16px/1.5 'Cormorant Garamond',Georgia,serif;color:#c1b9ac}.mirror-result .mirror-reasons{font:11px/1.6 'DM Sans',sans-serif;color:#b9a78b}
+.mirror-result button{margin-top:16px;border:1px solid #c7a77d80;border-radius:99px;color:#e8d7bb;background:#ffffff0d;padding:11px 17px;font:12px 'DM Sans',sans-serif}
+.mirror-result .mirror-credit{font:9px/1.55 'DM Sans',sans-serif;color:#8b877d;margin-top:30px}
+.settings-launch{position:fixed;z-index:61;right:calc(23px + env(safe-area-inset-right));top:calc(19px + env(safe-area-inset-top));border:1px solid #d8c5a53b;background:#15191dbb;color:#cfc2ae;height:37px;width:37px;border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px)}
+.settings-launch svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5}
+.settings-layer{position:fixed;inset:0;z-index:100;background:#000c;backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:45px 16px calc(100px + env(safe-area-inset-bottom))}
+.settings-panel{position:relative;background:linear-gradient(135deg,#212328,#101417);border:1px solid #e3c8a647;border-radius:25px;width:min(100%,650px);padding:28px 22px;box-shadow:0 35px 120px #000b}
+.settings-layer .v22-settings{max-width:100%}.settings-panel .settings-close{position:absolute;right:19px;top:17px;border:1px solid #e6cfac55;background:#21252b;color:#efe1ca;border-radius:50%;height:34px;width:34px;font:22px Georgia,serif}
+.account-form{display:grid;gap:11px;padding-top:8px}.account-form label{font:10px 'DM Sans',sans-serif;color:#d0b58e;letter-spacing:.1em}.account-form input{color:#f5e9d9;background:#111519;border:1px solid #c7ab8355;border-radius:13px;font:14px 'DM Sans',sans-serif;padding:13px;width:100%;box-sizing:border-box}
+.account-form button{border-radius:99px;border:1px solid #d0b78e;background:#c6ad87;color:#161819;font:12px 'DM Sans',sans-serif;padding:12px 17px;justify-self:start}
+.account-muted{font:12px/1.6 'DM Sans',sans-serif!important;color:#aba59c}.account-notice{padding:12px 14px;border-left:2px solid #ceb98f;color:#e8d4af;font:12px/1.6 'DM Sans',sans-serif}
+@keyframes world-breathe{from{opacity:.2;transform:scale(.8)}to{opacity:.8;transform:scale(1.3)}}
+@media(max-width:700px){.world-home{padding:22px 0 135px!important}.world-home-header h1{font-size:54px!important}.world-sky-card{height:231px}.world-tile{min-height:130px}.world-portrait.small{flex-basis:94px;height:137px}.world-mirror-teaser{min-height:137px}.world-mirror-caption strong{font-size:21px}.world-mirror-caption small{font-size:8px}.world-detail{padding:18px 0 110px}.settings-launch{right:calc(16px + env(safe-area-inset-right));top:calc(21px + env(safe-area-inset-top))}.settings-layer{padding:18px 10px calc(110px + env(safe-area-inset-bottom))}.settings-panel{padding:38px 17px 27px}.world-back-floating{top:calc(80px + env(safe-area-inset-top));left:14px}}
+@media(prefers-reduced-motion:reduce){.world-sky-stars i{animation:none!important}}
+
+/* Reserve room for the always-accessible profile control in the small header. */
+@media(max-width:700px){.stage-top .daily-meta{margin-right:47px}.settings-launch:focus-visible,.world-back-floating:focus-visible{outline:2px solid #e7c590;outline-offset:3px}}

@@ -1,4 +1,6 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
+import { worldHomeHtml, mirrorHtml } from "./world-view.js";
+import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes } from "./auth-client.js";
 const QUOTES=[
 ["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning","Twilight of the Idols","What, if anything, gives hardship a direction?"],
 ["Man is the only creature who refuses to be what he is.","Albert Camus","Freedom","The Rebel","What in yourself are you refusing today?"],
@@ -20,7 +22,29 @@ const QUOTES=[
 ["The present moment is the only moment available to us, and it is the door to all moments.","Thích Nhất Hạnh","Time","Attributed; source needs verification","What does attention change about time?"],
 ["The strongest man in the world is he who stands most alone.","Henrik Ibsen","Solitude","An Enemy of the People (translation varies)","When is standing alone conscience, and when is it pride?"],
 ["The most beautiful experience we can have is the mysterious.","Albert Einstein","Beauty","The World As I See It (translation varies)","What deserves wonder instead of explanation?"]
-];
+,
+["I think, therefore I am.","René Descartes","Doubt","Discourse on Method, Part IV","What must be certain before you can doubt anything?"],
+["He who knows only his own side of the case knows little of that.","John Stuart Mill","Doubt","On Liberty, Chapter II","Which opposing view would sharpen your own?"],
+["The philosophers have only interpreted the world, in various ways; the point is to change it.","Karl Marx","Action","Theses on Feuerbach, Thesis XI (translation varies)","When should understanding become collective action?"],
+["I do not wish them to have power over men; but over themselves.","Mary Wollstonecraft","Freedom","A Vindication of the Rights of Woman, Chapter IV","What is the difference between independence and dominance?"],
+["All things excellent are as difficult as they are rare.","Baruch Spinoza","Meaning","Ethics, Part V, Proposition 42, Scholium (translation varies)","What is worth pursuing without any guarantee of ease?"],
+["The heart has its reasons, which reason does not know.","Blaise Pascal","Love","Pensées, fragment 277 (Brunschvicg; translation varies)","Is there a form of understanding that reason alone cannot grasp?"],
+["Reason is, and ought only to be the slave of the passions.","David Hume","Freedom","A Treatise of Human Nature, Book II, Part III, Section III","Does reason direct your desires, or serve them?"],
+["The life of man, solitary, poor, nasty, brutish, and short.","Thomas Hobbes","Suffering","Leviathan, Chapter XIII (excerpt)","How much of a good life depends on other people?"],
+["A woman must have money and a room of her own if she is to write fiction.","Virginia Woolf","Freedom","A Room of One's Own, Chapter I","What material conditions does freedom require?"],
+["There is nothing either good or bad, but thinking makes it so.","William Shakespeare","Doubt","Hamlet, Act II, Scene II","How much do your judgments shape your world?"],
+["Man is by nature a political animal.","Aristotle","Love","Politics, Book I, 1253a (translation varies)","Can a person truly flourish alone?"],
+["The true is the whole.","G. W. F. Hegel","Meaning","Phenomenology of Spirit, Preface (translation varies)","Can something be understood apart from its relations?"],
+["The mind is its own place, and in itself can make a Heaven of Hell, a Hell of Heaven.","John Milton","Doubt","Paradise Lost, Book I","Where does interpretation meet circumstance?"],
+["To be, or not to be, that is the question.","William Shakespeare","Mortality","Hamlet, Act III, Scene I","What does it mean to bear an uncertain future?"],
+["Life can only be understood backwards; but it must be lived forwards.","Søren Kierkegaard","Time","Journals, 1843 (translation varies)","How do you act before understanding catches up?"],
+["What is the use of a house if you haven't got a tolerable planet to put it on?","Henry David Thoreau","Beauty","Letter to Harrison Blake, 1860 (commonly quoted)","What larger home makes your own life possible?"],
+["One does not become enlightened by imagining figures of light, but by making the darkness conscious.","Carl Jung","Doubt","The Philosophical Tree, Psychology and Alchemy, CW 13 (translation varies)","What are you unwilling to notice about yourself?"],
+["The world is my representation.","Arthur Schopenhauer","Doubt","The World as Will and Representation, Book I (translation varies)","How do perception and world fit together?"],
+["You must change your life.","Rainer Maria Rilke","Action","Archaic Torso of Apollo, New Poems (translation varies)","What has beauty asked you to do?"],
+["The only thing we have to fear is fear itself.","Franklin D. Roosevelt","Suffering","First Inaugural Address, March 4, 1933","What becomes possible when fear is named?"],
+["If liberty means anything at all, it means the right to tell people what they do not want to hear.","George Orwell","Freedom","Preface to Animal Farm, 'The Freedom of the Press'","What does honest disagreement require?"],
+["I am no bird; and no net ensnares me.","Charlotte Brontë","Freedom","Jane Eyre, Chapter XXIII (excerpt)","What does refusing a constraint look like?"]];
 const THEMES=["Meaning","Suffering","Freedom","Mortality","Love","Doubt","Action","Solitude","Beauty","Time"];
 const PROMPTS={
 Meaning:["Notice where your own 'why' is clear, and where it has gone quiet.","Can meaning be found, or must it be made?"],
@@ -38,19 +62,51 @@ const KEY="yourlogos_web_v1";
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
-let quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,universePane="sky",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
+let quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
+if(typeof data.localName!=="string")data.localName="";
+let verifiedIdentity=null,authBusy=false,authNotice="";
+// A return is a gentle, optional act of presence; not a competitive streak.
+if(!Array.isArray(data.arrivals))data.arrivals=[];
+data.arrivals=[...new Set(data.arrivals.filter(x=>typeof x==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x)))].slice(-730);
+let arrivalCelebrating=false,arrivalSeenDate="",activeLocalDay="",previewTomorrowOpen=false;
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
-const dayIndex=()=>{let d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(2026,0,1))/86400000)};
-const pick=()=>{const n=dayIndex(),favorite=data.themes.length?QUOTES.map((q,i)=>({q,i})).filter(x=>data.themes.includes(x.q[2])):[];const all=QUOTES.map((q,i)=>({q,i}));const pool=n%10<3||!favorite.length?all:favorite;return pool[((n%pool.length)+pool.length)%pool.length].i};
-const activeQuote=()=>{const d=today();if(Number.isInteger(data.practice[d]?.quoteId)&&QUOTES[data.practice[d].quoteId])return data.practice[d].quoteId;return pick()};
+const dayIndexFor=(dateKey)=>{const [y,m,d]=dateKey.split("-").map(Number);return Math.floor((Date.UTC(y,m-1,d)-Date.UTC(2026,0,1))/86400000)};
+const dayIndex=()=>dayIndexFor(today());
+const shiftDate=(key,days)=>{const [y,m,d]=key.split("-").map(Number);const v=new Date(Date.UTC(y,m-1,d+days));return [v.getUTCFullYear(),String(v.getUTCMonth()+1).padStart(2,"0"),String(v.getUTCDate()).padStart(2,"0")].join("-")};
+// A seeded full-cycle deck: every daily feature is different for QUOTES.length days.
+// Favorited themes still influence browsing through Discover; daily variety wins over a
+// preference pool small enough to repeat the same quote every few days.
+let DAILY_ORDER=(()=>{
+  const ids=QUOTES.map((_,i)=>i);let seed=0x7a3f9201;
+  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+  return ids;
+})();
+const dailyPick=(dateKey)=>{
+  const n=dayIndexFor(dateKey);
+  const slot=((n%DAILY_ORDER.length)+DAILY_ORDER.length)%DAILY_ORDER.length;
+  let id=DAILY_ORDER[slot];
+  // Protect against a last-day repetition from pre-upgrade practice history.
+  const yesterday=data.practice[shiftDate(dateKey,-1)]?.quoteId;
+  if(Number.isInteger(yesterday)&&yesterday===id)id=DAILY_ORDER[(slot+1)%DAILY_ORDER.length];
+  return id;
+};
+const activeQuote=()=>{const d=today();if(Number.isInteger(data.practice[d]?.quoteId)&&QUOTES[data.practice[d].quoteId])return data.practice[d].quoteId;return dailyPick(d)};
 const persist=()=>localStorage.setItem(KEY,JSON.stringify(data));
-const mark=()=>{const d=today();if(!data.practice[d])data.practice[d]={quoteId:activeQuote(),posture:null};return data.practice[d]};
+const ensureDailyFeature=()=>{
+  const d=today();if(!data.practice[d])data.practice[d]={};
+  if(!Number.isInteger(data.practice[d].quoteId)||!QUOTES[data.practice[d].quoteId]){
+    data.practice[d].quoteId=dailyPick(d);persist();
+  }
+  return data.practice[d].quoteId;
+};
+const mark=()=>{const d=today();ensureDailyFeature();return data.practice[d]};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const svg=(name)=>{let paths={today:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',library:'<path d="M3 4h8v16H3zM13 4h8v16h-8z"/>',saved:'<path d="M5 3h14v18l-7-4-7 4z"/>',profile:'<circle cx="12" cy="8" r="4"/><path d="M4 22c0-6 16-6 16 0"/>',share:'<path d="M12 16V3m-4 4 4-4 4 4M5 13v8h14v-8"/>',back:'<path d="m14 5-7 7 7 7"/>',spark:'<path d="m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(paths[name]||"")+'</svg>'};
 const btn=(id,label,cls="")=>'<button type="button" class="'+cls+'" data-action="'+id+'">'+label+'</button>';
 
-const navs=[["today","Encounter"],["profile","Universe"],["settings","Settings"]];
+const navs=[["today","Encounter"],["library","Library"],["profile","My World"]];
 const dockIcons={
  settings:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="5.3"/><path d="M16 2.5v4M16 25.5v4M2.5 16h4M25.5 16h4M6.5 6.5l3 3M22.5 22.5l3 3M25.5 6.5l-3 3M9.5 22.5l-3 3"/></svg>',
  today:'<svg viewBox="0 0 32 32" aria-hidden="true"><g class="quote-glyph"><path d="M14 6.5C8.5 9 6 13.3 6 19v5.5h8V17H9.5c.5-3.2 2.1-5.6 4.5-7.1M28 6.5C22.5 9 20 13.3 20 19v5.5h8V17h-4.5c.5-3.2 2.1-5.6 4.5-7.1"/></g></svg>',
@@ -58,6 +114,17 @@ const dockIcons={
  profile:'<svg viewBox="0 0 32 32" aria-hidden="true"><g class="star-lines"><path d="M7 10.5 17.5 5l8.5 8.5-6 12-13.5-3.5L7 10.5 26 13.5M17.5 5 20 25.5M7 10.5 20 25.5"/></g><circle class="star-one" cx="7" cy="10.5" r="2.5" fill="currentColor"/><circle class="star-two" cx="17.5" cy="5" r="2" fill="currentColor"/><circle class="star-three" cx="26" cy="13.5" r="2.5" fill="currentColor"/><circle class="star-four" cx="20" cy="25.5" r="2.5" fill="currentColor"/><circle cx="6.5" cy="22" r="1.5" fill="currentColor" stroke="none"/></svg>'
 };
 const navHtml=(compact=false)=>navs.map(([n,label])=>'<button type="button" aria-label="'+label+'" title="'+label+'" data-view="'+n+'" class="'+(compact?'dock-btn':'nav-btn')+(view===n?' active':'')+(navPulse===n?' icon-moving':'')+'">'+dockIcons[n]+(compact?'':'<span>'+label+'</span>')+'</button>').join("");
+function arrivalDates(){return Array.from({length:7},(_,i)=>shiftDate(today(),i-6))}
+function arrivalHtml(){
+  const days=arrivalDates(),done=data.arrivals.includes(today()),dates=new Set(data.arrivals);
+  let entering=false;try{entering=sessionStorage.getItem("yourlogos-arrival-intro:"+today())!=="1";if(entering)sessionStorage.setItem("yourlogos-arrival-intro:"+today(),"1")}catch{}
+  return '<div class="arrival-ritual'+(arrivalCelebrating?" celebrating":"")+(entering?" first-light":"")+'" aria-label="Daily arrival">'+
+    '<div class="arrival-constellation" role="img" aria-label="'+days.filter(x=>dates.has(x)).length+' of the last 7 days visited">'+
+      days.map((day,i)=>'<span class="arrival-star'+(dates.has(day)?" visited":"")+(day===today()?" current":"")+'" title="'+day+'"></span>').join("")+
+    '</div><div class="arrival-copy"><span>'+(done?"YOU WERE HERE TODAY":"A MOMENT TO ARRIVE")+'</span><small>'+(done?"A thought has a place to begin.":"No streaks to protect. Just this moment.")+'</small></div>'+
+    (done?'<span class="arrival-done" aria-label="Checked in today">✧</span>':'<button type="button" data-action="daily-arrive" class="arrival-button">I’m here <span aria-hidden="true">✧</span></button>')+
+  '</div>';
+}
 const daySequence=()=>{
   const featured=activeQuote();
   const rest=QUOTES.map((q,i)=>({id:i,theme:q[2]})).filter(x=>x.id!==featured);
@@ -82,10 +149,11 @@ function questionHtml(q,p){let opts=[["Receive","The thought offers an insight w
 function todayHtml(){
   const id=visibleQuoteId(),q=QUOTES[id],liked=data.saved.includes(id);
   return '<article class="today today-v2">'+
+    arrivalHtml()+
     '<div class="quote-viewport" id="quote-viewport" tabindex="0" aria-label="Quotes. Swipe up or down, or use arrow keys, to browse ideas.">'+
       '<div class="quote-halo" aria-hidden="true"></div>'+
       '<div class="quote-motion" id="quote-motion">'+
-      '<div class="today-label">'+(quoteCursor===0?"TODAY’S THOUGHT":"ANOTHER PERSPECTIVE")+'</div>'+
+      '<div class="personal-greeting">'+(data.localName?'A thought for you, '+esc(data.localName)+'.':'A moment for your curiosity.')+'</div><div class="today-label">'+(quoteCursor===0?"TODAY’S THOUGHT":"ANOTHER PERSPECTIVE")+'</div>'+
       '<div class="quote-rule"></div><h1 class="quote">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div>'+
       '<div class="quote-theme">'+esc(q[2]).toUpperCase()+'</div></div>'+
       '<div class="quote-dots" aria-hidden="true">'+daySequence().slice(0,6).map((_,i)=>'<i class="'+(i===Math.min(quoteCursor,5)?"on":"")+'"></i>').join('')+'</div>'+
@@ -196,31 +264,53 @@ function fingerprintHtml(){
 function settingsHtml(){
   const responses=Object.keys(data.discovery).length;
   return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+
+    '<div class="v22-settings-block"><h2>Your account</h2><p>Personalize the way YourLogos welcomes you. Your display name is kept on this device until account sync is connected.</p>'+
+      '<form id="profile-name-form" class="account-form"><label for="display-name">DISPLAY NAME</label><input id="display-name" name="displayName" required maxlength="32" autocomplete="nickname" placeholder="What should we call you?" value="'+esc(data.localName)+'"/><button type="submit">Save name</button></form>'+
+      (verifiedIdentity?'<p class="account-muted">Verified email: '+esc(verifiedIdentity.email)+' · Your current quote data still lives on this browser until sync is implemented.</p><button type="button" data-action="email-signout" class="v22-setting-row"><span><strong>Sign out from email</strong></span><b>↗</b></button>':
+       AUTH_ENABLED?'<form id="account-email-form" class="account-form"><label for="account-email">EMAIL ADDRESS</label><input id="account-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com"/><button type="submit" '+(authBusy?'disabled':'')+'>Send secure sign-in link</button></form>':
+       '<p class="account-muted">Verified email enrollment will be available when a dedicated YourLogos authentication project is connected. You can still save your name and use the app without an account.</p>')+
+       (authNotice?'<div class="account-notice" role="status">'+esc(authNotice)+'</div>':'')+'</div>'+
+    '<div class="v22-settings-block arrival-settings"><h2>Your returns</h2><p>Each day you choose to arrive leaves a small light. No pressure to keep a streak, and missing a day changes nothing.</p>'+
+    '<div class="arrival-summary"><span class="arrival-count">'+data.arrivals.length+'</span><span>days you made room for a thought</span></div>'+
+    '<div class="arrival-seven">'+arrivalDates().map(x=>'<div><span class="'+(data.arrivals.includes(x)?"visited":"")+'"></span><small>'+x.slice(5)+'</small></div>').join("")+'</div>'+
+    '<button type="button" data-action="preview-tomorrow" class="v22-setting-row"><span><strong>Preview tomorrow’s quote</strong><small>For testing only. Does not affect today or mark an arrival.</small></span><b>↗</b></button></div>'+
     '<div class="v22-settings-block"><h2>Your data</h2><p>Your quotes, reflections and universe history currently stay on this browser. No account sync yet.</p><button type="button" data-action="export" class="v22-setting-row"><span><strong>Export everything</strong><small>Saved thoughts, Discover choices and universe history</small></span><b>↗</b></button><button type="button" data-action="edit-themes" class="v22-setting-row"><span><strong>Change interests</strong><small>Adjust the questions you chose when starting</small></span><b>↗</b></button></div>'+
     '<div class="v22-settings-block"><h2>Discovery history</h2><p>'+responses+' quote response'+(responses===1?"":"s")+' recorded. Answers are provisional and editable whenever you revisit Discover.</p>'+
     (settingsConfirm?'<div class="v22-confirm"><p>Clear all Discover responses from this browser? Your saved quotes and universe readings will remain.</p><button type="button" data-action="confirm-clear-discovery">Yes, clear responses</button><button type="button" data-action="cancel-clear-discovery">Cancel</button></div>':'<button type="button" data-action="clear-discovery" class="v22-setting-row"><span><strong>Clear my Discover responses</strong><small>This does not delete saved quotes</small></span><b>↗</b></button>')+'</div>'+
     '<div class="v22-settings-block"><h2>About YourLogos</h2><p>A space to encounter ideas, leave traces of questions, and discover where thought leads. There are no scores for being philosophical.</p></div></section>';
 }
-function universeNav(){return '<nav class="v22-universe-nav" aria-label="My universe sections">'+[['sky','Sky'],['saved','Saved'],['fingerprint','Fingerprint'],['library','Library']].map(([id,name])=>'<button type="button" data-universe-pane="'+id+'" class="'+(universePane===id?'active':'')+'" aria-current="'+(universePane===id?'page':'false')+'">'+name+'</button>').join('')+'</nav>'}
+function worldBack(){return '<button type="button" data-world-pane="home" class="world-back">← My World</button>'}
 function profileHtml(){
-  if(universePane!=="sky")return '<div class="universe-v22-content">'+universeNav()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():libraryHtml())+'</div>';
-  return '<section class="view living-universe-embed" aria-label="Your living constellation">'+
-    '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living universe of ideas" loading="eager"></iframe>'+
-    universeNav()+'</section>';
+  if(universePane==="sky")return '<section class="view living-universe-embed" aria-label="Your living sky">'+
+    '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living sky of ideas" loading="eager"></iframe>'+
+    '<button type="button" data-world-pane="home" class="world-back-floating">← My World</button></section>';
+  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName});
+  return '<div class="world-detail">'+worldBack()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():mirrorHtml(data.saved.map(i=>QUOTES[i]).filter(Boolean),data.discovery))+'</div>';
 }
 
 function detailHtml(){const id=detailId,q=QUOTES[id];return '<section class="view detail">'+btn("back",svg("back")+" Back","top-back")+'<div class="section-kicker" style="margin-top:35px">'+esc(q[2])+'</div><h1>“'+esc(q[0])+'”</h1><div class="author" style="text-align:left">— '+esc(q[1])+'</div><h2>Source</h2><p>'+esc(q[3])+'</p><h2>To sit with</h2><p>'+esc(PROMPTS[q[2]][0])+'</p><h2>To question</h2><p>'+esc(PROMPTS[q[2]][1])+'</p><div class="inline-actions" style="margin-top:36px">'+btn("detail-save",data.saved.includes(id)?"Remove from saved":"Save this thought","outline")+'</div></section>'}
 function onboardingHtml(){return '<section class="view onboard"><div class="section-kicker" style="text-align:center;margin-bottom:24px">BEFORE WE BEGIN</div><h1>What are you searching for?</h1><p class="sub">Choose any themes that interest you, or leave them unselected. You can change this later.</p><div class="grid">'+THEMES.map(t=>'<button class="theme-card '+(data.themes.includes(t)?"selected":"")+'" data-theme="'+t+'"><b>'+t+'</b><span>'+esc(PROMPTS[t][1])+'</span></button>').join("")+'</div><div class="count">'+data.themes.length+' of 5 selected</div><div class="actions">'+btn("finish-onboarding","Return to YourLogos","primary")+'</div></section>'}
 
+function tomorrowPreviewHtml(){
+  const key=shiftDate(today(),1),id=Number.isInteger(data.practice[key]?.quoteId)?data.practice[key].quoteId:dailyPick(key),q=QUOTES[id];
+  return '<div class="discover-cover" data-action="close-preview"></div><section class="tomorrow-preview" role="dialog" aria-modal="true" aria-label="Preview tomorrow’s quote">'+
+    '<div class="tomorrow-star" aria-hidden="true">✧</div><div class="v22-kicker">A THOUGHT FROM TOMORROW · PREVIEW ONLY</div>'+
+    '<h2>“'+esc(q[0])+'”</h2><p>— '+esc(q[1])+'</p><small>'+esc(key)+' · This will not be recorded as a visit.</small>'+
+    '<button type="button" data-action="close-preview" class="tomorrow-close">Return to today</button></section>';
+}
+
 function render(){
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
-  const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="settings"?settingsHtml():profileHtml();
+  const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
-  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="settings"?"SETTINGS":view==="profile"?"MY UNIVERSE":"DAILY ENCOUNTER")+'<span>'+(view==="settings"?"YOUR DATA":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
-  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.2</span></div></aside></div>'+
+  '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
+  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.4 preview</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
-  (discoverOpen && !onboarding?discoverHtml():'');
+  (discoverOpen && !onboarding?discoverHtml():'')+
+  (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
+  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
+  (settingsOpen?'<div class="settings-layer"><div class="settings-panel" role="dialog" aria-modal="true" aria-label="Profile and settings"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div></div>':'');
   const currentDock=document.querySelector(".dock-glass");
   if(currentDock && active>=0 && from!==active){
     currentDock.style.setProperty("--dock-active",String(from));
@@ -265,8 +355,8 @@ function moveQuote(direction){
 
 document.addEventListener("click",async e=>{
   const v=e.target.closest("[data-view]");
-  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;render();haptic();setTimeout(()=>{navPulse=null},750);return}
-  const tab=e.target.closest("[data-universe-pane]");if(tab){universePane=tab.dataset.universePane;openSchoolId=null;libraryScope="all";detailId=null;render();return}
+  if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;settingsOpen=false;if(view==="library"){openSchoolId=null;libraryScope="all"}render();haptic();setTimeout(()=>{navPulse=null},750);return}
+  const tab=e.target.closest("[data-world-pane]");if(tab){universePane=tab.dataset.worldPane;openSchoolId=null;libraryScope="all";detailId=null;render();return}
   const response=e.target.closest("[data-discover-response]");if(response){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),response:response.dataset.discoverResponse,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();return}
   const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=2;persist();render();return}
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;if(SCHOOLS.some(x=>x.id===candidate)){openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)}return}
@@ -280,8 +370,19 @@ document.addEventListener("click",async e=>{
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
+    case"settings-open":settingsOpen=true;render();document.querySelector(".settings-close")?.focus();return;
+    case"settings-close":settingsOpen=false;authNotice="";render();return;
+    case"email-signout":{try{await signOutEmail();verifiedIdentity=null;authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
+    case"daily-arrive":{
+      const d=today();if(!data.arrivals.includes(d)){data.arrivals.push(d);data.arrivals=data.arrivals.slice(-730);persist();}
+      arrivalCelebrating=true;haptic();render();toast("A little light for today");
+      setTimeout(()=>{arrivalCelebrating=false;document.querySelector(".arrival-ritual")?.classList.remove("celebrating")},1250);
+      return;
+    }
+    case"preview-tomorrow":previewTomorrowOpen=true;render();return;
+    case"close-preview":previewTomorrowOpen=false;render();return;
     case"finish-onboarding":data.started=true;view="today";break;
-    case"edit-themes":view="onboarding";break;
+    case"edit-themes":settingsOpen=false;view="onboarding";break;
     case"toggle-save":case"detail-save":{
       const id=a==="detail-save"?detailId:visibleQuoteId(),already=data.saved.includes(id);
       data.saved=already?data.saved.filter(x=>x!==id):[...data.saved,id];
@@ -306,6 +407,61 @@ document.addEventListener("click",async e=>{
   }
   persist();render();
 });
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&discoverOpen){discoverOpen=false;render()}});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsOpen){settingsOpen=false;render()}else if(previewTomorrowOpen){previewTomorrowOpen=false;render()}else if(discoverOpen){discoverOpen=false;render()}});
+document.addEventListener("submit",async e=>{
+ if(e.target.id==="profile-name-form"){
+  e.preventDefault();const name=String(new FormData(e.target).get("displayName")||"").trim().replace(/\s+/g," ").slice(0,32);
+  if(!name)return;data.localName=name;persist();authNotice="Your greeting was saved on this device.";render();return;
+ }
+ if(e.target.id==="account-email-form"){
+  e.preventDefault();if(!AUTH_ENABLED){authNotice="Email login is not configured yet.";render();return}
+  const address=String(new FormData(e.target).get("email")||"").trim();if(!address)return;
+  authBusy=true;authNotice="Sending your one-time sign-in link…";render();
+  try{await requestMagicLink(address,data.localName||"");authNotice="Check your email for a secure sign-in link. No password needed."}
+  catch(err){authNotice=String(err?.message||err)}
+  finally{authBusy=false;render()}return;
+ }
+});
 
-render();if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+// A backgrounded PWA must update its daily feature on the next foreground entry.
+activeLocalDay=today();
+ensureDailyFeature();
+function refreshForLocalDay(){
+  const next=today();if(next===activeLocalDay)return;
+  activeLocalDay=next;quoteCursor=0;heartPulse=false;swipeBusy=false;
+  discoverOpen=false;discoverStep=0;previewTomorrowOpen=false;arrivalCelebrating=false;
+  ensureDailyFeature();render();
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshForLocalDay()});
+window.addEventListener("focus",refreshForLocalDay);
+window.addEventListener("pageshow",refreshForLocalDay);
+setInterval(()=>{if(!document.hidden)refreshForLocalDay()},60000);
+
+async function refreshPublicQuoteCatalogue(){
+ if(!AUTH_ENABLED)return;
+ try{
+   const incoming=await fetchPublishedQuotes(),valid=new Set(THEMES);
+   let added=0;
+   for(const q of incoming){
+     if(!Number.isInteger(q.legacy_id)||q.legacy_id!==QUOTES.length)continue;
+     if(!valid.has(q.theme)||!q.quote_text||!q.author||!q.source||!q.reflection_prompt)continue;
+     QUOTES.push([q.quote_text,q.author,q.theme,q.source,q.reflection_prompt]);added++;
+   }
+   if(added){
+     // Remote quote indices and themes are hints to the existing personal sky,
+     // never proof of agreement or a new relationship.
+     const themeHints=Object.fromEntries(QUOTES.slice(42).map((quote,index)=>[index+42,quote[2]]));
+     try{localStorage.setItem("yourlogos-quote-theme-map",JSON.stringify(themeHints))}catch{}
+     const count=QUOTES.length;const ids=Array.from({length:count},(_,i)=>i);
+     let seed=0x7a3f9201;
+     const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+     for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+     DAILY_ORDER=ids;
+     if(!discoverOpen&&!settingsOpen)render();
+   }
+ }catch(error){console.warn("YourLogos: cached quote catalogue remains available.",error?.message||error)}
+}
+
+render();if(AUTH_ENABLED)refreshPublicQuoteCatalogue();
+if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u){verifiedIdentity=u;if(!data.localName&&u.displayName){data.localName=u.displayName.slice(0,32);persist()}render()}}).catch(()=>{});
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));

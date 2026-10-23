@@ -1,0 +1,57 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+import vm from "node:vm";
+
+const read=p=>fs.readFileSync(new URL("../"+p,import.meta.url),"utf8");
+const app=read("app.js"),world=read("world-view.js"),cosmos=read("cosmos-v2.html");
+const auth=read("auth-client.js"),config=read("auth-config.js"),sw=read("sw.js"),html=read("index.html");
+for(const [name,source] of [["app",app],["world",world],["auth",auth],["config",config]]){
+  new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
+}
+const embedded=cosmos.match(/<script>([\s\S]*?)<\/script>/);
+assert.ok(embedded,"Cosmos should have inline JavaScript");
+new vm.Script(embedded[1],{filename:"cosmos-inline.js"});
+
+const quoteSnippet=app.slice(app.indexOf("const QUOTES="),app.indexOf("const THEMES="));
+assert.ok(quoteSnippet.startsWith("const QUOTES="));
+const QUOTES=new Function(quoteSnippet.replace("const QUOTES=","return "))();
+assert.equal(QUOTES.length,42);
+assert.equal(new Set(QUOTES.map(q=>q[0])).size,42,"Curated quote text must be distinct");
+assert.equal(QUOTES[0][1],"Friedrich Nietzsche");
+assert.equal(QUOTES[19][1],"Albert Einstein");
+assert.equal(QUOTES[31][1],"G. W. F. Hegel");
+const seed=read("supabase/yourlogos_quotes_seed.sql");
+const seedPayload=JSON.parse(seed.split("$quotes$\n")[1].split("\n$quotes$")[0]);
+assert.deepEqual(seedPayload.map(x=>x.legacy_id),Array.from({length:42},(_,i)=>i));
+assert.deepEqual(seedPayload.map(x=>x.author),QUOTES.map(x=>x[1]));
+
+const start=app.indexOf("const dayIndexFor="),end=app.indexOf("const esc=",start);
+const mockData={practice:{},saved:[],themes:[]};
+const model=new Function("data","localStorage","KEY",
+  quoteSnippet+'\nconst today=()=>"2026-10-23";\n'+app.slice(start,end)+
+  "\nreturn {QUOTES,dailyPick,shiftDate,ensureDailyFeature,activeQuote};"
+)(mockData,{setItem(){}},"test");
+const days=Array.from({length:168},(_,i)=>model.shiftDate("2026-10-23",i));
+const chosen=days.map(d=>model.dailyPick(d));
+for(let i=0;i<=chosen.length-QUOTES.length;i++){
+  assert.equal(new Set(chosen.slice(i,i+QUOTES.length)).size,QUOTES.length,
+    "Expected no repeats in a "+QUOTES.length+" day featured-quote cycle");
+}
+assert.equal(model.ensureDailyFeature(),model.activeQuote(),"Quote should remain stable on same date");
+assert.ok(app.includes('["today","Encounter"],["library","Library"],["profile","My World"]'));
+assert.ok(app.includes("class=\"settings-layer\""));
+assert.ok(app.includes("data-action=\"daily-arrive\""));
+assert.ok(app.includes("preview-tomorrow"));
+assert.ok(cosmos.includes("if(!explored.length)return;"),"Personal lines require recorded link evidence");
+const mapped=cosmos.match(/const legacyConceptByIndex=\[([^\]]*)\]/);
+assert.equal(mapped?.[1]?.split(",").length,QUOTES.length,"Personal sky mappings cover the full quote catalogue");
+assert.ok(world.includes("THE PHILOSOPHER’S MIRROR"));
+assert.ok(world.includes("ready:saved.length>=3"),"A match must have minimum personal evidence");
+assert.ok(config.includes('AUTH_URL = ""'),"Email remains disabled until a dedicated project is authorized");
+for(const path of ["/world-view.js","/world.css","/daily-arrival.css","/auth-client.js","/auth-config.js"]){
+ assert.ok(sw.includes('"'+path+'"'),"Offline cache should precache "+path);
+}
+for(const sheet of ["/world.css","/daily-arrival.css"])assert.ok(html.includes(sheet));
+for(const table of ["quotes","profiles","user_state","user_links"])
+ assert.ok(read("supabase/yourlogos_schema.sql").includes("alter table public."+table+" enable row level security;"));
+console.log("YourLogos V2.4: static syntax, 42-day fresh quotes, data indices, auth boundary and RLS checks PASS.");
