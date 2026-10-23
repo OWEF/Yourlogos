@@ -34,7 +34,7 @@ const QUOTES=[
 ["A woman must have money and a room of her own if she is to write fiction.","Virginia Woolf","Freedom","A Room of One's Own, Chapter I","What material conditions does freedom require?"],
 ["There is nothing either good or bad, but thinking makes it so.","William Shakespeare","Doubt","Hamlet, Act II, Scene II","How much do your judgments shape your world?"],
 ["Man is by nature a political animal.","Aristotle","Love","Politics, Book I, 1253a (translation varies)","Can a person truly flourish alone?"],
-["The unexamined life is not worth living for a human being.","Socrates","Meaning","Plato, Apology, 38a (alternative translation)","What deserves another examination?"],
+["The true is the whole.","G. W. F. Hegel","Meaning","Phenomenology of Spirit, Preface (translation varies)","Can something be understood apart from its relations?"],
 ["The mind is its own place, and in itself can make a Heaven of Hell, a Hell of Heaven.","John Milton","Doubt","Paradise Lost, Book I","Where does interpretation meet circumstance?"],
 ["To be, or not to be, that is the question.","William Shakespeare","Mortality","Hamlet, Act III, Scene I","What does it mean to bear an uncertain future?"],
 ["Life can only be understood backwards; but it must be lived forwards.","Søren Kierkegaard","Time","Journals, 1843 (translation varies)","How do you act before understanding catches up?"],
