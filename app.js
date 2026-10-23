@@ -40,12 +40,42 @@ let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,universePane="sky",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
+// A return is a gentle, optional act of presence; not a competitive streak.
+if(!Array.isArray(data.arrivals))data.arrivals=[];
+data.arrivals=[...new Set(data.arrivals.filter(x=>typeof x==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x)))].slice(-730);
+let arrivalCelebrating=false,arrivalSeenDate="",activeLocalDay="",previewTomorrowOpen=false;
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
-const dayIndex=()=>{let d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(2026,0,1))/86400000)};
-const pick=()=>{const n=dayIndex(),favorite=data.themes.length?QUOTES.map((q,i)=>({q,i})).filter(x=>data.themes.includes(x.q[2])):[];const all=QUOTES.map((q,i)=>({q,i}));const pool=n%10<3||!favorite.length?all:favorite;return pool[((n%pool.length)+pool.length)%pool.length].i};
-const activeQuote=()=>{const d=today();if(Number.isInteger(data.practice[d]?.quoteId)&&QUOTES[data.practice[d].quoteId])return data.practice[d].quoteId;return pick()};
+const dayIndexFor=(dateKey)=>{const [y,m,d]=dateKey.split("-").map(Number);return Math.floor((Date.UTC(y,m-1,d)-Date.UTC(2026,0,1))/86400000)};
+const dayIndex=()=>dayIndexFor(today());
+const shiftDate=(key,days)=>{const [y,m,d]=key.split("-").map(Number);const v=new Date(Date.UTC(y,m-1,d+days));return [v.getUTCFullYear(),String(v.getUTCMonth()+1).padStart(2,"0"),String(v.getUTCDate()).padStart(2,"0")].join("-")};
+// A seeded full-cycle deck: every daily feature is different for QUOTES.length days.
+// Favorited themes still influence browsing through Discover; daily variety wins over a
+// preference pool small enough to repeat the same quote every few days.
+const DAILY_ORDER=(()=>{
+  const ids=QUOTES.map((_,i)=>i);let seed=0x7a3f9201;
+  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+  return ids;
+})();
+const dailyPick=(dateKey)=>{
+  const n=dayIndexFor(dateKey);
+  const slot=((n%DAILY_ORDER.length)+DAILY_ORDER.length)%DAILY_ORDER.length;
+  let id=DAILY_ORDER[slot];
+  // Protect against a last-day repetition from pre-upgrade practice history.
+  const yesterday=data.practice[shiftDate(dateKey,-1)]?.quoteId;
+  if(Number.isInteger(yesterday)&&yesterday===id)id=DAILY_ORDER[(slot+1)%DAILY_ORDER.length];
+  return id;
+};
+const activeQuote=()=>{const d=today();if(Number.isInteger(data.practice[d]?.quoteId)&&QUOTES[data.practice[d].quoteId])return data.practice[d].quoteId;return dailyPick(d)};
 const persist=()=>localStorage.setItem(KEY,JSON.stringify(data));
-const mark=()=>{const d=today();if(!data.practice[d])data.practice[d]={quoteId:activeQuote(),posture:null};return data.practice[d]};
+const ensureDailyFeature=()=>{
+  const d=today();if(!data.practice[d])data.practice[d]={};
+  if(!Number.isInteger(data.practice[d].quoteId)||!QUOTES[data.practice[d].quoteId]){
+    data.practice[d].quoteId=dailyPick(d);persist();
+  }
+  return data.practice[d].quoteId;
+};
+const mark=()=>{const d=today();ensureDailyFeature();return data.practice[d]};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const svg=(name)=>{let paths={today:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',library:'<path d="M3 4h8v16H3zM13 4h8v16h-8z"/>',saved:'<path d="M5 3h14v18l-7-4-7 4z"/>',profile:'<circle cx="12" cy="8" r="4"/><path d="M4 22c0-6 16-6 16 0"/>',share:'<path d="M12 16V3m-4 4 4-4 4 4M5 13v8h14v-8"/>',back:'<path d="m14 5-7 7 7 7"/>',spark:'<path d="m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(paths[name]||"")+'</svg>'};
 const btn=(id,label,cls="")=>'<button type="button" class="'+cls+'" data-action="'+id+'">'+label+'</button>';
@@ -58,6 +88,17 @@ const dockIcons={
  profile:'<svg viewBox="0 0 32 32" aria-hidden="true"><g class="star-lines"><path d="M7 10.5 17.5 5l8.5 8.5-6 12-13.5-3.5L7 10.5 26 13.5M17.5 5 20 25.5M7 10.5 20 25.5"/></g><circle class="star-one" cx="7" cy="10.5" r="2.5" fill="currentColor"/><circle class="star-two" cx="17.5" cy="5" r="2" fill="currentColor"/><circle class="star-three" cx="26" cy="13.5" r="2.5" fill="currentColor"/><circle class="star-four" cx="20" cy="25.5" r="2.5" fill="currentColor"/><circle cx="6.5" cy="22" r="1.5" fill="currentColor" stroke="none"/></svg>'
 };
 const navHtml=(compact=false)=>navs.map(([n,label])=>'<button type="button" aria-label="'+label+'" title="'+label+'" data-view="'+n+'" class="'+(compact?'dock-btn':'nav-btn')+(view===n?' active':'')+(navPulse===n?' icon-moving':'')+'">'+dockIcons[n]+(compact?'':'<span>'+label+'</span>')+'</button>').join("");
+function arrivalDates(){return Array.from({length:7},(_,i)=>shiftDate(today(),i-6))}
+function arrivalHtml(){
+  const days=arrivalDates(),done=data.arrivals.includes(today()),dates=new Set(data.arrivals);
+  let entering=false;try{entering=sessionStorage.getItem("yourlogos-arrival-intro:"+today())!=="1";if(entering)sessionStorage.setItem("yourlogos-arrival-intro:"+today(),"1")}catch{}
+  return '<div class="arrival-ritual'+(arrivalCelebrating?" celebrating":"")+(entering?" first-light":"")+'" aria-label="Daily arrival">'+
+    '<div class="arrival-constellation" role="img" aria-label="'+days.filter(x=>dates.has(x)).length+' of the last 7 days visited">'+
+      days.map((day,i)=>'<span class="arrival-star'+(dates.has(day)?" visited":"")+(day===today()?" current":"")+'" title="'+day+'"></span>').join("")+
+    '</div><div class="arrival-copy"><span>'+(done?"YOU WERE HERE TODAY":"A MOMENT TO ARRIVE")+'</span><small>'+(done?"A thought has a place to begin.":"No streaks to protect. Just this moment.")+'</small></div>'+
+    (done?'<span class="arrival-done" aria-label="Checked in today">✧</span>':'<button type="button" data-action="daily-arrive" class="arrival-button">I’m here <span aria-hidden="true">✧</span></button>')+
+  '</div>';
+}
 const daySequence=()=>{
   const featured=activeQuote();
   const rest=QUOTES.map((q,i)=>({id:i,theme:q[2]})).filter(x=>x.id!==featured);
@@ -82,6 +123,7 @@ function questionHtml(q,p){let opts=[["Receive","The thought offers an insight w
 function todayHtml(){
   const id=visibleQuoteId(),q=QUOTES[id],liked=data.saved.includes(id);
   return '<article class="today today-v2">'+
+    arrivalHtml()+
     '<div class="quote-viewport" id="quote-viewport" tabindex="0" aria-label="Quotes. Swipe up or down, or use arrow keys, to browse ideas.">'+
       '<div class="quote-halo" aria-hidden="true"></div>'+
       '<div class="quote-motion" id="quote-motion">'+
@@ -195,7 +237,11 @@ function fingerprintHtml(){
 }
 function settingsHtml(){
   const responses=Object.keys(data.discovery).length;
-  return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+
+  return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+ 
+    '<div class="v22-settings-block arrival-settings"><h2>Your returns</h2><p>Each day you choose to arrive leaves a small light. No pressure to keep a streak, and missing a day changes nothing.</p>'+
+    '<div class="arrival-summary"><span class="arrival-count">'+data.arrivals.length+'</span><span>days you made room for a thought</span></div>'+
+    '<div class="arrival-seven">'+arrivalDates().map(x=>'<div><span class="'+(data.arrivals.includes(x)?"visited":"")+'"></span><small>'+x.slice(5)+'</small></div>').join("")+'</div>'+
+    '<button type="button" data-action="preview-tomorrow" class="v22-setting-row"><span><strong>Preview tomorrow’s quote</strong><small>For testing only. Does not affect today or mark an arrival.</small></span><b>↗</b></button></div>'+
     '<div class="v22-settings-block"><h2>Your data</h2><p>Your quotes, reflections and universe history currently stay on this browser. No account sync yet.</p><button type="button" data-action="export" class="v22-setting-row"><span><strong>Export everything</strong><small>Saved thoughts, Discover choices and universe history</small></span><b>↗</b></button><button type="button" data-action="edit-themes" class="v22-setting-row"><span><strong>Change interests</strong><small>Adjust the questions you chose when starting</small></span><b>↗</b></button></div>'+
     '<div class="v22-settings-block"><h2>Discovery history</h2><p>'+responses+' quote response'+(responses===1?"":"s")+' recorded. Answers are provisional and editable whenever you revisit Discover.</p>'+
     (settingsConfirm?'<div class="v22-confirm"><p>Clear all Discover responses from this browser? Your saved quotes and universe readings will remain.</p><button type="button" data-action="confirm-clear-discovery">Yes, clear responses</button><button type="button" data-action="cancel-clear-discovery">Cancel</button></div>':'<button type="button" data-action="clear-discovery" class="v22-setting-row"><span><strong>Clear my Discover responses</strong><small>This does not delete saved quotes</small></span><b>↗</b></button>')+'</div>'+
@@ -212,6 +258,14 @@ function profileHtml(){
 function detailHtml(){const id=detailId,q=QUOTES[id];return '<section class="view detail">'+btn("back",svg("back")+" Back","top-back")+'<div class="section-kicker" style="margin-top:35px">'+esc(q[2])+'</div><h1>“'+esc(q[0])+'”</h1><div class="author" style="text-align:left">— '+esc(q[1])+'</div><h2>Source</h2><p>'+esc(q[3])+'</p><h2>To sit with</h2><p>'+esc(PROMPTS[q[2]][0])+'</p><h2>To question</h2><p>'+esc(PROMPTS[q[2]][1])+'</p><div class="inline-actions" style="margin-top:36px">'+btn("detail-save",data.saved.includes(id)?"Remove from saved":"Save this thought","outline")+'</div></section>'}
 function onboardingHtml(){return '<section class="view onboard"><div class="section-kicker" style="text-align:center;margin-bottom:24px">BEFORE WE BEGIN</div><h1>What are you searching for?</h1><p class="sub">Choose any themes that interest you, or leave them unselected. You can change this later.</p><div class="grid">'+THEMES.map(t=>'<button class="theme-card '+(data.themes.includes(t)?"selected":"")+'" data-theme="'+t+'"><b>'+t+'</b><span>'+esc(PROMPTS[t][1])+'</span></button>').join("")+'</div><div class="count">'+data.themes.length+' of 5 selected</div><div class="actions">'+btn("finish-onboarding","Return to YourLogos","primary")+'</div></section>'}
 
+function tomorrowPreviewHtml(){
+  const key=shiftDate(today(),1),id=Number.isInteger(data.practice[key]?.quoteId)?data.practice[key].quoteId:dailyPick(key),q=QUOTES[id];
+  return '<div class="discover-cover" data-action="close-preview"></div><section class="tomorrow-preview" role="dialog" aria-modal="true" aria-label="Preview tomorrow’s quote">'+
+    '<div class="tomorrow-star" aria-hidden="true">✧</div><div class="v22-kicker">A THOUGHT FROM TOMORROW · PREVIEW ONLY</div>'+
+    '<h2>“'+esc(q[0])+'”</h2><p>— '+esc(q[1])+'</p><small>'+esc(key)+' · This will not be recorded as a visit.</small>'+
+    '<button type="button" data-action="close-preview" class="tomorrow-close">Return to today</button></section>';
+}
+
 function render(){
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
   const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="settings"?settingsHtml():profileHtml();
@@ -220,7 +274,8 @@ function render(){
   '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="settings"?"SETTINGS":view==="profile"?"MY UNIVERSE":"DAILY ENCOUNTER")+'<span>'+(view==="settings"?"YOUR DATA":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
   '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.2</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
-  (discoverOpen && !onboarding?discoverHtml():'');
+  (discoverOpen && !onboarding?discoverHtml():'')+
+  (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'');
   const currentDock=document.querySelector(".dock-glass");
   if(currentDock && active>=0 && from!==active){
     currentDock.style.setProperty("--dock-active",String(from));
@@ -280,6 +335,14 @@ document.addEventListener("click",async e=>{
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
+    case"daily-arrive":{
+      const d=today();if(!data.arrivals.includes(d)){data.arrivals.push(d);data.arrivals=data.arrivals.slice(-730);persist();}
+      arrivalCelebrating=true;haptic();render();toast("A little light for today");
+      setTimeout(()=>{arrivalCelebrating=false;document.querySelector(".arrival-ritual")?.classList.remove("celebrating")},1250);
+      return;
+    }
+    case"preview-tomorrow":previewTomorrowOpen=true;render();return;
+    case"close-preview":previewTomorrowOpen=false;render();return;
     case"finish-onboarding":data.started=true;view="today";break;
     case"edit-themes":view="onboarding";break;
     case"toggle-save":case"detail-save":{
@@ -308,4 +371,17 @@ document.addEventListener("click",async e=>{
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&discoverOpen){discoverOpen=false;render()}});
 
+// A backgrounded PWA must update its daily feature on the next foreground entry.
+activeLocalDay=today();
+ensureDailyFeature();
+function refreshForLocalDay(){
+  const next=today();if(next===activeLocalDay)return;
+  activeLocalDay=next;quoteCursor=0;heartPulse=false;swipeBusy=false;
+  discoverOpen=false;discoverStep=0;previewTomorrowOpen=false;arrivalCelebrating=false;
+  ensureDailyFeature();render();
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshForLocalDay()});
+window.addEventListener("focus",refreshForLocalDay);
+window.addEventListener("pageshow",refreshForLocalDay);
+setInterval(()=>{if(!document.hidden)refreshForLocalDay()},60000);
 render();if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
