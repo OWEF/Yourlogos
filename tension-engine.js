@@ -2,7 +2,7 @@
 // No LLM calls. No generic theme-generated philosophical judgments.
 import { A } from "./tension-catalogue-a.js";
 import { B } from "./tension-catalogue-b.js";
-export const SCHOOL_IDS = ["stoicism","existentialism","nihilism","skepticism","daoism","buddhism"];
+export const SCHOOL_IDS = ["stoicism","existentialism","nihilism","skepticism","daoism","buddhism","confucianism","epicureanism","idealism","pragmatism"];
 export const TYPES=["resist","doubt","reframe"];
 export const CURATED=[...A,...B];
 export function validateTensionRecords(records=CURATED){
