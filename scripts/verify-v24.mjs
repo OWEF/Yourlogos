@@ -39,7 +39,7 @@ for(let i=0;i<=chosen.length-QUOTES.length;i++){
 }
 assert.equal(model.ensureDailyFeature(),model.activeQuote(),"Quote should remain stable on same date");
 assert.ok(app.includes('["today","Encounter"],["library","Library"],["profile","My World"]'));
-assert.ok(app.includes("class=\"settings-layer\""));
+assert.ok(app.includes('document.body.appendChild(portal)'),"Settings modal should render as body overlay rather than inside clipped shell");
 assert.ok(app.includes("data-action=\"daily-arrive\""));
 assert.ok(app.includes("preview-tomorrow"));
 assert.ok(app.includes('document.body.appendChild(replacementNav)'),"Navigation dock must persist outside content root");
@@ -66,4 +66,12 @@ for(const path of ["/world-view.js","/world.css","/daily-arrival.css","/library-
 for(const sheet of ["/world.css","/daily-arrival.css"])assert.ok(html.includes(sheet));
 for(const table of ["quotes","profiles","user_state","user_links"])
  assert.ok(read("supabase/yourlogos_schema.sql").includes("alter table public."+table+" enable row level security;"));
-console.log("YourLogos V2.5: static syntax, 91-day fresh quotes, data indices, auth boundary and RLS checks PASS.");
+assert.ok(app.includes("schoolBackdropHtml(current.id)"),"Each philosophy detail should use an independent image, not repeat the SVG icon");
+assert.ok(app.includes("schoolArtCreditHtml(current.id)"),"Background artwork must be credited");
+assert.ok(html.includes("/v29.css")&&sw.includes('"/v29.css"'),"New art CSS should be linked and cached");
+assert.ok(read("ios/project.yml").includes("YourLogosQuoteWidget"),"Native project must embed WidgetKit extension");
+assert.ok(read("ios/Widget/YourLogosQuoteWidget.swift").includes("yourlogos://save?quote="),"Keep widget control deep-links into installed app");
+const nativeQuotes=JSON.parse(read("ios/Widget/widget-quotes.json"));
+assert.equal(nativeQuotes.quotes.length,QUOTES.length,"Native widget quote library stays aligned with the web");
+assert.deepEqual(nativeQuotes.quotes.map(x=>x.text),QUOTES.map(x=>x[0]),"Native widget quote IDs and text match the app");
+console.log("YourLogos V2.9: source, art, 91 quotes, native widget payload, account portal and privacy checks PASS.");

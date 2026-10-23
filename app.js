@@ -194,6 +194,8 @@ const haptic=(kind="selection")=>{
   // Native haptics where a hosting platform supports them. Standalone iPhone
   // browsers have no general JavaScript Taptic Engine access.
   try{
+    const native=window.webkit?.messageHandlers?.yourlogosHaptics;
+    if(native){native.postMessage(kind);return}
     const t=window.Telegram?.WebApp?.HapticFeedback;
     if(t){kind==="success"?t.notificationOccurred("success"):kind==="impact"?t.impactOccurred("light"):t.selectionChanged();return}
     navigator.vibrate?.(kind==="success"?[12,24,12]:8);
@@ -288,6 +290,20 @@ function discoverHtml(){
 function listHtml(ids){return ids.length?ids.map(id=>'<button class="quote-card" data-detail="'+id+'"><div class="line">“'+esc(QUOTES[id][0])+'”</div><div class="meta">— '+esc(QUOTES[id][1])+' · '+esc(QUOTES[id][2])+'</div></button>').join(""):'<div class="empty">Nothing here yet. Return to today’s thought.</div>'}
 
 
+const SCHOOL_ART_IMAGES={"stoicism":{name:"Equestrian Statue of Marcus Aurelius",artist:"Photograph: Adrian Pingstone",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Marcus.aurelius.horse.statue.rome.arp.jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("Marcus.aurelius.horse.statue.rome.arp.jpg")},
+"existentialism":{name:"Wanderer above the Sea of Fog",artist:"Caspar David Friedrich",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Caspar David Friedrich - Wanderer above the Sea of Fog.jpeg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("Caspar David Friedrich - Wanderer above the Sea of Fog.jpeg")},
+"nihilism":{name:"The Abbey in the Oakwood",artist:"Caspar David Friedrich",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("The Abbey in the Oakwood.jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("The Abbey in the Oakwood.jpg")},
+"skepticism":{name:"The Incredulity of Saint Thomas",artist:"Caravaggio",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("The Incredulity of Saint Thomas-Caravaggio (1601-2).jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("The Incredulity of Saint Thomas-Caravaggio (1601-2).jpg")},
+"daoism":{name:"Travelers Among Mountains and Streams",artist:"Fan Kuan",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Xsxlt fankuan.jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("Xsxlt fankuan.jpg")},
+"buddhism":{name:"Seated Buddha",artist:"Cleveland Museum of Art, CC0",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Afghanistan, Gandhara, Hadda, late Kushan Period - Seated Buddha - 1967.39 - Cleveland Museum of Art.jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("Afghanistan, Gandhara, Hadda, late Kushan Period - Seated Buddha - 1967.39 - Cleveland Museum of Art.jpg")}};
+function schoolBackdropHtml(id){
+  const art=SCHOOL_ART_IMAGES[id];
+  return art?'<figure class="school-atmosphere" aria-hidden="true"><img alt="" loading="lazy" decoding="async" src="'+art.src+'" onerror="this.hidden=true"/></figure>':'';
+}
+function schoolArtCreditHtml(id){
+  const art=SCHOOL_ART_IMAGES[id];
+  return art?'<div class="school-art-credit">Art: <a target="_blank" rel="noopener noreferrer" href="'+art.page+'">'+esc(art.name)+'</a> · '+esc(art.artist)+'</div>':'';
+}
 function libraryHtml(){
   const current=SCHOOLS.find(s=>s.id===openSchoolId);
   if(libraryScope==="liked" && !current){
@@ -312,7 +328,7 @@ function libraryHtml(){
       '<button type="button" data-school-back class="school-back" aria-label="Back to all philosophies">'+
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h13"/></svg>All philosophies</button>'+
       '<div class="school-hero school-'+esc(current.id)+'">'+schoolArtwork(current.id)+'</div>'+
-      '<div class="school-atmosphere" aria-hidden="true">'+schoolArtwork(current.id)+'</div>'+
+      schoolBackdropHtml(current.id)+
       '<h1 class="school-detail-title">'+esc(current.name)+'</h1>'+
       '<p class="school-detail-sub">'+esc(current.subtitle)+'</p>'+
       '<div class="school-section"><div class="school-section-label">THE CENTRAL QUESTION</div><h2 class="school-big-question">'+esc(current.question)+'</h2></div>'+
@@ -320,6 +336,7 @@ function libraryHtml(){
       '<div class="school-section"><div class="school-section-label">KEY VOICES</div><div class="school-voices">'+current.thinkers.map(name=>'<span>'+esc(name)+'</span>').join('')+'</div></div>'+
       '<div class="school-section"><div class="school-section-label">CORE TENSIONS</div><div class="school-tensions">'+current.tensions.map(t=>'<div>'+esc(t)+'</div>').join('')+'</div></div>'+
       '<div class="school-section"><div class="school-section-label">A THOUGHT TO CARRY</div><div class="school-reflection">'+esc(current.reflection)+'</div><p class="school-prompt-note">No answer required. Just a place to begin.</p></div>'+
+      schoolArtCreditHtml(current.id)+
     '</div></section>';
 }
 
@@ -401,8 +418,16 @@ function render(){
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
-  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
-  (settingsOpen?'<div class="settings-layer"><div class="settings-panel" role="dialog" aria-modal="true" aria-label="Profile and settings"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div></div>':'');
+  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-haspopup="dialog" aria-controls="yourlogos-settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
+  '';
+  // Render Settings in body to escape shell clipping and stacking contexts.
+  document.querySelector("body > .settings-layer")?.remove();
+  if(settingsOpen){
+    const portal=document.createElement("div");portal.className="settings-layer";
+    portal.innerHTML='<div class="settings-panel" role="dialog" aria-modal="true" aria-label="Profile and settings" id="yourlogos-settings" tabindex="-1"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div>';
+    document.body.appendChild(portal);
+  }
+  document.querySelector('[data-action="settings-open"]')?.setAttribute("aria-expanded",settingsOpen?"true":"false");
   // Place the dock outside #app once, so subsequent innerHTML updates never
   // detach it. This is what makes the moving selection feel continuous.
   const replacementNav=document.querySelector("#app .mobile-tabs");
@@ -493,6 +518,14 @@ const releaseTouch=e=>{
 document.addEventListener("pointerup",releaseTouch,{passive:true});
 document.addEventListener("pointercancel",releaseTouch,{passive:true});
 
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&settingsOpen){settingsOpen=false;render();document.querySelector('[data-action="settings-open"]')?.focus()}
+});
+document.addEventListener("click",e=>{
+ if(settingsOpen&&e.target instanceof Element&&e.target.matches("body > .settings-layer")){
+  settingsOpen=false;render();document.querySelector('[data-action="settings-open"]')?.focus()
+ }
+});
 document.addEventListener("click",async e=>{
   const v=e.target.closest("[data-view]");
   if(v){
@@ -530,8 +563,8 @@ document.addEventListener("click",async e=>{
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
-    case"settings-open":settingsOpen=true;render();haptic("impact");document.querySelector(".settings-close")?.focus();return;
-    case"settings-close":settingsOpen=false;authNotice="";render();haptic();return;
+    case"settings-open":settingsOpen=true;render();haptic("impact");document.querySelector("body > .settings-layer .settings-close")?.focus();return;
+    case"settings-close":settingsOpen=false;authNotice="";render();haptic();document.querySelector('[data-action="settings-open"]')?.focus();return;
     case"email-signout":{try{await signOutEmail();verifiedIdentity=null;syncConfirm="";cloudStateInfo="";authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
     case"cloud-save":if(!verifiedIdentity)return;syncConfirm="save";render();return;
     case"cloud-restore":if(!verifiedIdentity)return;syncConfirm="restore";render();return;
