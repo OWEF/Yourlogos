@@ -1,0 +1,21 @@
+name: iOS native app + widget (simulator)
+on:
+  push:
+    branches: [main, feature/yourlogos-v29-art-account-native-prep]
+    paths: ["ios/**", ".github/workflows/yourlogos-ios.yml"]
+  pull_request:
+    paths: ["ios/**", ".github/workflows/yourlogos-ios.yml"]
+jobs:
+  build-ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate native app and widget targets
+        working-directory: ios
+        run: xcodegen generate
+      - name: Simulator compilation without Apple signing
+        working-directory: ios
+        run: |
+          xcodebuild -project YourLogosNative.xcodeproj -scheme YourLogos             -configuration Debug -sdk iphonesimulator             -destination 'generic/platform=iOS Simulator'             CODE_SIGNING_ALLOWED=NO build
