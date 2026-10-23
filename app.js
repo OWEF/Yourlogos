@@ -1,5 +1,6 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { SCHOOL_SCENES } from "./school-scenes.js";
+import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, worldFingerprintEvidence } from "./encounter-v31.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -115,6 +116,8 @@ let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
+if(!data.encounters||typeof data.encounters!=="object")data.encounters={};
+if(!Array.isArray(data.encounterEvents))data.encounterEvents=[];
 if(typeof data.localName!=="string")data.localName="";
 let verifiedIdentity=null,authBusy=false,authNotice="";
 // A return is a gentle, optional act of presence; not a competitive streak.
@@ -222,22 +225,10 @@ function todayHtml(){
     '</div>'+
     '<div class="quote-footer"><div class="swipe-cue">↑ &nbsp; SWIPE FOR ANOTHER THOUGHT</div>'+
     '<div class="quote-actions">'+
-      '<button type="button" aria-label="'+(liked?"Unlike":"Like")+' this quote" aria-pressed="'+liked+'" data-action="toggle-save" class="icon-action heart-button'+(liked?" liked":"")+(heartPulse?" heart-pop":"")+'">'+likedIcon(liked)+'<span>'+(liked?"Liked":"Like")+'</span></button>'+
+      '<button type="button" aria-label="'+(liked?"Remove saved":"Keep")+' this quote" aria-pressed="'+liked+'" data-action="toggle-save" class="icon-action heart-button'+(liked?" liked":"")+(heartPulse?" heart-pop":"")+'">'+likedIcon(liked)+'<span>'+(liked?"Kept":"Keep")+'</span></button>'+
       '<button type="button" aria-label="Discover this philosophical idea" data-action="discover" class="icon-action discover-button'+(discoverOpen?' spinning':'')+'">'+compassIcon+'<span>Discover</span></button>'+
     '</div></div></article>';
 }
-const DISCOVERY_CHALLENGES={
-  Meaning:"What if meaning is something we invent to survive uncertainty?",
-  Suffering:"What if suffering teaches us nothing at all?",
-  Freedom:"What if every choice is shaped by something we never chose?",
-  Mortality:"What if awareness of death makes us miss life?",
-  Love:"What if love sometimes asks us to abandon certainty?",
-  Doubt:"What if your deepest certainty is the thing to question?",
-  Action:"What if being busy is a way of avoiding difficult truths?",
-  Solitude:"What if being alone and being free are not the same?",
-  Beauty:"What if beauty is less about what we see than how we look?",
-  Time:"What if living in the present can also be a way of hiding?"
-};
 const DISCOVERY_RESPONSES=[
   {id:"resonate",title:"This speaks to my experience",body:"Something here feels true, even if I cannot fully explain it."},
   {id:"resist",title:"I want to challenge this",body:"An assumption here deserves a closer look."},
@@ -250,41 +241,14 @@ const DISCOVERY_LENSES=[
   {id:"others",title:"Other people",body:"Whose experience might challenge it?"},
   {id:"time",title:"Change over time",body:"Would I still feel this way years from now?"}
 ];
-const SIMPLE_REACTIONS=[
-  {id:"resonate",label:"It resonates",tone:"You recognized something familiar."},
-  {id:"resist",label:"I question it",tone:"You chose to challenge the idea."},
-  {id:"ambivalent",label:"Both, perhaps",tone:"You left room for more than one truth."},
-  {id:"curious",label:"I'm curious",tone:"You kept the question open."}
-];
-const FOLLOWUP_ANGLES=[
-  {id:"experience",label:"My life"},
-  {id:"reason",label:"The logic"},
-  {id:"others",label:"Other people"},
-  {id:"time",label:"Over time"}
-];
+
 function discoverHtml(){
-  const id=visibleQuoteId(),q=QUOTES[id],p=data.discovery[id]||{};
-  const challenge=DISCOVERY_CHALLENGES[q[2]]||"What if the opposite were true?";
-  const choice=SIMPLE_REACTIONS.find(c=>c.id===p.response);
+  const id=visibleQuoteId(),q=QUOTES[id];
   return '<div class="discover-cover" data-action="close-discover"></div>'+
-    '<section class="discover-sheet discover-v26" role="dialog" aria-modal="true" aria-label="A question to consider">'+
-    '<div class="sheet-handle"></div><div class="sheet-head"><span>ANOTHER WAY TO SEE IT</span><button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div>'+
-    (discoverStep===0?
-       '<h2>'+esc(challenge)+'</h2>'+
-       '<div class="v26-discover-choices">'+SIMPLE_REACTIONS.map(c=>
-         '<button type="button" data-discover-response="'+c.id+'"'+(p.response===c.id?' class="selected"':'')+'>'+esc(c.label)+'</button>'
-       ).join("")+'</div>'+
-       '<p class="v26-discover-foot">No right answer. Just your first reaction.</p>':
-     discoverStep===1?
-       '<h2 class="v26-short-result">'+esc(choice?.tone||"A new question begins.")+'</h2>'+
-       '<p class="v26-one-line">'+esc(q[4])+'</p>'+
-       '<div class="v26-discover-actions"><button type="button" data-action="discover-save">'+(data.saved.includes(id)?"Saved ✓":"Keep thought ✧")+'</button><button type="button" data-action="discover-angles">Look deeper ↗</button></div>'+
-       '<button type="button" class="v26-text-action" data-action="discover-again">Change my response</button>':
-       '<h2 class="v26-short-result">Where would you look next?</h2>'+
-       '<div class="v26-discover-choices">'+FOLLOWUP_ANGLES.map(c=>
-         '<button type="button" data-discover-lens="'+c.id+'"'+(p.lens===c.id?' class="selected"':'')+'>'+esc(c.label)+'</button>'
-       ).join("")+'</div>'+
-       '<button type="button" class="v26-text-action" data-action="discover-back">← Back</button>')+
+    '<section class="discover-sheet discover-v26 v31-discover" role="dialog" aria-modal="true" aria-label="A little philosophical encounter">'+
+      '<div class="sheet-handle"></div>'+
+      '<div class="sheet-head"><span>AN ENCOUNTER</span><button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div>'+
+      encounterPanel({quote:q,quoteId:id,record:data.encounters[id],step:discoverStep})+
     '</section>';
 }
 
@@ -385,10 +349,11 @@ function fingerprintHtml(){
     '<article class="v22-data-card"><div class="v22-card-head"><span>AUTHORS YOU KEEP</span><small>Saved quotes, not beliefs</small></div>'+bars(authors,'No authors yet.')+'</article>'+
     '<article class="v22-data-card"><div class="v22-card-head"><span>PHILOSOPHICAL TRADITIONS</span><small>Where a source has a clear association</small></div>'+bars(schools,'Not enough attributable saved quotes yet.')+'<p class="v22-data-note">A thinker can belong to several traditions. We only use conservative editorial associations here.</p></article>'+
     '<article class="v22-data-card"><div class="v22-card-head"><span>HOW YOU APPROACH QUESTIONS</span><small>From Discover choices</small></div>'+bars(approaches,'Try Discover and choose how an idea lands with you.')+'<div class="v22-card-head v22-inset"><span>LENSES YOU EXPLORE</span></div>'+bars(lenses,'Choose a second perspective in Discover to populate this section.')+'</article>'+
-    '<p class="v22-fine">Based on this browser’s saved quotes and explicit choices. You can revise or clear your Discover responses in Settings. Nothing here is a diagnosis.</p></section>';
+    worldFingerprintEvidence(data.encounterEvents)+
+     '<p class="v22-fine">Based on this browser’s saved quotes and explicit choices. You can revise or clear your Discover responses in Settings. Nothing here is a diagnosis.</p></section>';
 }
 function settingsHtml(){
-  const responses=Object.keys(data.discovery).length;
+  const responses=Object.keys(data.discovery).length+(data.encounterEvents?.length||0);
   return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+
     '<div class="v22-settings-block"><h2>Your account</h2><p>Personalize the way YourLogos welcomes you. Your display name is kept on this device until account sync is connected.</p>'+
       '<form id="profile-name-form" class="account-form"><label for="display-name">DISPLAY NAME</label><input id="display-name" name="displayName" required maxlength="32" autocomplete="nickname" placeholder="What should we call you?" value="'+esc(data.localName)+'"/><button type="submit">Save name</button></form>'+
@@ -407,8 +372,8 @@ function settingsHtml(){
     '<div class="arrival-seven">'+arrivalDates().map(x=>'<div><span class="'+(data.arrivals.includes(x)?"visited":"")+'"></span><small>'+x.slice(5)+'</small></div>').join("")+'</div>'+
     '<button type="button" data-action="preview-tomorrow" class="v22-setting-row"><span><strong>Preview tomorrow’s quote</strong><small>For testing only. Does not affect today or mark an arrival.</small></span><b>↗</b></button></div>'+
     '<div class="v22-settings-block"><h2>Your data</h2><p>Your quotes, reflections and universe history currently stay on this browser. No account sync yet.</p><button type="button" data-action="export" class="v22-setting-row"><span><strong>Export everything</strong><small>Saved thoughts, Discover choices and universe history</small></span><b>↗</b></button><button type="button" data-action="edit-themes" class="v22-setting-row"><span><strong>Change interests</strong><small>Adjust the questions you chose when starting</small></span><b>↗</b></button></div>'+
-    '<div class="v22-settings-block"><h2>Discovery history</h2><p>'+responses+' quote response'+(responses===1?"":"s")+' recorded. Answers are provisional and editable whenever you revisit Discover.</p>'+
-    (settingsConfirm?'<div class="v22-confirm"><p>Clear all Discover responses from this browser? Your saved quotes and universe readings will remain.</p><button type="button" data-action="confirm-clear-discovery">Yes, clear responses</button><button type="button" data-action="cancel-clear-discovery">Cancel</button></div>':'<button type="button" data-action="clear-discovery" class="v22-setting-row"><span><strong>Clear my Discover responses</strong><small>This does not delete saved quotes</small></span><b>↗</b></button>')+'</div>'+
+    '<div class="v22-settings-block"><h2>Exploration history</h2><p>'+responses+' exploration choice'+(responses===1?"":"s")+' recorded. Choices are provisional evidence of exploration, not a personality classification.</p>'+
+    (settingsConfirm?'<div class="v22-confirm"><p>Clear all Encounter and Library exploration choices from this browser? Your saved quotes and sky readings will remain.</p><button type="button" data-action="confirm-clear-discovery">Yes, clear responses</button><button type="button" data-action="cancel-clear-discovery">Cancel</button></div>':'<button type="button" data-action="clear-discovery" class="v22-setting-row"><span><strong>Clear my exploration choices</strong><small>This does not delete saved quotes</small></span><b>↗</b></button>')+'</div>'+
     '<div class="v22-settings-block"><h2>About YourLogos</h2><p>A space to encounter ideas, leave traces of questions, and discover where thought leads. There are no scores for being philosophical.</p></div></section>';
 }
 function worldBack(){return '<button type="button" data-world-pane="home" class="world-back">← My World</button>'}
@@ -416,7 +381,7 @@ function profileHtml(){
   if(universePane==="sky")return '<section class="view living-universe-embed" aria-label="Your living sky">'+
     '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living sky of ideas" loading="eager"></iframe>'+
     '</section>';
-  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName});
+  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName,encountersHtml:worldHomeEvidence(data.encounterEvents)});
   return '<div class="world-detail">'+worldBack()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():mirrorHtml(data.saved.map(i=>QUOTES[i]).filter(Boolean),data.discovery))+'</div>';
 }
 
@@ -442,7 +407,7 @@ function render(){
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
   '<main class="stage'+(navPulse===view&&from!==active?' motion-tab-entry':'')+'" style="--motion-dir:'+(active>from?1:-1)+'"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(settingsOpen?"SETTINGS":view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
-  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V3.0</span></div></aside></div>'+
+  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V3.1</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
@@ -588,8 +553,16 @@ document.addEventListener("click",async e=>{
     universePane=destination;openSchoolId=null;libraryScope="all";detailId=null;
     settingsOpen=false;render();haptic();return;
   }
-  const response=e.target.closest("[data-discover-response]");if(response){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),response:response.dataset.discoverResponse,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();return}
-  const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();toast("A new lens added to My World");return}
+  const encounterChoice=e.target.closest("[data-encounter-choice]");
+  if(encounterChoice && discoverOpen){
+    const id=visibleQuoteId(),choice=Number(encounterChoice.dataset.encounterChoice);
+    const {schoolId,scene,sceneIndex}=encounterFor(QUOTES[id],id);
+    if(!Number.isInteger(choice)||choice<0||choice>=scene.options.length)return;
+    const record={schoolId,sceneIndex,optionIndex:choice,theme:QUOTES[id][2],date:today(),axis:scene.options[choice][2]};
+    data.encounters[id]=record;
+    data.encounterEvents=recordExploration(data.encounterEvents,{...record,source:"encounter",quoteId:id});
+    discoverStep=1;persist();haptic("success");render();return;
+  }
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;
     if(SCHOOLS.some(x=>x.id===candidate)&&!openSchoolId){
       school.classList.add("school-entering");schoolSceneIndex=0;schoolChoiceIndex=null;haptic("impact");
@@ -603,7 +576,9 @@ document.addEventListener("click",async e=>{
     const entry=SCHOOL_SCENES[openSchoolId]?.scenes[schoolSceneIndex];
     const choice=Number(lessonChoice.dataset.schoolChoice);
     if(!entry||!Number.isInteger(choice)||choice<0||choice>=entry.options.length)return;
-    schoolChoiceIndex=choice;haptic();
+    schoolChoiceIndex=choice;
+    data.encounterEvents=recordExploration(data.encounterEvents,{source:"library",schoolId:openSchoolId,sceneIndex:schoolSceneIndex,optionIndex:choice,axis:entry.options[choice][2],date:today()});
+    persist();haptic();
     const lesson=document.querySelector(".school-play-lab");
     if(lesson)lesson.outerHTML=schoolPlayHtml(openSchoolId);
     return;
@@ -651,6 +626,8 @@ document.addEventListener("click",async e=>{
             saved:remote.state.saved.filter(id=>Number.isInteger(id)&&id>=0&&id<QUOTES.length),
             practice:remote.state.practice,
             discovery:remote.state.discovery&&typeof remote.state.discovery==="object"?remote.state.discovery:{},
+            encounters:remote.state.encounters&&typeof remote.state.encounters==="object"?remote.state.encounters:{},
+            encounterEvents:Array.isArray(remote.state.encounterEvents)?remote.state.encounterEvents.slice(-350):[],
             themes:Array.isArray(remote.state.themes)?remote.state.themes:[],
             arrivals:Array.isArray(remote.state.arrivals)?remote.state.arrivals:[],
             started:Boolean(remote.state.started),
@@ -690,11 +667,13 @@ document.addEventListener("click",async e=>{
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(!data.saved.includes(id)){data.saved.push(id);persist();}discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
-    case"discover-angles":discoverStep=2;render();return;
-    case"discover-back":discoverStep=1;render();return;
+    case"discover-library":{
+      const id=visibleQuoteId(),target=encounterFor(QUOTES[id],id).schoolId;
+      discoverOpen=false;discoverStep=0;view="library";openSchoolId=target;schoolSceneIndex=0;schoolChoiceIndex=null;libraryScope="all";render();haptic();return;
+    }
     case"clear-discovery":settingsConfirm=true;render();return;
     case"cancel-clear-discovery":settingsConfirm=false;render();return;
-    case"confirm-clear-discovery":data.discovery={};settingsConfirm=false;persist();render();toast("Discover responses cleared");return;
+    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
     case"back":detailId=null;break;
     case"export":{
       const universe=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();

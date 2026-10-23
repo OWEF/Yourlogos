@@ -20,7 +20,7 @@ export function philosopherEvidence(saved,discovery){
 export function portrait(p,cls="large"){
   return '<div class="world-portrait '+cls+'"><img src="'+url(p)+'" alt="Portrait of '+esc(p.name)+'" loading="lazy" onerror="this.hidden=true"/><div class="portrait-initial" aria-hidden="true">'+p.name.charAt(0)+'</div><div class="portrait-shade"></div></div>';
 }
-export function worldHomeHtml({saved,discovery,name}){
+export function worldHomeHtml({saved,discovery,name,encountersHtml=""}){
   const e=philosopherEvidence(saved,discovery);
   return '<section class="world-home view" aria-label="My World">'+
     '<div class="world-home-header"><div class="world-kicker">A PERSONAL UNIVERSE</div><h1>My World<span>.</span></h1><p>'+(name?esc(name)+', this is':'This is')+' a portrait made of the questions you return to.</p></div>'+
@@ -28,6 +28,7 @@ export function worldHomeHtml({saved,discovery,name}){
       '<div class="world-sky-stars" aria-hidden="true">'+Array.from({length:54},(_,i)=>'<i style="--x:'+((i*71+27)%97)+'%;--y:'+((i*43+13)%96)+'%;--s:'+(i%8===0?3:1)+'px;--delay:'+(i%9)*.2+'s"></i>').join("")+
       '<svg class="world-sky-lines" viewBox="0 0 330 195" aria-hidden="true"><path d="M48 136Q116 30 170 96T281 44M170 96L218 38" stroke="#d0b48a" stroke-width=".7" fill="none" opacity=".45"/><circle cx="48" cy="136" r="3" fill="#deb889"/><circle cx="170" cy="96" r="5" fill="#f4daaa"/><circle cx="218" cy="38" r="3.5" fill="#b7cfe9"/><circle cx="281" cy="44" r="3" fill="#d8aeb9"/></svg></div>'+
       '<div class="world-sky-title"><span><small>THE LIVING SKY</small><strong>Travel through ideas that stayed with you.</strong></span><span class="world-arrow">↗</span></div></button>'+
+    (encountersHtml||'')+
     '<div class="world-grid"><button type="button" data-world-pane="saved" class="world-tile"><span class="world-tile-icon">✧</span><strong>Saved thoughts</strong><small>'+saved.length+' encounters kept</small></button>'+
     '<button type="button" data-world-pane="fingerprint" class="world-tile"><span class="world-tile-icon">◎</span><strong>Fingerprint</strong><small>Patterns of your curiosity</small></button></div>'+
     '<button type="button" data-world-pane="mirror" class="world-mirror-teaser">'+portrait(e.person,"small")+
