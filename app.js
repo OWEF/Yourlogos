@@ -1,4 +1,6 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
+import { worldHomeHtml, mirrorHtml } from "./world-view.js";
+import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail } from "./auth-client.js";
 const QUOTES=[
 ["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning","Twilight of the Idols","What, if anything, gives hardship a direction?"],
 ["Man is the only creature who refuses to be what he is.","Albert Camus","Freedom","The Rebel","What in yourself are you refusing today?"],
@@ -62,6 +64,8 @@ let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
+if(typeof data.localName!=="string")data.localName="";
+let verifiedIdentity=null,authBusy=false,authNotice="";
 // A return is a gentle, optional act of presence; not a competitive streak.
 if(!Array.isArray(data.arrivals))data.arrivals=[];
 data.arrivals=[...new Set(data.arrivals.filter(x=>typeof x==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x)))].slice(-730);
@@ -149,7 +153,7 @@ function todayHtml(){
     '<div class="quote-viewport" id="quote-viewport" tabindex="0" aria-label="Quotes. Swipe up or down, or use arrow keys, to browse ideas.">'+
       '<div class="quote-halo" aria-hidden="true"></div>'+
       '<div class="quote-motion" id="quote-motion">'+
-      '<div class="today-label">'+(quoteCursor===0?"TODAY’S THOUGHT":"ANOTHER PERSPECTIVE")+'</div>'+
+      '<div class="personal-greeting">'+(data.localName?'A thought for you, '+esc(data.localName)+'.':'A moment for your curiosity.')+'</div><div class="today-label">'+(quoteCursor===0?"TODAY’S THOUGHT":"ANOTHER PERSPECTIVE")+'</div>'+
       '<div class="quote-rule"></div><h1 class="quote">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div>'+
       '<div class="quote-theme">'+esc(q[2]).toUpperCase()+'</div></div>'+
       '<div class="quote-dots" aria-hidden="true">'+daySequence().slice(0,6).map((_,i)=>'<i class="'+(i===Math.min(quoteCursor,5)?"on":"")+'"></i>').join('')+'</div>'+
@@ -269,12 +273,13 @@ function settingsHtml(){
     (settingsConfirm?'<div class="v22-confirm"><p>Clear all Discover responses from this browser? Your saved quotes and universe readings will remain.</p><button type="button" data-action="confirm-clear-discovery">Yes, clear responses</button><button type="button" data-action="cancel-clear-discovery">Cancel</button></div>':'<button type="button" data-action="clear-discovery" class="v22-setting-row"><span><strong>Clear my Discover responses</strong><small>This does not delete saved quotes</small></span><b>↗</b></button>')+'</div>'+
     '<div class="v22-settings-block"><h2>About YourLogos</h2><p>A space to encounter ideas, leave traces of questions, and discover where thought leads. There are no scores for being philosophical.</p></div></section>';
 }
-function universeNav(){return '<nav class="v22-universe-nav" aria-label="My universe sections">'+[['sky','Sky'],['saved','Saved'],['fingerprint','Fingerprint'],['library','Library']].map(([id,name])=>'<button type="button" data-universe-pane="'+id+'" class="'+(universePane===id?'active':'')+'" aria-current="'+(universePane===id?'page':'false')+'">'+name+'</button>').join('')+'</nav>'}
+function worldBack(){return '<button type="button" data-world-pane="home" class="world-back">← My World</button>'}
 function profileHtml(){
-  if(universePane!=="sky")return '<div class="universe-v22-content">'+universeNav()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():libraryHtml())+'</div>';
-  return '<section class="view living-universe-embed" aria-label="Your living constellation">'+
-    '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living universe of ideas" loading="eager"></iframe>'+
-    universeNav()+'</section>';
+  if(universePane==="sky")return '<section class="view living-universe-embed" aria-label="Your living sky">'+
+    '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living sky of ideas" loading="eager"></iframe>'+
+    '<button type="button" data-world-pane="home" class="world-back-floating">← My World</button></section>';
+  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName});
+  return '<div class="world-detail">'+worldBack()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():mirrorHtml(data.saved.map(i=>QUOTES[i]).filter(Boolean),data.discovery))+'</div>';
 }
 
 function detailHtml(){const id=detailId,q=QUOTES[id];return '<section class="view detail">'+btn("back",svg("back")+" Back","top-back")+'<div class="section-kicker" style="margin-top:35px">'+esc(q[2])+'</div><h1>“'+esc(q[0])+'”</h1><div class="author" style="text-align:left">— '+esc(q[1])+'</div><h2>Source</h2><p>'+esc(q[3])+'</p><h2>To sit with</h2><p>'+esc(PROMPTS[q[2]][0])+'</p><h2>To question</h2><p>'+esc(PROMPTS[q[2]][1])+'</p><div class="inline-actions" style="margin-top:36px">'+btn("detail-save",data.saved.includes(id)?"Remove from saved":"Save this thought","outline")+'</div></section>'}
