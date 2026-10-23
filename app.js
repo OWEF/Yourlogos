@@ -448,6 +448,10 @@ async function refreshPublicQuoteCatalogue(){
      QUOTES.push([q.quote_text,q.author,q.theme,q.source,q.reflection_prompt]);added++;
    }
    if(added){
+     // Remote quote indices and themes are hints to the existing personal sky,
+     // never proof of agreement or a new relationship.
+     const themeHints=Object.fromEntries(QUOTES.slice(42).map((quote,index)=>[index+42,quote[2]]));
+     try{localStorage.setItem("yourlogos-quote-theme-map",JSON.stringify(themeHints))}catch{}
      const count=QUOTES.length;const ids=Array.from({length:count},(_,i)=>i);
      let seed=0x7a3f9201;
      const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
