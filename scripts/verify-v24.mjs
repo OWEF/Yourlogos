@@ -42,6 +42,14 @@ assert.ok(app.includes('["today","Encounter"],["library","Library"],["profile","
 assert.ok(app.includes("class=\"settings-layer\""));
 assert.ok(app.includes("data-action=\"daily-arrive\""));
 assert.ok(app.includes("preview-tomorrow"));
+assert.ok(app.includes('document.body.appendChild(replacementNav)'),"Navigation dock must persist outside content root");
+assert.ok(app.includes('body > .mobile-tabs .dock-glass'),"Live dock indicator remains the same DOM element");
+assert.ok(app.includes('document.addEventListener("pointerdown"'),"Important taps respond at pointer-down");
+assert.ok(app.includes('motion-tab-entry'),"Tabs animate directional content arrival");
+const motion=read("motion.css");
+assert.ok(motion.includes("prefers-reduced-motion:reduce"),"Reduced motion must be supported");
+assert.ok(motion.includes(".dock-indicator"),"Active dock indicator must have continuous feedback");
+assert.ok(html.includes('href="/motion.css"')&&sw.includes('"/motion.css"'),"Motion CSS is loaded and cached");
 assert.ok(cosmos.includes("if(!explored.length)return;"),"Personal lines require recorded link evidence");
 const mapped=cosmos.match(/const legacyConceptByIndex=\[([^\]]*)\]/);
 assert.equal(mapped?.[1]?.split(",").length,42,"Existing personal sky mappings preserve original quote IDs");
