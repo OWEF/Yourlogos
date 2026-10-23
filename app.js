@@ -415,7 +415,7 @@ function worldBack(){return '<button type="button" data-world-pane="home" class=
 function profileHtml(){
   if(universePane==="sky")return '<section class="view living-universe-embed" aria-label="Your living sky">'+
     '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living sky of ideas" loading="eager"></iframe>'+
-    '<button type="button" data-world-pane="home" class="world-back-floating">← My World</button></section>';
+    '</section>';
   if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName});
   return '<div class="world-detail">'+worldBack()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():mirrorHtml(data.saved.map(i=>QUOTES[i]).filter(Boolean),data.discovery))+'</div>';
 }
@@ -436,38 +436,31 @@ function render(){
   // continues instead of snapping back to a new element every click.
   const persistentNav=document.querySelector("body > .mobile-tabs");
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
-  const inner=onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
+  const inner=settingsOpen?
+    '<section class="view settings-route" aria-label="Account and settings"><button type="button" class="settings-route-back" data-action="settings-close">← Back</button>'+settingsHtml()+'</section>':
+    onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
-  '<main class="stage'+(navPulse===view&&from!==active?' motion-tab-entry':'')+'" style="--motion-dir:'+(active>from?1:-1)+'"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
+  '<main class="stage'+(navPulse===view&&from!==active?' motion-tab-entry':'')+'" style="--motion-dir:'+(active>from?1:-1)+'"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(settingsOpen?"SETTINGS":view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
   '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.8</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
-  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-haspopup="dialog" aria-controls="yourlogos-settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
+  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
   '';
-  // Native HTMLDialogElement enters the browser top layer: it cannot hide
-  // behind the dock, header, or iPhone WebKit stacking/overflow contexts.
-  const previousDialog=document.querySelector("body > dialog.settings-layer");
-  if(!settingsOpen){previousDialog?.remove()}
-  else{
-    const portal=previousDialog||document.createElement("dialog");
-    if(!previousDialog){
-      portal.className="settings-layer";
-      portal.setAttribute("aria-label","Profile and settings");
-      document.body.appendChild(portal);
-    }
-    // Keep the native top-layer dialog mounted, but refresh its content on
-    // explicit form/action renders. Preserve scroll position after saving.
-    const previousScroll=portal.scrollTop;
-    portal.innerHTML='<div class="settings-panel" id="yourlogos-settings" tabindex="-1"><button type="button" data-action="settings-close" class="settings-close" aria-label="Close settings">×</button>'+settingsHtml()+'</div>';
-    portal.scrollTop=previousScroll;
-    if(!portal.open){
-      if(typeof portal.showModal==="function"){try{portal.showModal()}catch{portal.setAttribute("open","")}}
-      else portal.setAttribute("open","");
-    }
-  }
+  // Settings is a real app route, not a portal or dialog. It cannot vanish
+  // behind WebKit top layers, transformed scenes, or a stale focus trap.
+  document.querySelector("body > dialog.settings-layer")?.remove();
   document.querySelector('[data-action="settings-open"]')?.setAttribute("aria-expanded",settingsOpen?"true":"false");
+  const oldBack=document.querySelector("body > .sky-return");
+  if(view==="profile"&&universePane==="sky"&&!settingsOpen){
+    if(!oldBack){
+      const back=document.createElement("button");
+      back.type="button";back.className="sky-return";back.dataset.worldPane="home";
+      back.textContent="← My World";back.setAttribute("aria-label","Back to My World");
+      document.body.appendChild(back);
+    }
+  }else oldBack?.remove();
   // Place the dock outside #app once, so subsequent innerHTML updates never
   // detach it. This is what makes the moving selection feel continuous.
   const replacementNav=document.querySelector("#app .mobile-tabs");
@@ -588,7 +581,13 @@ document.addEventListener("click",async e=>{
     setTimeout(()=>{navPulse=null;document.querySelectorAll(".dock-btn.icon-moving").forEach(b=>b.classList.remove("icon-moving"))},610);
     return;
   }
-  const tab=e.target.closest("[data-world-pane]");if(tab){universePane=tab.dataset.worldPane;openSchoolId=null;libraryScope="all";detailId=null;render();haptic();return}
+  const tab=e.target.closest("[data-world-pane]");if(tab){
+    e.preventDefault();
+    const destination=tab.dataset.worldPane;
+    if(!["home","sky","saved","fingerprint","mirror"].includes(destination))return;
+    universePane=destination;openSchoolId=null;libraryScope="all";detailId=null;
+    settingsOpen=false;render();haptic();return;
+  }
   const response=e.target.closest("[data-discover-response]");if(response){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),response:response.dataset.discoverResponse,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();return}
   const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();toast("A new lens added to My World");return}
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;
@@ -627,7 +626,7 @@ document.addEventListener("click",async e=>{
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
-    case"settings-open":settingsOpen=true;render();haptic("impact");document.querySelector("body > .settings-layer .settings-close")?.focus();return;
+    case"settings-open":settingsOpen=!settingsOpen;render();haptic("impact");document.querySelector(settingsOpen?".settings-route-back":'[data-action="settings-open"]')?.focus();return;
     case"settings-close":settingsOpen=false;authNotice="";render();haptic();document.querySelector('[data-action="settings-open"]')?.focus();return;
     case"email-signout":{try{await signOutEmail();verifiedIdentity=null;syncConfirm="";cloudStateInfo="";authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
     case"cloud-save":if(!verifiedIdentity)return;syncConfirm="save";render();return;
