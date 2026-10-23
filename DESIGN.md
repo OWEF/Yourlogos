@@ -57,6 +57,14 @@ as personal relationships. The sample-evolution graph is clearly illustrative.
 Profile/settings sheet must be reachable from every primary destination.
 Preserve accessible labels, visible keyboard focus, and modal escape behavior.
 
+## Motion and touch contract (V2.8)
+- Preserve the existing three-tab structure and glass dock; do not introduce a fourth primary destination.
+- The bottom glass dock stays mounted independently of screen updates, so the active pill physically glides between targets without resetting.
+- At pointer-down, nav and important action controls visibly compress and emit a gentle light wave. On selection, the icon gives a brief spring response and the incoming content moves a small distance in the navigation direction.
+- Never hold back navigation for an animation. All interactions must function without motion, including when prefers-reduced-motion is enabled.
+- Web-only iPhone Safari does not expose a generic Taptic Engine API; use truthful visual feedback with native vibration only on supporting hosts.
+- Protect the currently approved Encounter, Library and My World hierarchy, quote readability and living sky gesture system.
+
 ## Release gate
 Review JavaScript syntax, quote IDs and rotation, RLS policy SQL, navigation,
 Discover, Sky, Saved, Library, Mirror, Settings, iPhone touch/scroll/safe-area
