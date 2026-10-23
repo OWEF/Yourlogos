@@ -1,6 +1,6 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
-import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes } from "./auth-client.js";
+import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
 ["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning","Twilight of the Idols","What, if anything, gives hardship a direction?"],
 ["Man is the only creature who refuses to be what he is.","Albert Camus","Freedom","The Rebel","What in yourself are you refusing today?"],
@@ -112,7 +112,7 @@ const KEY="yourlogos_web_v1";
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
-let quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
+let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
 if(typeof data.localName!=="string")data.localName="";
 let verifiedIdentity=null,authBusy=false,authNotice="";
@@ -341,7 +341,13 @@ function settingsHtml(){
   return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+
     '<div class="v22-settings-block"><h2>Your account</h2><p>Personalize the way YourLogos welcomes you. Your display name is kept on this device until account sync is connected.</p>'+
       '<form id="profile-name-form" class="account-form"><label for="display-name">DISPLAY NAME</label><input id="display-name" name="displayName" required maxlength="32" autocomplete="nickname" placeholder="What should we call you?" value="'+esc(data.localName)+'"/><button type="submit">Save name</button></form>'+
-      (verifiedIdentity?'<p class="account-muted">Verified email: '+esc(verifiedIdentity.email)+' · Your current quote data still lives on this browser until sync is implemented.</p><button type="button" data-action="email-signout" class="v22-setting-row"><span><strong>Sign out from email</strong></span><b>↗</b></button>':
+      (verifiedIdentity?'<p class="account-muted">Verified email: '+esc(verifiedIdentity.email)+'. Your device data remains private until you choose to transfer it.</p>'+
+       '<div class="account-cloud-options"><p>Cloud history is optional. Upload this device’s saved quotes, check-ins and responses, or restore a previous cloud snapshot. Neither happens automatically.</p>'+
+       '<button type="button" class="v22-setting-row" data-action="cloud-save" '+(syncBusy?'disabled':'')+'><span><strong>Save this device to my account</strong><small>Replaces the cloud copy, not this device</small></span><b>↗</b></button>'+
+       '<button type="button" class="v22-setting-row" data-action="cloud-restore" '+(syncBusy?'disabled':'')+'><span><strong>Restore my account history</strong><small>Replaces this device’s saved quotes, preferences and responses</small></span><b>↗</b></button>'+
+       (syncConfirm?'<div class="v22-confirm"><p>'+esc(syncConfirm==="save"?"Replace the saved account copy with this device’s current data? This does not delete anything on this device.":"Replace the saved history on this device with the cloud copy? Export your local data first if you want a backup.")+'</p><button type="button" data-action="cloud-confirm" '+(syncBusy?'disabled':'')+'>Confirm transfer</button><button type="button" data-action="cloud-cancel">Cancel</button></div>':'')+
+       (cloudStateInfo?'<p class="account-muted" role="status">'+esc(cloudStateInfo)+'</p>':'')+'</div>'+
+       '<button type="button" data-action="email-signout" class="v22-setting-row"><span><strong>Sign out from email</strong></span><b>↗</b></button>':
        AUTH_ENABLED?'<form id="account-email-form" class="account-form"><label for="account-email">EMAIL ADDRESS</label><input id="account-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com"/><button type="submit" '+(authBusy?'disabled':'')+'>Send secure sign-in link</button></form>':
        '<p class="account-muted">Verified email enrollment will be available when a dedicated YourLogos authentication project is connected. You can still save your name and use the app without an account.</p>')+
        (authNotice?'<div class="account-notice" role="status">'+esc(authNotice)+'</div>':'')+'</div>'+
@@ -380,7 +386,7 @@ function render(){
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
   document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">A space for curiosity.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
   '<main class="stage"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">A space for curiosity.</span></div><div class="daily-meta">'+(view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
-  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.4 preview</span></div></aside></div>'+
+  '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V2.6</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
@@ -454,7 +460,46 @@ document.addEventListener("click",async e=>{
   switch(a){
     case"settings-open":settingsOpen=true;render();document.querySelector(".settings-close")?.focus();return;
     case"settings-close":settingsOpen=false;authNotice="";render();return;
-    case"email-signout":{try{await signOutEmail();verifiedIdentity=null;authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
+    case"email-signout":{try{await signOutEmail();verifiedIdentity=null;syncConfirm="";cloudStateInfo="";authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
+    case"cloud-save":if(!verifiedIdentity)return;syncConfirm="save";render();return;
+    case"cloud-restore":if(!verifiedIdentity)return;syncConfirm="restore";render();return;
+    case"cloud-cancel":syncConfirm="";render();return;
+    case"cloud-confirm":{
+      if(!verifiedIdentity||syncBusy||!syncConfirm)return;
+      const direction=syncConfirm;syncBusy=true;syncConfirm="";cloudStateInfo="";render();
+      try{
+        if(direction==="save"){
+          const cosmosEvents=(()=>{try{const raw=JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]");return Array.isArray(raw)?raw.slice(-2000):[]}catch{return []}})();
+          await writeAccountData({...data,cosmosEvents});
+          if(data.localName)await writeAccountName(data.localName);
+          cloudStateInfo="Your account copy has been saved. Other devices can restore it when signed in.";
+        }else{
+          const remote=await readAccountData();
+          if(!remote.state)throw new Error("There is no saved account history yet.");
+          if(!Array.isArray(remote.state.saved)||!remote.state.practice||typeof remote.state.practice!=="object")throw new Error("The cloud snapshot is incomplete; this device was not changed.");
+          // Preserve this browser's existing name unless the user has not set one.
+          const originalName=data.localName||"";
+          const safe={
+            saved:remote.state.saved.filter(id=>Number.isInteger(id)&&id>=0&&id<QUOTES.length),
+            practice:remote.state.practice,
+            discovery:remote.state.discovery&&typeof remote.state.discovery==="object"?remote.state.discovery:{},
+            themes:Array.isArray(remote.state.themes)?remote.state.themes:[],
+            arrivals:Array.isArray(remote.state.arrivals)?remote.state.arrivals:[],
+            started:Boolean(remote.state.started),
+            localName:originalName||remote.name||""
+          };
+          data={...data,...safe};persist();
+          if(Array.isArray(remote.state.cosmosEvents)){
+            const events=remote.state.cosmosEvents.filter(e=>e&&typeof e==="object"&&["save","read","link","view"].includes(e.type)&&typeof e.concept==="string").slice(-2000);
+            localStorage.setItem("yourlogos-v2-encounters-v1",JSON.stringify(events));
+          }
+          quoteCursor=0;
+          cloudStateInfo="Your saved account history was restored to this device. Reopen Sky to refresh its local view.";
+        }
+      }catch(err){cloudStateInfo=String(err?.message||err)}
+      finally{syncBusy=false;render()}
+      return;
+    }
     case"daily-arrive":{
       const d=today();if(!data.arrivals.includes(d)){data.arrivals.push(d);data.arrivals=data.arrivals.slice(-730);persist();}
       arrivalCelebrating=true;haptic();render();toast("A little light for today");
@@ -495,7 +540,7 @@ document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsOp
 document.addEventListener("submit",async e=>{
  if(e.target.id==="profile-name-form"){
   e.preventDefault();const name=String(new FormData(e.target).get("displayName")||"").trim().replace(/\s+/g," ").slice(0,32);
-  if(!name)return;data.localName=name;persist();authNotice="Your greeting was saved on this device.";render();return;
+  if(!name)return;data.localName=name;persist();authNotice="Your greeting was saved on this device."+(verifiedIdentity?" Use Save this device to my account to copy it online.":"");render();return;
  }
  if(e.target.id==="account-email-form"){
   e.preventDefault();if(!AUTH_ENABLED){authNotice="Email login is not configured yet.";render();return}

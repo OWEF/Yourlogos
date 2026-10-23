@@ -5,7 +5,7 @@ import vm from "node:vm";
 const read=p=>fs.readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const app=read("app.js"),world=read("world-view.js"),cosmos=read("cosmos-v2.html");
 const auth=read("auth-client.js"),config=read("auth-config.js"),sw=read("sw.js"),html=read("index.html");
-for(const [name,source] of [["app",app],["world",world],["auth",auth],["config",config]]){
+for(const [name,source] of [["app",app],[ "world",world],["auth",auth]]){
   new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
 }
 const embedded=cosmos.match(/<script>([\s\S]*?)<\/script>/);
@@ -48,7 +48,10 @@ assert.equal(mapped?.[1]?.split(",").length,42,"Existing personal sky mappings p
 assert.ok(cosmos.includes("yourlogos-quote-theme-map"),"Additional quote themes must be supported through metadata fallback");
 assert.ok(world.includes("THE PHILOSOPHER’S MIRROR"));
 assert.ok(world.includes("ready:saved.length>=3"),"A match must have minimum personal evidence");
-assert.ok(config.includes('AUTH_URL = ""'),"Email remains disabled until a dedicated project is authorized");
+assert.ok(config.includes("/api/public-config"),"Auth configuration is loaded from server runtime");
+assert.ok(read("server.mjs").includes("YOURLOGOS_SUPABASE_PUBLISHABLE_KEY"),"Server reads publishable key only");
+assert.ok(auth.includes("writeAccountData")&&auth.includes("readAccountData"),"Account snapshot supports explicit save and restore");
+assert.ok(app.includes("cloud-confirm")&&app.includes("cloud-cancel"),"Cloud transfers require confirmation");
 for(const path of ["/world-view.js","/world.css","/daily-arrival.css","/library-atmosphere.css","/auth-client.js","/auth-config.js"]){
  assert.ok(sw.includes('"'+path+'"'),"Offline cache should precache "+path);
 }
