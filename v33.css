@@ -1,0 +1,44 @@
+/* V3.3 — compact matched icon controls and thought threads. */
+.quote-actions{gap:16px!important;align-items:center!important;justify-content:center!important}
+.quote-actions .yl-quote-btn{box-sizing:border-box!important;display:grid!important;place-items:center!important;flex:0 0 64px!important;width:64px!important;height:58px!important;min-width:64px!important;max-width:64px!important;min-height:58px!important;max-height:58px!important;padding:0!important;border:1px solid #aaa09155!important;border-radius:17px!important;background:linear-gradient(145deg,#ffffff11,#ffffff05)!important;color:#e9e0d4!important}
+.quote-actions .yl-quote-btn svg{display:block!important;width:27px!important;height:27px!important;min-width:27px!important;max-width:27px!important;min-height:27px!important;max-height:27px!important;margin:0!important;overflow:visible!important;stroke-width:1.65!important}
+.quote-actions .yl-quote-btn .heart-svg{width:27px!important;height:27px!important}
+.quote-actions .yl-quote-btn .heart-path{fill:none;stroke:currentColor}
+.quote-actions .yl-quote-btn.heart-button.liked{border-color:#e66b806b!important;background:#e66b8012!important;color:#e66b80!important}
+.quote-actions .yl-quote-btn.heart-button.liked .heart-path{fill:#e66b80!important;stroke:#e66b80!important}
+.quote-actions .yl-quote-btn .heart-spark{pointer-events:none}
+.quote-actions .yl-quote-btn:focus-visible{outline:2px solid #e1bb91;outline-offset:3px}
+.yl-thread{padding:4px 0 2px}
+.yl-thread-progress{font:600 10px 'DM Sans',sans-serif;letter-spacing:.16em;color:#c9b291;margin-bottom:17px}
+.yl-thread-progress span{opacity:.55;margin:0 5px}
+.v32-discover .yl-thread h2.yl-thread-question{font:500 clamp(28px,7.1vw,39px)/1.13 'Cormorant Garamond',Georgia,serif;color:#f5ede3;margin:0 0 24px;letter-spacing:-.015em}
+.yl-thread-choices{display:grid;gap:10px}
+.yl-thread-choice{display:flex;align-items:stretch;gap:14px;width:100%;text-align:left;padding:0 14px 0 0;min-height:79px;background:#23262b;border:1px solid #ffffff22;border-radius:17px;overflow:hidden;color:#eae2d6;transition:transform .22s,border-color .22s,background .22s}
+.yl-thread-choice .yl-choice-stripe{width:4px;flex:0 0 4px;background:var(--thread-tone)}
+.yl-thread-choice .yl-choice-content{display:flex;flex-direction:column;justify-content:center;gap:5px;padding:13px 0;flex:1}
+.yl-thread-choice small{font:700 10px 'DM Sans',sans-serif;letter-spacing:.12em;color:var(--thread-tone)}
+.yl-thread-choice strong{font:500 14px/1.42 'DM Sans',sans-serif;color:#f0e9dd}
+.yl-choice-arrow{align-self:center;font-size:17px;color:var(--thread-tone)}
+.yl-tone-coral{--thread-tone:#e8a18f}
+.yl-tone-blue{--thread-tone:#9dc7e9}
+.yl-tone-sage{--thread-tone:#a8d1b8}
+.yl-thread-choice.yl-tone-coral{background:#e8a18f12;border-color:#e8a18f66}
+.yl-thread-choice.yl-tone-blue{background:#9dc7e914;border-color:#9dc7e960}
+.yl-thread-choice.yl-tone-sage{background:#a8d1b814;border-color:#a8d1b860}
+.yl-thread-choice:hover{transform:translateY(-2px);border-color:var(--thread-tone)}
+.yl-thread-choice:active{transform:scale(.982)}
+.yl-thread-choice:focus-visible,.yl-thread button:focus-visible{outline:2px solid #e4cda5;outline-offset:3px}
+.yl-thread-chip{display:inline-block;color:var(--thread-tone);font:700 10px 'DM Sans',sans-serif;letter-spacing:.13em;margin:0 0 13px}
+.yl-followup .yl-thread-choice{min-height:70px}
+.yl-thread-back,.yl-thread-restart{display:block;margin:14px auto 0;background:none;border:0;color:#b7ae9e;padding:10px;font:500 12px 'DM Sans',sans-serif}
+.yl-thread-ending{display:flex;flex-direction:column;align-items:center;text-align:center;gap:13px;padding:10px 0 4px}
+.yl-thread-seed{font-size:31px;color:#dfc49d;filter:drop-shadow(0 0 12px #ddbc9360);animation:yl-seed .5s ease both}
+.yl-thread-ending .yl-thread-progress{margin:0}
+.yl-thread-path{display:flex;gap:11px;align-items:center;justify-content:center;color:#bdb4a7;font:13px 'DM Sans',sans-serif}
+.yl-thread-path b{color:#e9ce9f;font-weight:600}
+.v32-discover .yl-thread h2.yl-thread-result{font:500 clamp(24px,6.7vw,34px)/1.17 'Cormorant Garamond',Georgia,serif;color:#f1e5d7;margin:2px 0 7px}
+.yl-thread-library{width:100%;max-width:340px;padding:15px 18px;min-height:52px;background:#dec7a5;border:1px solid #dec7a5;border-radius:16px;color:#262019;font:600 13px 'DM Sans',sans-serif}
+.yl-thread-restart{margin:0}
+@keyframes yl-seed{from{transform:rotate(-25deg) scale(.7);opacity:.25}to{transform:rotate(0) scale(1);opacity:1}}
+@media(max-width:700px){.quote-actions .yl-quote-btn{width:60px!important;height:56px!important;min-width:60px!important;max-width:60px!important;min-height:56px!important;max-height:56px!important}.yl-thread-choice{min-height:76px}.v32-discover .yl-thread h2.yl-thread-question{font-size:clamp(29px,8vw,37px)}}
+@media(prefers-reduced-motion:reduce){.yl-thread-choice,.yl-thread-seed{animation:none!important;transition:none!important}}
