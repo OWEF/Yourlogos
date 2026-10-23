@@ -20,7 +20,29 @@ const QUOTES=[
 ["The present moment is the only moment available to us, and it is the door to all moments.","Thích Nhất Hạnh","Time","Attributed; source needs verification","What does attention change about time?"],
 ["The strongest man in the world is he who stands most alone.","Henrik Ibsen","Solitude","An Enemy of the People (translation varies)","When is standing alone conscience, and when is it pride?"],
 ["The most beautiful experience we can have is the mysterious.","Albert Einstein","Beauty","The World As I See It (translation varies)","What deserves wonder instead of explanation?"]
-];
+,
+["I think, therefore I am.","René Descartes","Doubt","Discourse on Method, Part IV","What must be certain before you can doubt anything?"],
+["He who knows only his own side of the case knows little of that.","John Stuart Mill","Doubt","On Liberty, Chapter II","Which opposing view would sharpen your own?"],
+["The philosophers have only interpreted the world, in various ways; the point is to change it.","Karl Marx","Action","Theses on Feuerbach, Thesis XI (translation varies)","When should understanding become collective action?"],
+["I do not wish them to have power over men; but over themselves.","Mary Wollstonecraft","Freedom","A Vindication of the Rights of Woman, Chapter IV","What is the difference between independence and dominance?"],
+["All things excellent are as difficult as they are rare.","Baruch Spinoza","Meaning","Ethics, Part V, Proposition 42, Scholium (translation varies)","What is worth pursuing without any guarantee of ease?"],
+["The heart has its reasons, which reason does not know.","Blaise Pascal","Love","Pensées, fragment 277 (Brunschvicg; translation varies)","Is there a form of understanding that reason alone cannot grasp?"],
+["Reason is, and ought only to be the slave of the passions.","David Hume","Freedom","A Treatise of Human Nature, Book II, Part III, Section III","Does reason direct your desires, or serve them?"],
+["The life of man, solitary, poor, nasty, brutish, and short.","Thomas Hobbes","Suffering","Leviathan, Chapter XIII (excerpt)","How much of a good life depends on other people?"],
+["A woman must have money and a room of her own if she is to write fiction.","Virginia Woolf","Freedom","A Room of One's Own, Chapter I","What material conditions does freedom require?"],
+["There is nothing either good or bad, but thinking makes it so.","William Shakespeare","Doubt","Hamlet, Act II, Scene II","How much do your judgments shape your world?"],
+["Man is by nature a political animal.","Aristotle","Love","Politics, Book I, 1253a (translation varies)","Can a person truly flourish alone?"],
+["The unexamined life is not worth living for a human being.","Socrates","Meaning","Plato, Apology, 38a (alternative translation)","What deserves another examination?"],
+["The mind is its own place, and in itself can make a Heaven of Hell, a Hell of Heaven.","John Milton","Doubt","Paradise Lost, Book I","Where does interpretation meet circumstance?"],
+["To be, or not to be, that is the question.","William Shakespeare","Mortality","Hamlet, Act III, Scene I","What does it mean to bear an uncertain future?"],
+["Life can only be understood backwards; but it must be lived forwards.","Søren Kierkegaard","Time","Journals, 1843 (translation varies)","How do you act before understanding catches up?"],
+["What is the use of a house if you haven't got a tolerable planet to put it on?","Henry David Thoreau","Beauty","Letter to Harrison Blake, 1860 (commonly quoted)","What larger home makes your own life possible?"],
+["One does not become enlightened by imagining figures of light, but by making the darkness conscious.","Carl Jung","Doubt","The Philosophical Tree, Psychology and Alchemy, CW 13 (translation varies)","What are you unwilling to notice about yourself?"],
+["The world is my representation.","Arthur Schopenhauer","Doubt","The World as Will and Representation, Book I (translation varies)","How do perception and world fit together?"],
+["You must change your life.","Rainer Maria Rilke","Action","Archaic Torso of Apollo, New Poems (translation varies)","What has beauty asked you to do?"],
+["The only thing we have to fear is fear itself.","Franklin D. Roosevelt","Suffering","First Inaugural Address, March 4, 1933","What becomes possible when fear is named?"],
+["If liberty means anything at all, it means the right to tell people what they do not want to hear.","George Orwell","Freedom","Preface to Animal Farm, 'The Freedom of the Press'","What does honest disagreement require?"],
+["I am no bird; and no net ensnares me.","Charlotte Brontë","Freedom","Jane Eyre, Chapter XXIII (excerpt)","What does refusing a constraint look like?"]];
 const THEMES=["Meaning","Suffering","Freedom","Mortality","Love","Doubt","Action","Solitude","Beauty","Time"];
 const PROMPTS={
 Meaning:["Notice where your own 'why' is clear, and where it has gone quiet.","Can meaning be found, or must it be made?"],
