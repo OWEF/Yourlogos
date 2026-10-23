@@ -72,6 +72,30 @@ const S={
 89:["If sudden change is painful, must stability always be good?","Familiar conditions can also imprison us.","Which changes are harmful, and to whom?","Maybe transformation is loss and possibility together.",["existentialism","skepticism","daoism"]],
 90:["If compassion begins morality, can compassion mislead us?","Sympathy can favor the people nearest to us.","How can a feeling justify an obligation?","Maybe compassion needs cultivation and reflection.",["stoicism","skepticism","buddhism"]]
 };
+// A bridge must lead to a relevant philosophical question, not an arbitrary school.
+const DESTINATIONS={
+  5:["confucianism","skepticism","idealism"],
+  7:["existentialism","skepticism","confucianism"],
+  9:["pragmatism","skepticism","stoicism"],
+  10:["confucianism","skepticism","buddhism"],
+  11:["stoicism","skepticism","idealism"],
+  13:["stoicism","skepticism","pragmatism"],
+  16:["stoicism","skepticism","pragmatism"],
+  24:["epicureanism","skepticism","confucianism"],
+  30:["existentialism","skepticism","confucianism"],
+  42:["epicureanism","skepticism","pragmatism"],
+  45:["existentialism","skepticism","epicureanism"],
+  53:["confucianism","skepticism","epicureanism"],
+  58:["stoicism","skepticism","idealism"],
+  60:["confucianism","skepticism","idealism"],
+  67:["buddhism","skepticism","pragmatism"],
+  70:["confucianism","skepticism","idealism"],
+  72:["stoicism","skepticism","pragmatism"],
+  77:["pragmatism","skepticism","confucianism"],
+  78:["stoicism","skepticism","confucianism"],
+  88:["idealism","skepticism","pragmatism"],
+  90:["buddhism","skepticism","confucianism"]
+};
 const TYPES=["resist","doubt","reframe"];
 const FOLLOWUPS=[
  {question:"Does this objection defeat the thought—or make it more precise?",options:["The objection reveals a limit.","The thought survives, but needs a qualification."]},
@@ -87,7 +111,7 @@ export function getExploratoryThread(quote,id){
   question,curated:false,exploratory:true,
   branches:[resist,doubt,reframe].map((title,i)=>{
    const follow=FOLLOWUPS[i];
-   const school=schools[i];
+   const school=(DESTINATIONS[id]||schools)[i];
    return {type:TYPES[i],target:"An open interpretive question requiring editorial review",title,followup:follow.question,answers:[
     {label:follow.options[0],school,concept:"inquiry",insight:title},
     {label:follow.options[1],school,concept:"inquiry",insight:"A strong thought can change without being discarded."}
