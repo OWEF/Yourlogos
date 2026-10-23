@@ -18,7 +18,7 @@ export function philosopherEvidence(saved,discovery){
   return {person:result[0],ready:saved.length>=3&&entries.length>=2&&result[0].score>=5,saved:saved.length,responses:entries.length};
 }
 export function portrait(p,cls="large"){
-  return '<div class="world-portrait '+cls+'"><img src="'+url(p)+'" alt="Portrait of '+esc(p.name)+'" loading="lazy" onerror="this.hidden=true;this.parentNode.classList.add('portrait-fallback')"/><div class="portrait-initial" aria-hidden="true">'+p.name.charAt(0)+'</div><div class="portrait-shade"></div></div>';
+  return '<div class="world-portrait '+cls+'"><img src="'+url(p)+'" alt="Portrait of '+esc(p.name)+'" loading="lazy" onerror="this.hidden=true"/><div class="portrait-initial" aria-hidden="true">'+p.name.charAt(0)+'</div><div class="portrait-shade"></div></div>';
 }
 export function worldHomeHtml({saved,discovery,name}){
   const e=philosopherEvidence(saved,discovery);
