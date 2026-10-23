@@ -42,3 +42,18 @@
 @keyframes yl-seed{from{transform:rotate(-25deg) scale(.7);opacity:.25}to{transform:rotate(0) scale(1);opacity:1}}
 @media(max-width:700px){.quote-actions .yl-quote-btn{width:60px!important;height:56px!important;min-width:60px!important;max-width:60px!important;min-height:56px!important;max-height:56px!important}.yl-thread-choice{min-height:76px}.v32-discover .yl-thread h2.yl-thread-question{font-size:clamp(29px,8vw,37px)}}
 @media(prefers-reduced-motion:reduce){.yl-thread-choice,.yl-thread-seed{animation:none!important;transition:none!important}}
+
+/* V4.1 — collecting a thought is a tiny, reversible transition. */
+.keep-toast{display:flex;align-items:center;gap:17px;bottom:calc(110px + env(safe-area-inset-bottom));max-width:calc(100vw - 36px);border:1px solid #ebdbbf5e;background:#26232a;color:#eee5d7;box-shadow:0 12px 44px #000b;white-space:normal}
+.keep-toast button{background:transparent;border:0;border-left:1px solid #e6c8a350;color:#e8b9a5;font:600 12px 'DM Sans',sans-serif;padding:3px 1px 3px 14px;min-height:36px;cursor:pointer}
+.keep-toast button:focus-visible{outline:2px solid #dfc49c;outline-offset:3px}
+.keep-advance-out{transition:transform .16s cubic-bezier(.2,.7,.3,1),opacity .16s!important;transform:translateY(-35px) scale(.96)!important;opacity:0!important}
+.keep-advance-in{animation:yl-keep-arrive .48s cubic-bezier(.18,1.18,.31,1) both}
+@keyframes yl-keep-arrive{from{opacity:.12;transform:translateY(45px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+.encounter-complete{display:flex;min-height:min(65dvh,580px);flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:30px 20px}
+.encounter-complete-mark{font:48px Georgia,serif;color:#d9c099;filter:drop-shadow(0 0 17px #d4b48966);margin-bottom:9px}
+.encounter-complete h1{max-width:460px;font:normal clamp(31px,8vw,47px)/1.15 'Cormorant Garamond',Georgia,serif;color:#f4e9da;margin:2px 0 0}
+.encounter-complete p{max-width:340px;font:13px/1.75 'DM Sans',sans-serif;color:#b0a99e;margin:0}
+.encounter-complete button{background:#dfc9a9;color:#211d18;border-radius:14px;border:0;padding:15px 22px;margin-top:12px;font:600 12px 'DM Sans',sans-serif;min-height:50px}
+@media(min-width:701px){.keep-toast{bottom:42px}}
+@media(prefers-reduced-motion:reduce){.keep-advance-out,.keep-advance-in{animation:none!important;transition:none!important}}
