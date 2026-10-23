@@ -125,6 +125,7 @@ if(!Array.isArray(data.encounterEvents))data.encounterEvents=[];
 if(typeof data.localName!=="string")data.localName="";
 let verifiedIdentity=null,authBusy=false,authNotice="";
 let threadBranch=0,threadAnswer=0;
+let libraryListScrollY=0;
 if(!Array.isArray(data.thoughtThreadEvents))data.thoughtThreadEvents=[];
 // A return is a gentle, optional act of presence; not a competitive streak.
 if(!Array.isArray(data.arrivals))data.arrivals=[];
@@ -597,9 +598,10 @@ document.addEventListener("click",async e=>{
   }
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;
     if(SCHOOLS.some(x=>x.id===candidate)&&!openSchoolId){
+      libraryListScrollY=window.scrollY||document.documentElement.scrollTop||0;
       school.classList.add("school-entering");schoolSceneIndex=0;schoolChoiceIndex=null;haptic("impact");
       const delay=window.matchMedia("(prefers-reduced-motion: reduce)").matches?0:180;
-      setTimeout(()=>{openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)},delay);
+      setTimeout(()=>{openSchoolId=candidate;render();window.scrollTo({top:0,behavior:"instant"});document.getElementById("school-detail-scroll")?.scrollTo(0,0)},delay);
     }
     return;
   }
@@ -623,7 +625,7 @@ document.addEventListener("click",async e=>{
     if(lesson)lesson.outerHTML=schoolPlayHtml(openSchoolId);
     return;
   }
-  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;schoolChoiceIndex=null;schoolSceneIndex=0;render();haptic();return}
+  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;schoolChoiceIndex=null;schoolSceneIndex=0;render();haptic();requestAnimationFrame(()=>window.scrollTo({top:libraryListScrollY,behavior:"instant"}));return}
   if(e.target.closest("[data-library-liked]")){openSchoolId=null;libraryScope="liked";render();return}
   if(e.target.closest("[data-library-root]")){libraryScope="all";openSchoolId=null;render();return}
   const th=e.target.closest("[data-theme]");
