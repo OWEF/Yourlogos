@@ -1,4 +1,5 @@
 import { SCHOOLS, schoolArtwork } from "./schools.js";
+import { SCHOOL_SCENES } from "./school-scenes.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -112,7 +113,7 @@ const KEY="yourlogos_web_v1";
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
-let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null;
+let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
 if(typeof data.localName!=="string")data.localName="";
 let verifiedIdentity=null,authBusy=false,authNotice="";
@@ -215,7 +216,7 @@ function todayHtml(){
       '<div class="quote-halo" aria-hidden="true"></div>'+
       '<div class="quote-motion" id="quote-motion">'+
       '<div class="personal-greeting">'+(data.localName?'A thought for you, '+esc(data.localName)+'.':'A moment for your curiosity.')+'</div><div class="today-label">'+(quoteCursor===0?"TODAY’S THOUGHT":"ANOTHER PERSPECTIVE")+'</div>'+
-      '<div class="quote-rule"></div><h1 class="quote">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div>'+
+      '<div class="quote-rule"></div><h1 class="quote '+(q[0].length>158?'quote-dense':q[0].length>108?'quote-medium':'')+'">“'+esc(q[0])+'”</h1><div class="author">— '+esc(q[1])+'</div>'+
       '<div class="quote-theme">'+esc(q[2]).toUpperCase()+'</div></div>'+
       '<div class="quote-dots" aria-hidden="true">'+daySequence().slice(0,6).map((_,i)=>'<i class="'+(i===Math.min(quoteCursor,5)?"on":"")+'"></i>').join('')+'</div>'+
     '</div>'+
@@ -296,6 +297,29 @@ const SCHOOL_ART_IMAGES={"stoicism":{name:"Equestrian Statue of Marcus Aurelius"
 "skepticism":{name:"The Incredulity of Saint Thomas",artist:"Caravaggio",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("The Incredulity of Saint Thomas-Caravaggio (1601-2).jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("The Incredulity of Saint Thomas-Caravaggio (1601-2).jpg")},
 "daoism":{name:"Travelers Among Mountains and Streams",artist:"Fan Kuan",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Xsxlt fankuan.jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("Xsxlt fankuan.jpg")},
 "buddhism":{name:"Seated Buddha",artist:"Cleveland Museum of Art, CC0",src:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Afghanistan, Gandhara, Hadda, late Kushan Period - Seated Buddha - 1967.39 - Cleveland Museum of Art.jpg")+"?width=900",page:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent("Afghanistan, Gandhara, Hadda, late Kushan Period - Seated Buddha - 1967.39 - Cleveland Museum of Art.jpg")}};
+function schoolPlayHtml(id){
+  const experience=SCHOOL_SCENES[id];if(!experience)return "";
+  const scene=experience.scenes[schoolSceneIndex%experience.scenes.length];
+  const chosen=schoolChoiceIndex===null?null:scene.options[schoolChoiceIndex];
+  const axis=chosen?chosen[2]:50;
+  return '<section class="school-play-lab" aria-label="Try this philosophy in a real situation">'+
+    '<div class="school-play-top"><span>AN IDEA IN MOTION</span><span>SCENE '+(schoolSceneIndex+1)+' / '+experience.scenes.length+'</span></div>'+
+    '<div class="school-play-context">'+esc(scene.place)+'</div>'+
+    '<h2>'+esc(scene.question)+'</h2>'+
+    '<div class="school-play-options">'+scene.options.map((o,i)=>
+      '<button type="button" data-school-choice="'+i+'" class="'+(schoolChoiceIndex===i?'chosen':'')+'" aria-pressed="'+(schoolChoiceIndex===i)+'"><span class="school-choice-bullet">'+(i+1)+'</span>'+esc(o[0])+'</button>').join('')+'</div>'+
+    '<div class="school-play-axis"><div class="school-axis-caption">'+esc(experience.tag)+'</div>'+
+      '<div class="school-axis-track"><div class="school-axis-current" style="--axis:'+axis+'%"></div></div>'+
+      '<div class="school-axis-labels"><span>'+esc(experience.pole[0])+'</span><span>'+esc(experience.pole[1])+'</span></div></div>'+
+    '<div class="school-play-insight" role="status" aria-live="polite">'+
+      (chosen?'<span class="school-insight-eyebrow">ONE WAY TO SEE IT</span><p>'+esc(chosen[1])+'</p><small>'+esc(scene.insight)+'</small>':
+      '<span class="school-insight-eyebrow">NOT A QUIZ</span><p>Choose an instinct. Watch the perspective shift.</p>')+
+    '</div>'+
+    '<div class="school-play-actions"><button type="button" data-school-scene="next">'+
+      (schoolSceneIndex+1<experience.scenes.length?'Another situation →':'Start again ↺')+
+    '</button><span>No scores. Only perspectives.</span></div>'+
+  '</section>';
+}
 function schoolBackdropHtml(id){
   const art=SCHOOL_ART_IMAGES[id];
   return art?'<figure class="school-atmosphere" aria-hidden="true"><img alt="" loading="lazy" decoding="async" src="'+art.src+'" onerror="this.hidden=true"/></figure>':'';
@@ -332,10 +356,12 @@ function libraryHtml(){
       '<h1 class="school-detail-title">'+esc(current.name)+'</h1>'+
       '<p class="school-detail-sub">'+esc(current.subtitle)+'</p>'+
       '<div class="school-section"><div class="school-section-label">THE CENTRAL QUESTION</div><h2 class="school-big-question">'+esc(current.question)+'</h2></div>'+
-      '<div class="school-section"><div class="school-section-label">THE IDEA</div><p>'+esc(current.intro)+'</p></div>'+
+      '<div class="school-section school-idea-summary"><div class="school-section-label">THE IDEA IN A SENTENCE</div><p>'+esc(current.intro)+'</p></div>'+
+      schoolPlayHtml(current.id)+
+      '<details class="school-deep-dive"><summary>Go deeper into this philosophy <span aria-hidden="true">⌄</span></summary>'+
       '<div class="school-section"><div class="school-section-label">KEY VOICES</div><div class="school-voices">'+current.thinkers.map(name=>'<span>'+esc(name)+'</span>').join('')+'</div></div>'+
       '<div class="school-section"><div class="school-section-label">CORE TENSIONS</div><div class="school-tensions">'+current.tensions.map(t=>'<div>'+esc(t)+'</div>').join('')+'</div></div>'+
-      '<div class="school-section"><div class="school-section-label">A THOUGHT TO CARRY</div><div class="school-reflection">'+esc(current.reflection)+'</div><p class="school-prompt-note">No answer required. Just a place to begin.</p></div>'+
+      '<div class="school-section"><div class="school-section-label">A THOUGHT TO CARRY</div><div class="school-reflection">'+esc(current.reflection)+'</div><p class="school-prompt-note">No answer required. Just a place to begin.</p></div></details>'+
       schoolArtCreditHtml(current.id)+
     '</div></section>';
 }
@@ -567,13 +593,31 @@ document.addEventListener("click",async e=>{
   const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();toast("A new lens added to My World");return}
   const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;
     if(SCHOOLS.some(x=>x.id===candidate)&&!openSchoolId){
-      school.classList.add("school-entering");haptic("impact");
+      school.classList.add("school-entering");schoolSceneIndex=0;schoolChoiceIndex=null;haptic("impact");
       const delay=window.matchMedia("(prefers-reduced-motion: reduce)").matches?0:180;
       setTimeout(()=>{openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)},delay);
     }
     return;
   }
-  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;render();haptic();return}
+  const lessonChoice=e.target.closest("[data-school-choice]");
+  if(lessonChoice&&openSchoolId){
+    const entry=SCHOOL_SCENES[openSchoolId]?.scenes[schoolSceneIndex];
+    const choice=Number(lessonChoice.dataset.schoolChoice);
+    if(!entry||!Number.isInteger(choice)||choice<0||choice>=entry.options.length)return;
+    schoolChoiceIndex=choice;haptic();
+    const lesson=document.querySelector(".school-play-lab");
+    if(lesson)lesson.outerHTML=schoolPlayHtml(openSchoolId);
+    return;
+  }
+  const lessonNext=e.target.closest("[data-school-scene]");
+  if(lessonNext&&openSchoolId){
+    const count=SCHOOL_SCENES[openSchoolId]?.scenes.length||1;
+    schoolSceneIndex=(schoolSceneIndex+1)%count;schoolChoiceIndex=null;haptic();
+    const lesson=document.querySelector(".school-play-lab");
+    if(lesson)lesson.outerHTML=schoolPlayHtml(openSchoolId);
+    return;
+  }
+  const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;schoolChoiceIndex=null;schoolSceneIndex=0;render();haptic();return}
   if(e.target.closest("[data-library-liked]")){openSchoolId=null;libraryScope="liked";render();return}
   if(e.target.closest("[data-library-root]")){libraryScope="all";openSchoolId=null;render();return}
   const th=e.target.closest("[data-theme]");
