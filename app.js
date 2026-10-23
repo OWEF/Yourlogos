@@ -167,6 +167,7 @@ const navHtml=(compact=false)=>navs.map(([n,label])=>'<button type="button" aria
 function arrivalDates(){return Array.from({length:7},(_,i)=>shiftDate(today(),i-6))}
 function arrivalHtml(){
   const days=arrivalDates(),done=data.arrivals.includes(today()),dates=new Set(data.arrivals);
+  if(done && !arrivalCelebrating)return "";
   let entering=false;try{entering=sessionStorage.getItem("yourlogos-arrival-intro:"+today())!=="1";if(entering)sessionStorage.setItem("yourlogos-arrival-intro:"+today(),"1")}catch{}
   return '<div class="arrival-ritual'+(arrivalCelebrating?" celebrating":"")+(entering?" first-light":"")+'" aria-label="Daily arrival">'+
     '<div class="arrival-constellation" role="img" aria-label="'+days.filter(x=>dates.has(x)).length+' of the last 7 days visited">'+
@@ -238,19 +239,42 @@ const DISCOVERY_LENSES=[
   {id:"others",title:"Other people",body:"Whose experience might challenge it?"},
   {id:"time",title:"Change over time",body:"Would I still feel this way years from now?"}
 ];
+const SIMPLE_REACTIONS=[
+  {id:"resonate",label:"It resonates",tone:"You recognized something familiar."},
+  {id:"resist",label:"I question it",tone:"You chose to challenge the idea."},
+  {id:"ambivalent",label:"Both, perhaps",tone:"You left room for more than one truth."},
+  {id:"curious",label:"I'm curious",tone:"You kept the question open."}
+];
+const FOLLOWUP_ANGLES=[
+  {id:"experience",label:"My life"},
+  {id:"reason",label:"The logic"},
+  {id:"others",label:"Other people"},
+  {id:"time",label:"Over time"}
+];
 function discoverHtml(){
-  const id=visibleQuoteId(),q=QUOTES[id],p=data.discovery[id]||{},challenge=DISCOVERY_CHALLENGES[q[2]]||"What if the opposite were true?";
-  const choices=discoverStep===0?DISCOVERY_RESPONSES:DISCOVERY_LENSES;
-  const selected=discoverStep===0?p.response:p.lens;
-  return '<div class="discover-cover" data-action="close-discover"></div><section class="discover-sheet discover-v22" role="dialog" aria-modal="true" aria-label="A philosophical encounter">'+
-    '<div class="sheet-handle"></div><div class="sheet-head"><span>THE QUESTION BEHIND THE QUESTION</span><button type="button" data-action="close-discover" class="sheet-close" aria-label="Close discovery">×</button></div>'+
-    '<div class="discover-progress"><span class="'+(discoverStep===0?"lit":"")+'"></span><span class="'+(discoverStep===1?"lit":"")+'"></span><span class="'+(discoverStep===2?"lit":"")+'"></span></div>'+
-    (discoverStep===0?'<div class="discover-catch">WHAT IF...</div><h2>'+esc(challenge)+'</h2><p class="discover-soft">'+esc(q[4])+'</p><div class="discover-question">How does this land with you?</div>'
-    :discoverStep===1?'<div class="discover-catch">STAY WITH THE QUESTION</div><h2>'+esc(p.response==="resist"?"What assumption troubles you?":p.response==="resonate"?"Where have you felt this in life?":p.response==="ambivalent"?"What remains unresolved for you?":"Which direction draws your curiosity?")+'</h2><p class="discover-soft">There is no correct reaction. Choose a lens you would like to explore.</p><div class="discover-question">Where would you look next?</div>'
-    :'<div class="discover-catch">A TRACE OF YOUR CURIOSITY</div><h2>One question. Many possible ways of seeing.</h2><p class="discover-soft">You approached this with '+esc(DISCOVERY_RESPONSES.find(x=>x.id===p.response)?.title.toLowerCase()||"curiosity")+', looking through '+esc(DISCOVERY_LENSES.find(x=>x.id===p.lens)?.title.toLowerCase()||"a new lens")+'. This records an encounter, not a permanent belief.</p><div class="discover-insight">This choice now contributes to your <strong>Fingerprint</strong> as a pattern of inquiry, never as a personality score.</div>')+
-    (discoverStep<2?'<div class="discover-option-grid">'+choices.map(c=>'<button type="button" data-discover-'+(discoverStep===0?"response":"lens")+'="'+esc(c.id)+'" class="discover-option '+(selected===c.id?"selected":"")+'"><strong>'+esc(c.title)+'</strong><span>'+esc(c.body)+'</span><span class="arrow">↗</span></button>').join("")+'</div>'
-    :'<div class="discover-continue"><button data-action="discover-save" type="button">'+(data.saved.includes(id)?"Thought already saved":"Keep this thought")+' ↗</button><button data-action="discover-universe" type="button">See my fingerprint ↗</button><button data-action="discover-again" type="button">Reconsider my answer</button></div>')+
-    '<div class="discover-foot">'+(discoverStep<2?"Your response can change. Curiosity is enough.":"You can revise or erase your responses in Settings.")+'</div></section>';
+  const id=visibleQuoteId(),q=QUOTES[id],p=data.discovery[id]||{};
+  const challenge=DISCOVERY_CHALLENGES[q[2]]||"What if the opposite were true?";
+  const choice=SIMPLE_REACTIONS.find(c=>c.id===p.response);
+  return '<div class="discover-cover" data-action="close-discover"></div>'+
+    '<section class="discover-sheet discover-v26" role="dialog" aria-modal="true" aria-label="A question to consider">'+
+    '<div class="sheet-handle"></div><div class="sheet-head"><span>ANOTHER WAY TO SEE IT</span><button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div>'+
+    (discoverStep===0?
+       '<h2>'+esc(challenge)+'</h2>'+
+       '<div class="v26-discover-choices">'+SIMPLE_REACTIONS.map(c=>
+         '<button type="button" data-discover-response="'+c.id+'"'+(p.response===c.id?' class="selected"':'')+'>'+esc(c.label)+'</button>'
+       ).join("")+'</div>'+
+       '<p class="v26-discover-foot">No right answer. Just your first reaction.</p>':
+     discoverStep===1?
+       '<h2 class="v26-short-result">'+esc(choice?.tone||"A new question begins.")+'</h2>'+
+       '<p class="v26-one-line">'+esc(q[4])+'</p>'+
+       '<div class="v26-discover-actions"><button type="button" data-action="discover-save">'+(data.saved.includes(id)?"Saved ✓":"Keep thought ✧")+'</button><button type="button" data-action="discover-angles">Look deeper ↗</button></div>'+
+       '<button type="button" class="v26-text-action" data-action="discover-again">Change my response</button>':
+       '<h2 class="v26-short-result">Where would you look next?</h2>'+
+       '<div class="v26-discover-choices">'+FOLLOWUP_ANGLES.map(c=>
+         '<button type="button" data-discover-lens="'+c.id+'"'+(p.lens===c.id?' class="selected"':'')+'>'+esc(c.label)+'</button>'
+       ).join("")+'</div>'+
+       '<button type="button" class="v26-text-action" data-action="discover-back">← Back</button>')+
+    '</section>';
 }
 
 function listHtml(ids){return ids.length?ids.map(id=>'<button class="quote-card" data-detail="'+id+'"><div class="line">“'+esc(QUOTES[id][0])+'”</div><div class="meta">— '+esc(QUOTES[id][1])+' · '+esc(QUOTES[id][2])+'</div></button>').join(""):'<div class="empty">Nothing here yet. Return to today’s thought.</div>'}
@@ -409,8 +433,15 @@ document.addEventListener("click",async e=>{
   if(v){navFrom=Math.max(0,navs.findIndex(x=>x[0]===view));view=v.dataset.view;navPulse=view;detailId=null;discoverOpen=false;settingsOpen=false;if(view==="library"){openSchoolId=null;libraryScope="all"}render();haptic();setTimeout(()=>{navPulse=null},750);return}
   const tab=e.target.closest("[data-world-pane]");if(tab){universePane=tab.dataset.worldPane;openSchoolId=null;libraryScope="all";detailId=null;render();return}
   const response=e.target.closest("[data-discover-response]");if(response){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),response:response.dataset.discoverResponse,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();return}
-  const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=2;persist();render();return}
-  const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;if(SCHOOLS.some(x=>x.id===candidate)){openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)}return}
+  const lens=e.target.closest("[data-discover-lens]");if(lens){const id=visibleQuoteId();data.discovery[id]={...(data.discovery[id]||{}),lens:lens.dataset.discoverLens,theme:QUOTES[id][2],author:QUOTES[id][1],date:today()};discoverStep=1;persist();render();toast("A new lens added to My World");return}
+  const school=e.target.closest("[data-school]");if(school){const candidate=school.dataset.school;
+    if(SCHOOLS.some(x=>x.id===candidate)&&!openSchoolId){
+      school.classList.add("school-entering");
+      const delay=window.matchMedia("(prefers-reduced-motion: reduce)").matches?0:180;
+      setTimeout(()=>{openSchoolId=candidate;render();document.getElementById("school-detail-scroll")?.scrollTo(0,0)},delay);
+    }
+    return;
+  }
   const schoolBack=e.target.closest("[data-school-back]");if(schoolBack){openSchoolId=null;render();return}
   if(e.target.closest("[data-library-liked]")){openSchoolId=null;libraryScope="liked";render();return}
   if(e.target.closest("[data-library-root]")){libraryScope="all";openSchoolId=null;render();return}
@@ -427,7 +458,7 @@ document.addEventListener("click",async e=>{
     case"daily-arrive":{
       const d=today();if(!data.arrivals.includes(d)){data.arrivals.push(d);data.arrivals=data.arrivals.slice(-730);persist();}
       arrivalCelebrating=true;haptic();render();toast("A little light for today");
-      setTimeout(()=>{arrivalCelebrating=false;document.querySelector(".arrival-ritual")?.classList.remove("celebrating")},1250);
+      setTimeout(()=>{arrivalCelebrating=false;if(view==="today"&&!discoverOpen&&!settingsOpen)render()},870);
       return;
     }
     case"preview-tomorrow":previewTomorrowOpen=true;render();return;
@@ -446,6 +477,8 @@ document.addEventListener("click",async e=>{
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(!data.saved.includes(id)){data.saved.push(id);persist();}discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
+    case"discover-angles":discoverStep=2;render();return;
+    case"discover-back":discoverStep=1;render();return;
     case"clear-discovery":settingsConfirm=true;render();return;
     case"cancel-clear-discovery":settingsConfirm=false;render();return;
     case"confirm-clear-discovery":data.discovery={};settingsConfirm=false;persist();render();toast("Discover responses cleared");return;
