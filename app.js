@@ -280,6 +280,7 @@ function libraryHtml(){
       '<button type="button" data-school-back class="school-back" aria-label="Back to all philosophies">'+
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h13"/></svg>All philosophies</button>'+
       '<div class="school-hero school-'+esc(current.id)+'">'+schoolArtwork(current.id)+'</div>'+
+      '<div class="school-atmosphere" aria-hidden="true">'+schoolArtwork(current.id)+'</div>'+
       '<h1 class="school-detail-title">'+esc(current.name)+'</h1>'+
       '<p class="school-detail-sub">'+esc(current.subtitle)+'</p>'+
       '<div class="school-section"><div class="school-section-label">THE CENTRAL QUESTION</div><h2 class="school-big-question">'+esc(current.question)+'</h2></div>'+
