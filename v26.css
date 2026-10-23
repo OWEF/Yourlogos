@@ -1,0 +1,24 @@
+/* YourLogos V2.6 – quiet Discover, more tangible glass, visible detail figures */
+.discover-v26{padding:20px 22px calc(26px + env(safe-area-inset-bottom));max-height:min(70dvh,540px);overflow-y:auto}
+.discover-v26 .sheet-head{margin-bottom:24px}
+.discover-v26 h2{font:normal clamp(29px,7.5vw,42px)/1.13 'Cormorant Garamond',Georgia,serif;letter-spacing:-.025em;margin:0 0 22px;color:#f5ede1}
+.v26-discover-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.v26-discover-choices button,.v26-discover-actions button{border:1px solid rgba(210,189,159,.27);border-radius:15px;background:linear-gradient(145deg,#ffffff13,#ffffff06);padding:16px 11px;color:#e9dfd1;font:500 12px/1.25 'DM Sans',sans-serif;min-height:56px;transition:background .22s,transform .22s,border-color .22s}
+.v26-discover-choices button.selected,.v26-discover-choices button:hover{background:#d1b98d23;border-color:#d1b98d80}
+.v26-discover-choices button:active,.v26-discover-actions button:active{transform:scale(.97)}
+.v26-discover-choices button:focus-visible,.v26-discover-actions button:focus-visible,.v26-text-action:focus-visible{outline:2px solid #e0c495;outline-offset:3px}
+.v26-discover-foot{font:italic 14px/1.4 'Cormorant Garamond',Georgia,serif;color:#b7ad9e;margin:17px 0 0;text-align:center}
+.discover-v26 .v26-short-result{font-size:clamp(28px,7vw,39px);margin-bottom:12px}
+.v26-one-line{font:italic 18px/1.45 'Cormorant Garamond',Georgia,serif;color:#c9bbab;margin:0 0 24px}
+.v26-discover-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.v26-text-action{display:block;background:none;border:none;color:#a9a39a;padding:15px 3px 0;margin:auto;font:11px 'DM Sans',sans-serif}
+.school-detail-screen .school-atmosphere{position:absolute;top:295px;right:0;width:min(67vw,390px);opacity:.24;filter:blur(.25px) saturate(.8);transform:rotate(-6deg);z-index:0;mix-blend-mode:normal}
+.school-detail-screen .school-atmosphere svg{filter:drop-shadow(0 0 20px #d8bc9833)}
+.school-detail-scroll>.school-section,.school-detail-scroll>.school-reflection{position:relative;z-index:2;text-shadow:0 1px 10px #11151bd9}
+.school-tile{transform-style:preserve-3d;will-change:transform;transition:transform .24s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s}
+.school-tile:hover,.school-tile:focus-visible{transform:translateY(-4px) scale(1.012);border-color:#e6d8c583;box-shadow:0 16px 36px #0005,inset 0 1px #fff6}
+.school-tile:active,.school-tile.school-entering{transform:translateY(2px) scale(.975);border-color:#e6d8c5b3;box-shadow:0 4px 24px #d4b88d19,inset 0 1px #fff8}
+.school-tile .school-art svg{transition:transform .65s cubic-bezier(.2,.7,.2,1),filter .5s}
+.school-tile:hover .school-art svg,.school-tile.school-entering .school-art svg{transform:scale(1.065);filter:drop-shadow(0 0 13px #f2e4cb3a)}
+@media(max-width:700px){.school-detail-screen .school-atmosphere{top:280px;right:-12px;width:75vw;opacity:.17}.discover-v26{padding:20px 20px calc(25px + env(safe-area-inset-bottom))}}
+@media(prefers-reduced-motion:reduce){.school-tile,.school-tile .school-art svg,.v26-discover-choices button,.v26-discover-actions button{transition:none!important}.school-tile:hover,.school-tile:active{transform:none}}
