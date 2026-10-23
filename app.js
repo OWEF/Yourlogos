@@ -438,7 +438,8 @@ document.addEventListener("click",async e=>{
       const direction=syncConfirm;syncBusy=true;syncConfirm="";cloudStateInfo="";render();
       try{
         if(direction==="save"){
-          await writeAccountData(data);
+          const cosmosEvents=(()=>{try{const raw=JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]");return Array.isArray(raw)?raw.slice(-2000):[]}catch{return []}})();
+          await writeAccountData({...data,cosmosEvents});
           if(data.localName)await writeAccountName(data.localName);
           cloudStateInfo="Your account copy has been saved. Other devices can restore it when signed in.";
         }else{
@@ -456,7 +457,12 @@ document.addEventListener("click",async e=>{
             started:Boolean(remote.state.started),
             localName:originalName||remote.name||""
           };
-          data={...data,...safe};persist();quoteCursor=0;
+          data={...data,...safe};persist();
+          if(Array.isArray(remote.state.cosmosEvents)){
+            const events=remote.state.cosmosEvents.filter(e=>e&&typeof e==="object"&&["save","read","link","view"].includes(e.type)&&typeof e.concept==="string").slice(-2000);
+            localStorage.setItem("yourlogos-v2-encounters-v1",JSON.stringify(events));
+          }
+          quoteCursor=0;
           cloudStateInfo="Your saved account history was restored to this device. Reopen Sky to refresh its local view.";
         }
       }catch(err){cloudStateInfo=String(err?.message||err)}
