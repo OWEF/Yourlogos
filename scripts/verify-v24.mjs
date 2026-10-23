@@ -39,8 +39,9 @@ for(let i=0;i<=chosen.length-QUOTES.length;i++){
 }
 assert.equal(model.ensureDailyFeature(),model.activeQuote(),"Quote should remain stable on same date");
 assert.ok(app.includes('["today","Encounter"],["library","Library"],["profile","My World"]'));
-assert.ok(app.includes('portal.showModal()'),"Settings must use native top layer to prevent disappearing behind stage or dock");
-assert.ok(app.includes('dialog.settings-layer'),"Settings must be an accessible native dialog");
+assert.ok(app.includes('class="view settings-route"'),"Account controls must use a reliable app route");
+assert.ok(app.includes('body > .sky-return'),"Universe back control must remain outside the iframe");
+assert.ok(!app.includes('portal.showModal()'),"Avoid fragile modal top-layer handling");
 assert.ok(app.includes("data-action=\"daily-arrive\""));
 assert.ok(app.includes("preview-tomorrow"));
 assert.ok(app.includes('document.body.appendChild(replacementNav)'),"Navigation dock must persist outside content root");
@@ -75,4 +76,12 @@ assert.ok(read("ios/Widget/YourLogosQuoteWidget.swift").includes("yourlogos://sa
 const nativeQuotes=JSON.parse(read("ios/Widget/widget-quotes.json"));
 assert.equal(nativeQuotes.quotes.length,QUOTES.length,"Native widget quote library stays aligned with the web");
 assert.deepEqual(nativeQuotes.quotes.map(x=>x.text),QUOTES.map(x=>x[0]),"Native widget quote IDs and text match the app");
-console.log("YourLogos V2.9: source, art, 91 quotes, native widget payload, account portal and privacy checks PASS.");
+const scenes=read("school-scenes.js");
+assert.ok(scenes.includes("SCHOOL_SCENES")&&scenes.includes("stoicism")&&scenes.includes("buddhism"),"Every school has a visual encounter");
+assert.ok(app.includes("schoolPlayHtml(current.id)"),"Library includes interactive visual lessons");
+assert.ok(app.includes("data-school-choice")&&app.includes("data-school-scene"),"Interactive choices and scene navigation work");
+assert.ok(app.includes("quote-dense"),"Long quotation has a readable responsive font size");
+const api=read("server.mjs");
+assert.ok(api.includes('"/api/school-art/"')&&api.includes("artCache"),"Optimized curated artwork served from same origin");
+assert.ok(html.includes('/v30.css')&&sw.includes('"/v30.css"')&&sw.includes('"/school-scenes.js"'),"New interaction assets load offline");
+console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
