@@ -410,7 +410,7 @@ document.addEventListener("click",async e=>{
 document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsOpen){settingsOpen=false;render()}else if(previewTomorrowOpen){previewTomorrowOpen=false;render()}else if(discoverOpen){discoverOpen=false;render()}});
 document.addEventListener("submit",async e=>{
  if(e.target.id==="profile-name-form"){
-  e.preventDefault();const name=String(new FormData(e.target).get("displayName")||"").trim().replace(/\\s+/g," ").slice(0,32);
+  e.preventDefault();const name=String(new FormData(e.target).get("displayName")||"").trim().replace(/\s+/g," ").slice(0,32);
   if(!name)return;data.localName=name;persist();authNotice="Your greeting was saved on this device.";render();return;
  }
  if(e.target.id==="account-email-form"){
