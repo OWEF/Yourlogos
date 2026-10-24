@@ -41,7 +41,9 @@
 
   function setProgress(p,animated=false){
     progress=Math.max(0,Math.min(1,p));
-    thumb.classList.toggle("is-dragging",!animated);
+    thumb.classList.toggle("is-dragging",!animated && dragId!==null);
+    slider.classList.toggle("is-near",progress>.8);
+    slider.classList.toggle("is-resetting",animated&&!transitioning);
     track.style.setProperty("--progress",(progress*100)+"%");
     track.style.setProperty("--intensity",String(progress));
     thumb.style.setProperty("--thumb-x",(progress*travel())+"px");
@@ -61,7 +63,7 @@
       if(navigator.vibrate)navigator.vibrate(finished?[18,30,26]:Math.round(5+p*19));
     }catch{}
   }
-  function markReady(event){hydrateDaily(event?.detail);if(entered||transitioning)return;ready=true;failed=false;thumb.disabled=false;status.textContent="";retry.hidden=true;}
+  function markReady(event){if(entered||transitioning)return;hydrateDaily(event?.detail);ready=true;failed=false;thumb.disabled=false;status.textContent="";retry.hidden=true;}
   function recover(){if(ready||entered||transitioning||appReady())return;failed=true;thumb.disabled=false;status.textContent="YourLogos couldn't finish opening.";retry.hidden=false;thumb.setAttribute("aria-label","Try loading YourLogos again");}
   function burst(){
     if(reduced())return;
@@ -80,7 +82,7 @@
     if(entered||transitioning)return;
     if(!ready&&!appReady()){location.reload();return}
     ready=true;transitioning=true;entered=true;
-    setProgress(1,true);slider.classList.add("is-complete");haptic(1,true);burst();
+    slider.classList.remove("is-grabbing","is-resetting");setProgress(1,true);slider.classList.add("is-complete");haptic(1,true);burst();
     localStorage.setItem(completedKey,dailyDate||localDay());
     window.dispatchEvent(new CustomEvent("yourlogos:daily-arrived",{detail:{date:dailyDate||localDay(),quoteId:dailyId}}));
     root.classList.add("is-departing");
@@ -92,7 +94,7 @@
     if(thumb.disabled||transitioning)return;
     if(e.pointerType==="mouse"&&e.button!==0)return;
     dragId=e.pointerId;lastHapticStep=-1;thumb.setPointerCapture?.(e.pointerId);
-    thumb.classList.add("is-dragging");e.preventDefault();
+    thumb.classList.add("is-dragging");slider.classList.add("is-grabbing");slider.classList.remove("is-resetting");e.preventDefault();
   });
   thumb.addEventListener("pointermove",e=>{
     if(dragId!==e.pointerId||transitioning)return;
@@ -100,11 +102,11 @@
   });
   function endDrag(e){
     if(dragId!==e.pointerId)return;
-    dragId=null;thumb.classList.remove("is-dragging");
-    if(progress>=.93)enter();else {setProgress(0,true);lastHapticStep=-1;}
+    dragId=null;thumb.classList.remove("is-dragging");slider.classList.remove("is-grabbing");
+    if(progress>=.88)enter();else {setProgress(0,true);lastHapticStep=-1;}
   }
   thumb.addEventListener("pointerup",endDrag);
-  thumb.addEventListener("pointercancel",e=>{if(dragId!==e.pointerId)return;dragId=null;thumb.classList.remove("is-dragging");setProgress(0,true)});
+  thumb.addEventListener("pointercancel",e=>{if(dragId!==e.pointerId)return;dragId=null;thumb.classList.remove("is-dragging");slider.classList.remove("is-grabbing");setProgress(0,true)});
   thumb.addEventListener("keydown",e=>{
     if(thumb.disabled||transitioning)return;
     if(["ArrowRight","ArrowUp"].includes(e.key)){e.preventDefault();setProgress(Math.min(1,progress+.12),true);haptic(progress);if(progress>=.93)enter()}
