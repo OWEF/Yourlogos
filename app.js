@@ -912,6 +912,22 @@ async function refreshPublicQuoteCatalogue(){
  }catch(error){console.warn("YourLogos: cached quote catalogue remains available.",error?.message||error)}
 }
 
-render();if(AUTH_ENABLED)refreshPublicQuoteCatalogue();
-if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u){verifiedIdentity=u;if(!data.localName&&u.displayName){data.localName=u.displayName.slice(0,32);persist()}render()}}).catch(()=>{});
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+render();
+// Supabase SDK loading and network requests are noncritical for the first
+// interaction. Schedule them only after the first frame is painted.
+if(AUTH_ENABLED){
+  const startConnectedServices=()=>{
+    refreshPublicQuoteCatalogue();
+    getVerifiedIdentity().then(u=>{
+      if(u){
+        verifiedIdentity=u;
+        if(!data.localName&&u.displayName){data.localName=u.displayName.slice(0,32);persist()}
+        render();
+      }
+    }).catch(()=>{});
+  };
+  if("requestIdleCallback" in window)requestIdleCallback(startConnectedServices,{timeout:2000});
+  else setTimeout(startConnectedServices,700);
+}
+// Do not tie offline cache registration to third-party font load events.
+if("serviceWorker" in navigator)setTimeout(()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}),300);
