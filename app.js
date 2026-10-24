@@ -118,6 +118,7 @@ const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{retur
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let bridgeFromQuestion=null;
+let settingsReturnScrollY=0;
 let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
 if(!data.encounters||typeof data.encounters!=="object")data.encounters={};
@@ -424,6 +425,10 @@ function render(){
   // Preserve the real dock element across app renders so indicator motion
   // continues instead of snapping back to a new element every click.
   const persistentNav=document.querySelector("body > .mobile-tabs");
+  // Like the bottom dock, the top-right profile launcher must survive all
+  // view/Settings re-renders. Replacing its DOM node makes mobile taps flicker
+  // and can leave its stacking context behind the newly rendered route.
+  const persistentSettings=document.querySelector("body > .settings-launch");
   const onboarding=view==="onboarding"; // No compulsory onboarding: enter directly through curiosity.
   const inner=settingsOpen?
     '<section class="view settings-route" aria-label="Account and settings"><button type="button" class="settings-route-back" data-action="settings-close">← Back</button>'+settingsHtml()+'</section>':
@@ -435,12 +440,28 @@ function render(){
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
   (previewTomorrowOpen&&!onboarding?tomorrowPreviewHtml():'')+
-  (!onboarding?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
+  (!onboarding&&!persistentSettings?'<button type="button" data-action="settings-open" class="settings-launch" title="Profile and settings" aria-label="Profile and settings" aria-controls="app" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-7 14-7 14 0"/></svg></button>':'')+
   '';
   // Settings is a real app route, not a portal or dialog. It cannot vanish
   // behind WebKit top layers, transformed scenes, or a stale focus trap.
   document.querySelector("body > dialog.settings-layer")?.remove();
-  document.querySelector('[data-action="settings-open"]')?.setAttribute("aria-expanded",settingsOpen?"true":"false");
+  // Keep a single, stable launcher directly under <body>, outside the
+  // reconstructed app shell and any animated/sticky page containers.
+  const replacementSettings=document.querySelector("#app > .settings-launch");
+  if(onboarding){
+    persistentSettings?.remove();
+    replacementSettings?.remove();
+  }else if(persistentSettings){
+    replacementSettings?.remove();
+  }else if(replacementSettings){
+    document.body.appendChild(replacementSettings);
+  }
+  const settingsLauncher=document.querySelector("body > .settings-launch");
+  if(settingsLauncher){
+    settingsLauncher.setAttribute("aria-expanded",String(settingsOpen));
+    settingsLauncher.setAttribute("aria-pressed",String(settingsOpen));
+    settingsLauncher.classList.toggle("is-open",settingsOpen);
+  }
   const oldBack=document.querySelector("body > .sky-return");
   if(view==="profile"&&universePane==="sky"&&!settingsOpen){
     if(!oldBack){
@@ -692,8 +713,18 @@ document.addEventListener("click",async e=>{
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
-    case"settings-open":settingsOpen=!settingsOpen;render();haptic("impact");document.querySelector(settingsOpen?".settings-route-back":'[data-action="settings-open"]')?.focus();return;
-    case"settings-close":settingsOpen=false;authNotice="";render();haptic();document.querySelector('[data-action="settings-open"]')?.focus();return;
+    case"settings-open":{
+      const opening=!settingsOpen;
+      if(opening)settingsReturnScrollY=window.scrollY;
+      settingsOpen=opening;
+      if(opening){discoverOpen=false;previewTomorrowOpen=false;}
+      render();haptic("impact");
+      // A scrolled Library/My World page must not open Settings offscreen.
+      window.scrollTo({top:opening?0:settingsReturnScrollY,behavior:"instant"});
+      document.querySelector(opening?".settings-route-back":'body > .settings-launch')?.focus({preventScroll:true});
+      return;
+    }
+    case"settings-close":settingsOpen=false;authNotice="";render();haptic();window.scrollTo({top:settingsReturnScrollY,behavior:"instant"});document.querySelector('body > .settings-launch')?.focus({preventScroll:true});return;
     case"email-signout":{try{await signOutEmail();verifiedIdentity=null;syncConfirm="";cloudStateInfo="";authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
     case"cloud-save":if(!verifiedIdentity)return;syncConfirm="save";render();return;
     case"cloud-restore":if(!verifiedIdentity)return;syncConfirm="restore";render();return;
