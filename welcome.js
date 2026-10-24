@@ -102,7 +102,13 @@
       particles.appendChild(el);
     }
   }
-  function finish(){root.hidden=true;transitioning=false;document.getElementById("app")?.removeAttribute("aria-hidden");document.querySelector(".quote-viewport")?.focus?.({preventScroll:true})}
+  function finish(){
+    root.hidden=true;transitioning=false;
+    document.getElementById("app")?.removeAttribute("aria-hidden");
+    // Do not focus the full-screen swipe region programmatically on iPhone.
+    // WebKit paints a bright full-rectangle focus ring around that region.
+    if(document.activeElement?.id==="quote-viewport")document.activeElement.blur();
+  }
   function enter(){
     if(entered||transitioning)return;
     if(!ready&&!appReady()){location.reload();return}
