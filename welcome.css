@@ -43,3 +43,37 @@
 .yl-library-bridge span{font:600 10px 'DM Sans',sans-serif;letter-spacing:.15em;color:#d8bc91}
 .yl-library-bridge p{margin:10px 0 6px;font:500 19px/1.3 'Cormorant Garamond',Georgia,serif;color:#f0e4d1}
 .yl-library-bridge small{font:11px/1.5 'DM Sans',sans-serif;color:#b3a899}
+
+
+/* V3.6 — an articulated, stone-toned human companion, only on the entrance. */
+.yl-entrance__content{transform:translateY(-1%);width:min(100%,480px)}
+.yl-entrance__mark{width:55px;height:55px;margin-bottom:9px}
+.yl-entrance__mark img{width:51px;height:51px}
+.yl-entrance__mark:after{inset:-4px;border-radius:18px}
+.yl-entrance__brand{margin-bottom:13px}
+.yl-entrance__title{font-size:clamp(34px,7.5vw,49px)}
+.yl-entrance__description{margin:10px auto 8px}
+.yl-welcome-scene{--yl-slide:0;width:min(100%,390px);position:relative;padding-top:0;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.yl-guide-figure{height:clamp(196px,36dvh,272px);width:100%;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;filter:drop-shadow(0 14px 24px #0009)}
+.yl-guide-art{height:100%;width:auto;overflow:visible;transform-origin:50% 95%;animation:yl-guide-idle 5.6s ease-in-out infinite}
+.yl-guide-head{transform-origin:74px 76px;transform:rotate(calc(var(--yl-slide)*-4deg));transition:transform .11s ease-out}
+.yl-guide-body{transform-origin:67px 165px;transform:translateX(calc(var(--yl-slide)*5px));transition:transform .1s ease-out}
+.yl-slide-track{position:relative;height:74px;border:1px solid #a99c88;border-radius:40px;background:linear-gradient(165deg,#24262b,#121416);box-shadow:inset 0 2px 11px #000b,0 9px 24px #0006;overflow:visible;touch-action:none}
+.yl-slide-fill{position:absolute;inset:3px auto 3px 3px;width:calc(65px + (100% - 70px) * var(--yl-slide));max-width:calc(100% - 6px);border-radius:40px;background:linear-gradient(90deg,#b5a38a24,#d2bea04e);pointer-events:none}
+.yl-slide-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:32px;font:500 clamp(26px,7.2vw,33px)/1 'Cormorant Garamond',Georgia,serif;letter-spacing:.012em;color:#f2e8d9;text-shadow:0 1px 10px #000a;pointer-events:none}
+.yl-slide-thumb{position:absolute;top:6px;left:6px;width:60px;height:60px;display:grid;place-items:center;border-radius:50%;border:1px solid #eee0cb;background:linear-gradient(140deg,#d9cbb7,#bca98c);color:#26282d;box-shadow:0 3px 13px #0008,inset 0 2px 2px #fff8;transform:translate3d(calc((var(--yl-slide)) * (var(--yl-range, 0px))),0,0);cursor:grab;touch-action:none;will-change:transform}
+.yl-slide-thumb:disabled{opacity:.5;cursor:wait}
+.yl-slide-thumb:focus-visible{outline:2px solid #f5e9d9;outline-offset:4px}
+.yl-welcome-scene.is-dragging .yl-slide-thumb{cursor:grabbing;box-shadow:0 5px 22px #0009,0 0 20px #c9b39065}
+.yl-slide-thumb svg{pointer-events:none}
+.yl-slide-hint{font:500 10px/1.4 'DM Sans',sans-serif;letter-spacing:.21em;color:#aba08e;margin:15px 0 0}
+.yl-entrance__status{margin-top:6px}
+.yl-entrance__foot{opacity:.75}
+.yl-welcome-scene.is-dragging .yl-guide-art{animation:none}
+.yl-guide-art{transform:translateY(calc(var(--yl-slide)*2px)) rotate(calc(var(--yl-slide)*-2deg))}
+.yl-entrance.is-departing .yl-guide-art{animation:yl-guide-wave .55s ease-out forwards}
+@keyframes yl-guide-idle{0%,100%{transform:translateY(0) rotate(-.7deg)}50%{transform:translateY(-3px) rotate(.7deg)}}
+@keyframes yl-guide-wave{0%{transform:translateY(0)}45%{transform:translateY(-12px) rotate(-2deg)}100%{transform:translateY(-6px) rotate(0)}}
+@media(max-height:670px){.yl-guide-figure{height:170px}.yl-entrance__title{font-size:35px}.yl-entrance__description{margin:6px auto}.yl-entrance__mark{margin:0}.yl-entrance__brand{margin-bottom:5px}}
+@media(max-width:350px){.yl-slide-label{font-size:26px}.yl-guide-figure{height:180px}}
+@media(prefers-reduced-motion:reduce){.yl-guide-art,.yl-entrance.is-departing .yl-guide-art{animation:none!important}.yl-guide-head,.yl-guide-body{transition:none!important}}
