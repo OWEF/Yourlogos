@@ -381,3 +381,7 @@ body{background:#090909}
 /* iOS: no electric-blue rectangle on a tapped/swiped quote. Preserve a deliberate keyboard-only indication. */
 .quote-viewport:focus{outline:none}
 .quote-viewport:focus-visible{outline:2px solid #b7a184;outline-offset:-6px;border-radius:4px}
+
+/* Pointer swiping should never leave a blue full-screen keyboard-focus outline on iOS. */
+.quote-viewport:focus{outline:none!important}
+.quote-viewport:focus-visible{outline:2px solid #a38f713d!important;outline-offset:-7px}
