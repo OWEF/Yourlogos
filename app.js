@@ -476,7 +476,7 @@ function render(){
     });
   }
   if(view==="today"&&!onboarding&&detailId===null)bindQuoteGesture();
-  window.dispatchEvent(new CustomEvent("yourlogos:ready",{detail:{date:today(),quoteId:activeQuote(),quote:QUOTES[activeQuote()]}}));
+  window.dispatchEvent(new CustomEvent("yourlogos:ready",{detail:{date:today(),quoteId:visibleQuoteId()??activeQuote(),quote:QUOTES[visibleQuoteId()??activeQuote()]}}));
 }
 function bindQuoteGesture(){
   const area=document.getElementById("quote-viewport"),card=document.getElementById("quote-motion");
