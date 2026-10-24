@@ -131,3 +131,7 @@ body > .settings-launch svg{width:20px;height:20px}
  }
  .stage-top .daily-meta{margin-right:52px}
 }
+
+/* Match a snappy 640ms handoff while keeping a smooth reveal. */
+.yl-entrance{transition-duration:.54s}
+.yl-entrance.is-departing{transition-delay:.10s}
