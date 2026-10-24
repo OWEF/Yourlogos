@@ -76,3 +76,12 @@
 .yl-entrance.is-departing .yl-slider{transform:translateY(15px) scale(.92);opacity:0;transition:transform .45s cubic-bezier(.2,.8,.3,1),opacity .35s}
 @media(max-height:670px){.yl-daily{min-height:114px;margin-bottom:14px}.yl-entrance__mark{margin-bottom:13px}.yl-entrance__brand{margin-bottom:17px}}
 @media(prefers-reduced-motion:reduce){.yl-slider__motes,.yl-slider__glint{display:none}.yl-slider__thumb.yl-entrance__button,.yl-slider__fill,.yl-daily__thought{animation:none!important;transition:none!important}}
+
+/* Final production polish: the production λ mark is readable at a glance.
+   Reuse icon.svg; enlarge its presentation rather than redrawing a new logo. */
+.yl-entrance__mark{width:126px;height:126px;margin-bottom:17px}
+.yl-entrance__mark img{width:118px;height:118px;border-radius:25px}
+.yl-entrance__mark::after{inset:-3px;border-radius:31px}
+.yl-slider__thumb.yl-entrance__button{overflow:hidden}
+.yl-slider__thumb img{width:74px;height:74px;max-width:none;flex:none;object-fit:contain;border-radius:15px;mix-blend-mode:screen;filter:contrast(1.13)}
+@media(max-height:670px){.yl-entrance__mark{width:96px;height:96px;margin-bottom:11px}.yl-entrance__mark img{width:92px;height:92px;border-radius:20px}.yl-entrance__mark::after{inset:-2px;border-radius:24px}}
