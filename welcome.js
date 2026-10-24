@@ -22,9 +22,9 @@
   const THEME_TEASERS={Meaning:"What makes today meaningful?",Suffering:"Can pain change its meaning?",Freedom:"What is yours to choose?",Mortality:"What makes this moment precious?",Love:"What does care ask of us?",Doubt:"What if you are mistaken?",Action:"What is one thing you can change?",Solitude:"Can you enjoy being alone?",Beauty:"What deserves another look?",Time:"Where has the day gone?"};
   function shortThought(q){
     const text=String(q?.[0]||"").trim();
-    if(text.length<=66&&text.split(/\\s+/).length<=12)return text;
+    if(text.length<=66&&text.split(/\s+/).length<=12)return text;
     const reflection=String(q?.[4]||"").trim();
-    if(reflection.length<=62&&reflection.split(/\\s+/).length<=11)return reflection;
+    if(reflection.length<=62&&reflection.split(/\s+/).length<=11)return reflection;
     return THEME_TEASERS[q?.[2]]||"What might you discover today?";
   }
   function hydrateDaily(detail){
