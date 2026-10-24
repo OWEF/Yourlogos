@@ -85,3 +85,7 @@
 .yl-slider__thumb.yl-entrance__button{overflow:hidden}
 .yl-slider__thumb img{width:74px;height:74px;max-width:none;flex:none;object-fit:contain;border-radius:15px;mix-blend-mode:screen;filter:contrast(1.13)}
 @media(max-height:670px){.yl-entrance__mark{width:96px;height:96px;margin-bottom:11px}.yl-entrance__mark img{width:92px;height:92px;border-radius:20px}.yl-entrance__mark::after{inset:-2px;border-radius:24px}}
+
+/* Shared header icon scales with the brand name on all three tabs. */
+.wordmark .yl-brand-mark{width:38px;height:38px;border-radius:10px}
+.mobile-brand .yl-brand-mark{width:33px;height:33px;border-radius:9px}
