@@ -63,7 +63,21 @@
       if(navigator.vibrate)navigator.vibrate(finished?[18,30,26]:Math.round(5+p*19));
     }catch{}
   }
-  function markReady(event){if(entered||transitioning)return;hydrateDaily(event?.detail);ready=true;failed=false;thumb.disabled=false;status.textContent="";retry.hidden=true;}
+  function markReady(event){
+    const incomingDate=event?.detail?.date||localDay();
+    // A PWA may stay alive overnight. Invite a new ritual on the next day
+    // without requiring the person to manually reload or clear data.
+    if(entered&&!transitioning&&dailyDate&&incomingDate!==dailyDate&&localStorage.getItem(completedKey)!==incomingDate){
+      entered=false;ready=false;root.hidden=false;
+      root.classList.remove("is-departing");
+      slider.classList.remove("is-complete","is-grabbing","is-resetting","is-near");
+      thumb.disabled=true;setProgress(0,true);
+    }
+    if(entered||transitioning)return;
+    hydrateDaily(event?.detail);
+    if(entered)return;
+    ready=true;failed=false;thumb.disabled=false;status.textContent="";retry.hidden=true;
+  }
   function recover(){if(ready||entered||transitioning||appReady())return;failed=true;thumb.disabled=false;status.textContent="YourLogos couldn't finish opening.";retry.hidden=false;thumb.setAttribute("aria-label","Try loading YourLogos again");}
   function burst(){
     if(reduced())return;
