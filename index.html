@@ -35,8 +35,12 @@
     <div class="yl-entrance__content">
       <div class="yl-entrance__mark" aria-hidden="true"><img src="/icon.svg" width="84" height="84" alt="" draggable="false"/></div>
       <div class="yl-entrance__brand">YOURLOGOS</div>
-      <h1 class="yl-entrance__title">Be your own philosopher.</h1>
-      <p class="yl-entrance__description">A thought is only the beginning.</p>
+      <div class="yl-daily" id="yl-daily" aria-label="A thought for today">
+        <div class="yl-daily__eyebrow">TODAY'S LITTLE QUESTION</div>
+        <div class="yl-daily__veil" aria-hidden="true">✦</div>
+        <h1 class="yl-daily__thought" id="yl-daily-thought">What might you discover?</h1>
+        <p class="yl-daily__source" id="yl-daily-source">A moment to notice something</p>
+      </div>
       <div class="yl-slider" id="yl-slider" role="group" aria-label="Philosophy it: slide to enter">
         <div class="yl-slider__track" id="yl-slider-track" style="--progress:0%">
           <span class="yl-slider__fill" aria-hidden="true"></span>
@@ -45,7 +49,7 @@
           <button id="yl-enter" class="yl-slider__thumb yl-entrance__button" type="button" role="slider" aria-label="Slide to enter YourLogos" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Slide right to begin" disabled><img src="/icon.svg" width="48" height="48" alt="" draggable="false"/></button>
           <div class="yl-slider__particles" id="yl-slider-particles" aria-hidden="true"></div>
         </div>
-        <p class="yl-slider__hint">SLIDE TO BEGIN</p>
+        <p class="yl-slider__hint">SLIDE TO REVEAL</p>
       </div>
       <p id="yl-entrance-status" class="yl-entrance__status" role="status">Opening your space…</p>
       <button id="yl-retry" class="yl-entrance__retry" type="button" hidden>Try again</button>
