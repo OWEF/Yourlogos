@@ -103,3 +103,31 @@
 .yl-slider__motes i{left:calc(38px + var(--thumb-x,0px))}
 .yl-slider__particles i{right:38px}
 @media(max-width:360px){.yl-slider{width:min(100%,290px)!important}}
+
+/* Fixed profile control: a single body-level node across all pages/routes. */
+body > .settings-launch{
+  position:fixed!important;
+  top:calc(19px + env(safe-area-inset-top))!important;
+  right:calc(18px + env(safe-area-inset-right))!important;
+  z-index:180!important;
+  display:grid!important;place-items:center;
+  width:43px!important;height:43px!important;min-width:43px;
+  opacity:1!important;visibility:visible!important;
+  pointer-events:auto!important;
+  border:1px solid #dec49b66;
+  color:#f0dfc4;background:#1a1d20f2;
+  box-shadow:0 6px 18px #0008,inset 0 1px #ffffff24;
+  -webkit-tap-highlight-color:transparent;
+}
+body > .settings-launch.is-open{
+  background:linear-gradient(140deg,#74604a,#262522);
+  border-color:#e6c99ea6;color:#fff0da;
+}
+body > .settings-launch svg{width:20px;height:20px}
+@media(max-width:700px){
+ body > .settings-launch{
+  top:calc(19px + env(safe-area-inset-top))!important;
+  right:calc(14px + env(safe-area-inset-right))!important;
+ }
+ .stage-top .daily-meta{margin-right:52px}
+}
