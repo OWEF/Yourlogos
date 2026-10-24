@@ -481,37 +481,83 @@ function render(){
 function bindQuoteGesture(){
   const area=document.getElementById("quote-viewport"),card=document.getElementById("quote-motion");
   if(!area||!card)return;
-  let start=null;
-  area.addEventListener("pointerdown",e=>{if(discoverOpen||swipeBusy)return;start={id:e.pointerId,y:e.clientY,t:performance.now(),dy:0};try{area.setPointerCapture(e.pointerId)}catch{};card.style.transition="none"});
-  area.addEventListener("pointermove",e=>{if(!start||e.pointerId!==start.id)return;start.dy=e.clientY-start.y;const dy=Math.sign(start.dy)*Math.min(100,Math.abs(start.dy)*.4);card.style.transform="translateY("+dy+"px) scale("+(1-Math.min(.05,Math.abs(start.dy)*.0002))+")";card.style.opacity=String(1-Math.min(.3,Math.abs(start.dy)*.0015))});
-  const finish=(e,cancelled=false)=>{if(!start||e.pointerId!==start.id)return;const dist=start.dy,speed=Math.abs(dist)/Math.max(1,performance.now()-start.t);start=null;if(!cancelled&&(Math.abs(dist)>67||(Math.abs(dist)>30&&speed>.57)))moveQuote(dist<0?1:-1);else{card.style.transition="transform .52s cubic-bezier(.18,1.24,.35,1),opacity .25s";card.style.transform="translateY(0) scale(1)";card.style.opacity="1"}};
+  let start=null,wheelSum=0,wheelAt=0;
+  const settle=()=>{
+    card.style.transition="transform .38s cubic-bezier(.2,1.12,.28,1),opacity .26s ease";
+    card.style.transform="translate3d(0,0,0) scale(1)";card.style.opacity="1";
+  };
+  area.addEventListener("pointerdown",e=>{
+    if(discoverOpen||swipeBusy||e.isPrimary===false||e.button>0)return;
+    start={id:e.pointerId,y:e.clientY,t:performance.now(),dy:0};
+    try{area.setPointerCapture(e.pointerId)}catch{}
+    card.style.transition="none";
+  });
+  area.addEventListener("pointermove",e=>{
+    if(!start||start.id!==e.pointerId||swipeBusy)return;
+    start.dy=e.clientY-start.y;
+    const dy=Math.sign(start.dy)*Math.min(118,Math.abs(start.dy)*.55);
+    card.style.transform="translate3d(0,"+dy+"px,0) scale("+(1-Math.min(.035,Math.abs(start.dy)*.00015))+")";
+    card.style.opacity=String(1-Math.min(.24,Math.abs(start.dy)*.001));
+  });
+  const finish=(e,cancelled=false)=>{
+    if(!start||start.id!==e.pointerId)return;
+    const dist=start.dy,velocity=Math.abs(dist)/Math.max(1,performance.now()-start.t);start=null;
+    if(!cancelled&&(Math.abs(dist)>62||(Math.abs(dist)>28&&velocity>.55)))moveQuote(dist<0?1:-1);
+    else settle();
+  };
   area.addEventListener("pointerup",e=>finish(e));
   area.addEventListener("pointercancel",e=>finish(e,true));
-  area.addEventListener("wheel",e=>{e.preventDefault();if(swipeBusy||discoverOpen)return;if(Math.abs(e.deltaY)>22)moveQuote(e.deltaY>0?1:-1)},{passive:false});
+  area.addEventListener("wheel",e=>{
+    e.preventDefault();
+    if(swipeBusy||discoverOpen)return;
+    const now=performance.now();if(now-wheelAt>180)wheelSum=0;
+    wheelAt=now;wheelSum+=e.deltaY;
+    if(Math.abs(wheelSum)>52){const direction=wheelSum>0?1:-1;wheelSum=0;moveQuote(direction);}
+  },{passive:false});
   area.addEventListener("keydown",e=>{if(e.key==="ArrowUp"||e.key==="ArrowDown"){e.preventDefault();moveQuote(e.key==="ArrowDown"?1:-1)}});
 }
 function moveQuote(direction){
   if(swipeBusy||discoverOpen||view!=="today"||detailId!==null||!discoveryQueue().length)return;
-  swipeBusy=true;
-  const card=document.getElementById("quote-motion"),out=direction>0?-160:160;
-  if(!card){swipeBusy=false;return}
-  haptic();card.style.transition="transform .2s cubic-bezier(.3,0,.7,.4),opacity .2s";
-  card.style.transform="translateY("+out+"px) scale(.93)";card.style.opacity=".08";
+  const area=document.getElementById("quote-viewport"),current=document.getElementById("quote-motion");
+  if(!area||!current)return;
+  swipeBusy=true;haptic();
+  const queue=discoveryQueue(),nextCursor=(quoteCursor+direction+queue.length)%queue.length;
+  const id=queue[nextCursor],q=QUOTES[id];
+  const exitY=direction>0?-Math.max(180,area.clientHeight*.48):Math.max(180,area.clientHeight*.48);
+  const enterY=-exitY;
+  const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  if(reduced){quoteCursor=nextCursor;heartPulse=false;render();swipeBusy=false;return;}
+  const next=current.cloneNode(true);
+  next.id="quote-motion-next";
+  const greeting=next.querySelector(".personal-greeting");
+  const label=next.querySelector(".today-label");
+  const quote=next.querySelector(".quote");
+  const author=next.querySelector(".author");
+  const theme=next.querySelector(".quote-theme");
+  if(greeting)greeting.textContent=data.localName?"A thought for you, "+data.localName+".":"A moment for your curiosity.";
+  if(label)label.textContent=nextCursor===0?"TODAY’S THOUGHT":"ANOTHER PERSPECTIVE";
+  if(quote){quote.textContent="“"+q[0]+"”";quote.classList.toggle("quote-dense",q[0].length>158);quote.classList.toggle("quote-medium",q[0].length<=158&&q[0].length>108);}
+  if(author)author.textContent="— "+q[1];
+  if(theme)theme.textContent=q[2].toUpperCase();
+  next.style.position="absolute";next.style.top="50%";next.style.left="0";next.style.width="100%";
+  next.style.transform="translate3d(0,calc(-50% + "+enterY+"px),0) scale(.965)";
+  next.style.opacity="0";next.style.transition="none";next.style.pointerEvents="none";
+  area.appendChild(next);
+  // Keep the old and new thought visible in a shared, continuous motion.
+  current.style.transition="transform .43s cubic-bezier(.25,.78,.34,1),opacity .35s ease";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(!next.isConnected)return;
+    current.style.transform="translate3d(0,"+exitY+"px,0) scale(.96)";
+    current.style.opacity="0";
+    next.style.transition="transform .49s cubic-bezier(.19,1,.25,1),opacity .35s ease";
+    next.style.transform="translate3d(0,-50%,0) scale(1)";
+    next.style.opacity="1";
+  }));
   setTimeout(()=>{
-    const count=discoveryQueue().length;quoteCursor=count?((quoteCursor+direction+count)%count):0;
-    heartPulse=false;render();
-    const incoming=document.getElementById("quote-motion");
-    if(incoming){
-      incoming.style.transition="none";incoming.style.transform="translateY("+(-out)+"px) scale(.94)";incoming.style.opacity=".2";
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        incoming.style.transition="transform .6s cubic-bezier(.18,1.11,.32,1),opacity .35s";
-        incoming.style.transform="translateY(0) scale(1)";incoming.style.opacity="1";
-      }));
-    }
-    setTimeout(()=>{swipeBusy=false},640);
-  },200);
+    quoteCursor=nextCursor;heartPulse=false;
+    render();swipeBusy=false;
+  },510);
 }
-
 
 // Unified, immediate touch feedback across the existing glass control family.
 // Visual response begins at pointer-down instead of waiting for click/route work.

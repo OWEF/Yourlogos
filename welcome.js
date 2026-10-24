@@ -12,6 +12,9 @@
   const thought=document.getElementById("yl-daily-thought");
   const source=document.getElementById("yl-daily-source");
   const completedKey="yourlogos-daily-ritual-v1";
+  // Temporary QA switch. Flip to false for the once-per-day release.
+  const TEST_ENTRANCE_ON_EVERY_REENTRY=true;
+  let lastReadyDetail=null,wasBackgrounded=false;
   let dailyDate="", dailyId=null;
   if(!root||!slider||!track||!thumb)return;
   let ready=false,entered=false,transitioning=false,failed=false,dragId=null,progress=0,lastHapticStep=-1;
@@ -32,7 +35,7 @@
     dailyId=detail?.quoteId??null;
     if(thought)thought.textContent=shortThought(detail?.quote);
     if(source)source.textContent="A glimpse of today's Encounter";
-    if(localStorage.getItem(completedKey)===dailyDate){
+    if(!TEST_ENTRANCE_ON_EVERY_REENTRY&&localStorage.getItem(completedKey)===dailyDate){
       entered=true;root.hidden=true;
       document.getElementById("app")?.removeAttribute("aria-hidden");
     }
@@ -63,18 +66,26 @@
       if(navigator.vibrate)navigator.vibrate(finished?[18,30,26]:Math.round(5+p*19));
     }catch{}
   }
+  function resetEntrance(){
+    if(transitioning||!entered)return;
+    entered=false;ready=true;failed=false;
+    root.hidden=false;root.classList.remove("is-departing");
+    slider.classList.remove("is-complete","is-near","is-resetting","is-grabbing");
+    particles.replaceChildren();
+    thumb.disabled=false;
+    setProgress(0,true);
+    hydrateDaily(lastReadyDetail);
+    status.textContent="";retry.hidden=true;
+  }
   function markReady(event){
-    const incomingDate=event?.detail?.date||localDay();
-    // A PWA may stay alive overnight. Invite a new ritual on the next day
-    // without requiring the person to manually reload or clear data.
-    if(entered&&!transitioning&&dailyDate&&incomingDate!==dailyDate&&localStorage.getItem(completedKey)!==incomingDate){
-      entered=false;ready=false;root.hidden=false;
-      root.classList.remove("is-departing");
-      slider.classList.remove("is-complete","is-grabbing","is-resetting","is-near");
-      thumb.disabled=true;setProgress(0,true);
+    if(event?.detail)lastReadyDetail=event.detail;
+    const incomingDate=lastReadyDetail?.date||localDay();
+    if(entered&&!transitioning&&dailyDate&&incomingDate!==dailyDate){
+      // Daily mode reopens on a new day; QA mode is rearmed on app resume.
+      if(!TEST_ENTRANCE_ON_EVERY_REENTRY&&localStorage.getItem(completedKey)!==incomingDate)resetEntrance();
     }
     if(entered||transitioning)return;
-    hydrateDaily(event?.detail);
+    hydrateDaily(lastReadyDetail);
     if(entered)return;
     ready=true;failed=false;thumb.disabled=false;status.textContent="";retry.hidden=true;
   }
@@ -91,7 +102,7 @@
       particles.appendChild(el);
     }
   }
-  function finish(){root.hidden=true;document.getElementById("app")?.removeAttribute("aria-hidden");document.querySelector(".quote-viewport")?.focus?.({preventScroll:true})}
+  function finish(){root.hidden=true;transitioning=false;document.getElementById("app")?.removeAttribute("aria-hidden");document.querySelector(".quote-viewport")?.focus?.({preventScroll:true})}
   function enter(){
     if(entered||transitioning)return;
     if(!ready&&!appReady()){location.reload();return}
@@ -132,6 +143,16 @@
   thumb.addEventListener("click",e=>{e.preventDefault();if(failed)location.reload()});
   retry?.addEventListener("click",()=>location.reload());
   window.addEventListener("yourlogos:ready",markReady);
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){wasBackgrounded=true;return}
+    if(wasBackgrounded){
+      wasBackgrounded=false;
+      if(TEST_ENTRANCE_ON_EVERY_REENTRY)resetEntrance();
+    }
+  });
+  window.addEventListener("pageshow",event=>{
+    if(event.persisted&&TEST_ENTRANCE_ON_EVERY_REENTRY)resetEntrance();
+  });
   window.addEventListener("yourlogos:boot-error",recover);
   window.addEventListener("error",()=>{if(!ready)recover()});
   window.addEventListener("unhandledrejection",()=>{if(!ready)recover()});
