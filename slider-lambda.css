@@ -131,3 +131,7 @@ body > .settings-launch svg{width:20px;height:20px}
  }
  .stage-top .daily-meta{margin-right:52px}
 }
+
+/* Compact exit timing: preserve the finish flourish without an extra loading beat. */
+.yl-entrance{transition-duration:.54s}
+.yl-entrance.is-departing{transition-delay:.10s}
