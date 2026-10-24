@@ -429,8 +429,8 @@ function render(){
     '<section class="view settings-route" aria-label="Account and settings"><button type="button" class="settings-route-back" data-action="settings-close">← Back</button>'+settingsHtml()+'</section>':
     onboarding?onboardingHtml():detailId!==null?detailHtml():view==="today"?todayHtml():view==="library"?libraryHtml():profileHtml();
   const active=navs.findIndex(x=>x[0]===view),from=navFrom;
-  document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark">YourLogos<sup>✳</sup></div><div class="rail-sub">Be your own philosopher.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
-  '<main class="stage'+(navPulse===view&&from!==active?' motion-tab-entry':'')+'" style="--motion-dir:'+(active>from?1:-1)+'"><header class="stage-top"><div class="brand-top"><span class="mobile-brand">YourLogos ✳</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">Be your own philosopher.</span></div><div class="daily-meta">'+(settingsOpen?"SETTINGS":view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
+  document.getElementById("app").innerHTML='<div class="shell"><aside class="rail"><div><div class="wordmark"><img class="yl-brand-mark" src="/icon.svg" width="32" height="32" alt="" draggable="false"/>YourLogos</div><div class="rail-sub">Be your own philosopher.</div></div><nav class="nav">'+navHtml(false)+'</nav><div class="rail-foot"><small>PHILOSOPHY, PRACTICED</small>A thought is an invitation,<br/>not a task.</div></aside>'+
+  '<main class="stage'+(navPulse===view&&from!==active?' motion-tab-entry':'')+'" style="--motion-dir:'+(active>from?1:-1)+'"><header class="stage-top"><div class="brand-top"><span class="mobile-brand"><img class="yl-brand-mark" src="/icon.svg" width="28" height="28" alt="" draggable="false"/>YourLogos</span><span class="eyebrow">PHILOSOPHY, PRACTICED</span><span class="top-sub">Be your own philosopher.</span></div><div class="daily-meta">'+(settingsOpen?"SETTINGS":view==="library"?"LIBRARY":view==="profile"?"MY WORLD":"DAILY ENCOUNTER")+'<span>'+(view==="library"?"SCHOOLS OF THOUGHT":view==="profile"?"STILL BECOMING":String(quoteCursor+1).padStart(2,"0")+' / '+String(QUOTES.length).padStart(2,"0"))+'</span></div></header>'+inner+'</main>'+
   '<aside class="side"><div class="section-kicker">A QUIETER KIND OF FEED</div><div class="side-quote"><h3>One thought at a time.</h3><p>Swipe to encounter something new. Like what stays with you, or discover a deeper question.</p></div><div class="side-bottom"><strong>Depth, not motivation.</strong><span>YourLogos · V3.1</span></div></aside></div>'+
   (onboarding?'':'<nav class="mobile-tabs"><div class="dock-glass" style="--dock-active:'+(active<0?0:active)+';--dock-from:'+from+'"><div class="dock-indicator"></div>'+navHtml(true)+'</div></nav>')+
   (discoverOpen && !onboarding?discoverHtml():'')+
@@ -476,7 +476,7 @@ function render(){
     });
   }
   if(view==="today"&&!onboarding&&detailId===null)bindQuoteGesture();
-  window.dispatchEvent(new Event("yourlogos:ready"));
+  window.dispatchEvent(new CustomEvent("yourlogos:ready",{detail:{date:today(),quoteId:visibleQuoteId()??activeQuote(),quote:QUOTES[visibleQuoteId()??activeQuote()]}}));
 }
 function bindQuoteGesture(){
   const area=document.getElementById("quote-viewport"),card=document.getElementById("quote-motion");
@@ -793,6 +793,12 @@ document.addEventListener("submit",async e=>{
 // A backgrounded PWA must update its daily feature on the next foreground entry.
 activeLocalDay=today();
 ensureDailyFeature();
+window.addEventListener("yourlogos:daily-arrived",e=>{
+   const key=e.detail?.date;
+   if(key!==today())return;
+   if(!data.arrivals.includes(key)){data.arrivals=[...data.arrivals,key].slice(-730);persist();}
+   arrivalCelebrating=false;render();
+});
 function refreshForLocalDay(){
   const next=today();if(next===activeLocalDay)return;
   activeLocalDay=next;quoteCursor=0;heartPulse=false;swipeBusy=false;

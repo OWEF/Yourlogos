@@ -1,0 +1,91 @@
+/* YourLogos slider — restrained antique-gold feedback, same production lambda asset. */
+.wordmark,.mobile-brand{display:flex!important;align-items:center;gap:9px}
+.wordmark .yl-brand-mark,.mobile-brand .yl-brand-mark{display:block;flex:none;object-fit:contain;width:30px;height:30px;border-radius:8px}
+.mobile-brand .yl-brand-mark{width:25px;height:25px;border-radius:7px}
+@media(max-width:700px){.wordmark{display:none!important}}
+.yl-entrance__mark img{border-radius:22px}
+.yl-entrance__content{width:min(100%,490px)}
+.yl-slider{width:min(100%,376px);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.yl-slider__track{--progress:0%;--intensity:0;position:relative;isolation:isolate;width:100%;height:79px;border:1px solid #cdbb9e91;border-radius:100px;background:linear-gradient(155deg,#292724,#111315 64%,#252422);box-shadow:inset 0 1px #fff3,inset 0 -2px 12px #000b,0 9px 35px #0009;overflow:visible;touch-action:none}
+.yl-slider__fill{position:absolute;inset:4px auto 4px 4px;width:var(--progress);max-width:calc(100% - 8px);border-radius:100px;background:linear-gradient(90deg,#9d6b37c7,#d4a65ab5,#fae3a27a);opacity:calc(.18 + var(--intensity)*.68);box-shadow:0 0 calc(5px + var(--intensity)*25px) #d8a76377,inset 0 0 18px #f4d5a54d;pointer-events:none;transition:opacity .14s}
+.yl-slider__title{position:absolute;inset:0;display:grid;place-items:center;font:500 clamp(29px,8vw,37px)/1 'Cormorant Garamond',Georgia,serif;color:#efe2cd;text-shadow:0 2px 9px #000b;white-space:nowrap;pointer-events:none;z-index:1;letter-spacing:-.02em;padding-left:32px}
+.yl-slider__chevron{position:absolute;right:21px;top:50%;transform:translateY(-55%);font:300 35px Georgia,serif;color:#dfc5a2;opacity:calc(.5 - var(--intensity)*.3);pointer-events:none}
+.yl-slider__thumb.yl-entrance__button{position:absolute;z-index:3;top:5px;left:5px;width:67px;height:67px;min-height:0;min-width:0;padding:0;border-radius:50%;display:grid;place-items:center;gap:0;background:radial-gradient(circle at 34% 28%,#f2ddac,#b28b55 72%,#715538);border:1px solid #f1d9ab;box-shadow:inset 0 1px 7px #fff9,0 0 calc(6px + var(--intensity)*20px) #d7a568a8,0 4px 14px #0008;transform:translateX(var(--thumb-x,0px));transition:box-shadow .1s,transform .3s cubic-bezier(.18,1.12,.3,1);cursor:grab;touch-action:none}
+.yl-slider__thumb img{display:block;width:51px;height:51px;border-radius:50%;pointer-events:none}
+.yl-slider__thumb:not(:disabled):active{cursor:grabbing}
+.yl-slider__thumb:disabled{opacity:.65;cursor:wait}
+.yl-slider__thumb.is-dragging{transition:none}
+.yl-slider__thumb.is-pressed{transform:translateX(var(--thumb-x,0px));filter:none}
+.yl-slider__thumb:focus-visible{outline:2px solid #f0dbaf;outline-offset:5px}
+.yl-slider__hint{margin:15px 0 0;font:500 10px 'DM Sans',sans-serif;letter-spacing:.22em;color:#a9987d}
+.yl-slider.is-complete .yl-slider__track{border-color:#ffe5b1;box-shadow:inset 0 0 13px #e7bd627a,0 0 34px #e2b76748}
+.yl-slider.is-complete .yl-slider__fill{opacity:1}
+.yl-slider__particles{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:visible}
+.yl-slider__particles i{position:absolute;top:50%;right:33px;width:var(--size,4px);height:var(--size,4px);border-radius:50%;background:#f5d9a4;box-shadow:0 0 8px #e9b969;animation:yl-slide-spark .7s ease-out both;transform:translate(-50%,-50%)}
+@keyframes yl-slide-spark{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.1)}}
+@media(max-width:380px){.yl-slider__track{height:72px}.yl-slider__thumb.yl-entrance__button{height:60px;width:60px}.yl-slider__thumb img{height:46px;width:46px}.yl-slider__title{font-size:29px}}
+@media(prefers-reduced-motion:reduce){.yl-slider__thumb.yl-entrance__button,.yl-slider__particles i,.yl-slider__fill{transition:none!important;animation:none!important}.yl-slider__particles{display:none}}
+
+/* A short question emerges as the thumb advances, then becomes the Encounter. */
+.yl-daily{--reveal:.08;position:relative;min-height:167px;margin:8px auto 28px;width:min(100%,360px);display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden}
+.yl-daily__eyebrow{font:600 10px 'DM Sans',sans-serif;letter-spacing:.21em;color:#c7b193;margin-bottom:19px}
+.yl-daily__thought{font:500 clamp(28px,7.8vw,39px)/1.16 'Cormorant Garamond',Georgia,serif!important;color:#f2e8d9;letter-spacing:-.022em;margin:0!important;padding:0 9px;text-wrap:balance;opacity:calc(.18 + var(--reveal)*.82);filter:blur(calc((1 - var(--reveal))*4px));transform:translateY(calc((1 - var(--reveal))*7px));transition:opacity .11s linear,filter .11s linear,transform .11s linear}
+.yl-daily__veil{position:absolute;top:44px;left:50%;font:22px Georgia,serif;color:#d3b68d;opacity:calc(.54 - var(--reveal)*.54);transform:translateX(-50%) scale(calc(1 + var(--reveal)*.5));pointer-events:none}
+.yl-daily__source{font:11px/1.5 'DM Sans',sans-serif;color:#a59b8b;letter-spacing:.025em;margin:13px 0 0!important;opacity:calc(.3 + var(--reveal)*.7)}
+.yl-slider{margin:0 auto}
+.yl-entrance.is-departing .yl-daily__thought{opacity:1;filter:blur(0);transform:translateY(-12px) scale(1.045)}
+.yl-entrance.is-departing .yl-daily{transition:transform .55s ease;transform:translateY(-28px)}
+@media(max-height:660px){.yl-daily{min-height:115px;margin-bottom:14px}.yl-daily__eyebrow{margin-bottom:9px}.yl-daily__thought{font-size:29px!important}}
+@media(prefers-reduced-motion:reduce){.yl-daily__thought,.yl-daily{transition:none!important}}
+
+/* V3.6 — short, tactile, momentum-rich daily ritual. Not a form slider.
+   Overrides older welcome.css hover/pressed rules that previously jumped the thumb. */
+.yl-slider{width:min(100%,246px)!important;margin:4px auto 0}
+.yl-slider__track{height:67px;border-radius:22px;transition:border-color .2s,box-shadow .2s;box-shadow:inset 0 1px 3px #ffffff27,inset 0 -3px 9px #000a,0 8px 24px #000a}
+.yl-slider__fill{inset:4px auto 4px 4px;width:var(--progress);max-width:calc(100% - 8px);border-radius:17px;background:linear-gradient(110deg,#ad804b,#dfba7c 72%,#ffeba7);box-shadow:inset 0 1px 6px #fff5,0 0 calc(5px + var(--intensity)*18px) #f2bd76b0;opacity:calc(.16 + var(--intensity)*.82);transition:none;will-change:width}
+.yl-slider__title{font-size:24px!important;letter-spacing:-.04em;padding-left:34px;padding-right:15px;transition:color .18s,filter .18s}
+.yl-slider__chevron{right:12px;font-size:27px;transition:opacity .18s}
+.yl-slider__thumb.yl-entrance__button{width:57px;height:57px;top:4px;left:4px;border-radius:17px;transform:translate3d(var(--thumb-x,0px),0,0) scale(var(--thumb-scale,1));background:linear-gradient(140deg,#f3daaa,#c4985b 60%,#997044);box-shadow:inset 0 2px 3px #fff8,inset 0 -3px 6px #50341455,0 3px 0 #85663e,0 6px 14px #0009,0 0 calc(5px + var(--intensity)*18px) #edbd7c9c;transition:transform .48s cubic-bezier(.2,1.42,.33,1),box-shadow .14s;will-change:transform;touch-action:none;-webkit-tap-highlight-color:transparent}
+.yl-slider__thumb img{width:46px;height:46px;border-radius:13px}
+.yl-slider .yl-slider__thumb.yl-entrance__button:not(:disabled):hover,
+.yl-slider .yl-slider__thumb.yl-entrance__button:not(:disabled):focus-visible,
+.yl-slider .yl-slider__thumb.yl-entrance__button.is-pressed,
+.yl-slider .yl-slider__thumb.yl-entrance__button:active:not(:disabled){transform:translate3d(var(--thumb-x,0px),0,0) scale(var(--thumb-scale,1))!important;filter:none!important}
+.yl-slider.is-grabbing .yl-slider__thumb.yl-entrance__button{transition:none;cursor:grabbing;--thumb-scale:.94}
+.yl-slider.is-grabbing .yl-slider__fill{transition:none}
+.yl-slider.is-resetting .yl-slider__fill{transition:width .48s cubic-bezier(.19,1.21,.35,1),opacity .3s}
+.yl-slider.is-resetting .yl-slider__glint{transition:left .48s cubic-bezier(.19,1.21,.35,1)}
+.yl-slider__thumb::after{content:"";position:absolute;inset:-5px;border:1px solid #f8dba677;border-radius:22px;opacity:calc(var(--intensity)*.95);transform:scale(calc(1 + var(--intensity)*.08));box-shadow:0 0 calc(5px + var(--intensity)*23px) #f7cd8a7a;pointer-events:none}
+.yl-slider__glint{position:absolute;left:calc(31px + var(--thumb-x,0px));top:50%;width:8px;height:8px;border-radius:50%;background:#fff3c4;box-shadow:0 0 9px #ffdfaa,0 0 25px #ffd485;opacity:calc(var(--intensity)*.95);transform:translate(-50%,-50%);pointer-events:none}
+.yl-slider__motes{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:21px}
+.yl-slider__motes i{position:absolute;top:50%;left:calc(31px + var(--thumb-x,0px));width:3px;height:3px;border-radius:50%;background:#ffdfaa;opacity:calc(var(--intensity)*.78);box-shadow:0 0 7px #fac681;animation:yl-motes-float 1.1s ease-in-out infinite alternate;transform:translate(-50%,-50%);transition:left .03s linear}
+.yl-slider__motes i:nth-child(1){margin-left:-15px;margin-top:-8px;animation-delay:-.1s}
+.yl-slider__motes i:nth-child(2){margin-left:-20px;margin-top:9px;animation-delay:-.5s}
+.yl-slider__motes i:nth-child(3){margin-left:-9px;margin-top:15px;animation-delay:-.9s}
+.yl-slider__motes i:nth-child(4){margin-left:-28px;margin-top:0;animation-delay:-.4s}
+@keyframes yl-motes-float{to{transform:translate(-7px,-11px) scale(.4);opacity:0}}
+.yl-slider.is-near .yl-slider__track{border-color:#f9dba5;box-shadow:inset 0 1px 5px #fff3,0 0 22px #e4bb7059,0 8px 24px #000a}
+.yl-slider.is-near .yl-slider__thumb.yl-entrance__button{box-shadow:inset 0 2px 5px #fff9,0 4px 0 #a37e4c,0 0 29px #f6cb8b91}
+.yl-slider.is-complete .yl-slider__thumb.yl-entrance__button{--thumb-scale:1.11;animation:yl-pop-finish .37s cubic-bezier(.16,1.6,.34,1) both}
+@keyframes yl-pop-finish{0%{transform:translate3d(var(--thumb-x,0px),0,0) scale(.93)}60%{transform:translate3d(var(--thumb-x,0px),0,0) scale(1.17)}100%{transform:translate3d(var(--thumb-x,0px),0,0) scale(1.05)}}
+.yl-slider__hint{margin:15px 0 0;letter-spacing:.22em;font-size:9px}
+.yl-daily{min-height:147px;margin:5px auto 20px;overflow:visible}
+.yl-daily__thought{font-size:clamp(29px,8vw,39px)!important;transition:opacity .09s linear,filter .09s linear,transform .1s}
+.yl-daily__veil{transition:opacity .1s}
+.yl-entrance.is-departing .yl-daily__thought{transform:translateY(-18px) scale(1.04)}
+.yl-entrance.is-departing .yl-slider{transform:translateY(15px) scale(.92);opacity:0;transition:transform .45s cubic-bezier(.2,.8,.3,1),opacity .35s}
+@media(max-height:670px){.yl-daily{min-height:114px;margin-bottom:14px}.yl-entrance__mark{margin-bottom:13px}.yl-entrance__brand{margin-bottom:17px}}
+@media(prefers-reduced-motion:reduce){.yl-slider__motes,.yl-slider__glint{display:none}.yl-slider__thumb.yl-entrance__button,.yl-slider__fill,.yl-daily__thought{animation:none!important;transition:none!important}}
+
+/* Final production polish: the production λ mark is readable at a glance.
+   Reuse icon.svg; enlarge its presentation rather than redrawing a new logo. */
+.yl-entrance__mark{width:126px;height:126px;margin-bottom:17px}
+.yl-entrance__mark img{width:118px;height:118px;border-radius:25px}
+.yl-entrance__mark::after{inset:-3px;border-radius:31px}
+.yl-slider__thumb.yl-entrance__button{overflow:hidden}
+.yl-slider__thumb img{width:74px;height:74px;max-width:none;flex:none;object-fit:contain;border-radius:15px;mix-blend-mode:screen;filter:contrast(1.13)}
+@media(max-height:670px){.yl-entrance__mark{width:96px;height:96px;margin-bottom:11px}.yl-entrance__mark img{width:92px;height:92px;border-radius:20px}.yl-entrance__mark::after{inset:-2px;border-radius:24px}}
+
+/* Shared header icon scales with the brand name on all three tabs. */
+.wordmark .yl-brand-mark{width:38px;height:38px;border-radius:10px}
+.mobile-brand .yl-brand-mark{width:33px;height:33px;border-radius:9px}
