@@ -118,7 +118,7 @@
     window.dispatchEvent(new CustomEvent("yourlogos:daily-arrived",{detail:{date:dailyDate||localDay(),quoteId:dailyId}}));
     root.classList.add("is-departing");
     thumb.disabled=true;
-    if(reduced())finish();else setTimeout(finish,820);
+    if(reduced())finish();else setTimeout(finish,640);
   }
   function position(e){const r=track.getBoundingClientRect();return (e.clientX-r.left-thumb.offsetWidth/2-5)/travel()}
   thumb.addEventListener("pointerdown",e=>{
