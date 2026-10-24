@@ -476,7 +476,7 @@ function render(){
     });
   }
   if(view==="today"&&!onboarding&&detailId===null)bindQuoteGesture();
-  window.dispatchEvent(new Event("yourlogos:ready"));
+  window.dispatchEvent(new CustomEvent("yourlogos:ready",{detail:{date:today(),quoteId:activeQuote(),quote:QUOTES[activeQuote()]}}));
 }
 function bindQuoteGesture(){
   const area=document.getElementById("quote-viewport"),card=document.getElementById("quote-motion");
@@ -793,6 +793,12 @@ document.addEventListener("submit",async e=>{
 // A backgrounded PWA must update its daily feature on the next foreground entry.
 activeLocalDay=today();
 ensureDailyFeature();
+window.addEventListener("yourlogos:daily-arrived",e=>{
+   const key=e.detail?.date;
+   if(key!==today())return;
+   if(!data.arrivals.includes(key)){data.arrivals=[...data.arrivals,key].slice(-730);persist();}
+   arrivalCelebrating=false;render();
+});
 function refreshForLocalDay(){
   const next=today();if(next===activeLocalDay)return;
   activeLocalDay=next;quoteCursor=0;heartPulse=false;swipeBusy=false;
