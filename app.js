@@ -100,6 +100,10 @@ const QUOTES=[
 ["Nothing is so painful to the human mind as a great and sudden change.","Mary Shelley","Suffering","Frankenstein, Chapter XXIII (1818 edition varies)","Which change have you needed time to understand?"],
 ["The feeling of commiseration is the beginning of humanity.","Mencius","Love","Mencius 2A:6 (translation varies)","Where does empathy begin before deliberate reasoning?"]
 ];
+// Daily first impressions favor clear, everyday wording. All 91 original
+// quotations remain available in Encounter swipes and Library, with stable IDs.
+// Add future quotes only after an editorial accessibility review.
+const DAILY_FEATURE_IDS=[0,2,3,5,6,7,9,10,12,13,15,16,17,18,19,20,21,22,23,24,26,29,30,33,34,35,36,39,40,41,42,43,45,47,48,49,50,51,52,53,54,57,60,61,68,71,76,77,78,79,81,84,86,87,89,90];
 const THEMES=["Meaning","Suffering","Freedom","Mortality","Love","Doubt","Action","Solitude","Beauty","Time"];
 const PROMPTS={
 Meaning:["Notice where your own 'why' is clear, and where it has gone quiet.","Can meaning be found, or must it be made?"],
@@ -137,11 +141,11 @@ const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+
 const dayIndexFor=(dateKey)=>{const [y,m,d]=dateKey.split("-").map(Number);return Math.floor((Date.UTC(y,m-1,d)-Date.UTC(2026,0,1))/86400000)};
 const dayIndex=()=>dayIndexFor(today());
 const shiftDate=(key,days)=>{const [y,m,d]=key.split("-").map(Number);const v=new Date(Date.UTC(y,m-1,d+days));return [v.getUTCFullYear(),String(v.getUTCMonth()+1).padStart(2,"0"),String(v.getUTCDate()).padStart(2,"0")].join("-")};
-// A seeded full-cycle deck: every daily feature is different for QUOTES.length days.
+// A seeded full-cycle deck: approachable daily quotes do not repeat within their cycle.
 // Favorited themes still influence browsing through Discover; daily variety wins over a
 // preference pool small enough to repeat the same quote every few days.
 let DAILY_ORDER=(()=>{
-  const ids=QUOTES.map((_,i)=>i);let seed=0x7a3f9201;
+  const ids=DAILY_FEATURE_IDS.slice();let seed=0x7a3f9201;
   const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
   for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
   return ids;
@@ -902,7 +906,8 @@ async function refreshPublicQuoteCatalogue(){
      // never proof of agreement or a new relationship.
      const themeHints=Object.fromEntries(QUOTES.slice(42).map((quote,index)=>[index+42,quote[2]]));
      try{localStorage.setItem("yourlogos-quote-theme-map",JSON.stringify(themeHints))}catch{}
-     const count=QUOTES.length;const ids=Array.from({length:count},(_,i)=>i);
+     // Remote additions stay in the swipe feed until independently reviewed for daily use.
+     const ids=DAILY_FEATURE_IDS.slice();
      let seed=0x7a3f9201;
      const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
      for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
