@@ -99,6 +99,7 @@ const REACTION_HELP=[
   "Look closer at what is uncertain",
   "Find a different way to see it"
 ];
+
 export function thoughtThreadHtml({quote,quoteId=null,step=0,branchIndex=0,answerIndex=0}){
   const thread=getThoughtThread(quote,quoteId);
   if(!thread.curated && Number.isInteger(quoteId))
@@ -114,17 +115,22 @@ export function thoughtThreadHtml({quote,quoteId=null,step=0,branchIndex=0,answe
       '<h2 class="yl-thread-question">'+esc(thread.question)+'</h2>'+
       '<p class="yl-reaction-prompt">Where would you like to go?</p>'+
       '<div class="yl-reaction-grid" role="group" aria-label="Three ways to explore this question">'+
-        MOVES.map((_,i)=>gesture(i)).join("")+
-      '</div>'+
+        MOVES.map((_,i)=>gesture(i)).join("")+'</div>'+
       '<p class="yl-reaction-footnote">No right answer. Just curiosity.</p>':
     step===1?
-      '<div class="yl-thread-progress">02 <span>—</span> A LITTLE CLOSER</div>'+
+      '<div class="yl-thread-progress">A DIFFERENT ANGLE</div>'+
       '<div class="yl-thread-remember">'+esc(thread.question)+'</div>'+
       '<div class="yl-thread-selected yl-tone-'+MOVES[branchIndex].color+'">'+REACTION_ICONS[branchIndex]+'<span>'+esc(MOVES[branchIndex].label)+'</span></div>'+
+      '<h2 class="yl-thread-question yl-reaction-insight">'+esc(selected.title)+'</h2>'+
+      '<div class="yl-reaction-next"><button type="button" class="yl-reaction-continue" data-action="thread-deepen">Go a little deeper <span aria-hidden="true">↗</span></button>'+
+      '<button type="button" class="yl-thread-back" data-action="thread-back">← Another angle</button></div>':
+    step===2?
+      '<div class="yl-thread-progress">LOOK A LITTLE CLOSER</div>'+
+      '<div class="yl-thread-remember">'+esc(thread.question)+'</div>'+
       '<h2 class="yl-thread-question yl-thread-followup-question">'+esc(selected.followup)+'</h2>'+
       '<div class="yl-thread-choices yl-followup" role="group" aria-label="Choose what to explore next">'+selected.answers.map((a,i)=>
          '<button type="button" data-thread-answer="'+i+'" class="yl-thread-choice yl-tone-'+MOVES[branchIndex].color+'"><span class="yl-choice-stripe" aria-hidden="true"></span><span class="yl-choice-content"><strong>'+esc(a.label)+'</strong></span><span aria-hidden="true" class="yl-choice-arrow">↗</span></button>').join("")+'</div>'+
-      '<button type="button" class="yl-thread-back" data-action="thread-back">← Try another direction</button>':
+      '<button type="button" class="yl-thread-back" data-action="thread-back">← Back</button>':
       '<div class="yl-thread-ending" role="status" aria-live="polite" tabindex="-1">'+
         '<div class="yl-thread-seed" aria-hidden="true">✳</div>'+
         '<div class="yl-thread-progress">A NEW PERSPECTIVE</div>'+
