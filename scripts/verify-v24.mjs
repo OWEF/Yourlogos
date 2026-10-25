@@ -33,9 +33,15 @@ const model=new Function("data","localStorage","KEY",
 )(mockData,{setItem(){}},"test");
 const days=Array.from({length:168},(_,i)=>model.shiftDate("2026-10-23",i));
 const chosen=days.map(d=>model.dailyPick(d));
-for(let i=0;i<=chosen.length-QUOTES.length;i++){
-  assert.equal(new Set(chosen.slice(i,i+QUOTES.length)).size,QUOTES.length,
-    "Expected no repeats in a "+QUOTES.length+" day featured-quote cycle");
+const featureIds=new Function(quoteSnippet+"return DAILY_FEATURE_IDS;")();
+assert.ok(featureIds.length>=50 && featureIds.length<QUOTES.length,"Daily first impressions are deliberately curated");
+assert.ok(!featureIds.includes(11)&&!featureIds.includes(72),"Specialist Kant texts should not be selected as daily introductions");
+assert.equal(new Set(featureIds).size,featureIds.length,"Daily quote IDs must be unique");
+assert.ok(featureIds.every(id=>Number.isInteger(id)&&id>=0&&id<QUOTES.length),"Valid stable quote IDs required");
+assert.ok(chosen.every(id=>featureIds.includes(id)),"Daily picks must stay within reviewed quote pool");
+for(let i=0;i<=chosen.length-featureIds.length;i++){
+  assert.equal(new Set(chosen.slice(i,i+featureIds.length)).size,featureIds.length,
+    "Expected no repeats in a "+featureIds.length+" day featured-quote cycle");
 }
 assert.equal(model.ensureDailyFeature(),model.activeQuote(),"Quote should remain stable on same date");
 assert.ok(app.includes('["today","Encounter"],["library","Library"],["profile","My World"]'));
@@ -75,6 +81,7 @@ assert.ok(read("ios/project.yml").includes("YourLogosQuoteWidget"),"Native proje
 assert.ok(read("ios/Widget/YourLogosQuoteWidget.swift").includes("yourlogos://save?quote="),"Keep widget control deep-links into installed app");
 const nativeQuotes=JSON.parse(read("ios/Widget/widget-quotes.json"));
 assert.equal(nativeQuotes.quotes.length,QUOTES.length,"Native widget quote library stays aligned with the web");
+assert.deepEqual(nativeQuotes.order,(()=>{const ids=featureIds.slice();let seed=0x7a3f9201;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}return ids})(),"Native widget daily cycle must match web");
 assert.deepEqual(nativeQuotes.quotes.map(x=>x.text),QUOTES.map(x=>x[0]),"Native widget quote IDs and text match the app");
 const scenes=read("school-scenes.js");
 assert.ok(scenes.includes("SCHOOL_SCENES")&&scenes.includes("stoicism")&&scenes.includes("buddhism"),"Every school has a visual encounter");
