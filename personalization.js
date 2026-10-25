@@ -128,6 +128,104 @@ const QUESTIONS={
  "Can art help you see a life very different from your own?",
  "Whose time do we tend to value less than our own?"
  ]};
+const PERSONAL_VOICE={
+  "identity": [
+    "You've been thinking about who you are. What matters to you may be changing, and that doesn't make your earlier answers meaningless.",
+    "You might learn something about yourself from a difficult moment. You don't have to let that moment define you.",
+    "You can ask which choices genuinely feel like yours, rather than the ones you've learned to make for other people.",
+    "You don't need a finished picture of yourself to decide what you want your time to stand for.",
+    "You may notice different sides of yourself around different people. Who gives you room to be yourself?",
+    "You can question an old story about yourself without losing everything that makes you you.",
+    "You can think about who you are for years. Sometimes a small choice teaches you something thinking alone can't.",
+    "You might hear your own voice more clearly when you're alone. You can still need other people's company.",
+    "You may recognize yourself in the things you find beautiful, even before you know how to explain why.",
+    "You aren't exactly who you were a year ago. That might be part of becoming yourself, not moving away from it."
+  ],
+  "connection": [
+    "You've said connection matters to you. Sometimes meaning grows from the people you make room for, not just the goals you chase.",
+    "When life is hard, you don't necessarily need someone to solve it. Sometimes being understood is enough.",
+    "You can want closeness and still want freedom. A relationship doesn't have to erase either need.",
+    "You can't hold on to every shared moment. You can still choose how you show up for someone today.",
+    "You might find that being loved and being understood are not quite the same thing. Both can matter to you.",
+    "You can care deeply about someone and still get them wrong. Curiosity can make more room for the other person.",
+    "You don't have to make a grand gesture to show someone they matter. Often the small things carry the meaning.",
+    "You can genuinely enjoy being alone and still wish someone were there sometimes. Those two feelings can live together.",
+    "You may remember a beautiful moment because of who shared it with you, not only because of what you saw.",
+    "You've been thinking about belonging. What would giving someone your undivided time look like this week?"
+  ],
+  "direction": [
+    "You've been thinking about where you're headed. Your direction doesn't need to look impressive to mean something to you.",
+    "You may feel clearer about what you want after a setback—or less certain. Neither response means you've failed to grow.",
+    "You can hear many opinions about what your life should be. The difficult part is noticing which choices are yours.",
+    "You don't have unlimited time for every possible path. What might feel worth making room for now?",
+    "You may find your sense of purpose in what you offer others, not only in what you achieve for yourself.",
+    "You can follow a plan for a long time before asking whether you still want it. You're allowed to ask again.",
+    "You don't have to map out your entire future to begin. One honest step can give you new information.",
+    "You might need a quiet moment to hear what you want, especially when everyone seems to have advice.",
+    "You may be drawn toward making something even before you know what it will become.",
+    "You've been thinking about your direction. Is there something you keep postponing until you feel more ready?"
+  ],
+  "time": [
+    "You've had time and responsibilities on your mind. Sometimes the next thing you need to do makes the present moment feel like a waiting room.",
+    "You may have days when there's little room to recover. You don't have to turn every difficult moment into something productive.",
+    "You can have responsibilities and still ask which parts of your day genuinely belong to you.",
+    "You can't make time endless. You can decide which ordinary moments deserve a little more of it.",
+    "You might be so busy making things work that you forget to be fully present with someone you care about.",
+    "When you're in a hurry, it's easier to mistake your first thought for the whole truth. You can give yourself a moment to look again.",
+    "You may have a long list of things to do. One small action you actually care about can count, too.",
+    "You don't have to make every quiet moment useful. Sometimes it's enough to have a moment that's yours.",
+    "When your day moves quickly, beauty can be easy to miss. What would you notice if you slowed down just a little?",
+    "You've been thinking about time. Planning for tomorrow can help you—but it shouldn't take all of today."
+  ],
+  "uncertainty": [
+    "You've said uncertainty is on your mind. You can still move toward something meaningful without knowing exactly how it will turn out.",
+    "You don't have to understand every difficult moment while you're living through it.",
+    "You can make a thoughtful choice even when you can't control everything that follows.",
+    "When the future feels unclear, you can still decide what deserves your attention today.",
+    "You don't need other people to have every answer. Sometimes you just need someone who can stay with an unanswered question.",
+    "You can take a worry seriously without treating it as a prediction. What would actually help you know more?",
+    "You might learn more from trying a small step than from running through every possible outcome in your head.",
+    "You may need time alone to think clearly. If your thoughts start circling, another perspective could help.",
+    "You don't need to explain everything you find beautiful. Not knowing can leave room for wonder.",
+    "You've been considering uncertain choices. Maybe the next step isn't certainty—just enough clarity to move."
+  ],
+  "freedom": [
+    "You've been thinking about expectations. You can ask whether the life you're working toward still feels like yours.",
+    "You can't choose every circumstance, but you may still have room to choose your response.",
+    "You don't need to change everything to experience a little freedom. One deliberate choice can matter.",
+    "You have limited time. It can be worth asking how much of it you spend meeting someone else's idea of success.",
+    "You can choose to care for someone without losing the freedom that made the choice meaningful.",
+    "You can respect another person's judgment without letting it become the final word on your life.",
+    "You don't have to rebel against everything to act independently. Sometimes you just choose what matters to you.",
+    "You can enjoy being alone without treating it as something you need to defend.",
+    "You may love something other people don't understand. It doesn't have to win their approval to matter to you.",
+    "You've been thinking about your freedom. Who gets to decide how you spend an ordinary day?"
+  ],
+  "change": [
+    "You've mentioned change. What matters to you may shift when life changes, without making your earlier hopes foolish.",
+    "You don't have to discover a lesson in a painful change immediately. You can give it time.",
+    "You might have to release an old plan to make room for a choice you couldn't see before.",
+    "When things change unexpectedly, you can still carry pieces of a meaningful life with you.",
+    "You may need people differently as your life changes. That's not the same as losing your independence.",
+    "You can question a belief that no longer fits your experience. Changing your mind can be part of moving forward.",
+    "You don't have to make a difficult transition all at once. A small, kind step counts.",
+    "You may want company one day and quiet the next while you adjust. You don't need one fixed way to cope.",
+    "You may hold onto something beautiful because it reminds you that change isn't the whole story.",
+    "You can't keep every part of the past. You can decide what you'd like to carry into what comes next."
+  ],
+  "fairness": [
+    "You've said fairness and values matter to you. A good life may involve more than what you manage to achieve for yourself.",
+    "You don't have to solve every injustice to let another person's suffering matter to you.",
+    "Your freedom matters. So does the question of how your choices affect someone else's room to choose.",
+    "You may never meet the people affected by a decision. That doesn't make their lives less real.",
+    "You can care about someone and still need to ask what fair treatment means from their side.",
+    "You can feel sure you're right and still leave room for another person's experience to complicate the picture.",
+    "You don't need a grand speech to live by your values. A quiet fair choice can matter.",
+    "You don't always have to win an argument. Sometimes hearing the other person is the more generous response.",
+    "You may understand someone differently after seeing the world through their eyes, even briefly.",
+    "You've been thinking about fairness. Whose time or effort might be easy to overlook, including your own?"
+  ]
+};
 const GUIDANCE={
  reflect:"You can leave this open and see what comes to mind.",
  facts:"Try thinking of one real example, rather than seeking a perfect answer.",
@@ -165,14 +263,18 @@ export function personalizedExplore(quote,id,profile,history=[]){
  const relevantTension=tension.themes.includes(theme);
  const personalQuestion=QUESTIONS[topic][themeIndex];
  const nudge=[GUIDANCE[a.approach],STYLE_HINT[a.style]].join(" ");
- // Editorial insight is always primary; never suggest a philosophical belief follows
- // from a person's chosen onboarding answer.
- const connection="You mentioned "+person.context+". This thought offers one way to look at that part of life.";
- const insight=base.insight+" "+connection;
+ // Lead with a short, directly addressed thought specifically written for the
+ // volunteered concern and today's quote theme; don't paste a generic insight
+ // beside a mechanical "you mentioned..." sentence.
+ const insight=PERSONAL_VOICE[topic][themeIndex];
  const reflection=(a.style==="challenge"&&relevantTension)?tension.prompt:personalQuestion;
- return {...base,insight,reflection,nudge,personalized:true,why:"Connected to your selected interest in "+person.context+".",lens:topic,style:a.style};
+ return {...base,insight,quoteNote:base.insight,reflection,nudge,personalized:true,
+    why:"This connects with "+person.label.toLowerCase()+", which you selected during your introduction.",
+    lens:topic,style:a.style};
 }
 export function validatePersonalization(){
  return THEMES.length===10 && Object.keys(CONCERNS).length===8 &&
-   Object.keys(QUESTIONS).every(k=>Object.hasOwn(CONCERNS,k)&&QUESTIONS[k].length===THEMES.length&&QUESTIONS[k].every(q=>q.endsWith("?")));
+   Object.keys(QUESTIONS).every(k=>Object.hasOwn(CONCERNS,k)&&QUESTIONS[k].length===THEMES.length&&QUESTIONS[k].every(q=>q.endsWith("?"))) &&
+   Object.keys(PERSONAL_VOICE).length===8 &&
+   Object.entries(PERSONAL_VOICE).every(([key,rows])=>Object.hasOwn(CONCERNS,key)&&rows.length===THEMES.length&&rows.every(line=>line.length>=60&&line.length<=235&&/\b(you|your)\b/i.test(line)));
 }

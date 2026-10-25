@@ -131,7 +131,10 @@ const personal=personalizedExplore(QUOTES[50],50,visitor,[]);
 assert.equal(guest.personalized,false,"Guest can enjoy universal insights without onboarding");
 assert.equal(personal.personalized,true,"Voluntary onboarding provides the new perspective");
 assert.notEqual(personal.reflection,guest.reflection,"A relevant concern changes the prompt");
-assert.ok(personal.why.includes("selected interest"),"Explain the source of personalization");
+assert.ok(personal.why.includes("selected during your introduction"),"Explain the source of personalization");
+assert.ok(personal.insight.toLowerCase().includes("you"),"Personalized insight must address the user directly");
+assert.ok(!personal.insight.includes("This thought offers one way"),"Avoid generic appended textbook language");
+assert.ok(threadModule.includes("A THOUGHT FOR YOU")&&threadModule.includes("Take it a little further"),"Discover should use conversational direct-address labels");
 const skipped=personalizedExplore(QUOTES[50],50,{status:"skipped",answers:visitor.answers},[]);
 assert.equal(skipped.personalized,false,"Skipped onboarding is never inferred");
 for(let id=0;id<QUOTES.length;id++){
