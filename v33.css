@@ -57,3 +57,30 @@
 .encounter-complete button{background:#dfc9a9;color:#211d18;border-radius:14px;border:0;padding:15px 22px;margin-top:12px;font:600 12px 'DM Sans',sans-serif;min-height:50px}
 @media(min-width:701px){.keep-toast{bottom:42px}}
 @media(prefers-reduced-motion:reduce){.keep-advance-out,.keep-advance-in{animation:none!important;transition:none!important}}
+
+
+/* V3.5 — tactile, icon-first thought gestures. Three quiet invitations replace
+   three dense text cards, without changing the philosophical branch graph. */
+.yl-thread-gentle .yl-thread-question{max-width:430px;margin-bottom:0!important}
+.yl-reaction-prompt{font:500 12px/1.45 'DM Sans',sans-serif;color:#c5bbad;margin:19px 0 13px}
+.yl-reaction-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;max-width:460px}
+.yl-reaction{--thread-tone:#ddc4a3;position:relative;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:10px;min-width:0;min-height:119px;padding:13px 7px;border-radius:23px;border:1px solid #d5c2a735;background:linear-gradient(160deg,#ffffff0c,#ffffff03);color:var(--thread-tone);box-shadow:0 4px 20px #00000016;transition:background .22s,border-color .22s,transform .22s,box-shadow .22s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.yl-reaction.yl-tone-coral{background:linear-gradient(155deg,#e8a18f13,#e8a18f05);border-color:#e8a18f46}
+.yl-reaction.yl-tone-blue{background:linear-gradient(155deg,#9dc7e916,#9dc7e905);border-color:#9dc7e947}
+.yl-reaction.yl-tone-sage{background:linear-gradient(155deg,#a8d1b818,#a8d1b806);border-color:#a8d1b848}
+.yl-reaction-glyph{display:grid;place-items:center;width:54px;height:54px;border:1px solid currentColor;border-radius:50%;background:#ffffff07;box-shadow:0 0 0 5px #ffffff03;opacity:.96}
+.yl-reaction-glyph svg{width:28px;height:28px;display:block}
+.yl-reaction-name{font:650 10px/1.2 'DM Sans',sans-serif;letter-spacing:.09em;color:#f2e6d9;text-align:center;white-space:nowrap}
+.yl-reaction:hover,.yl-reaction:focus-visible{transform:translateY(-3px);border-color:var(--thread-tone);box-shadow:0 7px 24px #00000035}
+.yl-reaction:active{transform:scale(.965)}
+.yl-reaction-footnote{margin:14px 0 0;color:#8b8986;font:400 11px/1.4 'DM Sans',sans-serif}
+.yl-thread-gentle .yl-thread-remember{font:400 13px/1.5 'DM Sans',sans-serif;color:#9e978e;max-width:420px;margin-bottom:15px}
+.yl-thread-selected{display:inline-flex;align-items:center;gap:7px;font:700 10px/1.4 'DM Sans',sans-serif;letter-spacing:.09em;color:var(--thread-tone);margin-bottom:12px}
+.yl-thread-selected svg{width:17px;height:17px}
+.yl-thread-gentle .yl-thread-followup-question{margin:0 0 24px!important}
+.yl-thread-gentle .yl-followup{gap:10px}
+.yl-thread-gentle .yl-followup .yl-thread-choice{min-height:69px;border-color:#ffffff31;background:#ffffff09}
+.yl-thread-gentle .yl-followup .yl-thread-choice:hover{border-color:var(--thread-tone)}
+.yl-thread-gentle .yl-thread-soft-note{max-width:310px;color:#a7a198;font:400 12px/1.65 'DM Sans',sans-serif;margin:0 0 2px}
+@media(max-width:390px){.yl-reaction-grid{gap:8px}.yl-reaction{min-height:106px;padding:10px 5px;border-radius:19px}.yl-reaction-glyph{width:47px;height:47px}.yl-reaction-glyph svg{width:25px;height:25px}.yl-reaction-name{font-size:9px;letter-spacing:.03em}}
+@media(prefers-reduced-motion:reduce){.yl-reaction{transition:none!important}.yl-reaction:hover{transform:none}}
