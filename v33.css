@@ -117,3 +117,6 @@
 .yl-explore-reflection-note{text-align:left;margin:-9px 0 25px;max-width:350px;line-height:1.7}
 @media(max-width:700px){.yl-thread-simple{min-height:270px}.yl-explore-invitation{margin-top:24px}.yl-explore-orb{width:88px;height:88px}}
 @media(prefers-reduced-motion:reduce){.yl-explore-orb{transition:none!important}}
+
+/* Explain the use of volunteered data, without attributing beliefs to users. */
+.yl-personal-why{font:400 11px/1.65 'DM Sans',system-ui,sans-serif;color:#a4b9ac;margin:-15px 0 26px;max-width:365px}
