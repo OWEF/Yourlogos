@@ -5,8 +5,9 @@ import vm from "node:vm";
 const read=p=>fs.readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const app=read("app.js"),world=read("world-view.js"),cosmos=read("cosmos-v2.html");
 const exploreModule=read("explore-catalogue.js"),threadModule=read("thought-threads.js");
+const personalizedModule=read("personalization.js"),onboardingModule=read("onboarding.js");
 const auth=read("auth-client.js"),config=read("auth-config.js"),sw=read("sw.js"),html=read("index.html");
-for(const [name,source] of [["app",app],["world",world],["auth",auth],["explore-catalogue",exploreModule],["thought-threads",threadModule]]){
+for(const [name,source] of [["app",app],["world",world],["auth",auth],["explore-catalogue",exploreModule],["thought-threads",threadModule],["personalization",personalizedModule],["onboarding",onboardingModule]]){
   new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
 }
 const embedded=cosmos.match(/<script>([\s\S]*?)<\/script>/);
@@ -114,4 +115,10 @@ assert.ok(exploreRecords[15][0].includes("Loneliness"),"Solitude sample must dis
 assert.ok(exploreRecords[15][1].includes("recharging"),"Solitude sample must invite an everyday reflection");
 assert.ok(!threads.includes("data-thread-answer="),"Explore removes the obligatory second philosophical choice");
 
+assert.ok(html.includes('id="yl-onboarding"')&&html.includes('/onboarding.js')&&html.includes('/onboarding.css'),"A first visit can learn about the user before the original slider");
+assert.ok(sw.includes('"/personalization.js"')&&sw.includes('"/onboarding.js"')&&sw.includes('"/onboarding.css"'),"New onboarding modules are available offline");
+assert.ok(onboardingModule.includes('yourlogos:onboarding-complete')&&onboardingModule.includes('yourlogos-introduction-v1'),"A one-time completion event is persisted");
+assert.ok(threadModule.includes("personalizedExplore(quote,quoteId,profile,history)"),"Discover content considers the voluntary user context");
+assert.ok(app.includes('profile:data.personalization')&&app.includes('case"thread-explore"'),"Encounter passes onboarding profile into the existing one-tap Explore");
+assert.ok(personalizedModule.includes("QUESTIONS")&&personalizedModule.includes("safeProfile"),"Editorial lenses retain a guarded fallback");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
