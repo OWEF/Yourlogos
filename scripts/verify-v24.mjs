@@ -91,4 +91,26 @@ assert.ok(app.includes("quote-dense"),"Long quotation has a readable responsive 
 const api=read("server.mjs");
 assert.ok(api.includes('"/api/school-art/"')&&api.includes("artCache"),"Optimized curated artwork served from same origin");
 assert.ok(html.includes('/v30.css')&&sw.includes('"/v30.css"')&&sw.includes('"/school-scenes.js"'),"New interaction assets load offline");
+const explore=read("explore-catalogue.js"),threads=read("thought-threads.js");
+assert.ok(sw.includes('"/explore-catalogue.js"'),"Offline cache must include Explore content");
+assert.ok(app.includes('case"thread-explore"')&&app.includes('case"thread-reflect"'),"One-tap Explore and optional reflection are reachable");
+assert.ok(threads.includes("yl-explore-button")&&threads.includes("exploration.insight")&&threads.includes("exploration.reflection"),"Discover must reveal a meaningful insight before optional reflection");
+assert.ok(!threads.includes("MOVES.map((_,i)=>gesture(i))"),"Old three-choice reaction entrance is removed");
+const exploreSource=read("explore-catalogue.js");
+const marker="export const EXPLORE=",ending=";\nexport function exploreFor";
+const exploreStart=exploreSource.indexOf(marker),exploreEnd=exploreSource.indexOf(ending,exploreStart);
+assert.ok(exploreStart>=0&&exploreEnd>exploreStart,"Explore catalogue must export structured editorial records");
+const exploreRecords=JSON.parse(exploreSource.slice(exploreStart+marker.length,exploreEnd));
+assert.equal(exploreRecords.length,QUOTES.length,"Every built-in quote has a distinct editorial exploration");
+const supported=new Set(["stoicism","existentialism","nihilism","skepticism","daoism","buddhism"]);
+exploreRecords.forEach((record,id)=>{
+ assert.equal(record.length,3,"Explore entry "+id+" needs insight/reflection/school");
+ assert.ok(record[0].length>=25&&record[0].length<=130,"Explore insight should be substantial yet short: "+id);
+ assert.ok(record[1].endsWith("?")&&record[1].length<=130,"Reflection should be specific and concise: "+id);
+ assert.ok(supported.has(record[2]),"Destination must be supported: "+id);
+});
+assert.ok(exploreRecords[15][0].includes("Loneliness"),"Solitude sample must distinguish loneliness from chosen aloneness");
+assert.ok(exploreRecords[15][1].includes("recharging"),"Solitude sample must invite an everyday reflection");
+assert.ok(!threads.includes("data-thread-answer="),"Explore removes the obligatory second philosophical choice");
+
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
