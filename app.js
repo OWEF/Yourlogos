@@ -4,6 +4,7 @@ import { SCHOOL_SCENES } from "./school-scenes.js";
 import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, worldFingerprintEvidence } from "./encounter-v31.js";
 import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } from "./encounter-feedback.js";
 import { thoughtThreadHtml, thoughtThreadDestination, getThoughtThread } from "./thought-threads.js";
+import { exploreFor } from "./explore-catalogue.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -649,33 +650,6 @@ document.addEventListener("click",async e=>{
     universePane=destination;openSchoolId=null;libraryScope="all";detailId=null;
     settingsOpen=false;render();haptic();return;
   }
-  const threadMove=e.target.closest("[data-thread-branch]");
-  if(threadMove&&discoverOpen){
-    const index=Number(threadMove.dataset.threadBranch);
-    if(!Number.isInteger(index)||index<0||index>2)return;
-    const quoteId=visibleQuoteId();
-    const reaction={quoteId,theme:QUOTES[quoteId][2],author:QUOTES[quoteId][1],branch:index,answer:null,destination:null,date:today(),depth:"reaction"};
-    const prior=data.thoughtThreadEvents.at(-1);
-    if(!prior||["quoteId","branch","date"].some(k=>prior[k]!==reaction[k]))
-      data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(-249),reaction];
-    threadBranch=index;discoverStep=1;persist();playEncounterTone("choose");haptic();render();return;
-  }
-  const threadChoice=e.target.closest("[data-thread-answer]");
-  if(threadChoice&&discoverOpen){
-    const index=Number(threadChoice.dataset.threadAnswer);
-    if(!Number.isInteger(index)||index<0||index>1)return;
-    threadAnswer=index;discoverStep=3;
-    const id=visibleQuoteId(),destination=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer,id);
-    const event={quoteId:id,theme:QUOTES[id][2],author:QUOTES[id][1],branch:threadBranch,answer:threadAnswer,destination,date:today()};
-    const previous=data.thoughtThreadEvents.at(-1);
-    if(previous&&previous.quoteId===id&&previous.branch===threadBranch&&previous.date===event.date){
-      data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(0,-1),event];
-    }else{
-      data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(-249),event];
-    }
-    persist();playEncounterTone("choose");haptic();render();
-    document.querySelector(".yl-thread-ending")?.focus({preventScroll:true});return;
-  }
   const encounterChoice=e.target.closest("[data-encounter-choice]");
   if(encounterChoice && discoverOpen){
     const id=visibleQuoteId(),choice=Number(encounterChoice.dataset.encounterChoice);
@@ -842,14 +816,33 @@ document.addEventListener("click",async e=>{
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(id===null)return;const next=followingThought(daySequence(),id,[...data.saved,id]);if(!data.saved.includes(id)){data.saved.push(id);persist();}quoteCursor=next.cursor;discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
-    case"thread-back":discoverStep=Math.max(0,discoverStep-1);render();return;
-    case"thread-deepen":if(discoverOpen&&discoverStep===1){discoverStep=2;haptic("selection");render()}return;
-    case"thread-restart":discoverStep=0;threadBranch=0;threadAnswer=0;render();return;
+    case"thread-explore":{
+      if(!discoverOpen||discoverStep!==0)return;
+      const id=visibleQuoteId(),q=QUOTES[id],exploration=exploreFor(q,id);
+      if(!exploration)return;
+      const event={quoteId:id,theme:q[2],author:q[1],branch:null,answer:null,destination:exploration.school,date:today(),depth:"explore"};
+      const last=data.thoughtThreadEvents.at(-1);
+      if(!last||last.quoteId!==id||last.date!==event.date||last.depth!=="explore")
+        data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(-249),event];
+      discoverStep=1;persist();playEncounterTone("choose");haptic("selection");render();return;
+    }
+    case"thread-reflect":{
+      if(!discoverOpen||discoverStep!==1)return;
+      const id=visibleQuoteId(),last=data.thoughtThreadEvents.at(-1);
+      if(last?.quoteId===id&&last?.date===today()&&last?.depth==="explore"){
+        data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(0,-1),{...last,depth:"reflection"}];
+        persist();
+      }
+      discoverStep=2;playEncounterTone("choose");haptic("selection");render();return;
+    }
+    case"thread-back":discoverStep=1;render();return;
+    case"thread-restart":discoverStep=0;render();return;
     case"discover-library":{
-      const id=visibleQuoteId(),target=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer,id);
+      const id=visibleQuoteId(),q=QUOTES[id],exploration=exploreFor(q,id);
+      const target=exploration?.school;
       if(!target||!SCHOOLS.some(s=>s.id===target)){discoverOpen=false;discoverStep=0;render();return;}
-      const thread=getThoughtThread(QUOTES[id],id);
-      bridgeFromQuestion={schoolId:target,question:thread.question,move:["resist","doubt","reframe"][threadBranch]||"question",challenge:thread.branches[threadBranch]?.title||thread.question};
+      const thread=getThoughtThread(q,id);
+      bridgeFromQuestion={schoolId:target,question:thread.question,move:"explore",challenge:exploration.insight};
       discoverOpen=false;discoverStep=0;view="library";openSchoolId=target;schoolSceneIndex=0;schoolChoiceIndex=null;libraryScope="all";render();haptic();return;
     }
     case"clear-discovery":settingsConfirm=true;render();return;
