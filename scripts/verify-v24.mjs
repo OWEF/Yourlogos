@@ -4,8 +4,9 @@ import vm from "node:vm";
 
 const read=p=>fs.readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const app=read("app.js"),world=read("world-view.js"),cosmos=read("cosmos-v2.html");
+const exploreModule=read("explore-catalogue.js"),threadModule=read("thought-threads.js");
 const auth=read("auth-client.js"),config=read("auth-config.js"),sw=read("sw.js"),html=read("index.html");
-for(const [name,source] of [["app",app],[ "world",world],["auth",auth]]){
+for(const [name,source] of [["app",app],["world",world],["auth",auth],["explore-catalogue",exploreModule],["thought-threads",threadModule]]){
   new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
 }
 const embedded=cosmos.match(/<script>([\s\S]*?)<\/script>/);
