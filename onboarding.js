@@ -8,12 +8,18 @@ const slider=document.getElementById("yl-entrance");
 const app=document.getElementById("app");
 if(root){
   const stored=(()=>{try{return JSON.parse(localStorage.getItem(STORAGE)||"null")}catch{return null}})();
-  const hasHistory=stored&&typeof stored==="object"&&(
+  const today=(()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")})();
+  // The main app creates today's quote in local state on boot: that is NOT
+  // proof that a person has visited. Record actual past entry or activity.
+  const practice=stored?.practice&&typeof stored.practice==="object"?stored.practice:{};
+  const earlierVisit=Object.keys(practice).some(day=>day!==today);
+  const hasHistory=Boolean(stored&&typeof stored==="object"&&(
     stored.personalization?.status==="completed"||stored.personalization?.status==="skipped"||
-    stored.started||stored.localName||Object.keys(stored.practice||{}).length||
+    localStorage.getItem("yourlogos-daily-ritual-v1")||
+    stored.started||stored.localName||earlierVisit||
     (stored.saved||[]).length||(stored.arrivals||[]).length||
     (stored.thoughtThreadEvents||[]).length||(stored.encounterEvents||[]).length
-  );
+  ));
   const demo=new URLSearchParams(location.search).get("intro")==="1";
   const shouldShow=demo||(!localStorage.getItem(FLAG)&&!hasHistory);
   if(shouldShow){
