@@ -91,4 +91,9 @@ assert.ok(app.includes("quote-dense"),"Long quotation has a readable responsive 
 const api=read("server.mjs");
 assert.ok(api.includes('"/api/school-art/"')&&api.includes("artCache"),"Optimized curated artwork served from same origin");
 assert.ok(html.includes('/v30.css')&&sw.includes('"/v30.css"')&&sw.includes('"/school-scenes.js"'),"New interaction assets load offline");
+const explore=read("explore-catalogue.js"),threads=read("thought-threads.js");
+assert.ok(sw.includes('"/explore-catalogue.js"'),"Offline cache must include Explore content");
+assert.ok(app.includes('case"thread-explore"')&&app.includes('case"thread-reflect"'),"One-tap Explore and optional reflection are reachable");
+assert.ok(threads.includes("yl-explore-button")&&threads.includes("exploration.insight")&&threads.includes("exploration.reflection"),"Discover must reveal a meaningful insight before optional reflection");
+assert.ok(!threads.includes("MOVES.map((_,i)=>gesture(i))"),"Old three-choice reaction entrance is removed");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
