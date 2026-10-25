@@ -653,18 +653,26 @@ document.addEventListener("click",async e=>{
   if(threadMove&&discoverOpen){
     const index=Number(threadMove.dataset.threadBranch);
     if(!Number.isInteger(index)||index<0||index>2)return;
-    threadBranch=index;discoverStep=1;playEncounterTone("choose");haptic();render();return;
+    const quoteId=visibleQuoteId();
+    const reaction={quoteId,theme:QUOTES[quoteId][2],author:QUOTES[quoteId][1],branch:index,answer:null,destination:null,date:today(),depth:"reaction"};
+    const prior=data.thoughtThreadEvents.at(-1);
+    if(!prior||["quoteId","branch","date"].some(k=>prior[k]!==reaction[k]))
+      data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(-249),reaction];
+    threadBranch=index;discoverStep=1;persist();playEncounterTone("choose");haptic();render();return;
   }
   const threadChoice=e.target.closest("[data-thread-answer]");
   if(threadChoice&&discoverOpen){
     const index=Number(threadChoice.dataset.threadAnswer);
     if(!Number.isInteger(index)||index<0||index>1)return;
-    threadAnswer=index;discoverStep=2;
+    threadAnswer=index;discoverStep=3;
     const id=visibleQuoteId(),destination=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer,id);
     const event={quoteId:id,theme:QUOTES[id][2],author:QUOTES[id][1],branch:threadBranch,answer:threadAnswer,destination,date:today()};
     const previous=data.thoughtThreadEvents.at(-1);
-    if(!previous||["quoteId","branch","answer","date"].some(k=>previous[k]!==event[k]))
+    if(previous&&previous.quoteId===id&&previous.branch===threadBranch&&previous.date===event.date){
+      data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(0,-1),event];
+    }else{
       data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(-249),event];
+    }
     persist();playEncounterTone("choose");haptic();render();
     document.querySelector(".yl-thread-ending")?.focus({preventScroll:true});return;
   }
@@ -834,7 +842,8 @@ document.addEventListener("click",async e=>{
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(id===null)return;const next=followingThought(daySequence(),id,[...data.saved,id]);if(!data.saved.includes(id)){data.saved.push(id);persist();}quoteCursor=next.cursor;discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
-    case"thread-back":discoverStep=0;render();return;
+    case"thread-back":discoverStep=Math.max(0,discoverStep-1);render();return;
+    case"thread-deepen":if(discoverOpen&&discoverStep===1){discoverStep=2;haptic("selection");render()}return;
     case"thread-restart":discoverStep=0;threadBranch=0;threadAnswer=0;render();return;
     case"discover-library":{
       const id=visibleQuoteId(),target=thoughtThreadDestination(QUOTES[id],threadBranch,threadAnswer,id);
