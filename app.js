@@ -5,6 +5,7 @@ import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, wor
 import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } from "./encounter-feedback.js";
 import { thoughtThreadHtml, thoughtThreadDestination, getThoughtThread } from "./thought-threads.js";
 import { exploreFor } from "./explore-catalogue.js";
+import { personalizedExplore } from "./personalization.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -276,7 +277,7 @@ function discoverHtml(){
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
-      thoughtThreadHtml({quote:q,quoteId:id,step:discoverStep,branchIndex:threadBranch,answerIndex:threadAnswer})+
+      thoughtThreadHtml({quote:q,quoteId:id,step:discoverStep,branchIndex:threadBranch,answerIndex:threadAnswer,profile:data.personalization,history:data.thoughtThreadEvents})+
     '</section>';
 }
 
@@ -740,7 +741,8 @@ document.addEventListener("click",async e=>{
             themes:Array.isArray(remote.state.themes)?remote.state.themes:[],
             arrivals:Array.isArray(remote.state.arrivals)?remote.state.arrivals:[],
             started:Boolean(remote.state.started),
-            localName:originalName||remote.name||""
+            localName:originalName||remote.name||"",
+            personalization:remote.state.personalization&&["completed","skipped"].includes(remote.state.personalization.status)?remote.state.personalization:data.personalization
           };
           data={...data,...safe};persist();
           if(Array.isArray(remote.state.cosmosEvents)){
@@ -818,7 +820,7 @@ document.addEventListener("click",async e=>{
     case"discover-again":discoverStep=0;render();return;
     case"thread-explore":{
       if(!discoverOpen||discoverStep!==0)return;
-      const id=visibleQuoteId(),q=QUOTES[id],exploration=exploreFor(q,id);
+      const id=visibleQuoteId(),q=QUOTES[id],exploration=personalizedExplore(q,id,data.personalization,data.thoughtThreadEvents);
       if(!exploration)return;
       const event={quoteId:id,theme:q[2],author:q[1],branch:null,answer:null,destination:exploration.school,date:today(),depth:"explore"};
       const last=data.thoughtThreadEvents.at(-1);
@@ -838,7 +840,7 @@ document.addEventListener("click",async e=>{
     case"thread-back":discoverStep=1;render();return;
     case"thread-restart":discoverStep=0;render();return;
     case"discover-library":{
-      const id=visibleQuoteId(),q=QUOTES[id],exploration=exploreFor(q,id);
+      const id=visibleQuoteId(),q=QUOTES[id],exploration=personalizedExplore(q,id,data.personalization,data.thoughtThreadEvents);
       const target=exploration?.school;
       if(!target||!SCHOOLS.some(s=>s.id===target)){discoverOpen=false;discoverStep=0;render();return;}
       const thread=getThoughtThread(q,id);
@@ -919,6 +921,14 @@ async function refreshPublicQuoteCatalogue(){
  }catch(error){console.warn("YourLogos: cached quote catalogue remains available.",error?.message||error)}
 }
 
+window.addEventListener("yourlogos:onboarding-complete",event=>{
+  const incoming=event.detail?.profile;
+  if(!incoming||!["completed","skipped"].includes(incoming.status))return;
+  data.personalization=incoming;
+  const nickname=String(event.detail?.name||"").trim().slice(0,32);
+  if(nickname)data.localName=nickname;
+  persist();render();
+});
 render();
 // Supabase SDK loading and network requests are noncritical for the first
 // interaction. Schedule them only after the first frame is painted.

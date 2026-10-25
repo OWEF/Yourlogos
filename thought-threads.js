@@ -1,5 +1,5 @@
 import { resolveTension, findDestination } from "./tension-engine.js";
-import { exploreFor } from "./explore-catalogue.js";
+import { personalizedExplore } from "./personalization.js";
 // YourLogos V3.3 — Question threads.
 // Small editorial graph: a proposition, three genuine counter-moves, one follow-up,
 // then an optional doorway to a curated Library tradition. No grading or scores.
@@ -101,8 +101,8 @@ const REACTION_HELP=[
   "Find a different way to see it"
 ];
 
-export function thoughtThreadHtml({quote,quoteId=null,step=0}){
-  const exploration=exploreFor(quote,quoteId);
+export function thoughtThreadHtml({quote,quoteId=null,step=0,profile=null,history=[]}){
+  const exploration=personalizedExplore(quote,quoteId,profile,history);
   const thread=getThoughtThread(quote,quoteId);
   if(!exploration){
     return '<div class="yl-thread yl-thread-pending" role="status">'+
@@ -122,13 +122,14 @@ export function thoughtThreadHtml({quote,quoteId=null,step=0}){
     step===1?
       '<div class="yl-thread-progress">A DIFFERENT PERSPECTIVE</div>'+
       '<h2 class="yl-thread-insight">'+esc(exploration.insight)+'</h2>'+
+      (exploration.personalized?'<p class="yl-personal-why" aria-label="Why this thought was chosen">'+esc(exploration.why)+'</p>':"")+
       '<div class="yl-explore-next">'+
       '<button type="button" class="yl-explore-secondary" data-action="thread-reflect"><span>Make it personal</span><span aria-hidden="true">↗</span></button>'+
       '<button type="button" class="yl-explore-plain" data-action="discover-library">Explore the philosophy <span aria-hidden="true">↗</span></button>'+
       '<button type="button" class="yl-explore-quiet" data-action="close-discover">That is enough for now</button></div>':
       '<div class="yl-thread-progress">YOUR TURN, IF YOU LIKE</div>'+
       '<h2 class="yl-thread-reflection">'+esc(exploration.reflection)+'</h2>'+
-      '<p class="yl-explore-hint yl-explore-reflection-note">You do not have to answer. Just notice what comes to mind.</p>'+
+      '<p class="yl-explore-hint yl-explore-reflection-note">'+esc(exploration.nudge||"You do not have to answer. Just notice what comes to mind.")+'</p>'+
       '<div class="yl-explore-next"><button type="button" class="yl-explore-secondary" data-action="discover-library"><span>Explore the philosophy</span><span aria-hidden="true">↗</span></button>'+
       '<button type="button" class="yl-explore-plain" data-action="thread-back">← Back to the thought</button>'+
       '<button type="button" class="yl-explore-quiet" data-action="close-discover">Done for today</button></div>')+

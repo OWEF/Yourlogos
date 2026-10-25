@@ -35,11 +35,13 @@
   <link rel="stylesheet" href="/v32.css"/>
   <link rel="stylesheet" href="/v33.css"/>
   <link rel="stylesheet" href="/welcome.css"/>
+  <link rel="stylesheet" href="/onboarding.css"/>
   <link rel="stylesheet" href="/library-bridge.css"/>
   <link rel="stylesheet" href="/slider-lambda.css"/>
   <title>YourLogos — A philosophical practice</title>
 </head>
 <body>
+  <section id="yl-onboarding" role="dialog" aria-modal="true" aria-label="YourLogos introduction" hidden></section>
   <div id="yl-entrance" class="yl-entrance" role="region" aria-label="Welcome to YourLogos">
     <div class="yl-entrance__content">
       <div class="yl-entrance__mark" aria-hidden="true"><img src="/icon.svg" width="84" height="84" alt="" draggable="false"/></div>
@@ -70,6 +72,7 @@
     <div class="boot" role="status">YOURLOGOS <span>·</span> BE YOUR OWN PHILOSOPHER</div>
   </div>
   <noscript>YourLogos requires JavaScript for its daily practice.</noscript>
+  <script type="module" src="/onboarding.js"></script>
   <script defer src="/welcome.js"></script>
   <script type="module" src="/app.js"></script>
 </body>

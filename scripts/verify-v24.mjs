@@ -5,8 +5,9 @@ import vm from "node:vm";
 const read=p=>fs.readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const app=read("app.js"),world=read("world-view.js"),cosmos=read("cosmos-v2.html");
 const exploreModule=read("explore-catalogue.js"),threadModule=read("thought-threads.js");
+const personalizedModule=read("personalization.js"),onboardingModule=read("onboarding.js");
 const auth=read("auth-client.js"),config=read("auth-config.js"),sw=read("sw.js"),html=read("index.html");
-for(const [name,source] of [["app",app],["world",world],["auth",auth],["explore-catalogue",exploreModule],["thought-threads",threadModule]]){
+for(const [name,source] of [["app",app],["world",world],["auth",auth],["explore-catalogue",exploreModule],["thought-threads",threadModule],["personalization",personalizedModule],["onboarding",onboardingModule]]){
   new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
 }
 const embedded=cosmos.match(/<script>([\s\S]*?)<\/script>/);
@@ -114,4 +115,29 @@ assert.ok(exploreRecords[15][0].includes("Loneliness"),"Solitude sample must dis
 assert.ok(exploreRecords[15][1].includes("recharging"),"Solitude sample must invite an everyday reflection");
 assert.ok(!threads.includes("data-thread-answer="),"Explore removes the obligatory second philosophical choice");
 
+assert.ok(html.includes('id="yl-onboarding"')&&html.includes('/onboarding.js')&&html.includes('/onboarding.css'),"A first visit can learn about the user before the original slider");
+assert.ok(sw.includes('"/personalization.js"')&&sw.includes('"/onboarding.js"')&&sw.includes('"/onboarding.css"'),"New onboarding modules are available offline");
+assert.ok(onboardingModule.includes('yourlogos:onboarding-complete')&&onboardingModule.includes('yourlogos-introduction-v1'),"A one-time completion event is persisted");
+assert.ok(threadModule.includes("personalizedExplore(quote,quoteId,profile,history)"),"Discover content considers the voluntary user context");
+assert.ok(app.includes('profile:data.personalization')&&app.includes('case"thread-explore"'),"Encounter passes onboarding profile into the existing one-tap Explore");
+assert.ok(personalizedModule.includes("QUESTIONS")&&personalizedModule.includes("safeProfile"),"Editorial lenses retain a guarded fallback");
+// Behavioral test: preference data must change a quote's reflection, without
+// claiming curiosity or a single answer establishes a fixed philosophical identity.
+const { personalizedExplore, validatePersonalization }=await import("../personalization.js");
+assert.equal(validatePersonalization(),true,"All eight everyday lenses span ten philosophical themes");
+const visitor={status:"completed",answers:{concerns:["time","connection"],approach:"reflect",tension:"achievement",style:"practical"}};
+const guest=personalizedExplore(QUOTES[50],50,null,[]);
+const personal=personalizedExplore(QUOTES[50],50,visitor,[]);
+assert.equal(guest.personalized,false,"Guest can enjoy universal insights without onboarding");
+assert.equal(personal.personalized,true,"Voluntary onboarding provides the new perspective");
+assert.notEqual(personal.reflection,guest.reflection,"A relevant concern changes the prompt");
+assert.ok(personal.why.includes("selected interest"),"Explain the source of personalization");
+const skipped=personalizedExplore(QUOTES[50],50,{status:"skipped",answers:visitor.answers},[]);
+assert.equal(skipped.personalized,false,"Skipped onboarding is never inferred");
+for(let id=0;id<QUOTES.length;id++){
+ const base=personalizedExplore(QUOTES[id],id,null,[]);
+ assert.ok(base?.insight&&base?.reflection,"All curated quotes retain a guest-safe option "+id);
+ const tailored=personalizedExplore(QUOTES[id],id,visitor,[]);
+ assert.ok(tailored?.reflection.endsWith("?"),"Personalized reflections remain valid "+id);
+}
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
