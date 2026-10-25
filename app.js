@@ -252,7 +252,7 @@ function todayHtml(){
     '<div class="quote-footer"><div class="swipe-cue">↑ &nbsp; SWIPE FOR ANOTHER THOUGHT</div>'+
     '<div class="quote-actions">'+
       '<button type="button" aria-label="'+(liked?"Remove this saved thought":"Keep this thought")+'" title="'+(liked?"Remove saved thought":"Keep this thought")+'" aria-pressed="'+liked+'" data-action="toggle-save" class="icon-action yl-quote-btn heart-button'+(liked?" liked":"")+(heartPulse?" heart-pop":"")+'">'+likedIcon(liked)+'</button>'+
-      '<button type="button" aria-label="Question this thought" title="Question this thought" aria-haspopup="dialog" data-action="discover" class="icon-action yl-quote-btn discover-button">'+questionIcon+'</button>'+
+      '<button type="button" aria-label="Discover what this thought means for you" title="Discover what this thought means for you" aria-haspopup="dialog" data-action="discover" class="icon-action yl-quote-btn discover-button">'+questionIcon+'</button>'+
     '</div></div></article>';
 }
 const DISCOVERY_RESPONSES=[
@@ -271,9 +271,9 @@ const DISCOVERY_LENSES=[
 function discoverHtml(){
   const id=visibleQuoteId(),q=QUOTES[id];
   return '<div class="discover-cover" data-action="close-discover"></div>'+
-    '<section class="discover-sheet discover-v26 v31-discover v32-discover" role="dialog" aria-modal="true" aria-label="Question this thought">'+
+    '<section class="discover-sheet discover-v26 v31-discover v32-discover" role="dialog" aria-modal="true" aria-label="Discover this thought">'+
       '<div class="sheet-handle"></div>'+
-      '<div class="sheet-head"><span>QUESTION THE THOUGHT</span><div class="v32-header-actions">'+
+      '<div class="sheet-head"><span>DISCOVER</span><div class="v32-header-actions">'+
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
