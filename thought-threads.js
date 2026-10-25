@@ -4,9 +4,9 @@ import { resolveTension, findDestination } from "./tension-engine.js";
 // then an optional doorway to a curated Library tradition. No grading or scores.
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 export const MOVES=[
-  {id:"resist",label:"RESIST",color:"coral"},
-  {id:"doubt",label:"DOUBT",color:"blue"},
-  {id:"reframe",label:"REFRAME",color:"sage"}
+  {id:"resist",label:"BUT…",color:"coral"},
+  {id:"doubt",label:"WHY?",color:"blue"},
+  {id:"reframe",label:"WHAT IF?",color:"sage"}
 ];
 const branch=(title,followup,a,b)=>({title,followup,answers:[a,b]});
 const answer=(label,school,insight)=>({label,school,insight});
@@ -85,34 +85,57 @@ export function getThoughtThread(quote,quoteId=null){
     branch("What if we ask a different question?","Could the opposite also reveal something?",answer("Follow changing conditions.","daoism","Not every tension needs to be forced."),answer("Study our response to it.","stoicism","Perspective changes what an event means."))
   ]};
 }
+
+// A first reaction should feel like a gesture, not choosing an academic method.
+// Three distinct questions remain underneath, but the first screen shows none of
+// the demanding counter-arguments until the reader deliberately chooses a path.
+const REACTION_ICONS=[
+  '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M16 15 7 24l9 9M8 24h20c8 0 12-4 12-12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M17 17a7.5 7.5 0 1 1 11 6.5c-3 1.8-4 3.4-4 6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="24" cy="36" r="1.8" fill="currentColor"/></svg>',
+  '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="m24 6 4.7 13.3L42 24l-13.3 4.7L24 42l-4.7-13.3L6 24l13.3-4.7L24 6Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M35 8v7M31.5 11.5h7" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg>'
+];
+const REACTION_HELP=[
+  "Explore a counterpoint",
+  "Look closer at what is uncertain",
+  "Find a different way to see it"
+];
 export function thoughtThreadHtml({quote,quoteId=null,step=0,branchIndex=0,answerIndex=0}){
   const thread=getThoughtThread(quote,quoteId);
-  if(!thread.curated && Number.isInteger(quoteId))return '<div class="yl-thread yl-thread-pending" role="status"><div class="yl-thread-progress">AN OPEN QUESTION</div><h2 class="yl-thread-question">'+esc(thread.question)+'</h2><p>'+esc(thread.message)+'</p><button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';
-  const branchData=thread.branches[branchIndex]||thread.branches[0];
-  const answerData=branchData.answers[answerIndex]||branchData.answers[0];
-  return '<div class="yl-thread" data-thread-step="'+step+'">'+
+  if(!thread.curated && Number.isInteger(quoteId))
+    return '<div class="yl-thread yl-thread-pending" role="status"><div class="yl-thread-progress">AN OPEN QUESTION</div><h2 class="yl-thread-question">'+esc(thread.question)+'</h2><p>'+esc(thread.message)+'</p><button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';
+  const selected=thread.branches[branchIndex]||thread.branches[0];
+  const choice=selected.answers[answerIndex]||selected.answers[0];
+  const gesture=(i)=>'<button type="button" class="yl-reaction yl-tone-'+MOVES[i].color+'" data-thread-branch="'+i+'" title="'+esc(REACTION_HELP[i])+'" aria-label="'+esc(REACTION_HELP[i])+'">'+
+    '<span class="yl-reaction-glyph">'+REACTION_ICONS[i]+'</span>'+
+    '<span class="yl-reaction-name">'+esc(MOVES[i].label)+'</span></button>';
+  return '<div class="yl-thread yl-thread-gentle" data-thread-step="'+step+'">'+
     (step===0?
-      '<div class="yl-thread-progress">01 <span>—</span> THE FRICTION</div>'+
+      '<div class="yl-thread-progress">01 <span>—</span> A LITTLE QUESTION</div>'+
       '<h2 class="yl-thread-question">'+esc(thread.question)+'</h2>'+
-      '<div class="yl-thread-choices" role="group" aria-label="Choose a line of questioning">'+thread.branches.map((b,i)=>
-        '<button type="button" class="yl-thread-choice yl-tone-'+MOVES[i].color+'" data-thread-branch="'+i+'">'+
-        '<span class="yl-choice-stripe" aria-hidden="true"></span><span class="yl-choice-content"><small>'+MOVES[i].label+'</small><strong>'+esc(b.title)+'</strong></span><span aria-hidden="true" class="yl-choice-arrow">↗</span></button>').join("")+'</div>':
-      step===1?
-        '<div class="yl-thread-progress">02 <span>—</span> FOLLOW THE THOUGHT</div>'+
-        '<span class="yl-thread-chip yl-tone-'+MOVES[branchIndex].color+'">'+MOVES[branchIndex].label+'</span>'+
-        '<h2 class="yl-thread-question">'+esc(branchData.followup)+'</h2>'+
-        '<div class="yl-thread-choices yl-followup">'+branchData.answers.map((a,i)=>
-          '<button type="button" data-thread-answer="'+i+'" class="yl-thread-choice yl-tone-'+MOVES[branchIndex].color+'"><span class="yl-choice-stripe"></span><span class="yl-choice-content"><strong>'+esc(a.label)+'</strong></span><span aria-hidden="true" class="yl-choice-arrow">↗</span></button>').join("")+'</div>'+
-        '<button type="button" class="yl-thread-back" data-action="thread-back">← Other questions</button>':
-        '<div class="yl-thread-ending" role="status" aria-live="polite" tabindex="-1">'+
-          '<div class="yl-thread-seed" aria-hidden="true">✳</div><div class="yl-thread-progress">A THOUGHT HAS TRAVELLED</div>'+
-          '<div class="yl-thread-path"><span>'+esc((quote?.[1]||"A thought").split(" ")[0])+'</span><span>→</span><b>'+esc(answerData.school[0].toUpperCase()+answerData.school.slice(1))+'</b></div>'+
-          '<h2 class="yl-thread-result">'+esc(answerData.insight)+'</h2>'+
-          '<button type="button" data-action="discover-library" class="yl-thread-library">Explore in Library ↗</button>'+
-          '<button type="button" data-action="thread-restart" class="yl-thread-restart">Another path</button>'+
-        '</div>')+
-  '</div>';
+      '<p class="yl-reaction-prompt">Where would you like to go?</p>'+
+      '<div class="yl-reaction-grid" role="group" aria-label="Three ways to explore this question">'+
+        MOVES.map((_,i)=>gesture(i)).join("")+
+      '</div>'+
+      '<p class="yl-reaction-footnote">No right answer. Just curiosity.</p>':
+    step===1?
+      '<div class="yl-thread-progress">02 <span>—</span> A LITTLE CLOSER</div>'+
+      '<div class="yl-thread-remember">'+esc(thread.question)+'</div>'+
+      '<div class="yl-thread-selected yl-tone-'+MOVES[branchIndex].color+'">'+REACTION_ICONS[branchIndex]+'<span>'+esc(MOVES[branchIndex].label)+'</span></div>'+
+      '<h2 class="yl-thread-question yl-thread-followup-question">'+esc(selected.followup)+'</h2>'+
+      '<div class="yl-thread-choices yl-followup" role="group" aria-label="Choose what to explore next">'+selected.answers.map((a,i)=>
+         '<button type="button" data-thread-answer="'+i+'" class="yl-thread-choice yl-tone-'+MOVES[branchIndex].color+'"><span class="yl-choice-stripe" aria-hidden="true"></span><span class="yl-choice-content"><strong>'+esc(a.label)+'</strong></span><span aria-hidden="true" class="yl-choice-arrow">↗</span></button>').join("")+'</div>'+
+      '<button type="button" class="yl-thread-back" data-action="thread-back">← Try another direction</button>':
+      '<div class="yl-thread-ending" role="status" aria-live="polite" tabindex="-1">'+
+        '<div class="yl-thread-seed" aria-hidden="true">✳</div>'+
+        '<div class="yl-thread-progress">A NEW PERSPECTIVE</div>'+
+        '<h2 class="yl-thread-result">'+esc(choice.insight)+'</h2>'+
+        '<p class="yl-thread-soft-note">You can carry this thought with you—or leave it here.</p>'+
+        '<button type="button" data-action="discover-library" class="yl-thread-library">Explore a little further ↗</button>'+
+        '<button type="button" data-action="thread-restart" class="yl-thread-restart">Another way to see it</button>'+
+      '</div>')+
+    '</div>';
 }
+
 export function thoughtThreadDestination(quote,branchIndex,answerIndex,quoteId=null){
  const curated=findDestination(quote,quoteId,branchIndex,answerIndex);
  if(curated)return curated.school;
