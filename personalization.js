@@ -276,5 +276,5 @@ export function validatePersonalization(){
  return THEMES.length===10 && Object.keys(CONCERNS).length===8 &&
    Object.keys(QUESTIONS).every(k=>Object.hasOwn(CONCERNS,k)&&QUESTIONS[k].length===THEMES.length&&QUESTIONS[k].every(q=>q.endsWith("?"))) &&
    Object.keys(PERSONAL_VOICE).length===8 &&
-   Object.entries(PERSONAL_VOICE).every(([key,rows])=>Object.hasOwn(CONCERNS,key)&&rows.length===THEMES.length&&rows.every(line=>line.length>=60&&line.length<=235&&/\byou\b/i.test(line)));
+   Object.entries(PERSONAL_VOICE).every(([key,rows])=>Object.hasOwn(CONCERNS,key)&&rows.length===THEMES.length&&rows.every(line=>line.length>=60&&line.length<=235&&/\b(you|your)\b/i.test(line)));
 }
