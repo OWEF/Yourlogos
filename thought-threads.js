@@ -125,10 +125,10 @@ export function thoughtThreadHtml({quote,quoteId=null,step=0}){
       '<div class="yl-explore-next">'+
       '<button type="button" class="yl-explore-secondary" data-action="thread-reflect"><span>Make it personal</span><span aria-hidden="true">↗</span></button>'+
       '<button type="button" class="yl-explore-plain" data-action="discover-library">Explore the philosophy <span aria-hidden="true">↗</span></button>'+
-      '<button type="button" class="yl-explore-quiet" data-action="close-discover">That's enough for now</button></div>':
+      '<button type="button" class="yl-explore-quiet" data-action="close-discover">That is enough for now</button></div>':
       '<div class="yl-thread-progress">YOUR TURN, IF YOU LIKE</div>'+
       '<h2 class="yl-thread-reflection">'+esc(exploration.reflection)+'</h2>'+
-      '<p class="yl-explore-hint yl-explore-reflection-note">You don't have to answer. Just notice what comes to mind.</p>'+
+      '<p class="yl-explore-hint yl-explore-reflection-note">You do not have to answer. Just notice what comes to mind.</p>'+
       '<div class="yl-explore-next"><button type="button" class="yl-explore-secondary" data-action="discover-library"><span>Explore the philosophy</span><span aria-hidden="true">↗</span></button>'+
       '<button type="button" class="yl-explore-plain" data-action="thread-back">← Back to the thought</button>'+
       '<button type="button" class="yl-explore-quiet" data-action="close-discover">Done for today</button></div>')+
