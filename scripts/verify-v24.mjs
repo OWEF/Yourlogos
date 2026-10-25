@@ -121,4 +121,23 @@ assert.ok(onboardingModule.includes('yourlogos:onboarding-complete')&&onboarding
 assert.ok(threadModule.includes("personalizedExplore(quote,quoteId,profile,history)"),"Discover content considers the voluntary user context");
 assert.ok(app.includes('profile:data.personalization')&&app.includes('case"thread-explore"'),"Encounter passes onboarding profile into the existing one-tap Explore");
 assert.ok(personalizedModule.includes("QUESTIONS")&&personalizedModule.includes("safeProfile"),"Editorial lenses retain a guarded fallback");
+// Behavioral test: preference data must change a quote's reflection, without
+// claiming curiosity or a single answer establishes a fixed philosophical identity.
+const { personalizedExplore, validatePersonalization }=await import("../personalization.js");
+assert.equal(validatePersonalization(),true,"All eight everyday lenses span ten philosophical themes");
+const visitor={status:"completed",answers:{concerns:["time","connection"],approach:"reflect",tension:"achievement",style:"practical"}};
+const guest=personalizedExplore(QUOTES[50],50,null,[]);
+const personal=personalizedExplore(QUOTES[50],50,visitor,[]);
+assert.equal(guest.personalized,false,"Guest can enjoy universal insights without onboarding");
+assert.equal(personal.personalized,true,"Voluntary onboarding provides the new perspective");
+assert.notEqual(personal.reflection,guest.reflection,"A relevant concern changes the prompt");
+assert.ok(personal.why.includes("selected interest"),"Explain the source of personalization");
+const skipped=personalizedExplore(QUOTES[50],50,{status:"skipped",answers:visitor.answers},[]);
+assert.equal(skipped.personalized,false,"Skipped onboarding is never inferred");
+for(let id=0;id<QUOTES.length;id++){
+ const base=personalizedExplore(QUOTES[id],id,null,[]);
+ assert.ok(base?.insight&&base?.reflection,"All curated quotes retain a guest-safe option "+id);
+ const tailored=personalizedExplore(QUOTES[id],id,visitor,[]);
+ assert.ok(tailored?.reflection.endsWith("?"),"Personalized reflections remain valid "+id);
+}
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
