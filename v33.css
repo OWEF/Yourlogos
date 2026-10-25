@@ -93,3 +93,27 @@
 .yl-reaction-continue:hover{background:#e8d5b7}
 .yl-reaction-continue:active{transform:scale(.98)}
 .yl-reaction-next .yl-thread-back{margin:0}
+
+
+/* V3.6 — single invitation; specific insight first and optional personal reflection. */
+.yl-thread-simple{min-height:300px;display:flex;flex-direction:column}
+.yl-thread-simple .yl-thread-progress{margin-bottom:19px}
+.v32-discover .yl-thread-simple h2.yl-thread-question{margin-bottom:0!important}
+.yl-explore-invitation{display:flex;justify-content:center;margin:31px auto 6px;width:100%}
+.yl-explore-button{display:flex;align-items:center;flex-direction:column;gap:13px;padding:4px 20px 10px;border:0;background:transparent;color:#e9e2d7;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.yl-explore-orb{display:grid;place-items:center;width:96px;height:96px;border-radius:50%;border:1px solid #b4d3ba9c;background:radial-gradient(circle at 38% 29%,#b6d9c525,#a6d5b20c 68%,#ffffff03);box-shadow:0 0 0 9px #b5d3bd08,0 0 34px #a8d1b823;transition:transform .32s ease,box-shadow .32s ease}
+.yl-explore-orb svg{width:37px;height:37px;color:#b7dcc4;filter:drop-shadow(0 0 8px #a8d1b846)}
+.yl-explore-button:hover .yl-explore-orb,.yl-explore-button:focus-visible .yl-explore-orb{transform:scale(1.055);box-shadow:0 0 0 11px #b5d3bd0d,0 0 43px #a8d1b847}
+.yl-explore-button:active .yl-explore-orb{transform:scale(.94)}
+.yl-explore-button:focus-visible{outline:2px solid #dec7a5;outline-offset:5px;border-radius:20px}
+.yl-explore-label{font:600 13px 'DM Sans',sans-serif;letter-spacing:.08em}
+.yl-explore-hint{font:400 11px/1.6 'DM Sans',sans-serif;color:#999589;text-align:center;margin:8px 0 0}
+.v32-discover .yl-thread-simple h2.yl-thread-insight,.v32-discover .yl-thread-simple h2.yl-thread-reflection{font:500 clamp(29px,7.2vw,39px)/1.17 'Cormorant Garamond',Georgia,serif;letter-spacing:-.014em;color:#f4ece1;margin:5px 0 25px}
+.yl-explore-next{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin-top:auto}
+.yl-explore-secondary{min-height:54px;display:flex;align-items:center;justify-content:space-between;text-align:left;padding:13px 18px;border:1px solid #dbc5a4;border-radius:16px;background:#dfcbaa;color:#28221c;font:600 13px 'DM Sans',sans-serif;cursor:pointer}
+.yl-explore-secondary span:last-child{font-size:18px}
+.yl-explore-plain{min-height:46px;border:1px solid #b7ab9557;border-radius:14px;background:#ffffff07;color:#e3d2b7;padding:10px 13px;font:500 12px 'DM Sans',sans-serif;cursor:pointer}
+.yl-explore-quiet{min-height:42px;border:0;background:transparent;color:#a49d92;padding:8px;font:400 12px 'DM Sans',sans-serif;cursor:pointer}
+.yl-explore-reflection-note{text-align:left;margin:-9px 0 25px;max-width:350px;line-height:1.7}
+@media(max-width:700px){.yl-thread-simple{min-height:270px}.yl-explore-invitation{margin-top:24px}.yl-explore-orb{width:88px;height:88px}}
+@media(prefers-reduced-motion:reduce){.yl-explore-orb{transition:none!important}}
