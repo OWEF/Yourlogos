@@ -84,3 +84,12 @@
 .yl-thread-gentle .yl-thread-soft-note{max-width:310px;color:#a7a198;font:400 12px/1.65 'DM Sans',sans-serif;margin:0 0 2px}
 @media(max-width:390px){.yl-reaction-grid{gap:8px}.yl-reaction{min-height:106px;padding:10px 5px;border-radius:19px}.yl-reaction-glyph{width:47px;height:47px}.yl-reaction-glyph svg{width:25px;height:25px}.yl-reaction-name{font-size:9px;letter-spacing:.03em}}
 @media(prefers-reduced-motion:reduce){.yl-reaction{transition:none!important}.yl-reaction:hover{transform:none}}
+
+/* A first reaction brings an immediate moment of insight. Exploring farther is voluntary. */
+.yl-thread-gentle[data-thread-step="1"] .yl-thread-question.yl-reaction-insight{font-size:clamp(30px,7.5vw,40px);margin:10px 0 28px!important;line-height:1.16}
+.yl-reaction-next{display:flex;flex-direction:column;gap:8px;align-items:center;max-width:410px}
+.yl-reaction-continue{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:55px;padding:13px 18px;background:#dec7a5;border:1px solid #dec7a5;border-radius:16px;color:#28201b;font:600 13px 'DM Sans',sans-serif;text-align:left}
+.yl-reaction-continue span{font-size:17px}
+.yl-reaction-continue:hover{background:#e8d5b7}
+.yl-reaction-continue:active{transform:scale(.98)}
+.yl-reaction-next .yl-thread-back{margin:0}
