@@ -1,4 +1,5 @@
 import { resolveTension, findDestination } from "./tension-engine.js";
+import { exploreFor } from "./explore-catalogue.js";
 // YourLogos V3.3 — Question threads.
 // Small editorial graph: a proposition, three genuine counter-moves, one follow-up,
 // then an optional doorway to a curated Library tradition. No grading or scores.
@@ -100,48 +101,39 @@ const REACTION_HELP=[
   "Find a different way to see it"
 ];
 
-export function thoughtThreadHtml({quote,quoteId=null,step=0,branchIndex=0,answerIndex=0}){
+export function thoughtThreadHtml({quote,quoteId=null,step=0}){
+  const exploration=exploreFor(quote,quoteId);
   const thread=getThoughtThread(quote,quoteId);
-  if(!thread.curated && Number.isInteger(quoteId))
-    return '<div class="yl-thread yl-thread-pending" role="status"><div class="yl-thread-progress">AN OPEN QUESTION</div><h2 class="yl-thread-question">'+esc(thread.question)+'</h2><p>'+esc(thread.message)+'</p><button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';
-  const selected=thread.branches[branchIndex]||thread.branches[0];
-  const choice=selected.answers[answerIndex]||selected.answers[0];
-  const gesture=(i)=>'<button type="button" class="yl-reaction yl-tone-'+MOVES[i].color+'" data-thread-branch="'+i+'" title="'+esc(REACTION_HELP[i])+'" aria-label="'+esc(REACTION_HELP[i])+'">'+
-    '<span class="yl-reaction-glyph">'+REACTION_ICONS[i]+'</span>'+
-    '<span class="yl-reaction-name">'+esc(MOVES[i].label)+'</span></button>';
-  return '<div class="yl-thread yl-thread-gentle" data-thread-step="'+step+'">'+
-    (step===0?
-      '<div class="yl-thread-progress">01 <span>—</span> A LITTLE QUESTION</div>'+
+  if(!exploration){
+    return '<div class="yl-thread yl-thread-pending" role="status">'+
+      '<div class="yl-thread-progress">AN OPEN QUESTION</div>'+
       '<h2 class="yl-thread-question">'+esc(thread.question)+'</h2>'+
-      '<p class="yl-reaction-prompt">Where would you like to go?</p>'+
-      '<div class="yl-reaction-grid" role="group" aria-label="Three ways to explore this question">'+
-        MOVES.map((_,i)=>gesture(i)).join("")+'</div>'+
-      '<p class="yl-reaction-footnote">No right answer. Just curiosity.</p>':
+      '<p>'+esc(thread.message||"We're preparing a thoughtful exploration for this quotation.")+'</p>'+
+      '<button type="button" class="yl-thread-back" data-action="close-discover">Return to quote</button></div>';
+  }
+  return '<div class="yl-thread yl-thread-simple" data-thread-step="'+step+'">'+
+    (step===0?
+      '<div class="yl-thread-progress">A LITTLE QUESTION</div>'+
+      '<h2 class="yl-thread-question">'+esc(thread.question)+'</h2>'+
+      '<div class="yl-explore-invitation"><button type="button" class="yl-explore-button" data-action="thread-explore" aria-label="Explore this thought">'+
+      '<span class="yl-explore-orb" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="m24 5 4.8 14.2L43 24l-14.2 4.8L24 43l-4.8-14.2L5 24l14.2-4.8L24 5Z" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round"/><circle cx="24" cy="24" r="3" fill="currentColor"/></svg></span>'+
+      '<span class="yl-explore-label">Explore</span></button></div>'+
+      '<p class="yl-explore-hint">One thought. No right answers.</p>':
     step===1?
-      '<div class="yl-thread-progress">A DIFFERENT ANGLE</div>'+
-      '<div class="yl-thread-remember">'+esc(thread.question)+'</div>'+
-      '<div class="yl-thread-selected yl-tone-'+MOVES[branchIndex].color+'">'+REACTION_ICONS[branchIndex]+'<span>'+esc(MOVES[branchIndex].label)+'</span></div>'+
-      '<h2 class="yl-thread-question yl-reaction-insight">'+esc(selected.title)+'</h2>'+
-      '<div class="yl-reaction-next"><button type="button" class="yl-reaction-continue" data-action="thread-deepen">Go a little deeper <span aria-hidden="true">↗</span></button>'+
-      '<button type="button" class="yl-thread-back" data-action="thread-back">← Another angle</button></div>':
-    step===2?
-      '<div class="yl-thread-progress">LOOK A LITTLE CLOSER</div>'+
-      '<div class="yl-thread-remember">'+esc(thread.question)+'</div>'+
-      '<h2 class="yl-thread-question yl-thread-followup-question">'+esc(selected.followup)+'</h2>'+
-      '<div class="yl-thread-choices yl-followup" role="group" aria-label="Choose what to explore next">'+selected.answers.map((a,i)=>
-         '<button type="button" data-thread-answer="'+i+'" class="yl-thread-choice yl-tone-'+MOVES[branchIndex].color+'"><span class="yl-choice-stripe" aria-hidden="true"></span><span class="yl-choice-content"><strong>'+esc(a.label)+'</strong></span><span aria-hidden="true" class="yl-choice-arrow">↗</span></button>').join("")+'</div>'+
-      '<button type="button" class="yl-thread-back" data-action="thread-back">← Back</button>':
-      '<div class="yl-thread-ending" role="status" aria-live="polite" tabindex="-1">'+
-        '<div class="yl-thread-seed" aria-hidden="true">✳</div>'+
-        '<div class="yl-thread-progress">A NEW PERSPECTIVE</div>'+
-        '<h2 class="yl-thread-result">'+esc(choice.insight)+'</h2>'+
-        '<p class="yl-thread-soft-note">You can carry this thought with you—or leave it here.</p>'+
-        '<button type="button" data-action="discover-library" class="yl-thread-library">Explore a little further ↗</button>'+
-        '<button type="button" data-action="thread-restart" class="yl-thread-restart">Another way to see it</button>'+
-      '</div>')+
+      '<div class="yl-thread-progress">A DIFFERENT PERSPECTIVE</div>'+
+      '<h2 class="yl-thread-insight">'+esc(exploration.insight)+'</h2>'+
+      '<div class="yl-explore-next">'+
+      '<button type="button" class="yl-explore-secondary" data-action="thread-reflect"><span>Make it personal</span><span aria-hidden="true">↗</span></button>'+
+      '<button type="button" class="yl-explore-plain" data-action="discover-library">Explore the philosophy <span aria-hidden="true">↗</span></button>'+
+      '<button type="button" class="yl-explore-quiet" data-action="close-discover">That's enough for now</button></div>':
+      '<div class="yl-thread-progress">YOUR TURN, IF YOU LIKE</div>'+
+      '<h2 class="yl-thread-reflection">'+esc(exploration.reflection)+'</h2>'+
+      '<p class="yl-explore-hint yl-explore-reflection-note">You don't have to answer. Just notice what comes to mind.</p>'+
+      '<div class="yl-explore-next"><button type="button" class="yl-explore-secondary" data-action="discover-library"><span>Explore the philosophy</span><span aria-hidden="true">↗</span></button>'+
+      '<button type="button" class="yl-explore-plain" data-action="thread-back">← Back to the thought</button>'+
+      '<button type="button" class="yl-explore-quiet" data-action="close-discover">Done for today</button></div>')+
     '</div>';
 }
-
 export function thoughtThreadDestination(quote,branchIndex,answerIndex,quoteId=null){
  const curated=findDestination(quote,quoteId,branchIndex,answerIndex);
  if(curated)return curated.school;
