@@ -51,10 +51,15 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  }
  if(c.error)html+='<p class="yl-ai-error" role="status">'+esc(c.error)+'</p>'+
    '<button type="button" data-ai="cancel" class="yl-ai-secondary">Continue privately</button>';
- html+='<label class="yl-ai-visually-hidden" for="yl-ai-draft">Your response</label>'+
-   '<textarea id="yl-ai-draft" class="yl-living-textarea yl-ai-draft" maxlength="480" rows="2" placeholder="What do you think?">'+esc(c.draft)+'</textarea>'+
-   '<button type="button" data-ai="send" class="yl-ai-main"'+(c.loading?' disabled':'')+'>'+
-     (latest?'Respond':'Explore')+' <span aria-hidden="true">↗</span></button>'+
+ if(latest?.choices?.length){
+  html+='<div class="yl-ai-stance-list" role="group" aria-label="Choose a direction">'+
+  latest.choices.slice(0,3).map((choice,i)=>'<button type="button" data-ai-choice="'+i+'" class="yl-ai-stance"'+(c.loading?' disabled':'')+'><span>'+esc(cleanText(choice,82))+'</span><span aria-hidden="true">↗</span></button>').join('')+
+  '</div>';
+ }else if(!c.loading){
+  html+='<div class="yl-ai-stance-list" role="group" aria-label="Choose a direction">'+
+  ['I’m intrigued','I doubt it','Show me another angle'].map((label,i)=>'<button type="button" data-ai-choice="'+i+'" class="yl-ai-stance"><span>'+esc(label)+'</span><span aria-hidden="true">↗</span></button>').join('')+
+  '</div>';
+ }
    '<div class="yl-ai-footnotes">'+
    (latest?'<button type="button" data-ai="save" class="yl-ai-secondary">Keep this thread</button>':'')+
    '<button type="button" data-ai="revoke" class="yl-ai-secondary">Private mode</button>'+
