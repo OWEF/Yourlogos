@@ -8,8 +8,9 @@ import { exploreFor } from "./explore-catalogue.js";
 import { personalizedExplore } from "./personalization.js";
 import { livingHtml, normalizeLivingState, beginLiving, transitionLiving, noteLiving, openingLiving, archiveLiving } from "./living-threads.js";
 import { buildWorldMemory, worldMemoryHtml } from "./world-memory.js";
+import { aiConversationHtml, safeAIConversation, aiMemoryChoices, aiSummary, cleanText } from "./discover-ai-client.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
-import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
+import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName, getDiscoverAccessToken } from "./auth-client.js";
 const QUOTES=[
 ["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning","Twilight of the Idols","What, if anything, gives hardship a direction?"],
 ["Man is the only creature who refuses to be what he is.","Albert Camus","Freedom","The Rebel","What in yourself are you refusing today?"],
@@ -126,6 +127,7 @@ const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{retur
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let bridgeFromQuestion=null;
+let aiDiscoverEnabled=false,aiDiscoverMode=false,aiConversation=null;
 let settingsReturnScrollY=0;
 let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
@@ -138,6 +140,8 @@ let libraryListScrollY=0;
 let keepPending=null,keepTimer=null;
 if(!Array.isArray(data.thoughtThreadEvents))data.thoughtThreadEvents=[];
 data.livingThreads=normalizeLivingState(data.livingThreads);
+if(!Array.isArray(data.aiDiscoverThreads))data.aiDiscoverThreads=[];
+data.aiDiscoverThreads=data.aiDiscoverThreads.filter(x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<91).slice(-30);
 // A return is a gentle, optional act of presence; not a competitive streak.
 if(!Array.isArray(data.arrivals))data.arrivals=[];
 data.arrivals=[...new Set(data.arrivals.filter(x=>typeof x==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x)))].slice(-730);
@@ -284,7 +288,10 @@ function discoverHtml(){
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
-      livingHtml({quote:q,id,session:data.livingThreads.sessions[String(id)]||null,profile:data.personalization,history:data.livingThreads.history,memory:sharedWorldMemory()})+
+      (aiDiscoverEnabled&&aiDiscoverMode?
+        aiConversationHtml({quote:q,conversation:safeAIConversation(aiConversation,id),available:aiDiscoverEnabled,authenticated:Boolean(verifiedIdentity)}):
+        livingHtml({quote:q,id,session:data.livingThreads.sessions[String(id)]||null,profile:data.personalization,history:data.livingThreads.history,memory:sharedWorldMemory()})+
+        (aiDiscoverEnabled?'<button type="button" data-ai="launch" class="yl-ai-launch">✧ Try an open-ended AI conversation</button>':''))+
     '</section>';
 }
 
@@ -705,6 +712,54 @@ document.addEventListener("click",async e=>{
   const fil=e.target.closest("[data-filter]");if(fil){selectedTheme=fil.dataset.filter;render();return}
   const scope=e.target.closest("[data-scope]");if(scope){libraryScope=scope.dataset.scope;render();return}
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
+  const aiAction=e.target.closest("[data-ai]");
+  if(aiAction&&discoverOpen&&aiDiscoverEnabled){
+    const id=visibleQuoteId(),q=QUOTES[id],action=aiAction.dataset.ai;
+    if(id===null||!q)return;
+    if(action==="launch"){aiConversation=safeAIConversation(aiConversation,id);aiDiscoverMode=true;render();return}
+    if(!aiConversation||aiConversation.quoteId!==id)return;
+    if(action==="cancel"||action==="revoke"){aiDiscoverMode=false;aiConversation=null;render();return}
+    if(action==="agree"){
+      if(!verifiedIdentity){toast("Please sign in through Profile to enable AI dialogue.");return}
+      aiConversation.consent=true;render();return;
+    }
+    if(!aiConversation.consent)return;
+    if(action==="save"){
+      const summary=aiSummary(aiConversation,q,today());
+      if(!summary){toast("Explore a little more before saving.");return}
+      data.aiDiscoverThreads=[...data.aiDiscoverThreads.filter(x=>x.id!==summary.id),summary].slice(-30);
+      persist();toast("Conversation saved to My World");render();return;
+    }
+    if(action==="send"){
+      if(aiConversation.loading)return;
+      const pendingText=cleanText(document.getElementById("yl-ai-draft")?.value||aiConversation.draft,480);
+      const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role+": "+m.text);
+      const memory=aiMemoryChoices(sharedWorldMemory());
+      const currentConversation=aiConversation;
+      currentConversation.loading=true;currentConversation.error="";render();
+      try{
+        const token=await getDiscoverAccessToken();
+        if(!token)throw Error("Sign in through Profile to try AI Discover.");
+        const reply=await fetch("/api/discover-ai",{
+          method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},
+          body:JSON.stringify({consent:true,quoteId:id,quote:{text:q[0],author:q[1],theme:q[2]},
+            memory,history:requestHistory,userText:pendingText,turn:currentConversation.messages.filter(m=>m.role==="assistant").length})
+        });
+        if(!reply.ok)throw Error(reply.status===429?"You've reached the AI conversation limit for today.":reply.status===401?"Please sign in again.":"The AI conversation is unavailable at the moment.");
+        const next=await reply.json();
+        if(!next.reply||!next.followUp)throw Error("The response was incomplete. Please try again.");
+        if(aiConversation!==currentConversation||!aiDiscoverMode)return;
+        if(pendingText)currentConversation.messages.push({role:"user",text:pendingText});
+        currentConversation.messages.push({role:"assistant",text:cleanText(next.reply,850),followUp:cleanText(next.followUp,300)});
+        currentConversation.messages=currentConversation.messages.slice(-12);
+        currentConversation.draft="";
+      }catch(err){
+        if(aiConversation===currentConversation)currentConversation.error=String(err.message||"AI is unavailable");
+      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen)render()}
+      return;
+    }
+    return;
+  }
   const livingAction=e.target.closest("[data-living]");
   if(livingAction&&discoverOpen){
     const id=visibleQuoteId(),q=QUOTES[id],key=String(id);
@@ -778,7 +833,8 @@ document.addEventListener("click",async e=>{
             started:Boolean(remote.state.started),
             localName:originalName||remote.name||"",
             personalization:remote.state.personalization&&["completed","skipped"].includes(remote.state.personalization.status)?remote.state.personalization:data.personalization,
-            livingThreads:normalizeLivingState(remote.state.livingThreads)
+            livingThreads:normalizeLivingState(remote.state.livingThreads),
+            aiDiscoverThreads:Array.isArray(remote.state.aiDiscoverThreads)?remote.state.aiDiscoverThreads.filter(x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<QUOTES.length).slice(-30):[]
           };
           data={...data,...safe};persist();
           if(Array.isArray(remote.state.cosmosEvents)){
@@ -848,9 +904,9 @@ document.addEventListener("click",async e=>{
     case"view-saved-from-encounter":{
       view="library";libraryScope="liked";openSchoolId=null;render();return;
     }
-    case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
+    case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;aiDiscoverMode=false;aiConversation=null;discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
     case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
-    case"close-discover":discoverOpen=false;discoverStep=0;render();document.querySelector('[data-action="discover"]')?.focus();return;
+    case"close-discover":discoverOpen=false;discoverStep=0;aiDiscoverMode=false;aiConversation=null;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(id===null)return;const next=followingThought(daySequence(),id,[...data.saved,id]);if(!data.saved.includes(id)){data.saved.push(id);persist();}quoteCursor=next.cursor;discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
@@ -876,7 +932,7 @@ document.addEventListener("click",async e=>{
     }
     case"clear-discovery":settingsConfirm=true;render();return;
     case"cancel-clear-discovery":settingsConfirm=false;render();return;
-    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];data.thoughtThreadEvents=[];data.livingThreads=normalizeLivingState(null);settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
+    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];data.thoughtThreadEvents=[];data.livingThreads=normalizeLivingState(null);data.aiDiscoverThreads=[];settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
     case"back":detailId=null;break;
     case"export":{
       const universe=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();
@@ -887,6 +943,7 @@ document.addEventListener("click",async e=>{
   persist();render();
 });
 document.addEventListener("input",e=>{
+ if(e.target.id==="yl-ai-draft"&&aiDiscoverMode&&aiConversation){aiConversation.draft=cleanText(e.target.value,480);return}
  if(!discoverOpen||!["yl-living-note","yl-living-opening"].includes(e.target.id))return;
  const id=visibleQuoteId(),key=String(id),current=data.livingThreads.sessions[key];
  const updated=e.target.id==="yl-living-opening"?openingLiving(current,e.target.value):noteLiving(current,e.target.value);
@@ -954,6 +1011,10 @@ async function refreshPublicQuoteCatalogue(){
  }catch(error){console.warn("YourLogos: cached quote catalogue remains available.",error?.message||error)}
 }
 
+// The AI pilot is opt-in and hidden unless the backend confirms credentials and a feature flag.
+fetch("/api/discover-ai-config",{cache:"no-store"})
+  .then(r=>r.ok?r.json():{enabled:false}).then(info=>{aiDiscoverEnabled=info?.enabled===true;if(discoverOpen)render()})
+  .catch(()=>{aiDiscoverEnabled=false});
 window.addEventListener("yourlogos:onboarding-complete",event=>{
   const incoming=event.detail?.profile;
   if(!incoming||!["completed","skipped"].includes(incoming.status))return;

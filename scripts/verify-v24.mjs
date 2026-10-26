@@ -214,4 +214,38 @@ assert.notEqual(memoryForQuote(myWorldMemory,QUOTES[memorySameTheme],memorySameT
                 "Two users with different histories must not receive the same remembered words");
 assert.ok(!worldMemoryHtml(myWorldMemory).includes("<script>"),"My World escapes private note content");
 
+// AI Discover is disabled without server credentials and explicit opt-in.
+// Neither the key nor raw memory may be exposed in static /api/public-config.
+const aiClientSource=read("discover-ai-client.js"),aiServerSource=read("discover-ai-server.mjs"),serverSource=read("server.mjs");
+for(const [name,source] of [["discover-ai-client",aiClientSource],["discover-ai-server",aiServerSource]]){
+ new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
+}
+const {makeDiscoverPrompt,validateDiscoverTurn,discoverAIEnabled}=await import("../discover-ai-server.mjs");
+const {newAIConversation,aiSummary,aiMemoryChoices,aiConversationHtml}=await import("../discover-ai-client.js");
+assert.equal(discoverAIEnabled(),false,"AI must stay disabled until owner configures credentials and explicitly enables it");
+const dataForAI={quoteId:63,quote:{text:QUOTES[63][0],author:QUOTES[63][1],theme:QUOTES[63][2]},
+ turn:2,userText:"I want to change, but I am afraid of losing who I am.",memory:["I used to be afraid of being alone."]};
+const prompt=makeDiscoverPrompt(dataForAI);
+assert.ok(prompt.system.includes("provocative")&&prompt.system.includes("revise"),"The AI should invite challenging, responsive philosophical thinking");
+assert.equal(prompt.context.userWords,dataForAI.userText);
+assert.equal(prompt.context.pastVoluntaryReflections.length,1);
+assert.ok(!prompt.system.includes("OPENAI_API_KEY"));
+assert.deepEqual(validateDiscoverTurn({reply:"You might be protecting an old identity because it has kept you safe.",followUp:"What would you risk by changing it?"}).followUp,"What would you risk by changing it?");
+assert.equal(newAIConversation(12).consent,false,"No background submission or implied consent");
+const aiMemory=aiMemoryChoices({threads:[{opening:"A remembered thought"},{note:"A different memory"}]});
+assert.equal(aiMemory.length,2);
+const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",text:"I want more freedom"},{role:"assistant",text:"Freedom often costs more than we first expect.",followUp:"What would that cost you?"}]};
+const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
+assert.ok(aiCard.includes("I want more freedom")&&aiCard.includes("What would that cost you?"));
+assert.ok(!aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:false,authenticated:true}),"Feature flag hides AI when disabled");
+const savedAI=aiSummary(artificial,QUOTES[63],"2026-10-27");
+assert.equal(savedAI.note,"I want more freedom");
+assert.equal(savedAI.kind,"ai");
+assert.ok(app.includes('data-ai="launch"')&&app.includes('"/api/discover-ai"'),"AI client is reachable from Discover only behind feature flag");
+assert.ok(serverSource.includes('"/api/discover-ai"')&&serverSource.includes('handleDiscoverAI(req,res)'));
+assert.ok(!serverSource.includes('process.env.OPENAI_API_KEY'),"Static public config must never include the secret API key");
+assert.ok(aiServerSource.includes("getUser")===false&&aiServerSource.includes('/auth/v1/user'),"Supabase verifies bearer token");
+assert.ok(aiServerSource.includes("store:false")&&aiServerSource.includes("daily_or_rate_limit"),"Provider must not store outputs and server enforces budget");
+assert.ok(sw.includes('"/discover-ai-client.js"'),"Offline shell loads without AI network access");
+
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");

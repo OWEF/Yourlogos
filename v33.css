@@ -139,3 +139,21 @@
 .yl-living-choice.yl-living-primary svg{color:#252019}
 .yl-living-memory{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:700px){.yl-world-memory{margin:12px 16px 30px}}
+
+/* Optional living AI dialogue stays in Discover's existing sheet. */
+.yl-ai-experiment{display:flex;flex-direction:column;gap:17px;margin:4px 0 12px;min-height:260px}
+.yl-ai-eyebrow{color:#bad2c2;letter-spacing:.14em;font:600 10px 'DM Sans',sans-serif}
+.yl-ai-title{font:500 clamp(27px,7vw,37px)/1.15 'Cormorant Garamond',Georgia,serif;color:#f1e8dc;margin:6px 0 0}
+.yl-ai-experiment>p{color:#b9b0a2;font:400 13px/1.65 'DM Sans',sans-serif}
+.yl-ai-main{border:1px solid #e3ccaa;background:#e3ccaa;color:#30261c;padding:15px 18px;border-radius:16px;display:flex;justify-content:space-between;align-items:center;min-height:52px;font:600 13px 'DM Sans',sans-serif}
+.yl-ai-main:disabled,.yl-ai-secondary:disabled{opacity:.45}
+.yl-ai-secondary{color:#b7c7bd;background:transparent;border:0;padding:12px 7px;min-height:43px;font:500 12px 'DM Sans',sans-serif}
+.yl-ai-dialogue{display:flex;flex-direction:column;gap:12px;max-height:45dvh;overflow-y:auto;overscroll-behavior:contain}
+.yl-ai-intro{font:400 25px/1.23 'Cormorant Garamond',Georgia,serif;color:#e5d5c1;margin:12px 0}
+.yl-ai-message{padding:14px 15px;border-radius:16px;background:#ffffff08;border:1px solid #ffffff26}
+.yl-ai-message.is-user{border-color:#a8d1b855;background:#a8d1b810}
+.yl-ai-speaker{font:600 10px 'DM Sans',sans-serif;letter-spacing:.12em;color:#aed0b7}
+.yl-ai-message p{font:400 14px/1.6 'DM Sans',sans-serif;color:#e9e3d9;margin:8px 0}
+.yl-ai-followup{font:400 22px/1.25 'Cormorant Garamond',Georgia,serif;color:#dec9aa;margin-top:12px}
+.yl-ai-loading,.yl-ai-error{color:#c7b6a1;font:400 12px 'DM Sans',sans-serif}
+.yl-ai-launch{width:100%;margin-top:14px;min-height:48px;border:1px solid #a8d1b87a;border-radius:14px;background:#a8d1b809;color:#bfd6c7;font:500 12px 'DM Sans',sans-serif}

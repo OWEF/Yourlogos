@@ -20,6 +20,13 @@ export async function getVerifiedIdentity(){
  if(error||!data?.user)return null;
  return {id:data.user.id,email:data.user.email,displayName:data.user.user_metadata?.display_name||""};
 }
+export async function getDiscoverAccessToken(){
+ if(!AUTH_ENABLED)return null;
+ const c=await client();
+ const {data,error}=await c.auth.getSession();
+ if(error||!data?.session?.access_token)return null;
+ return data.session.access_token;
+}
 export async function signOutEmail(){
  if(!AUTH_ENABLED)return;
  const c=await client();const {error}=await c.auth.signOut();
@@ -56,7 +63,7 @@ export async function writeAccountData(snapshot){
   if(!identity)throw new Error("Verify your email account before saving data.");
   if(!snapshot || typeof snapshot!=="object" || Array.isArray(snapshot))throw new Error("Invalid account data");
   const safe={};
-  for(const k of ["saved","practice","discovery","themes","arrivals","started","cosmosEvents","personalization","livingThreads","encounterEvents","thoughtThreadEvents","encounters"]){
+  for(const k of ["saved","practice","discovery","themes","arrivals","started","cosmosEvents","personalization","livingThreads","encounterEvents","thoughtThreadEvents","encounters","aiDiscoverThreads"]){
     if(Object.prototype.hasOwnProperty.call(snapshot,k))safe[k]=snapshot[k];
   }
   const serialized=JSON.stringify(safe);
