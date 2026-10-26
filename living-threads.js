@@ -4,6 +4,7 @@
 import { getThoughtThread } from "./thought-threads.js";
 import { personalizedExplore, CONCERNS } from "./personalization.js";
 import { exploreFor } from "./explore-catalogue.js";
+import { memoryForQuote, matchWorldMemory } from "./world-memory.js";
 
 export const LIVING_VERSION=1;
 const THEME_START={
@@ -27,6 +28,7 @@ export function normalizeLivingState(value){
  const history=Array.isArray(v.history)?v.history.filter(x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<91&&
    Object.hasOwn(CONCERNS,x.focus)&&["close","unsure","turn"].includes(x.reaction)&&typeof x.question==="string").slice(-45).map(x=>({
    id:safePhrase(x.id,90),quoteId:x.quoteId,theme:safePhrase(x.theme,30),focus:x.focus,reaction:x.reaction,
+   opening:safePhrase(x.opening,240),
    question:safePhrase(x.question,230),date:safePhrase(x.date,10),note:safePhrase(x.note,240)
  })):[];
  const sessions={};
@@ -37,7 +39,7 @@ export function normalizeLivingState(value){
      sessions[key]={id:safePhrase(s.id,90),quoteId:s.quoteId,theme:safePhrase(s.theme,30),date:safePhrase(s.date,10),
        phase:s.phase,focus:Object.hasOwn(CONCERNS,s.focus)?s.focus:null,
        reaction:Object.hasOwn(REACTIONS,s.reaction)?s.reaction:null,
-       note:safePhrase(s.note,240),revision:Math.min(5,Math.max(0,Number(s.revision)||0)),
+       note:safePhrase(s.note,240),opening:safePhrase(s.opening,240),revision:Math.min(5,Math.max(0,Number(s.revision)||0)),
        carried:Boolean(s.carried)};
    }
  }
@@ -48,13 +50,14 @@ export function beginLiving(quote,id,date,old=null){
  if(!validQuote(quote,id))return null;
  if(old&&old.quoteId===id&&old.phase!=="done")return old;
  return {id:id+":"+stableDate(date),quoteId:id,theme:quote[2],date:stableDate(date),phase:"focus",
-   focus:null,reaction:null,note:"",revision:0,carried:false};
+   focus:null,reaction:null,note:"",opening:"",revision:0,carried:false};
 }
-export function focusChoices(quote,profile,history=[]){
+export function focusChoices(quote,profile,history=[],memory=null){
  const user=answers(profile);
  const selected=Array.isArray(user.concerns)?user.concerns.filter(k=>Object.hasOwn(CONCERNS,k)).slice(0,3):[];
  const previous=Array.isArray(history)?[...history].reverse().filter(h=>h?.theme===quote?.[2]&&Object.hasOwn(CONCERNS,h.focus)): [];
- const ids=[...new Set([...selected,...previous.map(h=>h.focus),...(THEME_START[quote?.[2]]||THEME_START.Meaning)])].slice(0,4);
+ const remembered=memory?.threads?.filter(h=>h?.theme===quote?.[2]&&Object.hasOwn(CONCERNS,h.focus)).slice(-2).map(h=>h.focus)||[];
+ const ids=[...new Set([...remembered,...selected,...previous.map(h=>h.focus),...(THEME_START[quote?.[2]]||THEME_START.Meaning)])].slice(0,3);
  return ids.map(id=>({id,label:CONCERNS[id].label}));
 }
 function relevantMemory(history,quote,focus){
@@ -69,10 +72,16 @@ function localProfile(profile,focus){
 function threadContext(quote,id,profile,focus,history){
  return personalizedExplore(quote,id,localProfile(profile,focus),history)||exploreFor(quote,id);
 }
-export function transitionLiving(session,action,{quote,profile,history=[]}={}){
+export function transitionLiving(session,action,{quote,profile,history=[],memory=null}={}){
  if(!session||!validQuote(quote,session.quoteId))return null;
- const next={...session},choices=focusChoices(quote,profile,history);
+ const next={...session},choices=focusChoices(quote,profile,history,memory);
  if(next.phase==="focus"){
+   if(action==="own-voice"){
+     if(!next.opening.trim())return null;
+     const carry=memoryForQuote(memory,quote,next.quoteId);
+     next.focus=carry.focus&&Object.hasOwn(CONCERNS,carry.focus)?carry.focus:choices[0]?.id||"identity";
+     next.reaction=null;next.phase="mirror";return next;
+   }
    if(!action.startsWith("focus:"))return null;
    const focus=action.slice(6);
    if(!choices.some(x=>x.id===focus))return null;
@@ -99,6 +108,10 @@ export function transitionLiving(session,action,{quote,profile,history=[]}={}){
  if(next.phase==="done"&&action==="revisit"){return beginLiving(quote,session.quoteId,session.date+"-again");}
  return null;
 }
+export function openingLiving(session,text){
+ if(!session||session.phase!=="focus")return null;
+ return {...session,opening:safePhrase(text,240)};
+}
 export function noteLiving(session,text){
  if(!session||!["reflection","summary"].includes(session.phase))return null;
  return {...session,note:safePhrase(text,240)};
@@ -108,16 +121,17 @@ export function archiveLiving(history,session,quote,profile){
  const response=threadContext(quote,session.quoteId,profile,session.focus,history);
  const entry={id:session.id,quoteId:session.quoteId,theme:quote[2],focus:session.focus,
    reaction:session.reaction,question:safePhrase(response?.reflection||getThoughtThread(quote,session.quoteId).question,230),
-   date:session.date,note:safePhrase(session.note,240)};
+   date:session.date,note:safePhrase(session.note,240),opening:safePhrase(session.opening,240)};
  return [...(Array.isArray(history)?history.filter(x=>x?.id!==entry.id):[]),entry].slice(-45);
 }
 function button(action,text,variant=""){
  return '<button type="button" class="yl-living-choice '+variant+'" data-living="'+esc(action)+'"><span>'+esc(text)+'</span><span aria-hidden="true">↗</span></button>';
 }
-export function livingHtml({quote,id,session,profile,history=[]}){
+export function livingHtml({quote,id,session,profile,history=[],memory=null}){
  if(!validQuote(quote,id))return '<div class="yl-thread yl-thread-pending" role="status"><p>This quotation does not have a reviewed Discover conversation yet.</p></div>';
  const thread=getThoughtThread(quote,id);
- const recall=(Array.isArray(history)?[...history].reverse():[]).find(x=>x?.quoteId!==id);
+ const recall=matchWorldMemory(memory,quote,id);
+ const entry=memoryForQuote(memory,quote,id);
  const front='<div class="yl-thread yl-living" data-living-phase="'+esc(session?.phase||"entry")+'">';
  if(!session)return front+
    '<div class="yl-thread-progress">A QUESTION WORTH FOLLOWING</div>'+
@@ -126,7 +140,9 @@ export function livingHtml({quote,id,session,profile,history=[]}){
    '<div class="yl-explore-invitation"><button type="button" class="yl-explore-button" data-action="thread-explore" aria-label="Explore this thought"><span class="yl-explore-orb" aria-hidden="true">✧</span><span class="yl-explore-label">Explore</span></button></div>'+
    '<p class="yl-explore-hint">Your answers shape where this goes.</p></div>';
  const prefix='<div class="yl-living-kicker"><span class="yl-living-orbit" aria-hidden="true">✧</span> YOUR THREAD <span class="yl-living-dot">·</span> '+esc((session.phase==="done"?"KEPT":session.phase==="focus"?"WHERE TO BEGIN":session.phase==="mirror"?"A CONNECTION":session.phase==="response"?"FOLLOWING YOUR RESPONSE":session.phase==="reflection"?"STAY WITH IT":"A THREAD TO CARRY"))+'</div>';
- const memory=relevantMemory(history,quote,session.focus);
+ const oldMemory=relevantMemory(history,quote,session.focus);
+ const memoryNote=recall?.opening||recall?.note||"";
+ const opening=session.opening?.trim()||"";
  if(session.phase==="focus"){
    const options=focusChoices(quote,profile,history);
    return front+prefix+'<h2 class="yl-living-title">'+esc(thread.question)+'</h2>'+
