@@ -60,7 +60,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   ['I’m intrigued','I doubt it','Show me another angle'].map((label,i)=>'<button type="button" data-ai-choice="'+i+'" class="yl-ai-stance"><span>'+esc(label)+'</span><span aria-hidden="true">↗</span></button>').join('')+
   '</div>';
  }
-   '<div class="yl-ai-footnotes">'+
+ html+='<div class="yl-ai-footnotes">'+
    (latest?'<button type="button" data-ai="save" class="yl-ai-secondary">Keep this thread</button>':'')+
    '<button type="button" data-ai="revoke" class="yl-ai-secondary">Private mode</button>'+
    '</div></section>';
