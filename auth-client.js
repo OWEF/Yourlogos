@@ -25,12 +25,9 @@ export async function getDiscoverAccessToken(){
  const c=await client();
  const {data,error}=await c.auth.getSession();
  if(error)throw error;
- if(data?.session?.access_token)return data.session.access_token;
- // Only called after explicit consent inside Discover. This is a temporary
- // authenticated identity, NOT an email-verified account or cloud sync.
- const {data:anon,error:anonymousError}=await c.auth.signInAnonymously();
- if(anonymousError)throw new Error("Private sign-in is unavailable. Open Profile to sign in by email, or enable anonymous sign-ins in YourLogos Supabase Auth settings.");
- return anon?.session?.access_token||null;
+ // Email login is optional for Discover. The backend independently issues a
+ // short-lived same-origin guest session when no account token is present.
+ return data?.session?.access_token||null;
 }
 export async function signOutEmail(){
  if(!AUTH_ENABLED)return;
