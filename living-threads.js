@@ -125,7 +125,7 @@ export function archiveLiving(history,session,quote,profile){
  return [...(Array.isArray(history)?history.filter(x=>x?.id!==entry.id):[]),entry].slice(-45);
 }
 function button(action,text,variant=""){
- return '<button type="button" class="yl-living-choice '+variant+'" data-living="'+esc(action)+'"><span>'+esc(text)+'</span><span aria-hidden="true">↗</span></button>';
+ return '<button type="button" class="yl-living-choice '+variant+'" data-living="'+esc(action)+'"><span>'+esc(text)+'</span><svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
 }
 export function livingHtml({quote,id,session,profile,history=[],memory=null}){
  if(!validQuote(quote,id))return '<div class="yl-thread yl-thread-pending" role="status"><p>This quotation does not have a reviewed Discover conversation yet.</p></div>';
@@ -163,7 +163,9 @@ export function livingHtml({quote,id,session,profile,history=[],memory=null}){
  const sourceNote=exploreFor(quote,id)?.insight||"";
  if(session.phase==="mirror"){
    return front+prefix+'<h2 class="yl-living-title">'+esc(personal.insight)+'</h2>'+
-     (memory?'<div class="yl-living-memory">Earlier, you left this question open: “'+esc(memory.question)+'”</div>':"")+
+     (opening?'<div class="yl-living-memory">You said: “'+esc(opening)+'”</div>':
+       memoryNote?'<div class="yl-living-memory">Earlier, you shared: “'+esc(memoryNote)+'”</div>':
+       oldMemory?'<div class="yl-living-memory">You previously followed this question: “'+esc(oldMemory.question)+'”</div>':"")+
      '<p class="yl-living-sub">Does this feel close to what you were thinking?</p>'+
      '<div class="yl-living-options">'+Object.entries(REACTIONS).map(([k,v])=>button(k,v)).join("")+'</div></div>';
  }
@@ -173,14 +175,15 @@ export function livingHtml({quote,id,session,profile,history=[],memory=null}){
    const lead=session.reaction==="close"?"You saw something of your own experience in that thought.":
      session.reaction==="unsure"?"You weren't convinced, and that matters. The first interpretation might not fit your experience.":
      "You'd rather look from another side. That can change which part of the idea matters most.";
-   return front+prefix+'<p class="yl-living-ack">'+esc(lead)+'</p>'+
+   return front+prefix+'<p class="yl-living-ack">'+esc(opening?"You told me: “"+opening+"”. "+lead:lead)+'</p>'+
      '<h2 class="yl-living-title">'+esc(branch?.title||personal.reflection)+'</h2>'+
      '<p class="yl-living-sub">'+esc(branch?.followup||personal.reflection)+'</p>'+
      '<div class="yl-living-options">'+button("continue","Follow this question","yl-living-primary")+
      (session.revision<5?button("reconsider","That's not quite my direction"):"")+'</div></div>';
  }
  if(session.phase==="reflection"){
-   return front+prefix+'<h2 class="yl-living-title">'+esc(personal.reflection)+'</h2>'+
+   return front+prefix+(opening?'<p class="yl-living-ack">You brought up “'+esc(opening)+'”. Let us stay with that.</p>':"")+
+     '<h2 class="yl-living-title">'+esc(personal.reflection)+'</h2>'+
      '<p class="yl-living-sub">'+esc(personal.nudge||"You don't have to find an answer immediately.")+'</p>'+
      '<label class="yl-living-label" for="yl-living-note">A thought to remember? <span>(optional)</span></label>'+
      '<textarea id="yl-living-note" class="yl-living-textarea" maxlength="240" rows="2" placeholder="One sentence is enough.">'+esc(session.note)+'</textarea>'+
@@ -194,6 +197,7 @@ export function livingHtml({quote,id,session,profile,history=[],memory=null}){
    '<p class="yl-living-sub">'+esc(standpoint)+'</p>'+
    '<div class="yl-living-recap"><strong>'+esc(CONCERNS[session.focus]?.label||"A new direction")+'</strong>'+
    '<p>'+esc(personal.reflection)+'</p>'+
+   (session.opening?'<blockquote>“'+esc(session.opening)+'”</blockquote>':"")+
    (session.note?'<blockquote>“'+esc(session.note)+'”</blockquote>':"")+'</div>'+
    '<p class="yl-living-fine">'+esc(session.phase==="done"?"Your question is now part of your Encounter history.":"This can become a thread we return to when another quote connects.")+'</p>'+
    '<div class="yl-living-options">'+(session.phase==="summary"?button("save","Keep this thread","yl-living-primary"):button("restart","Explore this again","yl-living-primary"))+
