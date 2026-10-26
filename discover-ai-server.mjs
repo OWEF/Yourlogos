@@ -3,6 +3,29 @@ import {EXPLORE} from "./explore-catalogue.js";
 import {randomBytes,createHmac,timingSafeEqual} from "node:crypto";
 export const discoverAIEnabled=()=>process.env.YOURLOGOS_AI_ENABLED==="1"&&!!process.env.DEEPSEEK_API_KEY&&!!process.env.YOURLOGOS_SUPABASE_URL&&!!process.env.YOURLOGOS_SUPABASE_PUBLISHABLE_KEY;
 const counter=new Map();let day="",globalCount=0;
+const guestSecret=randomBytes(32);
+const guestSigner=text=>createHmac("sha256",guestSecret).update(text).digest("hex");
+function guestIdentity(req,res){
+ // Only same-origin browsers may obtain guest AI sessions; never accept
+ // an unverified bearer token as a guest substitute.
+ const origin=req.headers.origin||"",host=req.headers.host||"";
+ if(!origin||!host)return null;
+ try{const url=new URL(origin);if(url.host!==host||url.protocol!=="https:")return null}catch{return null}
+ const match=/yl_disc_guest=([a-f0-9]{24})\.([0-9]{10})\.([a-f0-9]{64})/.exec(String(req.headers.cookie||""));
+ if(match){
+  const body=match[1]+"."+match[2],expected=guestSigner(body);
+  const timestamp=Number(match[2])*1000;
+  if(timestamp<=Date.now()&&timestamp>Date.now()-86400000&&
+     timingSafeEqual(Buffer.from(match[3],"hex"),Buffer.from(expected,"hex"))){
+   return "guest:"+match[1];
+  }
+ }
+ const id=randomBytes(12).toString("hex"),when=Math.floor(Date.now()/1000);
+ const unsigned=id+"."+when,token=unsigned+"."+guestSigner(unsigned);
+ res.setHeader("Set-Cookie","yl_disc_guest="+token+"; Path=/api/discover-ai; HttpOnly; Secure; SameSite=Strict; Max-Age=86400");
+ return "guest:"+id;
+}
+
 const clip=(x,n=400)=>typeof x==="string"?x.trim().slice(0,n):"";
 const list=(x,n,m)=>Array.isArray(x)?x.filter(v=>typeof v==="string").slice(-n).map(v=>clip(v,m)):[];
 function send(res,status,value){res.writeHead(status,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"});res.end(JSON.stringify(value))}
