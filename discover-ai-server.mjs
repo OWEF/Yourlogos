@@ -47,7 +47,7 @@ export function makeDiscoverPrompt(data){
  "On a crisis-related disclosure, prioritize grounded supportive language, not provocation.",
  "The phone interface intentionally shows ONE thought at a time. Reply must be 12–26 words, one memorable observation or challenge, with no question inside the reply.",
  "followUp must be exactly ONE intriguing question in 7–16 words. Make it provocative, not prescriptive. Never repeat the reply.",
- "Short, specific and conversational. Do not explain the task or summarize philosophy at length. Return valid JSON only."
+ "Give exactly three short, distinct answer choices (3-8 words each) to the followUp question. They must express meaningful alternative stances, not generic yes/no or agreement; adapt them to the quote, user history and the latest direction. Return valid JSON only."
  ].join(" ");
  return {system,context:{
    quote,editorialInterpretation:editorial,currentTurn:Math.min(15,Math.max(0,Number(data.turn)||0)),
@@ -58,7 +58,9 @@ export function makeDiscoverPrompt(data){
 export function validateDiscoverTurn(output){
  const reply=clip(output?.reply,850),followUp=clip(output?.followUp,300);
  if(reply.length<25||followUp.length<10)throw Error("Incomplete model reply");
- return {reply,followUp};
+ const choices=Array.isArray(output?.choices)?output.choices.map(x=>clip(x,82)):[];
+ if(choices.length!==3||choices.some(x=>x.length<3||x.length>82))throw Error("Invalid stance choices");
+ return {reply,followUp,choices};
 }
 export async function handleDiscoverAI(req,res){
  if(!discoverAIEnabled()){send(res,503,{error:"not_configured"});return}
