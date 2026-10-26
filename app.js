@@ -714,6 +714,37 @@ document.addEventListener("click",async e=>{
   const fil=e.target.closest("[data-filter]");if(fil){selectedTheme=fil.dataset.filter;render();return}
   const scope=e.target.closest("[data-scope]");if(scope){libraryScope=scope.dataset.scope;render();return}
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
+  const stanceAction=e.target.closest("[data-ai-choice]");
+  if(stanceAction&&discoverOpen&&aiDiscoverEnabled&&aiConversation?.consent&&!aiConversation.loading){
+    const index=Number(stanceAction.dataset.aiChoice),id=visibleQuoteId(),q=QUOTES[id];
+    if(!Number.isInteger(index)||index<0||index>2||!q)return;
+    const last=[...aiConversation.messages].reverse().find(m=>m.role==="assistant");
+    const choice=last?.choices?.[index]||["I'm intrigued","I doubt it","Show me another angle"][index];
+    const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role+": "+m.text);
+    const context=last?.followUp?"Question: "+last.followUp+" | My response: "+choice:choice;
+    const current=aiConversation;
+    current.loading=true;current.error="";render();
+    try{
+      const token=await getDiscoverAccessToken();
+      if(!token)throw Error("Please sign in again.");
+      const reply=await fetch("/api/discover-ai",{
+        method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},
+        body:JSON.stringify({consent:true,quoteId:id,quote:{text:q[0],author:q[1],theme:q[2]},
+          memory:aiMemoryChoices(sharedWorldMemory()),history:requestHistory,userText:context,
+          turn:current.messages.filter(m=>m.role==="assistant").length})
+      });
+      if(!reply.ok)throw Error(reply.status===429?"Daily AI limit reached.":"DeepSeek is unavailable right now.");
+      const next=await reply.json();
+      if(!next.reply||!next.followUp||!Array.isArray(next.choices)||next.choices.length!==3)throw Error("Incomplete DeepSeek response.");
+      if(aiConversation!==current||!aiDiscoverMode)return;
+      current.messages.push({role:"user",text:choice});
+      current.messages.push({role:"assistant",text:cleanText(next.reply,850),
+        followUp:cleanText(next.followUp,300),choices:next.choices.map(x=>cleanText(x,82))});
+      current.messages=current.messages.slice(-12);
+    }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
+    finally{current.loading=false;if(aiConversation===current&&discoverOpen)render()}
+    return;
+  }
   const aiAction=e.target.closest("[data-ai]");
   if(aiAction&&discoverOpen&&aiDiscoverEnabled){
     const id=visibleQuoteId(),q=QUOTES[id],action=aiAction.dataset.ai;
@@ -754,10 +785,10 @@ document.addEventListener("click",async e=>{
         });
         if(!reply.ok)throw Error(reply.status===429?"You've reached the AI conversation limit for today.":reply.status===401?"Please sign in again.":"The AI conversation is unavailable at the moment.");
         const next=await reply.json();
-        if(!next.reply||!next.followUp)throw Error("The response was incomplete. Please try again.");
+        if(!next.reply||!next.followUp||!Array.isArray(next.choices)||next.choices.length!==3)throw Error("The response was incomplete. Please try again.");
         if(aiConversation!==currentConversation||!aiDiscoverMode)return;
         if(pendingText)currentConversation.messages.push({role:"user",text:pendingText});
-        currentConversation.messages.push({role:"assistant",text:cleanText(next.reply,850),followUp:cleanText(next.followUp,300)});
+        currentConversation.messages.push({role:"assistant",text:cleanText(next.reply,850),followUp:cleanText(next.followUp,300),choices:next.choices.map(x=>cleanText(x,82))});
         currentConversation.messages=currentConversation.messages.slice(-12);
         currentConversation.draft="";
       }catch(err){
