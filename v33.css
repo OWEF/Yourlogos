@@ -157,3 +157,23 @@
 .yl-ai-followup{font:400 22px/1.25 'Cormorant Garamond',Georgia,serif;color:#dec9aa;margin-top:12px}
 .yl-ai-loading,.yl-ai-error{color:#c7b6a1;font:400 12px 'DM Sans',sans-serif}
 .yl-ai-launch{width:100%;margin-top:14px;min-height:48px;border:1px solid #a8d1b87a;border-radius:14px;background:#a8d1b809;color:#bfd6c7;font:500 12px 'DM Sans',sans-serif}
+
+/* Quiet Discover: one thought, one question, one response. */
+.yl-ai-quiet{gap:14px;min-height:0;padding:5px 2px 8px}
+.yl-ai-quiet .yl-ai-eyebrow{font-size:10px;letter-spacing:.12em;color:#bfb8aa}
+.yl-ai-quiet .yl-ai-title{margin:4px 0;font-size:clamp(28px,7vw,36px)}
+.yl-ai-quiet .yl-ai-consent{font-size:12px;line-height:1.55;color:#c3b9a9;margin:3px 0}
+.yl-ai-quiet .yl-ai-current{display:flex;flex-direction:column;gap:11px;padding:4px 0 7px}
+.yl-ai-quiet .yl-ai-observation{font:400 14px/1.55 'DM Sans',sans-serif;color:#c9c2b7;margin:0;max-width:35ch}
+.yl-ai-quiet .yl-ai-question{font:500 clamp(27px,7.3vw,39px)/1.13 'Cormorant Garamond',Georgia,serif;color:#f0e8da;margin:0;max-width:26ch}
+.yl-ai-quiet .yl-ai-you{font:400 11px/1.5 'DM Sans',sans-serif;color:#a5baac;opacity:.78;margin:0}
+.yl-ai-quiet .yl-ai-draft{min-height:62px;margin-top:5px;resize:none}
+.yl-ai-quiet .yl-ai-main{min-height:48px;margin-top:0}
+.yl-ai-quiet .yl-ai-footnotes{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.yl-ai-quiet .yl-ai-secondary{min-height:32px;padding:4px 0;font-size:11px}
+.yl-ai-quiet .yl-ai-history{font:400 11px 'DM Sans',sans-serif;color:#aaa69b;border-top:1px solid #ffffff20;padding-top:10px}
+.yl-ai-quiet .yl-ai-history summary{cursor:pointer}
+.yl-ai-quiet .yl-ai-history-inside{max-height:150px;overflow:auto;padding:8px 2px}
+.yl-ai-quiet .yl-ai-history-inside p{font:400 12px/1.5 'DM Sans',sans-serif;color:#beb7aa}
+.yl-ai-quiet .yl-ai-history-inside small{color:#a5c7b0}
+.yl-ai-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
