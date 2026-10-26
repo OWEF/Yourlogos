@@ -17,15 +17,20 @@ export async function requestMagicLink(email,displayName){
 export async function getVerifiedIdentity(){
  if(!AUTH_ENABLED)return null;
  const c=await client();const {data,error}=await c.auth.getUser();
- if(error||!data?.user)return null;
+ if(error||!data?.user||data.user.is_anonymous)return null;
  return {id:data.user.id,email:data.user.email,displayName:data.user.user_metadata?.display_name||""};
 }
 export async function getDiscoverAccessToken(){
  if(!AUTH_ENABLED)return null;
  const c=await client();
  const {data,error}=await c.auth.getSession();
- if(error||!data?.session?.access_token)return null;
- return data.session.access_token;
+ if(error)throw error;
+ if(data?.session?.access_token)return data.session.access_token;
+ // Only called after explicit consent inside Discover. This is a temporary
+ // authenticated identity, NOT an email-verified account or cloud sync.
+ const {data:anon,error:anonymousError}=await c.auth.signInAnonymously();
+ if(anonymousError)throw new Error("Private sign-in is unavailable. Open Profile to sign in by email, or enable anonymous sign-ins in YourLogos Supabase Auth settings.");
+ return anon?.session?.access_token||null;
 }
 export async function signOutEmail(){
  if(!AUTH_ENABLED)return;

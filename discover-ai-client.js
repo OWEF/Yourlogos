@@ -26,7 +26,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  let html='<section class="yl-ai-experiment yl-ai-quiet" aria-label="Discover this quotation">';
  if(!c.consent)return html+
   '<h2 class="yl-ai-title">Follow the tension?</h2>'+
-  '<p class="yl-ai-consent">With your permission, DeepSeek will receive this quote, what you write, and up to four saved reflections. You can stop anytime.</p>'+
+  '<p class="yl-ai-consent">With your permission, DeepSeek will receive this quote, your choices, and up to four saved reflections. You can stop anytime.</p>'+
   '<button type="button" data-ai="agree" class="yl-ai-main">I agree · Continue <span aria-hidden="true">↗</span></button>'+
   '<button type="button" data-ai="cancel" class="yl-ai-secondary">Not now</button></section>';
  const recent=[...(c.messages||[])].slice(-12);

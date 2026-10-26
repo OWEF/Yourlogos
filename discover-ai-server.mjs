@@ -15,7 +15,8 @@ function budget(id){
  if(today!==day){day=today;globalCount=0;counter.clear()}
  const limit=Math.max(1,Math.min(2000,Number(process.env.YOURLOGOS_AI_DAILY_CAP)||200));
  const old=counter.get(id)||{n:0,last:0};
- if(globalCount>=limit||old.n>=24||Date.now()-old.last<1800)return false;
+ const personalLimit=id.startsWith("anonymous:")?8:24;
+ if(globalCount>=limit||old.n>=personalLimit||Date.now()-old.last<1800)return false;
  counter.set(id,{n:old.n+1,last:Date.now()});globalCount++;return true;
 }
 async function userId(req){
@@ -25,7 +26,7 @@ async function userId(req){
  if(!/^https:\/\/[a-z0-9.-]+\.supabase\.co$/.test(url))return null;
  const r=await fetch(url+"/auth/v1/user",{headers:{apikey:process.env.YOURLOGOS_SUPABASE_PUBLISHABLE_KEY,Authorization:token},signal:AbortSignal.timeout(5000)});
  if(!r.ok)return null;
- const data=await r.json();return typeof data.id==="string"&&data.id.length>8?data.id:null;
+ const data=await r.json();return typeof data.id==="string"&&data.id.length>8?(data.is_anonymous?"anonymous:":"account:")+data.id:null;
 }
 export function makeDiscoverPrompt(data){
  if(!Number.isInteger(data?.quoteId)||data.quoteId<0||data.quoteId>=EXPLORE.length)throw Error("Bad quote ID");
