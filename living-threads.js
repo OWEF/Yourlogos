@@ -136,19 +136,27 @@ export function livingHtml({quote,id,session,profile,history=[],memory=null}){
  if(!session)return front+
    '<div class="yl-thread-progress">A QUESTION WORTH FOLLOWING</div>'+
    '<h2 class="yl-living-title">'+esc(thread.question)+'</h2>'+
-   (recall?'<p class="yl-living-memory">Last time, you were wondering: “'+esc(recall.question)+'”</p>':"")+
+   '<p class="yl-living-memory">'+esc(entry.preview)+'</p>'+
    '<div class="yl-explore-invitation"><button type="button" class="yl-explore-button" data-action="thread-explore" aria-label="Explore this thought"><span class="yl-explore-orb" aria-hidden="true">✧</span><span class="yl-explore-label">Explore</span></button></div>'+
-   '<p class="yl-explore-hint">Your answers shape where this goes.</p></div>';
+   '<p class="yl-explore-hint">A thought can mean different things depending on where you are in life.</p></div>';
  const prefix='<div class="yl-living-kicker"><span class="yl-living-orbit" aria-hidden="true">✧</span> YOUR THREAD <span class="yl-living-dot">·</span> '+esc((session.phase==="done"?"KEPT":session.phase==="focus"?"WHERE TO BEGIN":session.phase==="mirror"?"A CONNECTION":session.phase==="response"?"FOLLOWING YOUR RESPONSE":session.phase==="reflection"?"STAY WITH IT":"A THREAD TO CARRY"))+'</div>';
  const oldMemory=relevantMemory(history,quote,session.focus);
  const memoryNote=recall?.opening||recall?.note||"";
  const opening=session.opening?.trim()||"";
  if(session.phase==="focus"){
-   const options=focusChoices(quote,profile,history);
-   return front+prefix+'<h2 class="yl-living-title">'+esc(thread.question)+'</h2>'+
-     '<p class="yl-living-sub">What part of your life, or the world around you, does this bring to mind?</p>'+
-     '<div class="yl-living-options">'+options.map(x=>button("focus:"+x.id,x.label)).join("")+'</div>'+
-     '<p class="yl-living-fine">This is a direction, not a label about you. You can change it later.</p></div>';
+   const options=focusChoices(quote,profile,history,memory);
+   const leading=entry.source==="thread"||entry.source==="ongoing"?
+       "Last time we left something open. Does this bring you back to it, or somewhere new?":
+     entry.source==="onboarding"?"I remember something you chose at the beginning. Does it still feel connected to this?":
+       "I don't know what this brings to mind for you yet. What made you pause here?";
+   return front+prefix+'<h2 class="yl-living-title">'+esc(leading)+'</h2>'+
+     '<p class="yl-living-memory">'+esc(entry.preview)+'</p>'+
+     '<p class="yl-living-sub">'+esc(thread.question)+'</p>'+
+     '<label class="yl-living-label" for="yl-living-opening">Tell me what comes to mind <span>(optional)</span></label>'+
+     '<textarea id="yl-living-opening" class="yl-living-textarea" maxlength="240" rows="2" placeholder="You can say it in your own words.">'+esc(session.opening||"")+'</textarea>'+
+     '<div class="yl-living-options">'+button("own-voice","Follow what I wrote","yl-living-primary")+
+       options.map(x=>button("focus:"+x.id,"Or explore "+x.label.toLowerCase())).join("")+'</div>'+
+     '<p class="yl-living-fine">You decide where this goes. A passing curiosity is not a fixed belief.</p></div>';
  }
  const personal=threadContext(quote,id,profile,session.focus,history);
  if(!personal)return front+prefix+'<p>The next connection is not ready yet.</p></div>';
