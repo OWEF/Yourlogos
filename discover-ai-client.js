@@ -40,7 +40,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   if(user)html+='<p class="yl-ai-you">You · '+esc(cleanText(user.text,115))+'</p>';
   html+='<p class="yl-ai-observation">'+esc(shortObservation(latest.text))+'</p>';
   html+='<h2 class="yl-ai-question">'+esc(cleanText(latest.followUp,220))+'</h2></div>';
- }else if(!c.loading)html+='<h2 class="yl-ai-title">What unsettles you here?</h2>';
+ }else if(!c.loading&&!c.error)html+='<p class="yl-ai-quiet-loading">Finding another angle…</p>';
  if(c.loading&&latest)html+='<p class="yl-ai-loading" role="status">Thinking…</p>';
  if(prior.length>0){
   html+='<details class="yl-ai-history"><summary>Earlier thoughts · '+prior.length+'</summary><div class="yl-ai-history-inside">';
@@ -56,9 +56,9 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   latest.choices.slice(0,3).map((choice,i)=>'<button type="button" data-ai-choice="'+i+'" class="yl-ai-stance"'+(c.loading?' disabled':'')+'><span>'+esc(cleanText(choice,82))+'</span><span aria-hidden="true">↗</span></button>').join('')+
   '</div>';
  }else if(!c.loading){
-  html+='<div class="yl-ai-stance-list" role="group" aria-label="Choose a direction">'+
-  ['I’m intrigued','I doubt it','Show me another angle'].map((label,i)=>'<button type="button" data-ai-choice="'+i+'" class="yl-ai-stance"><span>'+esc(label)+'</span><span aria-hidden="true">↗</span></button>').join('')+
-  '</div>';
+  html+='<button type="button" data-ai="send" class="yl-ai-main"'+(c.error?'':' hidden')+'>Try a new thought <span aria-hidden="true">↗</span></button>';
+ }else{
+  html+='<button type="button" data-ai="send" hidden disabled></button>';
  }
  html+='<div class="yl-ai-footnotes">'+
    (latest?'<button type="button" data-ai="save" class="yl-ai-secondary">Keep this thread</button>':'')+
