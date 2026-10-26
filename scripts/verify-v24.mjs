@@ -241,7 +241,8 @@ assert.ok(!aiConversationHtml({quote:QUOTES[63],conversation:artificial,availabl
 const savedAI=aiSummary(artificial,QUOTES[63],"2026-10-27");
 assert.equal(savedAI.note,"I want more freedom");
 assert.equal(savedAI.kind,"ai");
-assert.ok(app.includes('data-ai="launch"')&&app.includes('"/api/discover-ai"'),"AI client is reachable from Discover only behind feature flag");
+assert.ok(!app.includes('data-ai="launch"')&&app.includes('"/api/discover-ai"'),"Discover seamlessly selects AI for signed-in users");
+assert.ok(app.includes('previouslyConsented()')&&app.includes('Boolean(verifiedIdentity)'),"AI respects account consent and authenticated session");
 assert.ok(serverSource.includes('"/api/discover-ai"')&&serverSource.includes('handleDiscoverAI(req,res)'));
 assert.ok(!serverSource.includes('process.env.OPENAI_API_KEY'),"Static public config must never include the secret API key");
 assert.ok(aiServerSource.includes("getUser")===false&&aiServerSource.includes('/auth/v1/user'),"Supabase verifies bearer token");
