@@ -20,6 +20,13 @@ export async function getVerifiedIdentity(){
  if(error||!data?.user)return null;
  return {id:data.user.id,email:data.user.email,displayName:data.user.user_metadata?.display_name||""};
 }
+export async function getDiscoverAccessToken(){
+ if(!AUTH_ENABLED)return null;
+ const c=await client();
+ const {data,error}=await c.auth.getSession();
+ if(error||!data?.session?.access_token)return null;
+ return data.session.access_token;
+}
 export async function signOutEmail(){
  if(!AUTH_ENABLED)return;
  const c=await client();const {error}=await c.auth.signOut();
