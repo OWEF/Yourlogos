@@ -128,6 +128,8 @@ let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let bridgeFromQuestion=null;
 let aiDiscoverEnabled=false,aiDiscoverMode=false,aiConversation=null;
+const consentKey="yourlogos-ai-consent-v1";
+const previouslyConsented=()=>localStorage.getItem(consentKey)==="yes";
 let settingsReturnScrollY=0;
 let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
@@ -288,10 +290,10 @@ function discoverHtml(){
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
-      (aiDiscoverEnabled&&aiDiscoverMode?
+      (aiDiscoverEnabled&&aiDiscoverMode&&verifiedIdentity?
         aiConversationHtml({quote:q,conversation:safeAIConversation(aiConversation,id),available:aiDiscoverEnabled,authenticated:Boolean(verifiedIdentity)}):
         livingHtml({quote:q,id,session:data.livingThreads.sessions[String(id)]||null,profile:data.personalization,history:data.livingThreads.history,memory:sharedWorldMemory()})+
-        (aiDiscoverEnabled?'<button type="button" data-ai="launch" class="yl-ai-launch">✧ Try an open-ended AI conversation</button>':''))+
+        '')+
     '</section>';
 }
 
@@ -716,11 +718,15 @@ document.addEventListener("click",async e=>{
   if(aiAction&&discoverOpen&&aiDiscoverEnabled){
     const id=visibleQuoteId(),q=QUOTES[id],action=aiAction.dataset.ai;
     if(id===null||!q)return;
-    if(action==="launch"){aiConversation=safeAIConversation(aiConversation,id);aiDiscoverMode=true;render();return}
+
     if(!aiConversation||aiConversation.quoteId!==id)return;
-    if(action==="cancel"||action==="revoke"){aiDiscoverMode=false;aiConversation=null;render();return}
+    if(action==="cancel"||action==="revoke"){
+      if(action==="revoke")localStorage.removeItem(consentKey);
+      aiDiscoverMode=false;aiConversation=null;render();return
+    }
     if(action==="agree"){
       if(!verifiedIdentity){toast("Please sign in through Profile to enable AI dialogue.");return}
+      localStorage.setItem(consentKey,"yes");
       aiConversation.consent=true;render();return;
     }
     if(!aiConversation.consent)return;
@@ -904,7 +910,10 @@ document.addEventListener("click",async e=>{
     case"view-saved-from-encounter":{
       view="library";libraryScope="liked";openSchoolId=null;render();return;
     }
-    case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;aiDiscoverMode=false;aiConversation=null;discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
+    case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;
+      aiDiscoverMode=aiDiscoverEnabled&&Boolean(verifiedIdentity);
+      aiConversation=aiDiscoverMode?{...safeAIConversation(null,visibleQuoteId()),consent:previouslyConsented()}:null;
+      discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
     case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
     case"close-discover":discoverOpen=false;discoverStep=0;aiDiscoverMode=false;aiConversation=null;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
