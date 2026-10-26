@@ -5,7 +5,7 @@ export const discoverAIEnabled=()=>process.env.YOURLOGOS_AI_ENABLED==="1"&&!!pro
 const counter=new Map();let day="",globalCount=0,guestCount=0;
 const guestSecret=randomBytes(32);
 const guestSigner=text=>createHmac("sha256",guestSecret).update(text).digest("hex");
-function guestIdentity(req,res){
+export function guestIdentity(req,res){
  // Only same-origin browsers may obtain guest AI sessions; never accept
  // an unverified bearer token as a guest substitute.
  const origin=req.headers.origin||"",host=req.headers.host||"";
