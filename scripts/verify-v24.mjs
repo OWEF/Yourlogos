@@ -237,6 +237,7 @@ assert.equal(aiMemory.length,2);
 const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",text:"I want more freedom"},{role:"assistant",text:"Freedom often costs more than we first expect.",followUp:"What would that cost you?"}]};
 const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
 assert.ok(aiCard.includes("I want more freedom")&&aiCard.includes("What would that cost you?"));
+assert.ok(!aiCard.includes("Continue the conversation")&&!aiCard.includes("LIVING DIALOGUE · EXPERIMENTAL"),"Quiet Discover hides verbose AI scaffolding");
 assert.ok(!aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:false,authenticated:true}),"Feature flag hides AI when disabled");
 const savedAI=aiSummary(artificial,QUOTES[63],"2026-10-27");
 assert.equal(savedAI.note,"I want more freedom");
