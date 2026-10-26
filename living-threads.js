@@ -135,7 +135,10 @@ export function livingHtml({quote,id,session,profile,history=[],memory=null}){
  const front='<div class="yl-thread yl-living" data-living-phase="'+esc(session?.phase||"entry")+'">';
  if(!session)return front+
    '<div class="yl-thread-progress">A QUESTION WORTH FOLLOWING</div>'+
-   '<h2 class="yl-living-title">'+esc(thread.question)+'</h2>'+
+   '<h2 class="yl-living-title">'+esc(recall?.question?
+     "You left a question open last time. Does this one bring you back to it?":
+     entry.source==="onboarding"?"Something you shared when we began might connect with this thought. What do you think?":
+       thread.question)+'</h2>'+
    '<p class="yl-living-memory">'+esc(entry.preview)+'</p>'+
    '<div class="yl-explore-invitation"><button type="button" class="yl-explore-button" data-action="thread-explore" aria-label="Explore this thought"><span class="yl-explore-orb" aria-hidden="true">✧</span><span class="yl-explore-label">Explore</span></button></div>'+
    '<p class="yl-explore-hint">A thought can mean different things depending on where you are in life.</p></div>';
@@ -162,11 +165,15 @@ export function livingHtml({quote,id,session,profile,history=[],memory=null}){
  if(!personal)return front+prefix+'<p>The next connection is not ready yet.</p></div>';
  const sourceNote=exploreFor(quote,id)?.insight||"";
  if(session.phase==="mirror"){
-   return front+prefix+'<h2 class="yl-living-title">'+esc(personal.insight)+'</h2>'+
-     (opening?'<div class="yl-living-memory">You said: “'+esc(opening)+'”</div>':
-       memoryNote?'<div class="yl-living-memory">Earlier, you shared: “'+esc(memoryNote)+'”</div>':
-       oldMemory?'<div class="yl-living-memory">You previously followed this question: “'+esc(oldMemory.question)+'”</div>':"")+
-     '<p class="yl-living-sub">Does this feel close to what you were thinking?</p>'+
+   const remembered=opening||memoryNote;
+   const headline=remembered?"You brought up something that feels worth staying with.":personal.insight;
+   const responsePrompt=remembered?"I don't want to put words in your mouth. Does this interpretation fit, or should we look somewhere else?":
+     "Does that capture what you were thinking—or am I missing something?";
+   return front+prefix+'<h2 class="yl-living-title">'+esc(headline)+'</h2>'+
+     (remembered?'<div class="yl-living-memory">You shared: “'+esc(remembered)+'”</div>':"")+
+     '<p class="yl-living-sub">'+esc(remembered?personal.insight:"This is one way your chosen direction might connect with the quotation.")+'</p>'+
+     (!remembered&&oldMemory?'<p class="yl-living-memory">Another question you kept was: “'+esc(oldMemory.question)+'”</p>':"")+
+     '<p class="yl-living-sub">'+esc(responsePrompt)+'</p>'+
      '<div class="yl-living-options">'+Object.entries(REACTIONS).map(([k,v])=>button(k,v)).join("")+'</div></div>';
  }
  const branches=thread.branches||[];
