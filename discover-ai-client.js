@@ -21,7 +21,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  if(!c.consent)return html+
    '<h2 class="yl-ai-title">What if we followed your curiosity instead of a script?</h2>'+
    '<p>A small AI model can respond to what you actually say, challenge an assumption, and remember where the conversation was heading.</p>'+
-   '<p>To do that, it would send this quotation, your new messages, and up to four relevant earlier reflections to our AI provider. Do not include information you would not want shared. Nothing is sent until you agree.</p>'+
+   '<p>To do that, it would send this quotation, your new messages, and up to four relevant earlier reflections to the DeepSeek API. Do not include information you would not want shared. Nothing is sent until you agree.</p>'+
    '<button type="button" data-ai="agree" class="yl-ai-main">I agree · Start a dialogue <span aria-hidden="true">↗</span></button>'+
    '<button type="button" data-ai="cancel" class="yl-ai-secondary">Use the private, offline Discover instead</button></section>';
  html+='<p class="yl-ai-privacy">You are speaking with AI. It can be wrong about both philosophy and you. Correct it whenever it misses.</p>'+

@@ -245,7 +245,8 @@ assert.ok(app.includes('data-ai="launch"')&&app.includes('"/api/discover-ai"'),"
 assert.ok(serverSource.includes('"/api/discover-ai"')&&serverSource.includes('handleDiscoverAI(req,res)'));
 assert.ok(!serverSource.includes('process.env.OPENAI_API_KEY'),"Static public config must never include the secret API key");
 assert.ok(aiServerSource.includes("getUser")===false&&aiServerSource.includes('/auth/v1/user'),"Supabase verifies bearer token");
-assert.ok(aiServerSource.includes("store:false")&&aiServerSource.includes("daily_or_rate_limit"),"Provider must not store outputs and server enforces budget");
+assert.ok(aiServerSource.includes("api.deepseek.com/chat/completions")&&aiServerSource.includes("response_format")&&aiServerSource.includes("daily_or_rate_limit"),"DeepSeek JSON mode and budgets are configured");
+assert.ok(aiServerSource.includes("process.env.DEEPSEEK_API_KEY")&&!aiServerSource.includes("process.env.OPENAI_API_KEY"),"DeepSeek secret stays server-side");
 assert.ok(sw.includes('"/discover-ai-client.js"'),"Offline shell loads without AI network access");
 
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
