@@ -63,7 +63,7 @@ export async function writeAccountData(snapshot){
   if(!identity)throw new Error("Verify your email account before saving data.");
   if(!snapshot || typeof snapshot!=="object" || Array.isArray(snapshot))throw new Error("Invalid account data");
   const safe={};
-  for(const k of ["saved","practice","discovery","themes","arrivals","started","cosmosEvents","personalization","livingThreads","encounterEvents","thoughtThreadEvents","encounters"]){
+  for(const k of ["saved","practice","discovery","themes","arrivals","started","cosmosEvents","personalization","livingThreads","encounterEvents","thoughtThreadEvents","encounters","aiDiscoverThreads"]){
     if(Object.prototype.hasOwnProperty.call(snapshot,k))safe[k]=snapshot[k];
   }
   const serialized=JSON.stringify(safe);
