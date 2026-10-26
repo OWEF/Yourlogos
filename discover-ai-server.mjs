@@ -2,7 +2,7 @@
 import {EXPLORE} from "./explore-catalogue.js";
 import {randomBytes,createHmac,timingSafeEqual} from "node:crypto";
 export const discoverAIEnabled=()=>process.env.YOURLOGOS_AI_ENABLED==="1"&&!!process.env.DEEPSEEK_API_KEY&&!!process.env.YOURLOGOS_SUPABASE_URL&&!!process.env.YOURLOGOS_SUPABASE_PUBLISHABLE_KEY;
-const counter=new Map();let day="",globalCount=0;
+const counter=new Map();let day="",globalCount=0,guestCount=0;
 const guestSecret=randomBytes(32);
 const guestSigner=text=>createHmac("sha256",guestSecret).update(text).digest("hex");
 function guestIdentity(req,res){
@@ -36,12 +36,14 @@ async function body(req){
 }
 function budget(id){
  const today=new Date().toISOString().slice(0,10);
- if(today!==day){day=today;globalCount=0;counter.clear()}
+ if(today!==day){day=today;globalCount=0;guestCount=0;counter.clear()}
  const limit=Math.max(1,Math.min(2000,Number(process.env.YOURLOGOS_AI_DAILY_CAP)||200));
  const old=counter.get(id)||{n:0,last:0};
- const personalLimit=id.startsWith("anonymous:")?8:24;
- if(globalCount>=limit||old.n>=personalLimit||Date.now()-old.last<1800)return false;
- counter.set(id,{n:old.n+1,last:Date.now()});globalCount++;return true;
+ const guest=id.startsWith("guest:");
+ const personalLimit=guest||id.startsWith("anonymous:")?8:24;
+ const guestDailyLimit=40;
+ if(globalCount>=limit||(guest&&guestCount>=guestDailyLimit)||old.n>=personalLimit||Date.now()-old.last<1800)return false;
+ counter.set(id,{n:old.n+1,last:Date.now()});globalCount++;if(guest)guestCount++;return true;
 }
 async function userId(req){
  const token=req.headers.authorization||"";
@@ -91,8 +93,10 @@ export async function handleDiscoverAI(req,res){
  const origin=req.headers.origin||"",host=req.headers.host||"";
  try{if(origin&&new URL(origin).host!==host){send(res,403,{error:"bad_origin"});return}}catch{send(res,403,{error:"bad_origin"});return}
  if(!String(req.headers["content-type"]||"").startsWith("application/json")){send(res,415,{error:"expected_json"});return}
- let id;try{id=await userId(req)}catch{id=null}
- if(!id){send(res,401,{error:"sign_in_required"});return}
+ let id;
+ if(req.headers.authorization){try{id=await userId(req)}catch{id=null}}
+ else id=guestIdentity(req,res);
+ if(!id){send(res,req.headers.authorization?401:403,{error:"session_required"});return}
  let data,prompt;try{data=await body(req);if(data?.consent!==true)throw Error("Consent");prompt=makeDiscoverPrompt(data)}catch{send(res,400,{error:"invalid_or_unconsented_request"});return}
  if(!budget(id)){send(res,429,{error:"daily_or_rate_limit"});return}
  try{
