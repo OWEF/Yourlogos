@@ -143,4 +143,5 @@ for(let id=0;id<QUOTES.length;id++){
  const tailored=personalizedExplore(QUOTES[id],id,visitor,[]);
  assert.ok(tailored?.reflection.endsWith("?"),"Personalized reflections remain valid "+id);
 }
+const livingSource=read("living-threads.js");new vm.Script(livingSource.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:"living-threads"});assert.ok(app.includes("livingHtml({")&&app.includes("data.livingThreads.history"),"Living Threads integrated with saved memory");assert.ok(sw.includes('"/living-threads.js"'),"Offline Living Threads cache included");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
