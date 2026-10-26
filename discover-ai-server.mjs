@@ -1,5 +1,6 @@
 // Server-only opt-in DeepSeek pilot. Never expose DEEPSEEK_API_KEY to a browser.
 import {EXPLORE} from "./explore-catalogue.js";
+import {randomBytes,createHmac,timingSafeEqual} from "node:crypto";
 export const discoverAIEnabled=()=>process.env.YOURLOGOS_AI_ENABLED==="1"&&!!process.env.DEEPSEEK_API_KEY&&!!process.env.YOURLOGOS_SUPABASE_URL&&!!process.env.YOURLOGOS_SUPABASE_PUBLISHABLE_KEY;
 const counter=new Map();let day="",globalCount=0;
 const clip=(x,n=400)=>typeof x==="string"?x.trim().slice(0,n):"";
