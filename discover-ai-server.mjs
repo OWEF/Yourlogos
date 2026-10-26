@@ -72,7 +72,7 @@ export async function handleDiscoverAI(req,res){
   const r=await fetch("https://api.openai.com/v1/responses",{
     method:"POST",signal:AbortSignal.timeout(15000),
     headers:{"Content-Type":"application/json",Authorization:"Bearer "+process.env.OPENAI_API_KEY},
-    body:JSON.stringify({model:process.env.YOURLOGOS_AI_MODEL||"gpt-6-luna",store:false,reasoning:{effort:"none"},
+    body:JSON.stringify({model:process.env.YOURLOGOS_AI_MODEL||"gpt-5-mini",store:false,reasoning:{effort:"none"},
       max_output_tokens:300,input:[{role:"system",content:prompt.system},{role:"user",content:JSON.stringify(prompt.context)}],
       text:{format:{type:"json_schema",name:"yourlogos_discover_turn",strict:true,schema}}})
   });
