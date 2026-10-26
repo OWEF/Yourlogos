@@ -179,39 +179,39 @@ assert.ok(memorySameTheme>=0,"At least two quotes share a theme for memory tests
 const remembered={id:"63:2026-10-26",quoteId:63,theme:memoryQuote[2],focus:"time",
   reaction:"unsure",question:"What might you choose to keep?",opening:"My responsibilities are crowding out my curiosity.",
   note:"I want one evening without deadlines.",date:"2026-10-26"};
-const world=buildWorldMemory({
+const myWorldMemory=buildWorldMemory({
  personalization:qaProfile, saved:[63,memorySameTheme], themes:["Time"],
  arrivals:["2026-10-25","2026-10-26"],practice:{"2026-10-26":{quoteId:63}},
  livingThreads:{history:[remembered],sessions:{}},
  encounterEvents:[{quoteId:63,theme:memoryQuote[2]}],
  discovery:{"63":{response:"curious"}}
 },QUOTES,[{type:"read",concept:"time"}]);
-assert.equal(world.threads.length,1,"Explicitly saved thread is included");
-assert.equal(world.evidence.saved,2);
-assert.equal(world.evidence.choices,2);
-assert.equal(world.evidence.sky,1);
-assert.equal(world.evidence.checkins,2);
-const found=matchWorldMemory(world,QUOTES[memorySameTheme],memorySameTheme);
+assert.equal(myWorldMemory.threads.length,1,"Explicitly saved thread is included");
+assert.equal(myWorldMemory.evidence.saved,2);
+assert.equal(myWorldMemory.evidence.choices,2);
+assert.equal(myWorldMemory.evidence.sky,1);
+assert.equal(myWorldMemory.evidence.checkins,2);
+const found=matchWorldMemory(myWorldMemory,QUOTES[memorySameTheme],memorySameTheme);
 assert.equal(found.opening,remembered.opening);
-const quoteContext=memoryForQuote(world,QUOTES[memorySameTheme],memorySameTheme);
+const quoteContext=memoryForQuote(myWorldMemory,QUOTES[memorySameTheme],memorySameTheme);
 assert.ok(quoteContext.preview.includes(remembered.opening),"Real historical words reappear");
-assert.ok(worldMemoryHtml(world).includes("THE THOUGHTS YOU CARRY"),"My World displays shared memory");
+assert.ok(worldMemoryHtml(myWorldMemory).includes("THE THOUGHTS YOU CARRY"),"My World displays shared memory");
 assert.ok(app.includes("worldMemoryHtml(sharedWorldMemory())")&&app.includes("memory:sharedWorldMemory()"),"Both surfaces draw from the same memory");
 assert.ok(auth.includes('"personalization","livingThreads","encounterEvents"'),"Cloud snapshot preserves real memory by explicit consent");
 assert.ok(sw.includes('"/world-memory.js"'),"Shared memory works offline");
 const qaStart=beginLiving(QUOTES[memorySameTheme],memorySameTheme,"2026-10-27");
 const personalOpening=openingLiving(qaStart,"I worry that I only work and never live.");
 assert.ok(personalOpening.opening.includes("never live"));
-const qaNext=transitionLiving(personalOpening,"own-voice",{quote:QUOTES[memorySameTheme],profile:qaProfile,history:[remembered],memory:world});
+const qaNext=transitionLiving(personalOpening,"own-voice",{quote:QUOTES[memorySameTheme],profile:qaProfile,history:[remembered],memory:myWorldMemory});
 assert.equal(qaNext.phase,"mirror","User can start with their own text rather than categories");
-const firstScreen=renderLiving({quote:QUOTES[memorySameTheme],id:memorySameTheme,session:qaNext,profile:qaProfile,history:[remembered],memory:world});
+const firstScreen=renderLiving({quote:QUOTES[memorySameTheme],id:memorySameTheme,session:qaNext,profile:qaProfile,history:[remembered],memory:myWorldMemory});
 assert.ok(firstScreen.includes("I worry that I only work"),"Next step responds to their volunteered words");
 assert.ok(!firstScreen.includes("What part of your life, or the world around you"),"Generic first-layer questionnaire removed");
-assert.equal(transitionLiving(qaStart,"own-voice",{quote:QUOTES[memorySameTheme],profile:qaProfile,history:[remembered],memory:world}),null,"Cannot submit empty free text");
+assert.equal(transitionLiving(qaStart,"own-voice",{quote:QUOTES[memorySameTheme],profile:qaProfile,history:[remembered],memory:myWorldMemory}),null,"Cannot submit empty free text");
 const otherWorld=buildWorldMemory({personalization:qaProfile,livingThreads:{history:[{...remembered,opening:"I enjoy my responsibilities and find meaning in them."}]}},QUOTES);
-assert.notEqual(memoryForQuote(world,QUOTES[memorySameTheme],memorySameTheme).preview,
+assert.notEqual(memoryForQuote(myWorldMemory,QUOTES[memorySameTheme],memorySameTheme).preview,
                 memoryForQuote(otherWorld,QUOTES[memorySameTheme],memorySameTheme).preview,
                 "Two users with different histories must not receive the same remembered words");
-assert.ok(!worldMemoryHtml(world).includes("<script>"),"My World escapes private note content");
+assert.ok(!worldMemoryHtml(myWorldMemory).includes("<script>"),"My World escapes private note content");
 
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
