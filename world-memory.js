@@ -20,6 +20,12 @@ export function buildWorldMemory(state={},quotes=[],cosmos=[]){
   .map(h=>({type:"thread",id:safe(h.id,90),quoteId:h.quoteId,theme:quotes[h.quoteId][2],focus:h.focus,
      question:safe(h.question,230),note:safe(h.note,240),opening:safe(h.opening,240),
      reaction:["close","unsure","turn"].includes(h.reaction)?h.reaction:null,date:safe(h.date,10)}));
+ const aiThreads=Array.isArray(state.aiDiscoverThreads)?state.aiDiscoverThreads.slice(-30).filter(
+   x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<quotes.length
+     &&typeof x.question==="string"
+ ).map(x=>({type:"ai",quoteId:x.quoteId,theme:quotes[x.quoteId][2],
+   focus:null,opening:safe(x.opening,240),note:safe(x.note,240),
+   question:safe(x.question,230),date:safe(x.date,10)})):[];
  const sessions=Object.values(state.livingThreads?.sessions||{})
   .filter(h=>h&&validId(h.quoteId,quotes)&&h.phase!=="done").slice(-10)
   .map(h=>({type:"ongoing",quoteId:h.quoteId,theme:quotes[h.quoteId][2],focus:h.focus,
@@ -28,7 +34,7 @@ export function buildWorldMemory(state={},quotes=[],cosmos=[]){
  const legacy=recent(state.thoughtThreadEvents,150).filter(e=>e&&validId(e.quoteId,quotes)&&typeof e.theme==="string");
  const other=recent(cosmos,250).filter(e=>e&&["save","read","link","view"].includes(e.type)&&typeof e.concept==="string");
  const evidence={onboarding:interests.length,saved:saved.length,threads:threads.length,
-   choices:oldChoices.length+legacy.length+legacyDiscover.length,sky:other.length,
+   choices:oldChoices.length+legacy.length+legacyDiscover.length,sky:other.length,aiThreads:aiThreads.length,
    checkins,practiceDays:Object.keys(practice).length};
  const counts=new Map();
  const increment=(theme,amount)=>{if(typeof theme==="string"&&theme.length<=30)counts.set(theme,(counts.get(theme)||0)+amount)};
@@ -36,10 +42,11 @@ export function buildWorldMemory(state={},quotes=[],cosmos=[]){
  savedThemes.forEach(x=>increment(x,1));
  chosenThemes.forEach(x=>increment(x,.5));
  threads.forEach(x=>increment(x.theme,3));
+ aiThreads.forEach(x=>increment(x.theme,3));
  oldChoices.forEach(x=>increment(x.theme,.25));
  legacy.forEach(x=>increment(x.theme,.25));
  const themes=[...counts.entries()].sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
- return {interests,threads,sessions,savedThemes,chosenThemes,latestSavedQuoteId:saved.at(-1)??null,
+ return {interests,threads:[...threads,...aiThreads],sessions,savedThemes,chosenThemes,latestSavedQuoteId:saved.at(-1)??null,
    themes,evidence,hasExplicitMemory:threads.some(x=>x.note||x.opening)};
 }
 export function matchWorldMemory(memory,quote,id){
