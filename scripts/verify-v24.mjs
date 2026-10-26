@@ -226,7 +226,8 @@ assert.equal(discoverAIEnabled(),false,"AI must stay disabled until owner config
 const dataForAI={quoteId:63,quote:{text:QUOTES[63][0],author:QUOTES[63][1],theme:QUOTES[63][2]},
  turn:2,userText:"I want to change, but I am afraid of losing who I am.",memory:["I used to be afraid of being alone."]};
 const prompt=makeDiscoverPrompt(dataForAI);
-assert.ok(prompt.system.includes("provocative")&&prompt.system.includes("revise"),"The AI should invite challenging, responsive philosophical thinking");
+assert.ok(prompt.system.includes("particular quotation")&&prompt.system.includes("substantially revise"),"The AI must make personalized, revisable philosophical moves");
+assert.ok(prompt.system.includes("PERSONALIZATION TEST")&&prompt.system.includes("exactly THREE"),"Prompt requires distinct quote-grounded tap choices");
 assert.equal(prompt.context.userWords,dataForAI.userText);
 assert.equal(prompt.context.pastVoluntaryReflections.length,1);
 assert.ok(!prompt.system.includes("OPENAI_API_KEY"));
