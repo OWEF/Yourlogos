@@ -239,6 +239,10 @@ const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",t
 const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
 assert.ok(aiCard.includes("I want more freedom")&&aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
 assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
+const initialAI=aiConversationHtml({quote:QUOTES[63],conversation:{...newAIConversation(63),consent:true},available:true,authenticated:true});
+assert.ok(initialAI.includes('data-ai="send"')&&initialAI.includes("hidden"),"Consent activates first generation without typing");
+assert.ok(!initialAI.includes("I'm intrigued")&&!initialAI.includes("What unsettles you here?"),"No generic initial stances before model output");
+
 assert.ok(!aiCard.includes("Continue the conversation")&&!aiCard.includes("LIVING DIALOGUE · EXPERIMENTAL"),"Quiet Discover hides verbose AI scaffolding");
 assert.ok(!aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:false,authenticated:true}),"Feature flag hides AI when disabled");
 const savedAI=aiSummary(artificial,QUOTES[63],"2026-10-27");
@@ -252,13 +256,15 @@ assert.ok(aiServerSource.includes("guestIdentity(req,res)")&&aiServerSource.incl
 assert.ok(aiServerSource.includes("guestDailyLimit=40")&&aiServerSource.includes("personalLimit"),"Guest usage is strictly bounded");
 const {guestIdentity}=await import("../discover-ai-server.mjs");
 const cookieResponse={headers:{},setHeader(name,value){this.headers[name]=value}};
-const guestReq={headers:{origin:"https://yourlogos.test",host:"yourlogos.test"}};
+const guestReq={headers:{origin:"https://yourlogos-web-production.up.railway.app",host:"railway-internal-proxy"}};
 const firstGuest=guestIdentity(guestReq,cookieResponse);
 assert.ok(firstGuest?.startsWith("guest:"),"Same-origin visit receives a guest identity");
 const cookie=cookieResponse.headers["Set-Cookie"].split(";")[0];
 assert.ok(cookieResponse.headers["Set-Cookie"].includes("HttpOnly")&&cookieResponse.headers["Set-Cookie"].includes("SameSite=Strict"));
 assert.equal(guestIdentity({headers:{...guestReq.headers,cookie}}, {setHeader(){}}),firstGuest,"Signed guest cookie is stable for the same visitor");
-assert.equal(guestIdentity({headers:{origin:"https://untrusted.test",host:"yourlogos.test"}},cookieResponse),null,"Cross-origin requests cannot create guest identity");
+assert.equal(guestIdentity({headers:{origin:"https://untrusted.test",host:"railway-internal-proxy"}},cookieResponse),null,"Cross-origin requests cannot create guest identity");
+assert.ok(guestIdentity({headers:{host:"railway-internal-proxy","sec-fetch-site":"same-origin"}},{setHeader(){}})?.startsWith("guest:"),"Same-origin Safari requests may omit Origin");
+assert.equal(guestIdentity({headers:{host:"railway-internal-proxy","sec-fetch-site":"cross-site"}},cookieResponse),null,"Cross-site fetch without Origin is denied");
 
 assert.ok(app.includes('...(token?{Authorization:"Bearer "+token}:{})'),"Browser sends account authentication only when available");
 assert.ok(aiCard.includes('data-ai-choice="0"'),"AI tap responses are available without a keyboard");
