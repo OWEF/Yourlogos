@@ -4,6 +4,7 @@
 import { getThoughtThread } from "./thought-threads.js";
 import { personalizedExplore, CONCERNS } from "./personalization.js";
 import { exploreFor } from "./explore-catalogue.js";
+import { memoryForQuote, matchWorldMemory } from "./world-memory.js";
 
 export const LIVING_VERSION=1;
 const THEME_START={
@@ -27,6 +28,7 @@ export function normalizeLivingState(value){
  const history=Array.isArray(v.history)?v.history.filter(x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<91&&
    Object.hasOwn(CONCERNS,x.focus)&&["close","unsure","turn"].includes(x.reaction)&&typeof x.question==="string").slice(-45).map(x=>({
    id:safePhrase(x.id,90),quoteId:x.quoteId,theme:safePhrase(x.theme,30),focus:x.focus,reaction:x.reaction,
+   opening:safePhrase(x.opening,240),
    question:safePhrase(x.question,230),date:safePhrase(x.date,10),note:safePhrase(x.note,240)
  })):[];
  const sessions={};
@@ -37,7 +39,7 @@ export function normalizeLivingState(value){
      sessions[key]={id:safePhrase(s.id,90),quoteId:s.quoteId,theme:safePhrase(s.theme,30),date:safePhrase(s.date,10),
        phase:s.phase,focus:Object.hasOwn(CONCERNS,s.focus)?s.focus:null,
        reaction:Object.hasOwn(REACTIONS,s.reaction)?s.reaction:null,
-       note:safePhrase(s.note,240),revision:Math.min(5,Math.max(0,Number(s.revision)||0)),
+       note:safePhrase(s.note,240),opening:safePhrase(s.opening,240),revision:Math.min(5,Math.max(0,Number(s.revision)||0)),
        carried:Boolean(s.carried)};
    }
  }
@@ -48,13 +50,14 @@ export function beginLiving(quote,id,date,old=null){
  if(!validQuote(quote,id))return null;
  if(old&&old.quoteId===id&&old.phase!=="done")return old;
  return {id:id+":"+stableDate(date),quoteId:id,theme:quote[2],date:stableDate(date),phase:"focus",
-   focus:null,reaction:null,note:"",revision:0,carried:false};
+   focus:null,reaction:null,note:"",opening:"",revision:0,carried:false};
 }
-export function focusChoices(quote,profile,history=[]){
+export function focusChoices(quote,profile,history=[],memory=null){
  const user=answers(profile);
  const selected=Array.isArray(user.concerns)?user.concerns.filter(k=>Object.hasOwn(CONCERNS,k)).slice(0,3):[];
  const previous=Array.isArray(history)?[...history].reverse().filter(h=>h?.theme===quote?.[2]&&Object.hasOwn(CONCERNS,h.focus)): [];
- const ids=[...new Set([...selected,...previous.map(h=>h.focus),...(THEME_START[quote?.[2]]||THEME_START.Meaning)])].slice(0,4);
+ const remembered=memory?.threads?.filter(h=>h?.theme===quote?.[2]&&Object.hasOwn(CONCERNS,h.focus)).slice(-2).map(h=>h.focus)||[];
+ const ids=[...new Set([...remembered,...selected,...previous.map(h=>h.focus),...(THEME_START[quote?.[2]]||THEME_START.Meaning)])].slice(0,3);
  return ids.map(id=>({id,label:CONCERNS[id].label}));
 }
 function relevantMemory(history,quote,focus){
@@ -69,10 +72,16 @@ function localProfile(profile,focus){
 function threadContext(quote,id,profile,focus,history){
  return personalizedExplore(quote,id,localProfile(profile,focus),history)||exploreFor(quote,id);
 }
-export function transitionLiving(session,action,{quote,profile,history=[]}={}){
+export function transitionLiving(session,action,{quote,profile,history=[],memory=null}={}){
  if(!session||!validQuote(quote,session.quoteId))return null;
- const next={...session},choices=focusChoices(quote,profile,history);
+ const next={...session},choices=focusChoices(quote,profile,history,memory);
  if(next.phase==="focus"){
+   if(action==="own-voice"){
+     if(!next.opening.trim())return null;
+     const carry=memoryForQuote(memory,quote,next.quoteId);
+     next.focus=carry.focus&&Object.hasOwn(CONCERNS,carry.focus)?carry.focus:choices[0]?.id||"identity";
+     next.reaction=null;next.phase="mirror";return next;
+   }
    if(!action.startsWith("focus:"))return null;
    const focus=action.slice(6);
    if(!choices.some(x=>x.id===focus))return null;
@@ -99,6 +108,10 @@ export function transitionLiving(session,action,{quote,profile,history=[]}={}){
  if(next.phase==="done"&&action==="revisit"){return beginLiving(quote,session.quoteId,session.date+"-again");}
  return null;
 }
+export function openingLiving(session,text){
+ if(!session||session.phase!=="focus")return null;
+ return {...session,opening:safePhrase(text,240)};
+}
 export function noteLiving(session,text){
  if(!session||!["reflection","summary"].includes(session.phase))return null;
  return {...session,note:safePhrase(text,240)};
@@ -108,39 +121,59 @@ export function archiveLiving(history,session,quote,profile){
  const response=threadContext(quote,session.quoteId,profile,session.focus,history);
  const entry={id:session.id,quoteId:session.quoteId,theme:quote[2],focus:session.focus,
    reaction:session.reaction,question:safePhrase(response?.reflection||getThoughtThread(quote,session.quoteId).question,230),
-   date:session.date,note:safePhrase(session.note,240)};
+   date:session.date,note:safePhrase(session.note,240),opening:safePhrase(session.opening,240)};
  return [...(Array.isArray(history)?history.filter(x=>x?.id!==entry.id):[]),entry].slice(-45);
 }
 function button(action,text,variant=""){
- return '<button type="button" class="yl-living-choice '+variant+'" data-living="'+esc(action)+'"><span>'+esc(text)+'</span><span aria-hidden="true">↗</span></button>';
+ return '<button type="button" class="yl-living-choice '+variant+'" data-living="'+esc(action)+'"><span>'+esc(text)+'</span><svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
 }
-export function livingHtml({quote,id,session,profile,history=[]}){
+export function livingHtml({quote,id,session,profile,history=[],memory=null}){
  if(!validQuote(quote,id))return '<div class="yl-thread yl-thread-pending" role="status"><p>This quotation does not have a reviewed Discover conversation yet.</p></div>';
  const thread=getThoughtThread(quote,id);
- const recall=(Array.isArray(history)?[...history].reverse():[]).find(x=>x?.quoteId!==id);
+ const recall=matchWorldMemory(memory,quote,id);
+ const entry=memoryForQuote(memory,quote,id);
  const front='<div class="yl-thread yl-living" data-living-phase="'+esc(session?.phase||"entry")+'">';
  if(!session)return front+
    '<div class="yl-thread-progress">A QUESTION WORTH FOLLOWING</div>'+
-   '<h2 class="yl-living-title">'+esc(thread.question)+'</h2>'+
-   (recall?'<p class="yl-living-memory">Last time, you were wondering: “'+esc(recall.question)+'”</p>':"")+
+   '<h2 class="yl-living-title">'+esc(recall?.question?
+     "You left a question open last time. Does this one bring you back to it?":
+     entry.source==="onboarding"?"Something you shared when we began might connect with this thought. What do you think?":
+       thread.question)+'</h2>'+
+   '<p class="yl-living-memory">'+esc(entry.preview)+'</p>'+
    '<div class="yl-explore-invitation"><button type="button" class="yl-explore-button" data-action="thread-explore" aria-label="Explore this thought"><span class="yl-explore-orb" aria-hidden="true">✧</span><span class="yl-explore-label">Explore</span></button></div>'+
-   '<p class="yl-explore-hint">Your answers shape where this goes.</p></div>';
+   '<p class="yl-explore-hint">A thought can mean different things depending on where you are in life.</p></div>';
  const prefix='<div class="yl-living-kicker"><span class="yl-living-orbit" aria-hidden="true">✧</span> YOUR THREAD <span class="yl-living-dot">·</span> '+esc((session.phase==="done"?"KEPT":session.phase==="focus"?"WHERE TO BEGIN":session.phase==="mirror"?"A CONNECTION":session.phase==="response"?"FOLLOWING YOUR RESPONSE":session.phase==="reflection"?"STAY WITH IT":"A THREAD TO CARRY"))+'</div>';
- const memory=relevantMemory(history,quote,session.focus);
+ const oldMemory=relevantMemory(history,quote,session.focus);
+ const memoryNote=recall?.opening||recall?.note||"";
+ const opening=session.opening?.trim()||"";
  if(session.phase==="focus"){
-   const options=focusChoices(quote,profile,history);
-   return front+prefix+'<h2 class="yl-living-title">'+esc(thread.question)+'</h2>'+
-     '<p class="yl-living-sub">What part of your life, or the world around you, does this bring to mind?</p>'+
-     '<div class="yl-living-options">'+options.map(x=>button("focus:"+x.id,x.label)).join("")+'</div>'+
-     '<p class="yl-living-fine">This is a direction, not a label about you. You can change it later.</p></div>';
+   const options=focusChoices(quote,profile,history,memory);
+   const leading=entry.source==="thread"||entry.source==="ongoing"?
+       "Last time we left something open. Does this bring you back to it, or somewhere new?":
+     entry.source==="onboarding"?"I remember something you chose at the beginning. Does it still feel connected to this?":
+       "I don't know what this brings to mind for you yet. What made you pause here?";
+   return front+prefix+'<h2 class="yl-living-title">'+esc(leading)+'</h2>'+
+     '<p class="yl-living-memory">'+esc(entry.preview)+'</p>'+
+     '<p class="yl-living-sub">'+esc(thread.question)+'</p>'+
+     '<label class="yl-living-label" for="yl-living-opening">Tell me what comes to mind <span>(optional)</span></label>'+
+     '<textarea id="yl-living-opening" class="yl-living-textarea" maxlength="240" rows="2" placeholder="You can say it in your own words.">'+esc(session.opening||"")+'</textarea>'+
+     '<div class="yl-living-options">'+button("own-voice","Follow what I wrote","yl-living-primary")+
+       options.map(x=>button("focus:"+x.id,"Or explore "+x.label.toLowerCase())).join("")+'</div>'+
+     '<p class="yl-living-fine">You decide where this goes. A passing curiosity is not a fixed belief.</p></div>';
  }
  const personal=threadContext(quote,id,profile,session.focus,history);
  if(!personal)return front+prefix+'<p>The next connection is not ready yet.</p></div>';
  const sourceNote=exploreFor(quote,id)?.insight||"";
  if(session.phase==="mirror"){
-   return front+prefix+'<h2 class="yl-living-title">'+esc(personal.insight)+'</h2>'+
-     (memory?'<div class="yl-living-memory">Earlier, you left this question open: “'+esc(memory.question)+'”</div>':"")+
-     '<p class="yl-living-sub">Does this feel close to what you were thinking?</p>'+
+   const remembered=opening||memoryNote;
+   const headline=remembered?"You brought up something that feels worth staying with.":personal.insight;
+   const responsePrompt=remembered?"I don't want to put words in your mouth. Does this interpretation fit, or should we look somewhere else?":
+     "Does that capture what you were thinking—or am I missing something?";
+   return front+prefix+'<h2 class="yl-living-title">'+esc(headline)+'</h2>'+
+     (remembered?'<div class="yl-living-memory">You shared: “'+esc(remembered)+'”</div>':"")+
+     '<p class="yl-living-sub">'+esc(remembered?personal.insight:"This is one way your chosen direction might connect with the quotation.")+'</p>'+
+     (!remembered&&oldMemory?'<p class="yl-living-memory">Another question you kept was: “'+esc(oldMemory.question)+'”</p>':"")+
+     '<p class="yl-living-sub">'+esc(responsePrompt)+'</p>'+
      '<div class="yl-living-options">'+Object.entries(REACTIONS).map(([k,v])=>button(k,v)).join("")+'</div></div>';
  }
  const branches=thread.branches||[];
@@ -149,14 +182,15 @@ export function livingHtml({quote,id,session,profile,history=[]}){
    const lead=session.reaction==="close"?"You saw something of your own experience in that thought.":
      session.reaction==="unsure"?"You weren't convinced, and that matters. The first interpretation might not fit your experience.":
      "You'd rather look from another side. That can change which part of the idea matters most.";
-   return front+prefix+'<p class="yl-living-ack">'+esc(lead)+'</p>'+
+   return front+prefix+'<p class="yl-living-ack">'+esc(opening?"You told me: “"+opening+"”. "+lead:lead)+'</p>'+
      '<h2 class="yl-living-title">'+esc(branch?.title||personal.reflection)+'</h2>'+
      '<p class="yl-living-sub">'+esc(branch?.followup||personal.reflection)+'</p>'+
      '<div class="yl-living-options">'+button("continue","Follow this question","yl-living-primary")+
      (session.revision<5?button("reconsider","That's not quite my direction"):"")+'</div></div>';
  }
  if(session.phase==="reflection"){
-   return front+prefix+'<h2 class="yl-living-title">'+esc(personal.reflection)+'</h2>'+
+   return front+prefix+(opening?'<p class="yl-living-ack">You brought up “'+esc(opening)+'”. Let us stay with that.</p>':"")+
+     '<h2 class="yl-living-title">'+esc(personal.reflection)+'</h2>'+
      '<p class="yl-living-sub">'+esc(personal.nudge||"You don't have to find an answer immediately.")+'</p>'+
      '<label class="yl-living-label" for="yl-living-note">A thought to remember? <span>(optional)</span></label>'+
      '<textarea id="yl-living-note" class="yl-living-textarea" maxlength="240" rows="2" placeholder="One sentence is enough.">'+esc(session.note)+'</textarea>'+
@@ -170,6 +204,7 @@ export function livingHtml({quote,id,session,profile,history=[]}){
    '<p class="yl-living-sub">'+esc(standpoint)+'</p>'+
    '<div class="yl-living-recap"><strong>'+esc(CONCERNS[session.focus]?.label||"A new direction")+'</strong>'+
    '<p>'+esc(personal.reflection)+'</p>'+
+   (session.opening?'<blockquote>“'+esc(session.opening)+'”</blockquote>':"")+
    (session.note?'<blockquote>“'+esc(session.note)+'”</blockquote>':"")+'</div>'+
    '<p class="yl-living-fine">'+esc(session.phase==="done"?"Your question is now part of your Encounter history.":"This can become a thread we return to when another quote connects.")+'</p>'+
    '<div class="yl-living-options">'+(session.phase==="summary"?button("save","Keep this thread","yl-living-primary"):button("restart","Explore this again","yl-living-primary"))+
