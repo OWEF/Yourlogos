@@ -128,8 +128,8 @@ let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let bridgeFromQuestion=null;
 let aiDiscoverEnabled=false,aiDiscoverMode=false,aiConversation=null;
-const consentKey="yourlogos-ai-consent-v1";
-const previouslyConsented=()=>localStorage.getItem(consentKey)==="yes";
+const consentKey=()=>"yourlogos-ai-consent-v1:"+(verifiedIdentity?.id||"guest");
+const previouslyConsented=()=>Boolean(verifiedIdentity)&&localStorage.getItem(consentKey())==="yes";
 let settingsReturnScrollY=0;
 let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
@@ -721,13 +721,14 @@ document.addEventListener("click",async e=>{
 
     if(!aiConversation||aiConversation.quoteId!==id)return;
     if(action==="cancel"||action==="revoke"){
-      if(action==="revoke")localStorage.removeItem(consentKey);
+      if(action==="revoke")localStorage.removeItem(consentKey());
       aiDiscoverMode=false;aiConversation=null;render();return
     }
     if(action==="agree"){
       if(!verifiedIdentity){toast("Please sign in through Profile to enable AI dialogue.");return}
-      localStorage.setItem(consentKey,"yes");
-      aiConversation.consent=true;render();return;
+      localStorage.setItem(consentKey(),"yes");
+      aiConversation.consent=true;render();
+      document.querySelector('[data-ai="send"]')?.click();return;
     }
     if(!aiConversation.consent)return;
     if(action==="save"){
@@ -913,7 +914,8 @@ document.addEventListener("click",async e=>{
     case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;
       aiDiscoverMode=aiDiscoverEnabled&&Boolean(verifiedIdentity);
       aiConversation=aiDiscoverMode?{...safeAIConversation(null,visibleQuoteId()),consent:previouslyConsented()}:null;
-      discoverOpen=true;haptic("impact");playEncounterTone("open");render();document.querySelector(".sheet-close")?.focus();return;
+      discoverOpen=true;haptic("impact");playEncounterTone("open");render();
+      if(aiConversation?.consent)document.querySelector('[data-ai="send"]')?.click();document.querySelector(".sheet-close")?.focus();return;
     case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
     case"close-discover":discoverOpen=false;discoverStep=0;aiDiscoverMode=false;aiConversation=null;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
