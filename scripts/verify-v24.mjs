@@ -250,6 +250,16 @@ assert.ok(app.includes('aiPrivateForCurrentSheet')&&!app.includes('aiDiscoverEna
 assert.ok(!auth.includes("signInAnonymously()")&&auth.includes("data.user.is_anonymous"),"Guest AI does not create unconfigured Supabase accounts");
 assert.ok(aiServerSource.includes("guestIdentity(req,res)")&&aiServerSource.includes("SameSite=Strict"),"Guest AI requires signed browser cookie");
 assert.ok(aiServerSource.includes("guestDailyLimit=40")&&aiServerSource.includes("personalLimit"),"Guest usage is strictly bounded");
+const {guestIdentity}=await import("../discover-ai-server.mjs");
+const cookieResponse={headers:{},setHeader(name,value){this.headers[name]=value}};
+const guestReq={headers:{origin:"https://yourlogos.test",host:"yourlogos.test"}};
+const firstGuest=guestIdentity(guestReq,cookieResponse);
+assert.ok(firstGuest?.startsWith("guest:"),"Same-origin visit receives a guest identity");
+const cookie=cookieResponse.headers["Set-Cookie"].split(";")[0];
+assert.ok(cookieResponse.headers["Set-Cookie"].includes("HttpOnly")&&cookieResponse.headers["Set-Cookie"].includes("SameSite=Strict"));
+assert.equal(guestIdentity({headers:{...guestReq.headers,cookie}}, {setHeader(){}}),firstGuest,"Signed guest cookie is stable for the same visitor");
+assert.equal(guestIdentity({headers:{origin:"https://untrusted.test",host:"yourlogos.test"}},cookieResponse),null,"Cross-origin requests cannot create guest identity");
+
 assert.ok(app.includes('...(token?{Authorization:"Bearer "+token}:{})'),"Browser sends account authentication only when available");
 assert.ok(aiCard.includes('data-ai-choice="0"'),"AI tap responses are available without a keyboard");
 assert.ok(serverSource.includes('"/api/discover-ai"')&&serverSource.includes('handleDiscoverAI(req,res)'));
