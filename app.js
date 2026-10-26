@@ -6,7 +6,8 @@ import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } fr
 import { thoughtThreadHtml, thoughtThreadDestination, getThoughtThread } from "./thought-threads.js";
 import { exploreFor } from "./explore-catalogue.js";
 import { personalizedExplore } from "./personalization.js";
-import { livingHtml, normalizeLivingState, beginLiving, transitionLiving, noteLiving, archiveLiving } from "./living-threads.js";
+import { livingHtml, normalizeLivingState, beginLiving, transitionLiving, noteLiving, openingLiving, archiveLiving } from "./living-threads.js";
+import { buildWorldMemory, worldMemoryHtml } from "./world-memory.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -165,6 +166,10 @@ const dailyPick=(dateKey)=>{
 };
 const activeQuote=()=>{const d=today();if(Number.isInteger(data.practice[d]?.quoteId)&&QUOTES[data.practice[d].quoteId])return data.practice[d].quoteId;return dailyPick(d)};
 const persist=()=>localStorage.setItem(KEY,JSON.stringify(data));
+function sharedWorldMemory(){
+  const cosmos=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();
+  return buildWorldMemory(data,QUOTES,Array.isArray(cosmos)?cosmos:[]);
+}
 const ensureDailyFeature=()=>{
   const d=today();if(!data.practice[d])data.practice[d]={};
   if(!Number.isInteger(data.practice[d].quoteId)||!QUOTES[data.practice[d].quoteId]){
@@ -279,7 +284,7 @@ function discoverHtml(){
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
-      livingHtml({quote:q,id,session:data.livingThreads.sessions[String(id)]||null,profile:data.personalization,history:data.livingThreads.history})+
+      livingHtml({quote:q,id,session:data.livingThreads.sessions[String(id)]||null,profile:data.personalization,history:data.livingThreads.history,memory:sharedWorldMemory()})+
     '</section>';
 }
 
@@ -414,7 +419,7 @@ function profileHtml(){
   if(universePane==="sky")return '<section class="view living-universe-embed" aria-label="Your living sky">'+
     '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living sky of ideas" loading="eager"></iframe>'+
     '</section>';
-  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName,encountersHtml:worldHomeEvidence(data.encounterEvents)});
+  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName,encountersHtml:worldHomeEvidence(data.encounterEvents)})+worldMemoryHtml(sharedWorldMemory());
   return '<div class="world-detail">'+worldBack()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():mirrorHtml(data.saved.map(i=>QUOTES[i]).filter(Boolean),data.discovery))+'</div>';
 }
 
@@ -706,6 +711,12 @@ document.addEventListener("click",async e=>{
     let current=data.livingThreads.sessions[key];
     if(!current||!q)return;
     const action=livingAction.dataset.living;
+    if(action==="own-voice"){
+      const opening=document.getElementById("yl-living-opening");
+      if(opening)current=openingLiving(current,opening.value)||current;
+      if(!current.opening?.trim()){toast("Share a thought first—or choose a direction below.");return;}
+      data.livingThreads.sessions[key]=current;
+    }
     if(action==="close"){discoverOpen=false;render();return;}
     if(action==="restart"){
       current=beginLiving(q,id,today(),null);
@@ -716,7 +727,7 @@ document.addEventListener("click",async e=>{
       const note=document.getElementById("yl-living-note");
       if(note)current=noteLiving(current,note.value)||current;
     }
-    const next=transitionLiving(current,action,{quote:q,profile:data.personalization,history:data.livingThreads.history});
+    const next=transitionLiving(current,action,{quote:q,profile:data.personalization,history:data.livingThreads.history,memory:sharedWorldMemory()});
     if(!next)return;
     data.livingThreads.sessions[key]=next;
     if(next.phase==="done")data.livingThreads.history=archiveLiving(data.livingThreads.history,next,q,data.personalization);
@@ -876,9 +887,9 @@ document.addEventListener("click",async e=>{
   persist();render();
 });
 document.addEventListener("input",e=>{
- if(e.target.id!=="yl-living-note"||!discoverOpen)return;
+ if(!discoverOpen||!["yl-living-note","yl-living-opening"].includes(e.target.id))return;
  const id=visibleQuoteId(),key=String(id),current=data.livingThreads.sessions[key];
- const updated=noteLiving(current,e.target.value);
+ const updated=e.target.id==="yl-living-opening"?openingLiving(current,e.target.value):noteLiving(current,e.target.value);
  if(updated){data.livingThreads.sessions[key]=updated;persist();}
 });
 document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsOpen){settingsOpen=false;render()}else if(previewTomorrowOpen){previewTomorrowOpen=false;render()}else if(discoverOpen){discoverOpen=false;render()}});
