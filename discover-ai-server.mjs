@@ -8,9 +8,15 @@ const guestSigner=text=>createHmac("sha256",guestSecret).update(text).digest("he
 export function guestIdentity(req,res){
  // Only same-origin browsers may obtain guest AI sessions; never accept
  // an unverified bearer token as a guest substitute.
- const origin=req.headers.origin||"",host=req.headers.host||"";
- if(!origin||!host)return null;
- try{const url=new URL(origin);if(url.host!==host||url.protocol!=="https:")return null}catch{return null}
+ const origin=req.headers.origin||"";
+ const allowed=new Set(["yourlogos-web-production.up.railway.app",process.env.RAILWAY_PUBLIC_DOMAIN].filter(Boolean));
+ if(origin){
+  try{const u=new URL(origin);if(u.protocol!=="https:"||!allowed.has(u.host))return null}
+  catch{return null}
+ }else if(!["same-origin","none"].includes(req.headers["sec-fetch-site"]||"")){
+  // Safari/PWA requests can omit Origin; Fetch Metadata is browser-controlled.
+  return null;
+ }
  const match=/yl_disc_guest=([a-f0-9]{24})\.([0-9]{10})\.([a-f0-9]{64})/.exec(String(req.headers.cookie||""));
  if(match){
   const body=match[1]+"."+match[2],expected=guestSigner(body);
