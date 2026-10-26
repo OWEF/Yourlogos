@@ -230,13 +230,14 @@ assert.ok(prompt.system.includes("provocative")&&prompt.system.includes("revise"
 assert.equal(prompt.context.userWords,dataForAI.userText);
 assert.equal(prompt.context.pastVoluntaryReflections.length,1);
 assert.ok(!prompt.system.includes("OPENAI_API_KEY"));
-assert.deepEqual(validateDiscoverTurn({reply:"You might be protecting an old identity because it has kept you safe.",followUp:"What would you risk by changing it?"}).followUp,"What would you risk by changing it?");
+assert.deepEqual(validateDiscoverTurn({reply:"You might be protecting an old identity because it has kept you safe.",followUp:"What would you risk by changing it?",choices:["I might lose belonging","I might gain freedom","I question the premise"]}).followUp,"What would you risk by changing it?");
 assert.equal(newAIConversation(12).consent,false,"No background submission or implied consent");
 const aiMemory=aiMemoryChoices({threads:[{opening:"A remembered thought"},{note:"A different memory"}]});
 assert.equal(aiMemory.length,2);
-const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",text:"I want more freedom"},{role:"assistant",text:"Freedom often costs more than we first expect.",followUp:"What would that cost you?"}]};
+const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",text:"I want more freedom"},{role:"assistant",text:"Freedom often costs more than we first expect.",followUp:"What would that cost you?",choices:["My comfort","My certainty","My social ties"]}]};
 const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
-assert.ok(aiCard.includes("I want more freedom")&&aiCard.includes("What would that cost you?"));
+assert.ok(aiCard.includes("I want more freedom")&&aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
+assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
 assert.ok(!aiCard.includes("Continue the conversation")&&!aiCard.includes("LIVING DIALOGUE · EXPERIMENTAL"),"Quiet Discover hides verbose AI scaffolding");
 assert.ok(!aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:false,authenticated:true}),"Feature flag hides AI when disabled");
 const savedAI=aiSummary(artificial,QUOTES[63],"2026-10-27");
