@@ -6,6 +6,7 @@ import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } fr
 import { thoughtThreadHtml, thoughtThreadDestination, getThoughtThread } from "./thought-threads.js";
 import { exploreFor } from "./explore-catalogue.js";
 import { personalizedExplore } from "./personalization.js";
+import { livingHtml, normalizeLivingState, beginLiving, transitionLiving, noteLiving, archiveLiving } from "./living-threads.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName } from "./auth-client.js";
 const QUOTES=[
@@ -135,6 +136,7 @@ let threadBranch=0,threadAnswer=0;
 let libraryListScrollY=0;
 let keepPending=null,keepTimer=null;
 if(!Array.isArray(data.thoughtThreadEvents))data.thoughtThreadEvents=[];
+data.livingThreads=normalizeLivingState(data.livingThreads);
 // A return is a gentle, optional act of presence; not a competitive streak.
 if(!Array.isArray(data.arrivals))data.arrivals=[];
 data.arrivals=[...new Set(data.arrivals.filter(x=>typeof x==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x)))].slice(-730);
@@ -277,7 +279,7 @@ function discoverHtml(){
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
-      thoughtThreadHtml({quote:q,quoteId:id,step:discoverStep,branchIndex:threadBranch,answerIndex:threadAnswer,profile:data.personalization,history:data.thoughtThreadEvents})+
+      livingHtml({quote:q,id,session:data.livingThreads.sessions[String(id)]||null,profile:data.personalization,history:data.livingThreads.history})+
     '</section>';
 }
 
@@ -384,7 +386,7 @@ function fingerprintHtml(){
      '<p class="v22-fine">Based on this browser’s saved quotes and explicit choices. You can revise or clear your Discover responses in Settings. Nothing here is a diagnosis.</p></section>';
 }
 function settingsHtml(){
-  const responses=Object.keys(data.discovery).length+(data.encounterEvents?.length||0)+(data.thoughtThreadEvents?.length||0);
+  const responses=Object.keys(data.discovery).length+(data.encounterEvents?.length||0)+(data.thoughtThreadEvents?.length||0)+(data.livingThreads?.history?.length||0);
   return '<section class="view v22-settings" aria-label="YourLogos settings"><div class="v22-kicker">YOUR SPACE, YOUR TERMS</div><h1>Settings.</h1><p class="v22-sub">Your curiosity belongs to you.</p>'+
     '<div class="v22-settings-block"><h2>Your account</h2><p>Personalize the way YourLogos welcomes you. Your display name is kept on this device until account sync is connected.</p>'+
       '<form id="profile-name-form" class="account-form"><label for="display-name">DISPLAY NAME</label><input id="display-name" name="displayName" required maxlength="32" autocomplete="nickname" placeholder="What should we call you?" value="'+esc(data.localName)+'"/><button type="submit">Save name</button></form>'+
@@ -698,6 +700,28 @@ document.addEventListener("click",async e=>{
   const fil=e.target.closest("[data-filter]");if(fil){selectedTheme=fil.dataset.filter;render();return}
   const scope=e.target.closest("[data-scope]");if(scope){libraryScope=scope.dataset.scope;render();return}
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
+  const livingAction=e.target.closest("[data-living]");
+  if(livingAction&&discoverOpen){
+    const id=visibleQuoteId(),q=QUOTES[id],key=String(id);
+    let current=data.livingThreads.sessions[key];
+    if(!current||!q)return;
+    const action=livingAction.dataset.living;
+    if(action==="close"){discoverOpen=false;render();return;}
+    if(action==="restart"){
+      current=beginLiving(q,id,today(),null);
+      data.livingThreads.sessions[key]=current;persist();render();haptic("selection");return;
+    }
+    // The note is the user's own explicit text; it is never interpreted as a belief.
+    if(["carry","save"].includes(action)){
+      const note=document.getElementById("yl-living-note");
+      if(note)current=noteLiving(current,note.value)||current;
+    }
+    const next=transitionLiving(current,action,{quote:q,profile:data.personalization,history:data.livingThreads.history});
+    if(!next)return;
+    data.livingThreads.sessions[key]=next;
+    if(next.phase==="done")data.livingThreads.history=archiveLiving(data.livingThreads.history,next,q,data.personalization);
+    persist();haptic("selection");playEncounterTone("choose");render();return;
+  }
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
     case"settings-open":{
@@ -742,7 +766,8 @@ document.addEventListener("click",async e=>{
             arrivals:Array.isArray(remote.state.arrivals)?remote.state.arrivals:[],
             started:Boolean(remote.state.started),
             localName:originalName||remote.name||"",
-            personalization:remote.state.personalization&&["completed","skipped"].includes(remote.state.personalization.status)?remote.state.personalization:data.personalization
+            personalization:remote.state.personalization&&["completed","skipped"].includes(remote.state.personalization.status)?remote.state.personalization:data.personalization,
+            livingThreads:normalizeLivingState(remote.state.livingThreads)
           };
           data={...data,...safe};persist();
           if(Array.isArray(remote.state.cosmosEvents)){
@@ -819,26 +844,17 @@ document.addEventListener("click",async e=>{
     case"discover-save":{const id=visibleQuoteId();if(id===null)return;const next=followingThought(daySequence(),id,[...data.saved,id]);if(!data.saved.includes(id)){data.saved.push(id);persist();}quoteCursor=next.cursor;discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
     case"thread-explore":{
-      if(!discoverOpen||discoverStep!==0)return;
-      const id=visibleQuoteId(),q=QUOTES[id],exploration=personalizedExplore(q,id,data.personalization,data.thoughtThreadEvents);
-      if(!exploration)return;
-      const event={quoteId:id,theme:q[2],author:q[1],branch:null,answer:null,destination:exploration.school,date:today(),depth:"explore"};
-      const last=data.thoughtThreadEvents.at(-1);
-      if(!last||last.quoteId!==id||last.date!==event.date||last.depth!=="explore")
-        data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(-249),event];
-      discoverStep=1;persist();playEncounterTone("choose");haptic("selection");render();return;
+      if(!discoverOpen)return;
+      const id=visibleQuoteId(),q=QUOTES[id];if(id===null)return;
+      const existing=data.livingThreads.sessions[String(id)];
+      const next=beginLiving(q,id,today(),existing);
+      if(!next)return;
+      data.livingThreads.sessions[String(id)]=next;
+      persist();playEncounterTone("choose");haptic("selection");render();return;
     }
-    case"thread-reflect":{
-      if(!discoverOpen||discoverStep!==1)return;
-      const id=visibleQuoteId(),last=data.thoughtThreadEvents.at(-1);
-      if(last?.quoteId===id&&last?.date===today()&&last?.depth==="explore"){
-        data.thoughtThreadEvents=[...data.thoughtThreadEvents.slice(0,-1),{...last,depth:"reflection"}];
-        persist();
-      }
-      discoverStep=2;playEncounterTone("choose");haptic("selection");render();return;
-    }
-    case"thread-back":discoverStep=1;render();return;
-    case"thread-restart":discoverStep=0;render();return;
+    case"thread-reflect":return; // Retired fixed-step Discover, retained as an inert legacy hook.
+    case"thread-back":render();return;
+    case"thread-restart":render();return;
     case"discover-library":{
       const id=visibleQuoteId(),q=QUOTES[id],exploration=personalizedExplore(q,id,data.personalization,data.thoughtThreadEvents);
       const target=exploration?.school;
@@ -849,7 +865,7 @@ document.addEventListener("click",async e=>{
     }
     case"clear-discovery":settingsConfirm=true;render();return;
     case"cancel-clear-discovery":settingsConfirm=false;render();return;
-    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];data.thoughtThreadEvents=[];settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
+    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];data.thoughtThreadEvents=[];data.livingThreads=normalizeLivingState(null);settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
     case"back":detailId=null;break;
     case"export":{
       const universe=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();
@@ -858,6 +874,12 @@ document.addEventListener("click",async e=>{
     }
   }
   persist();render();
+});
+document.addEventListener("input",e=>{
+ if(e.target.id!=="yl-living-note"||!discoverOpen)return;
+ const id=visibleQuoteId(),key=String(id),current=data.livingThreads.sessions[key];
+ const updated=noteLiving(current,e.target.value);
+ if(updated){data.livingThreads.sessions[key]=updated;persist();}
 });
 document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsOpen){settingsOpen=false;render()}else if(previewTomorrowOpen){previewTomorrowOpen=false;render()}else if(discoverOpen){discoverOpen=false;render()}});
 document.addEventListener("submit",async e=>{
