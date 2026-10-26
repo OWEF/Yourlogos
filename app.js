@@ -127,9 +127,19 @@ const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{retur
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
 let bridgeFromQuestion=null;
-let aiDiscoverEnabled=false,aiDiscoverMode=false,aiConversation=null;
+let aiDiscoverEnabled=false,aiDiscoverMode=false,aiConversation=null,aiPrivateForCurrentSheet=false;
+function activateDiscoverAI(){
+ if(!discoverOpen||!aiDiscoverEnabled||aiPrivateForCurrentSheet)return;
+ const id=visibleQuoteId();if(id===null)return;
+ aiDiscoverMode=true;
+ if(!aiConversation||aiConversation.quoteId!==id){
+  aiConversation={...safeAIConversation(null,id),consent:previouslyConsented()};
+ }
+ render();
+ if(aiConversation?.consent)document.querySelector('[data-ai="send"]')?.click();
+}
 const consentKey=()=>"yourlogos-ai-consent-v1:"+(verifiedIdentity?.id||"guest");
-const previouslyConsented=()=>Boolean(verifiedIdentity)&&localStorage.getItem(consentKey())==="yes";
+const previouslyConsented=()=>localStorage.getItem(consentKey())==="yes";
 let settingsReturnScrollY=0;
 let syncBusy=false,syncConfirm="",cloudStateInfo="",quoteCursor=0,libraryScope="all",discoverOpen=false,discoverStep=0,settingsConfirm=false,settingsOpen=false,universePane="home",swipeBusy=false,navFrom=0,navPulse=null,heartPulse=false,openSchoolId=null,schoolSceneIndex=0,schoolChoiceIndex=null;
 if(!data.discovery||typeof data.discovery!=="object")data.discovery={};
@@ -290,8 +300,8 @@ function discoverHtml(){
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 16V5l9-2v11"/><circle cx="7" cy="17" r="3"/><circle cx="16" cy="15" r="3"/>'+(encounterSoundEnabled()?'':'<path d="M3 3 21 21" stroke-width="2"/>')+'</svg></button>'+
         '<button type="button" data-action="close-discover" class="sheet-close" aria-label="Close">×</button></div></div>'+
-      (aiDiscoverEnabled&&aiDiscoverMode&&verifiedIdentity?
-        aiConversationHtml({quote:q,conversation:safeAIConversation(aiConversation,id),available:aiDiscoverEnabled,authenticated:Boolean(verifiedIdentity)}):
+      (aiDiscoverEnabled&&aiDiscoverMode?
+        aiConversationHtml({quote:q,conversation:safeAIConversation(aiConversation,id),available:aiDiscoverEnabled,authenticated:true}):
         livingHtml({quote:q,id,session:data.livingThreads.sessions[String(id)]||null,profile:data.personalization,history:data.livingThreads.history,memory:sharedWorldMemory()})+
         '')+
     '</section>';
@@ -726,7 +736,7 @@ document.addEventListener("click",async e=>{
     current.loading=true;current.error="";render();
     try{
       const token=await getDiscoverAccessToken();
-      if(!token)throw Error("Please sign in again.");
+      if(!token)throw Error("Your private Discover session could not be started.");
       const reply=await fetch("/api/discover-ai",{
         method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},
         body:JSON.stringify({consent:true,quoteId:id,quote:{text:q[0],author:q[1],theme:q[2]},
@@ -753,10 +763,9 @@ document.addEventListener("click",async e=>{
     if(!aiConversation||aiConversation.quoteId!==id)return;
     if(action==="cancel"||action==="revoke"){
       if(action==="revoke")localStorage.removeItem(consentKey());
-      aiDiscoverMode=false;aiConversation=null;render();return
+      aiPrivateForCurrentSheet=true;aiDiscoverMode=false;aiConversation=null;render();return
     }
     if(action==="agree"){
-      if(!verifiedIdentity){toast("Please sign in through Profile to enable AI dialogue.");return}
       localStorage.setItem(consentKey(),"yes");
       aiConversation.consent=true;render();
       document.querySelector('[data-ai="send"]')?.click();return;
@@ -777,7 +786,7 @@ document.addEventListener("click",async e=>{
       currentConversation.loading=true;currentConversation.error="";render();
       try{
         const token=await getDiscoverAccessToken();
-        if(!token)throw Error("Sign in through Profile to try AI Discover.");
+        if(!token)throw Error("Your private Discover session could not be started.");
         const reply=await fetch("/api/discover-ai",{
           method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},
           body:JSON.stringify({consent:true,quoteId:id,quote:{text:q[0],author:q[1],theme:q[2]},
@@ -943,10 +952,10 @@ document.addEventListener("click",async e=>{
       view="library";libraryScope="liked";openSchoolId=null;render();return;
     }
     case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;
-      aiDiscoverMode=aiDiscoverEnabled&&Boolean(verifiedIdentity);
-      aiConversation=aiDiscoverMode?{...safeAIConversation(null,visibleQuoteId()),consent:previouslyConsented()}:null;
-      discoverOpen=true;haptic("impact");playEncounterTone("open");render();
-      if(aiConversation?.consent)document.querySelector('[data-ai="send"]')?.click();document.querySelector(".sheet-close")?.focus();return;
+      aiPrivateForCurrentSheet=false;aiDiscoverMode=false;aiConversation=null;
+      discoverOpen=true;haptic("impact");playEncounterTone("open");
+      if(aiDiscoverEnabled)activateDiscoverAI();else render();
+      document.querySelector(".sheet-close")?.focus();return;
     case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
     case"close-discover":discoverOpen=false;discoverStep=0;aiDiscoverMode=false;aiConversation=null;render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
@@ -1055,7 +1064,7 @@ async function refreshPublicQuoteCatalogue(){
 
 // The AI pilot is opt-in and hidden unless the backend confirms credentials and a feature flag.
 fetch("/api/discover-ai-config",{cache:"no-store"})
-  .then(r=>r.ok?r.json():{enabled:false}).then(info=>{aiDiscoverEnabled=info?.enabled===true;if(discoverOpen)render()})
+  .then(r=>r.ok?r.json():{enabled:false}).then(info=>{aiDiscoverEnabled=info?.enabled===true;if(discoverOpen){if(aiDiscoverEnabled)activateDiscoverAI();else render()}})
   .catch(()=>{aiDiscoverEnabled=false});
 window.addEventListener("yourlogos:onboarding-complete",event=>{
   const incoming=event.detail?.profile;
