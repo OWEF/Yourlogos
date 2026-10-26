@@ -735,10 +735,9 @@ document.addEventListener("click",async e=>{
     const current=aiConversation;
     current.loading=true;current.error="";render();
     try{
-      const token=await getDiscoverAccessToken();
-      if(!token)throw Error("Your private Discover session could not be started.");
+      const token=await getDiscoverAccessToken().catch(()=>null);
       const reply=await fetch("/api/discover-ai",{
-        method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},
+        method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{})},
         body:JSON.stringify({consent:true,quoteId:id,quote:{text:q[0],author:q[1],theme:q[2]},
           memory:aiMemoryChoices(sharedWorldMemory()),history:requestHistory,userText:context,
           turn:current.messages.filter(m=>m.role==="assistant").length})
@@ -785,10 +784,9 @@ document.addEventListener("click",async e=>{
       const currentConversation=aiConversation;
       currentConversation.loading=true;currentConversation.error="";render();
       try{
-        const token=await getDiscoverAccessToken();
-        if(!token)throw Error("Your private Discover session could not be started.");
+        const token=await getDiscoverAccessToken().catch(()=>null);
         const reply=await fetch("/api/discover-ai",{
-          method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},
+          method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{})},
           body:JSON.stringify({consent:true,quoteId:id,quote:{text:q[0],author:q[1],theme:q[2]},
             memory,history:requestHistory,userText:pendingText,turn:currentConversation.messages.filter(m=>m.role==="assistant").length})
         });
