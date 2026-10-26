@@ -239,6 +239,10 @@ const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",t
 const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
 assert.ok(aiCard.includes("I want more freedom")&&aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
 assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
+const initialAI=aiConversationHtml({quote:QUOTES[63],conversation:{...newAIConversation(63),consent:true},available:true,authenticated:true});
+assert.ok(initialAI.includes('data-ai="send"')&&initialAI.includes("hidden"),"Consent activates first generation without typing");
+assert.ok(!initialAI.includes("I'm intrigued")&&!initialAI.includes("What unsettles you here?"),"No generic initial stances before model output");
+
 assert.ok(!aiCard.includes("Continue the conversation")&&!aiCard.includes("LIVING DIALOGUE · EXPERIMENTAL"),"Quiet Discover hides verbose AI scaffolding");
 assert.ok(!aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:false,authenticated:true}),"Feature flag hides AI when disabled");
 const savedAI=aiSummary(artificial,QUOTES[63],"2026-10-27");
