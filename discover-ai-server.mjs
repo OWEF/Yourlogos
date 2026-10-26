@@ -1,6 +1,6 @@
-// Server-only opt-in AI pilot. Never expose OPENAI_API_KEY to a browser.
+// Server-only opt-in DeepSeek pilot. Never expose DEEPSEEK_API_KEY to a browser.
 import {EXPLORE} from "./explore-catalogue.js";
-export const discoverAIEnabled=()=>process.env.YOURLOGOS_AI_ENABLED==="1"&&!!process.env.OPENAI_API_KEY&&!!process.env.YOURLOGOS_SUPABASE_URL&&!!process.env.YOURLOGOS_SUPABASE_PUBLISHABLE_KEY;
+export const discoverAIEnabled=()=>process.env.YOURLOGOS_AI_ENABLED==="1"&&!!process.env.DEEPSEEK_API_KEY&&!!process.env.YOURLOGOS_SUPABASE_URL&&!!process.env.YOURLOGOS_SUPABASE_PUBLISHABLE_KEY;
 const counter=new Map();let day="",globalCount=0;
 const clip=(x,n=400)=>typeof x==="string"?x.trim().slice(0,n):"";
 const list=(x,n,m)=>Array.isArray(x)?x.filter(v=>typeof v==="string").slice(-n).map(v=>clip(v,m)):[];
@@ -67,19 +67,22 @@ export async function handleDiscoverAI(req,res){
  if(!id){send(res,401,{error:"sign_in_required"});return}
  let data,prompt;try{data=await body(req);if(data?.consent!==true)throw Error("Consent");prompt=makeDiscoverPrompt(data)}catch{send(res,400,{error:"invalid_or_unconsented_request"});return}
  if(!budget(id)){send(res,429,{error:"daily_or_rate_limit"});return}
- const schema={type:"object",additionalProperties:false,properties:{reply:{type:"string"},followUp:{type:"string"}},required:["reply","followUp"]};
  try{
-  const r=await fetch("https://api.openai.com/v1/responses",{
-    method:"POST",signal:AbortSignal.timeout(15000),
-    headers:{"Content-Type":"application/json",Authorization:"Bearer "+process.env.OPENAI_API_KEY},
-    body:JSON.stringify({model:process.env.YOURLOGOS_AI_MODEL||"gpt-6-luna",store:false,reasoning:{effort:"low"},reasoning:{effort:"none"},
-      max_output_tokens:500,input:[{role:"system",content:prompt.system},{role:"user",content:JSON.stringify(prompt.context)}],
-      text:{format:{type:"json_schema",name:"yourlogos_discover_turn",strict:true,schema}}})
+  const r=await fetch("https://api.deepseek.com/chat/completions",{
+    method:"POST",signal:AbortSignal.timeout(25000),
+    headers:{"Content-Type":"application/json",Authorization:"Bearer "+process.env.DEEPSEEK_API_KEY},
+    body:JSON.stringify({
+      model:process.env.YOURLOGOS_AI_MODEL||"deepseek-flash",
+      thinking:{type:"disabled"},max_tokens:380,stream:false,
+      response_format:{type:"json_object"},
+      messages:[{role:"system",content:prompt.system},{role:"user",content:JSON.stringify(prompt.context)}]
+    })
   });
   if(!r.ok){send(res,502,{error:"model_unavailable"});return}
   const json=await r.json();
-  const text=json.output?.flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join("")||"";
-  const result=validateDiscoverTurn(JSON.parse(text));
-  send(res,200,{...result,usage:{inputTokens:Number(json.usage?.input_tokens)||0,outputTokens:Number(json.usage?.output_tokens)||0}});
+  if(json.choices?.[0]?.finish_reason!=="stop"){send(res,502,{error:"model_unavailable"});return}
+  const content=json.choices?.[0]?.message?.content||"";
+  const result=validateDiscoverTurn(JSON.parse(content));
+  send(res,200,{...result,usage:{inputTokens:Number(json.usage?.prompt_tokens)||0,outputTokens:Number(json.usage?.completion_tokens)||0}});
  }catch{send(res,502,{error:"model_unavailable"})}
 }
