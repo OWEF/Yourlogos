@@ -158,7 +158,7 @@ export function livingHtml({quote,id,session,profile,history=[]}){
  if(session.phase==="reflection"){
    return front+prefix+'<h2 class="yl-living-title">'+esc(personal.reflection)+'</h2>'+
      '<p class="yl-living-sub">'+esc(personal.nudge||"You don't have to find an answer immediately.")+'</p>'+
-     '<label class="yl-living-label" for="yl-living-note">A thought you'd like to remember? <span>(optional)</span></label>'+
+     '<label class="yl-living-label" for="yl-living-note">A thought to remember? <span>(optional)</span></label>'+
      '<textarea id="yl-living-note" class="yl-living-textarea" maxlength="240" rows="2" placeholder="One sentence is enough.">'+esc(session.note)+'</textarea>'+
      '<p class="yl-living-fine">Your words stay on this device until you explicitly sync them.</p>'+
      '<div class="yl-living-options">'+button("carry","Carry this question forward","yl-living-primary")+
