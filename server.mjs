@@ -2,6 +2,7 @@ import {createServer} from "node:http";
 import {readFile,stat} from "node:fs/promises";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
+import {handleDiscoverAI, discoverAIEnabled} from "./discover-ai-server.mjs";
 
 const ROOT=path.dirname(fileURLToPath(import.meta.url));
 const PORT=Number(process.env.PORT)||3000;
@@ -40,7 +41,15 @@ async function artwork(id){
 createServer(async(req,res)=>{
   const raw=(req.url||"/").split("?")[0];let pathname;
   try{pathname=decodeURIComponent(raw)}catch{res.writeHead(400);res.end();return}
+  if(pathname==="/api/discover-ai"){
+    if(req.method!=="POST"){res.writeHead(405,{"Allow":"POST"});res.end();return}
+    await handleDiscoverAI(req,res);return;
+  }
   if(req.method!=="GET"&&req.method!=="HEAD"){res.writeHead(405);res.end();return}
+  if(pathname==="/api/discover-ai-config"){
+    res.writeHead(200,{"Content-Type":"application/json","Cache-Control":"no-store"});
+    res.end(JSON.stringify({enabled:discoverAIEnabled()}));return;
+  }
   if(pathname.startsWith("/api/school-art/")){
     const id=pathname.slice("/api/school-art/".length);
     if(!Object.hasOwn(ART_FILES,id)){res.writeHead(404);res.end("Not found");return}
