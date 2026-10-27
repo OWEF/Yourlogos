@@ -332,8 +332,8 @@ assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRE
 
 const immersiveCSS=read("little-logo-discover.css");
 assert.ok(html.includes('/little-logo-discover.css'),"Immersive Discover stylesheet loads last");
-assert.ok(sw.includes('/little-logo-discover.css')&&(sw.includes('yourlogos-v76-lillogo-action-rituals')||sw.includes('yourlogos-v75-original-lillogo-cutout')),"iPhone PWA precaches the new visual treatment");
-assert.ok(aiCard.includes('yl-logo-face')&&aiCard.includes('yl-face-happy')&&aiCard.includes('yl-face-surprise'),"Original character renders distinct happy and surprise facial expressions");
+assert.ok(sw.includes('/little-logo-discover.css')&&(sw.includes('yourlogos-v77-real-character-poses')||sw.includes('yourlogos-v76-lillogo-action-rituals')),"iPhone PWA precaches the new visual treatment");
+assert.ok(aiCard.includes("yl-logo-pet-pose")&&!aiCard.includes("yl-logo-face"),"Character uses real painted pose art without mismatched vector faces");
 assert.ok(aiCard.includes('yl-logo-scene-light')&&aiCard.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
 assert.ok(immersiveCSS.includes('yl-life-stage-joy')&&immersiveCSS.includes('yl-life-stage-think')&&immersiveCSS.includes('yl-life-stage-startle'),"Companion includes physically different joyful thinking and startled poses");
 assert.ok(immersiveCSS.includes('mix-blend-mode:screen')&&immersiveCSS.includes('mask-image:'),"Old dark sticker edges blend into the scene");
@@ -346,7 +346,7 @@ assert.ok(html.includes('/little-logo-cutout-fix.css'),"Cutout patch is loaded a
 assert.ok(cutoutCSS.includes('.yl-logo-pet-figure .yl-logo-face')&&cutoutCSS.includes('display:none!important'),"Inaccurate facial overlay is disabled");
 assert.ok(cutoutCSS.includes('mask-image:url("/little-logo-cutout-mask.svg")'),"Original character is composited through a standalone silhouette");
 assert.ok(silhouetteMask.includes('viewBox="0 0 400 400"')&&silhouetteMask.includes('<path'),"Feathered mask targets the original 400px artwork");
-assert.ok(sw.includes('yourlogos-v76-lillogo-action-rituals')&&sw.includes('/little-logo-cutout-mask.svg')&&sw.includes('/little-logo-cutout-fix.css'),"iPhone service worker precaches both fix assets");
+assert.ok(sw.includes('yourlogos-v77-real-character-poses')&&sw.includes('/little-logo-cutout-mask.svg')&&sw.includes('/little-logo-cutout-fix.css'),"iPhone service worker precaches both fix assets");
 const fxSource=read("little-logo-fx.js");
 const ritualCSS=read("little-logo-ritual.css");
 assert.ok(html.includes('little-logo-ritual.css'),"Reaction stylesheet loads after legacy motion patches");
@@ -355,11 +355,19 @@ assert.ok(fxSource.includes('counts={tap:10,answer:17')&&fxSource.includes('redu
 assert.ok(ritualCSS.includes('yl-v4-celebration')&&ritualCSS.includes('yl-v4-startle'),"Different interactions have distinct whole-body actions");
 assert.ok(app.includes('lilLogoFX("answer")')&&app.includes('lilLogoFX("tap")')&&app.includes('lilLogoFX("world")'),"Discover events trigger effects");
 assert.ok(app.includes('t.impactOccurred("medium")'),"Telegram host uses a real medium impact for answer actions");
+const poseCSS=read("little-logo-poses-v5.css");
+const poseWebP=fs.readFileSync(new URL("../little-logo-poses-v5.webp",import.meta.url));
+assert.ok(poseWebP.length>25000&&poseWebP.subarray(0,4).toString()==="RIFF","Real eight-pose artwork is present and valid WebP");
+assert.ok(html.includes('little-logo-poses-v5.css'),"Illustration CSS loads last after original styles");
+assert.ok(sw.includes('little-logo-poses-v5.css')&&sw.includes('little-logo-poses-v5.webp'),"Artwork and CSS are available offline in PWA");
+assert.ok(aiCard.includes('yl-logo-pet-pose')&&!aiCard.includes('yl-logo-face'),"Rendered companion uses painted sprite without old eye overlay");
+assert.ok(poseCSS.includes('.yl-logo-pet-delighted .yl-logo-pet-pose')&&poseCSS.includes('.yl-logo-pet-thinking .yl-logo-pet-pose')&&poseCSS.includes('.yl-logo-pet-surprised .yl-logo-pet-pose'),"Distinct physical character poses are mapped to states");
+assert.ok(poseCSS.includes('background-size:800% 100%')&&poseCSS.includes('prefers-reduced-motion:reduce'),"Atlas uses eight frames and honors accessibility");
 const livingCSS=read("little-logo-live.css");
 assert.ok(html.includes('/little-logo-live.css'),"Living companion styling is loaded after existing theme");
 assert.ok(sw.includes('/little-logo-live.css'),"PWA caches Living companion styles offline");
-assert.ok(aiClientSource.includes("yl-logo-pet-figure")&&aiClientSource.includes("yl-logo-pet-blink"),"Character includes independent body and blink layers");
-assert.ok(aiClientSource.includes("yl-logo-pet-hair")&&aiClientSource.includes("yl-logo-pet-scarf"),"Character retains artwork and adds subtle separate hair and scarf animation");
+assert.ok(aiClientSource.includes("yl-logo-pet-figure")&&aiClientSource.includes("yl-logo-pet-pose"),"Character mounts a real illustrated pose within the motion rig");
+assert.ok(!aiClientSource.includes("yl-logo-pet-hair")&&!aiClientSource.includes("yl-logo-face"),"Broken hand-drawn eye and hair overlays are removed from the DOM");
 assert.ok(livingCSS.includes("@keyframes yl-life-blink")&&livingCSS.includes("@keyframes yl-life-thinking")&&livingCSS.includes("@keyframes yl-life-delighted"),"Character has deliberate idle and emotional motion");
 assert.ok(livingCSS.includes("prefers-reduced-motion:reduce"),"Companion respects reduced-motion accessibility");
 assert.ok(app.includes('current.petMood="thinking";render()'),"Discover choice transitions to thinking after response");
