@@ -1,0 +1,38 @@
+/* LilLogo cutout repair — restore the exact original face, remove printed-photo frame.
+   The previous hand-drawn SVG face did not align with the illustration. Until
+   real matching expression frames are available, animate the real illustration
+   without compositing a second, mismatched face over it. */
+.yl-logo-pet-figure .yl-logo-face,
+.yl-logo-pet-figure .yl-logo-pet-hair,
+.yl-logo-pet-figure .yl-logo-pet-scarf,
+.yl-logo-pet-figure .yl-logo-pet-blink,
+.yl-logo-pet-figure .yl-logo-pet-cheek{display:none!important}
+/* Separate silhouette matte: no visible square/round image boundary. */
+.yl-logo-roam-stage .yl-logo-pet-hero,
+.yl-logo-intro .yl-logo-pet-hero,
+.yl-logo-final-mark .yl-logo-pet-hero,
+.yl-slider__thumb .yl-slider__little-logo{
+  -webkit-mask-image:url("/little-logo-cutout-mask.svg")!important;
+  mask-image:url("/little-logo-cutout-mask.svg")!important;
+  -webkit-mask-size:100% 100%!important;
+  mask-size:100% 100%!important;
+  -webkit-mask-repeat:no-repeat!important;
+  mask-repeat:no-repeat!important;
+  -webkit-mask-position:center!important;
+  mask-position:center!important;
+  border-radius:0!important;
+}
+/* The photo no longer needs blend tricks; make the shape part of the stage. */
+.yl-logo-roam-stage .yl-logo-pet-hero,
+.yl-logo-intro .yl-logo-pet-hero,
+.yl-logo-final-mark .yl-logo-pet-hero{
+  mix-blend-mode:screen!important;
+  object-fit:contain!important;
+  filter:none!important;
+}
+/* Do not alter Discover's now-approved charcoal/warm-gold stage. */
+.yl-logo-roam-stage .yl-logo-pet{background:transparent!important}
+.yl-logo-roam-stage .yl-logo-pet-art{background:none!important}
+@media(prefers-reduced-motion:reduce){
+  .yl-logo-roam-stage .yl-logo-pet-figure{animation:none!important}
+}
