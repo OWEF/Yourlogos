@@ -355,6 +355,14 @@ assert.ok(fxSource.includes('counts={tap:10,answer:17')&&fxSource.includes('redu
 assert.ok(ritualCSS.includes('yl-v4-celebration')&&ritualCSS.includes('yl-v4-startle'),"Different interactions have distinct whole-body actions");
 assert.ok(app.includes('lilLogoFX("answer")')&&app.includes('lilLogoFX("tap")')&&app.includes('lilLogoFX("world")'),"Discover events trigger effects");
 assert.ok(app.includes('t.impactOccurred("medium")'),"Telegram host uses a real medium impact for answer actions");
+const loadingPoseCard=aiConversationHtml({
+  quote:QUOTES[63],
+  conversation:{...artificial,loading:true,petMood:"thinking"},
+  available:true,authenticated:true
+});
+assert.ok(loadingPoseCard.includes("yl-logo-feedback")&&loadingPoseCard.includes("Hmm…"),"Thinking stage has a distinct display");
+assert.ok(!loadingPoseCard.includes("What would that cost you?")&&!loadingPoseCard.includes("yl-logo-choices"),"Thinking feedback does not leave stale question and options on screen");
+assert.ok(aiCard.includes("yl-logo-progress-track")&&aiCard.includes('role="progressbar"'),"Discover has its own three-stage progress bar");
 const poseCSS=read("little-logo-poses-v5.css");
 const poseWebP=fs.readFileSync(new URL("../little-logo-poses-v5.webp",import.meta.url));
 assert.ok(poseWebP.length>25000&&poseWebP.subarray(0,4).toString()==="RIFF","Real eight-pose artwork is present and valid WebP");
