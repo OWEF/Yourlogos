@@ -1,0 +1,88 @@
+/* LilLogo v4. Interaction rituals, tangible movement, no extra UI colors.
+   Original cream-haired, black-eyed artwork stays the baseline character. */
+.yl-discover-immersive .yl-logo-roam-stage{contain:layout paint;overflow:hidden!important;isolation:isolate}
+.yl-discover-immersive .yl-logo-roam-position{z-index:3!important}
+.yl-logo-fx{position:absolute;inset:0;z-index:5;overflow:hidden;pointer-events:none;isolation:isolate}
+.yl-logo-fx-particle{position:absolute;left:50%;top:48%;width:var(--lil-size,5px);height:var(--lil-size,5px);background:#e7cba1;border-radius:50%;opacity:0;box-shadow:0 0 11px #c7a371a3;animation:yl-fx-pulse .72s cubic-bezier(.15,.63,.27,1) var(--lil-delay,0ms) both}
+.yl-logo-fx-particle.is-star{border-radius:0;clip-path:polygon(50% 0%,63% 37%,100% 50%,63% 63%,50% 100%,37% 63%,0 50%,37% 37%);background:#f4dfbb;filter:drop-shadow(0 0 3px #e8c99a)}
+.yl-logo-fx-particle.is-leaf{width:calc(var(--lil-size,5px)*1.55);height:calc(var(--lil-size,5px)*.7);border-radius:100% 0 100% 0;background:#c4ad84;transform-origin:50% 50%}
+.yl-logo-fx-complete .yl-logo-fx-particle,.yl-logo-fx-world .yl-logo-fx-particle{animation-duration:1.13s}
+.yl-logo-fx-tap .yl-logo-fx-particle{animation-duration:.56s}
+.yl-logo-fx-round .yl-logo-fx-particle{animation-duration:.77s}
+@keyframes yl-fx-pulse{
+  0%{opacity:0;transform:translate3d(0,0,0) scale(.25) rotate(-35deg)}
+  20%{opacity:.96;transform:translate3d(calc(var(--lil-dx)*.3),calc(var(--lil-dy)*.3),0) scale(1.2) rotate(16deg)}
+  72%{opacity:.75;transform:translate3d(calc(var(--lil-dx)*.85),calc(var(--lil-dy)*.85),0) scale(.88) rotate(86deg)}
+  100%{opacity:0;transform:translate3d(var(--lil-dx),var(--lil-dy),0) scale(.12) rotate(142deg)}
+}
+/* Lift from the ground, a turn, a hop, then settling — noticeably different actions. */
+.yl-logo-roam-stage .yl-logo-pet{
+ --lil-hop:0px;--lil-turn:0deg;
+ transition:filter .2s ease
+}
+.yl-logo-roam-stage .yl-logo-pet-curious .yl-logo-pet-figure{
+ animation:yl-v4-look-and-lean 1.2s cubic-bezier(.18,.85,.27,1) both!important
+}
+.yl-logo-roam-stage .yl-logo-pet-reflective .yl-logo-pet-figure{
+ animation:yl-v4-pause-and-bow 1.35s ease-in-out both!important
+}
+.yl-logo-roam-stage .yl-logo-pet-surprised .yl-logo-pet-figure{
+ animation:yl-v4-startle .92s cubic-bezier(.18,.8,.31,1) both!important
+}
+.yl-logo-roam-stage .yl-logo-pet-thinking .yl-logo-pet-figure{
+ animation:yl-v4-thinking 2.8s ease-in-out infinite!important
+}
+.yl-logo-roam-stage .yl-logo-pet-delighted .yl-logo-pet-figure{
+ animation:yl-v4-celebration 1.8s cubic-bezier(.16,.8,.29,1) both!important
+}
+.yl-logo-roam-stage .yl-logo-pet-encourage .yl-logo-pet-figure{
+ animation:yl-v4-encourage 1.32s cubic-bezier(.17,.82,.31,1) both!important
+}
+@keyframes yl-v4-look-and-lean{
+  0%{transform:translate3d(-3px,4px,0) rotate(-7deg) scale(.95)}
+  35%{transform:translate3d(9px,-12px,0) rotate(13deg) scale(1.12)}
+  65%{transform:translate3d(5px,-5px,0) rotate(3deg)}
+  100%{transform:translate3d(0,0,0) rotate(1deg)}
+}
+@keyframes yl-v4-pause-and-bow{
+  0%{transform:translate3d(0,0,0) rotate(-2deg)}
+  42%{transform:translate3d(-9px,11px,0) rotate(-9deg) scale(.95)}
+  75%{transform:translate3d(3px,-3px,0) rotate(4deg)}
+  100%{transform:none}
+}
+@keyframes yl-v4-startle{
+  0%{transform:translate3d(0,7px,0) scale(.92)}
+  27%{transform:translate3d(5px,-33px,0) rotate(11deg) scale(1.12)}
+  60%{transform:translate3d(-5px,-7px,0) rotate(-8deg)}
+  85%{transform:translate3d(2px,-14px,0) rotate(4deg)}
+  100%{transform:none}
+}
+@keyframes yl-v4-thinking{
+  0%,100%{transform:translate3d(-3px,5px,0) rotate(-5deg)}
+  48%{transform:translate3d(4px,-10px,0) rotate(7deg)}
+  72%{transform:translate3d(6px,-6px,0) rotate(2deg)}
+}
+@keyframes yl-v4-celebration{
+  0%{transform:translate3d(0,6px,0) scale(.95)}
+  23%{transform:translate3d(4px,-34px,0) rotate(18deg) scale(1.13)}
+  45%{transform:translate3d(-3px,-18px,0) rotate(-12deg) scale(1.04)}
+  67%{transform:translate3d(-7px,-24px,0) rotate(11deg)}
+  85%{transform:translate3d(2px,-8px,0) rotate(-6deg)}
+  100%{transform:none}
+}
+@keyframes yl-v4-encourage{
+  0%{transform:translate3d(0,0,0)}
+  32%{transform:translate3d(9px,-18px,0) rotate(12deg) scale(1.06)}
+  55%{transform:translate3d(10px,-10px,0) rotate(-5deg)}
+  78%{transform:translate3d(5px,-14px,0) rotate(9deg)}
+  100%{transform:none}
+}
+/* In quiet idle phases the character breathes, not continually celebrates. */
+.yl-discover-immersive .yl-logo-roam-stage:not(.is-complete) .yl-logo-pet-idle .yl-logo-pet-figure{
+ animation:yl-life-stage-idle 4.1s ease-in-out infinite!important
+}
+.yl-logo-choice:focus-visible{outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+ .yl-logo-fx{display:none!important}
+ .yl-logo-roam-stage .yl-logo-pet-figure{animation:none!important;transform:none!important;transition:none!important}
+}
