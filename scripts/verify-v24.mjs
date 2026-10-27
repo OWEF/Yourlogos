@@ -340,6 +340,13 @@ assert.ok(immersiveCSS.includes('mix-blend-mode:screen')&&immersiveCSS.includes(
 assert.ok(immersiveCSS.includes('prefers-reduced-motion:reduce'),"Active character states respect reduced-motion preference");
 const consentScene=aiConversationHtml({quote:QUOTES[63],conversation:newAIConversation(63),available:true,authenticated:true});
 assert.ok(consentScene.includes('yl-logo-roam-stage')&&consentScene.includes('Little Logo uses DeepSeek'),"First entrance feels immersive while preserving consent");
+const cutoutCSS=read("little-logo-cutout-fix.css");
+const silhouetteMask=read("little-logo-cutout-mask.svg");
+assert.ok(html.includes('/little-logo-cutout-fix.css'),"Cutout patch is loaded after the earlier face overlay");
+assert.ok(cutoutCSS.includes('.yl-logo-pet-figure .yl-logo-face')&&cutoutCSS.includes('display:none!important'),"Inaccurate facial overlay is disabled");
+assert.ok(cutoutCSS.includes('mask-image:url("/little-logo-cutout-mask.svg")'),"Original character is composited through a standalone silhouette");
+assert.ok(silhouetteMask.includes('viewBox="0 0 400 400"')&&silhouetteMask.includes('<path'),"Feathered mask targets the original 400px artwork");
+assert.ok(sw.includes('yourlogos-v75-original-lillogo-cutout')&&sw.includes('/little-logo-cutout-mask.svg')&&sw.includes('/little-logo-cutout-fix.css'),"iPhone service worker precaches both fix assets");
 const livingCSS=read("little-logo-live.css");
 assert.ok(html.includes('/little-logo-live.css'),"Living companion styling is loaded after existing theme");
 assert.ok(sw.includes('/little-logo-live.css'),"PWA caches Living companion styles offline");
