@@ -331,3 +331,50 @@
 .yl-logo-pet-encourage .yl-logo-pet-atlas{transform:translateX(-83.3333333%)!important}
 .yl-logo-pet-fallback{display:none!important}
 @media(prefers-reduced-motion:reduce){.yl-logo-pet-atlas{transition:none!important}}
+
+/* Little Logo v1.1: high-resolution hero, expressive overlay, roaming safe stage.
+   Transform and opacity animations stay on the compositor (target display refresh).
+   Motion is contained above content: no character may cover a choice button. */
+.yl-discover-immersive .yl-logo-top{margin:0 0 3px!important}
+.yl-logo-identity{min-height:36px}
+.yl-logo-roam-stage{position:relative;isolation:isolate;height:clamp(145px,20dvh,192px);width:100%;overflow:visible;margin:0 0 2px;touch-action:pan-y}
+.yl-logo-roam-position{position:absolute;z-index:2;top:0;left:calc(50% - 76px);width:152px;height:152px;animation:yl-logo-traverse 8s cubic-bezier(.4,0,.6,1) infinite alternate;will-change:transform}
+.yl-logo-roam-stage-1 .yl-logo-roam-position{animation-duration:7.1s;animation-delay:-2.4s}
+.yl-logo-roam-stage-2 .yl-logo-roam-position{animation-duration:6.2s;animation-delay:-4s}
+.yl-logo-roam-stage-3 .yl-logo-roam-position{animation-duration:5.1s}
+.yl-logo-roam-stage .yl-logo-pet{width:152px!important;height:152px!important;display:block!important;overflow:visible!important;cursor:pointer}
+.yl-logo-roam-stage .yl-logo-pet-art{overflow:visible!important;inset:0!important;filter:drop-shadow(0 7px 16px #edcfa414)}
+.yl-logo-roam-stage .yl-logo-pet-hero{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:1;transition:opacity .22s ease,filter .25s ease;filter:drop-shadow(0 3px 6px #edc79217)}
+.yl-logo-roam-stage .yl-logo-pet-atlas{opacity:0;transition:opacity .22s ease;object-fit:contain}
+.yl-logo-roam-stage .yl-logo-pet-thinking .yl-logo-pet-atlas,
+.yl-logo-roam-stage .yl-logo-pet-surprised .yl-logo-pet-atlas,
+.yl-logo-roam-stage .yl-logo-pet-reflective .yl-logo-pet-atlas,
+.yl-logo-roam-stage .yl-logo-pet-delighted .yl-logo-pet-atlas,
+.yl-logo-roam-stage .yl-logo-pet-encourage .yl-logo-pet-atlas{opacity:1}
+.yl-logo-roam-stage .yl-logo-pet-thinking .yl-logo-pet-hero,
+.yl-logo-roam-stage .yl-logo-pet-surprised .yl-logo-pet-hero,
+.yl-logo-roam-stage .yl-logo-pet-reflective .yl-logo-pet-hero,
+.yl-logo-roam-stage .yl-logo-pet-delighted .yl-logo-pet-hero,
+.yl-logo-roam-stage .yl-logo-pet-encourage .yl-logo-pet-hero{opacity:0}
+.yl-logo-roam-orbit{position:absolute;left:15%;right:15%;top:75%;height:26px;border-top:1px solid #bd9e6f27;border-radius:50%;pointer-events:none;opacity:.6}
+.yl-logo-roam-glow{position:absolute;z-index:0;left:42%;top:45%;width:62px;height:62px;border-radius:50%;background:#e8c18e0d;filter:blur(18px);pointer-events:none;animation:yl-logo-glow-journey 5s ease-in-out infinite}
+.yl-logo-roam-stage .yl-logo-pet:focus-visible{outline:2px solid #dcc699;outline-offset:3px;border-radius:50%}
+@keyframes yl-logo-traverse{0%{transform:translate3d(-48px,8px,0) rotate(-6deg)}30%{transform:translate3d(-4px,-8px,0) rotate(2deg)}65%{transform:translate3d(39px,4px,0) rotate(-1deg)}100%{transform:translate3d(69px,-11px,0) rotate(7deg)}}
+@keyframes yl-logo-glow-journey{0%,100%{transform:translate3d(-56px,0,0);opacity:.5}50%{transform:translate3d(65px,-15px,0);opacity:1}}
+.yl-logo-roam-stage .yl-logo-pet-surprised{animation:yl-logo-surprise-v2 .85s ease-out both!important}
+.yl-logo-roam-stage .yl-logo-pet-delighted{animation:yl-logo-celebrate-v2 1.35s ease-in-out both!important}
+.yl-logo-roam-stage .yl-logo-pet-thinking{animation:yl-logo-puzzle-v2 1.1s ease-in-out infinite alternate!important}
+@keyframes yl-logo-surprise-v2{0%{transform:translateY(5px) scale(.9)}32%{transform:translateY(-25px) scale(1.14)}100%{transform:translateY(0) scale(1)}}
+@keyframes yl-logo-celebrate-v2{0%{transform:translateY(0) rotate(0)}35%{transform:translateY(-23px) rotate(9deg)}67%{transform:translateY(-4px) rotate(-8deg)}100%{transform:translateY(0) rotate(0)}}
+@keyframes yl-logo-puzzle-v2{0%{transform:rotate(-7deg) translateY(3px)}100%{transform:rotate(7deg) translateY(-8px)}}
+.yl-logo .yl-logo-intro .yl-logo-pet-hero,.yl-logo .yl-logo-final-mark .yl-logo-pet-hero{display:block;width:100%;height:100%;object-fit:contain}
+.yl-logo-intro .yl-logo-pet-art,.yl-logo-final-mark .yl-logo-pet-art{overflow:visible!important}
+.yl-logo-intro .yl-logo-pet-atlas{display:none!important}
+.yl-logo-final-mark .yl-logo-pet-atlas{opacity:0}
+.yl-logo-intro .yl-logo-pet,.yl-logo-final-mark .yl-logo-pet{width:142px!important;height:142px!important}
+@media(max-width:360px){.yl-logo-roam-stage{height:139px}.yl-logo-roam-position{width:132px;height:132px;left:calc(50% - 66px)}.yl-logo-roam-stage .yl-logo-pet{width:132px!important;height:132px!important}}
+@media(max-height:690px){.yl-logo-roam-stage{height:118px}.yl-logo-roam-position{width:116px;height:116px;left:calc(50% - 58px)}.yl-logo-roam-stage .yl-logo-pet{width:116px!important;height:116px!important}}
+@media(prefers-reduced-motion:reduce){
+ .yl-logo-roam-position,.yl-logo-roam-glow,.yl-logo-roam-stage .yl-logo-pet{animation:none!important;transform:none!important}
+ .yl-logo-roam-stage .yl-logo-pet-atlas,.yl-logo-roam-stage .yl-logo-pet-hero{transition:none!important}
+}

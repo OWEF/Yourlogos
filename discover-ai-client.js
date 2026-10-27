@@ -18,7 +18,9 @@ const logoGlyph='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none"><path d
 
 // Approved Little Logo artwork, in six compact, transparent sprite poses.
 // The original abstract mark remains as a graceful fallback on older devices.
-const petAvatar='<span class="yl-logo-pet-art" aria-hidden="true"><img class="yl-logo-pet-atlas" src="/little-logo-v1.avif" width="384" height="60" alt="" decoding="async" draggable="false"></span>';
+const petAvatar='<span class="yl-logo-pet-art" aria-hidden="true">'+
+ '<img class="yl-logo-pet-hero" src="/little-logo-hd-v1.webp" width="320" height="320" alt="" decoding="async" draggable="false">'+
+ '<img class="yl-logo-pet-atlas" src="/little-logo-v1.avif" width="720" height="112" alt="" decoding="async" draggable="false"></span>';
 export function littleLogoPet(mood="idle"){
  const moods=new Set(["idle","thinking","curious","delighted","reflective","surprised","encourage"]);
  const value=moods.has(mood)?mood:"idle";
@@ -52,16 +54,20 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  const author=Array.isArray(quote)?cleanText(quote[1],80):"";
  const original=Array.isArray(quote)?cleanText(quote[0],190):"";
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
-    '<span class="yl-logo-mark">'+littleLogoPet(c.petMood||(c.loading?"thinking":completed?"delighted":steps?"curious":"idle"))+'</span>'+
     '<div><strong>LITTLE LOGO</strong><small>'+(completed?"YOUR CONNECTION":"FOLLOW THE THOUGHT")+'</small></div></div>'+
     '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 3")+'">'+dots+'</div></div>';
+ html+='<div class="yl-logo-roam-stage yl-logo-roam-stage-'+steps+(completed?" is-complete":"")+'" role="group" aria-label="Meet Little Logo">'+
+  '<span class="yl-logo-roam-orbit" aria-hidden="true"></span>'+
+  '<span class="yl-logo-roam-glow" aria-hidden="true"></span>'+
+  '<div class="yl-logo-roam-position">'+littleLogoPet(c.petMood||(c.loading?"thinking":completed?"delighted":steps?"curious":"idle"))+'</div>'+
+  '</div>';
  if(!completed&&steps===0&&original){
   html+='<details class="yl-logo-source"><summary>FROM '+esc(author.toUpperCase())+'</summary><p>“'+esc(original)+'”</p></details>';
  }
  if(c.loading&&!latest)html+='<div class="yl-ai-quiet-loading" role="status">Following a thought…</div>';
  if(latest){
   if(completed){
-   html+='<div class="yl-logo-finale"><span class="yl-logo-final-mark" aria-hidden="true">'+littleLogoPet("delighted")+'</span>'+
+   html+='<div class="yl-logo-finale">'+
      '<h2 class="yl-logo-final-title">Your Connection</h2>'+
      '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,480))+'</p><p class="yl-logo-backlink">FROM '+esc(author.toUpperCase())+'</p></div>';
   }else{
