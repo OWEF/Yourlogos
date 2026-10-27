@@ -330,6 +330,16 @@ assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive ful
 assert.ok(app.includes('type:"complete"')&&app.includes('positives.get(theme)'),"Journey completions influence next-day quote ranking");
 assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
 
+const immersiveCSS=read("little-logo-discover.css");
+assert.ok(html.includes('/little-logo-discover.css'),"Immersive Discover stylesheet loads last");
+assert.ok(sw.includes('/little-logo-discover.css')&&sw.includes('yourlogos-v74-character-expressions-discover'),"iPhone PWA precaches the new visual treatment");
+assert.ok(aiCard.includes('yl-logo-face')&&aiCard.includes('yl-face-happy')&&aiCard.includes('yl-face-surprise'),"Original character renders distinct happy and surprise facial expressions");
+assert.ok(aiCard.includes('yl-logo-scene-light')&&aiCard.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
+assert.ok(immersiveCSS.includes('yl-life-stage-joy')&&immersiveCSS.includes('yl-life-stage-think')&&immersiveCSS.includes('yl-life-stage-startle'),"Companion includes physically different joyful thinking and startled poses");
+assert.ok(immersiveCSS.includes('mix-blend-mode:screen')&&immersiveCSS.includes('mask-image:'),"Old dark sticker edges blend into the scene");
+assert.ok(immersiveCSS.includes('prefers-reduced-motion:reduce'),"Active character states respect reduced-motion preference");
+const consentScene=aiConversationHtml({quote:QUOTES[63],conversation:newAIConversation(63),available:true,authenticated:true});
+assert.ok(consentScene.includes('yl-logo-roam-stage')&&consentScene.includes('Little Logo uses DeepSeek'),"First entrance feels immersive while preserving consent");
 const livingCSS=read("little-logo-live.css");
 assert.ok(html.includes('/little-logo-live.css'),"Living companion styling is loaded after existing theme");
 assert.ok(sw.includes('/little-logo-live.css'),"PWA caches Living companion styles offline");
