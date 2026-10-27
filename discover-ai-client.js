@@ -42,7 +42,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   '<button type="button" data-ai="cancel" class="yl-ai-secondary">Not now</button></section>';
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
     '<span class="yl-logo-mark">'+logoGlyph+'</span>'+
-    '<div><strong>LITTLE LOGO</strong><small>'+(completed?"A THOUGHT TO KEEP":"A MOMENT OF CURIOSITY")+'</small></div></div>'+
+    '<div><strong>LITTLE LOGO</strong><small>'+(completed?"A THOUGHT TO KEEP":"LET’S SEE WHERE THIS GOES")+'</small></div></div>'+
     '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 4")+'">'+dots+'</div></div>';
  if(c.loading&&!latest)html+='<div class="yl-ai-quiet-loading" role="status">Following a thought…</div>';
  if(latest){
@@ -52,7 +52,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
      '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,480))+'</p></div>';
   }else{
    html+='<div class="yl-ai-current">';
-   if(user)html+='<p class="yl-ai-you">YOUR LAST DIRECTION · '+esc(cleanText(user.text,105))+'</p>';
+   
    html+='<p class="yl-ai-observation">'+esc(shortObservation(latest.text))+'</p>'+
      '<h2 class="yl-ai-question">'+esc(cleanText(latest.followUp,220))+'</h2></div>';
   }
@@ -81,11 +81,6 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
     '<button type="button" data-ai="finish" class="yl-ai-secondary">Return to Encounter</button></div>';
  }else if(latest&&!c.loading){
   html+='<button type="button" data-ai="finish" class="yl-ai-secondary yl-logo-exit">End reflection here</button>';
- }
- if(prior.length>0){
-  html+='<details class="yl-ai-history"><summary>Earlier thoughts</summary><div class="yl-ai-history-inside">';
-  for(const m of prior)html+='<p><small>'+esc(m.role==="user"?"YOU":"LITTLE LOGO")+'</small> '+esc(cleanText(m.text,420))+'</p>';
-  html+='</div></details>';
  }
  if(!completed)html+='<div class="yl-logo-privacy"><button type="button" data-ai="revoke">Use private mode</button></div>';
  html+='</section>';
