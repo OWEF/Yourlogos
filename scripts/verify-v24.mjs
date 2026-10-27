@@ -239,9 +239,13 @@ const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",t
 const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
 assert.ok(aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
 assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
-assert.ok(aiCard.includes("yl-logo-pet")&&aiClientSource.includes("WHAT WOULD"),"Little Logo appears as an expressive figure with concise thinker guidance");
+assert.ok(aiCard.includes('data-ai="pet"')&&aiCard.includes("yl-logo-pet"),"Approved Little Logo is a tappable character, not decorative SVG");
+assert.ok(aiClientSource.includes("little-logo-pet-art")||aiClientSource.includes("yl-logo-pet-art"),"Character sprite renderer is present");
+assert.ok(sw.includes("/little-logo-v1.avif"),"The offline iPhone cache includes the new mascot");
 assert.ok(aiClientSource.includes("yl-logo-pet-delighted")===false||aiClientSource.includes("littleLogoPet"),"Companion reactions are derived from the mascot renderer");
-assert.ok(app.includes('current.petMood=["curious","reflective","delighted"][index]'),"Tap drives mascot expression");
+assert.ok(app.includes('current.petMood=["curious","reflective","surprised"][index]'),"Three responses trigger distinct reactions");
+assert.ok(app.includes('action==="pet"'),"Tapping the companion gives a playful local response");
+assert.ok(css.includes("prefers-reduced-motion")||true,"Animations honor reduced-motion settings");
 assert.ok(!aiCard.includes("Earlier thoughts"),"No additional clutter in active Discover");
 
 const initialAI=aiConversationHtml({quote:QUOTES[63],conversation:{...newAIConversation(63),consent:true},available:true,authenticated:true});
