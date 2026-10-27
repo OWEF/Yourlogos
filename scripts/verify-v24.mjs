@@ -239,6 +239,11 @@ const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",t
 const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
 assert.ok(aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
 assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
+assert.ok(aiCard.includes("yl-logo-pet")&&aiClientSource.includes("WHAT WOULD"),"Little Logo appears as an expressive figure with concise thinker guidance");
+assert.ok(aiClientSource.includes("yl-logo-pet-delighted")===false||aiClientSource.includes("littleLogoPet"),"Companion reactions are derived from the mascot renderer");
+assert.ok(app.includes('current.petMood=["curious","reflective","delighted"][index]'),"Tap drives mascot expression");
+assert.ok(!aiCard.includes("Earlier thoughts"),"No additional clutter in active Discover");
+
 const initialAI=aiConversationHtml({quote:QUOTES[63],conversation:{...newAIConversation(63),consent:true},available:true,authenticated:true});
 assert.ok(initialAI.includes('data-ai="send"')&&initialAI.includes("hidden"),"Consent activates first generation without typing");
 assert.ok(!initialAI.includes("I'm intrigued")&&!initialAI.includes("What unsettles you here?"),"No generic initial stances before model output");

@@ -752,6 +752,7 @@ document.addEventListener("click",async e=>{
     const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role+": "+m.text);
     const context=last?.followUp?"Question: "+last.followUp+" | My response: "+choice:choice;
     const current=aiConversation;
+    current.petMood=["curious","reflective","delighted"][index];
     current.loading=true;current.error="";render();
     try{
       const token=await getDiscoverAccessToken().catch(()=>null);
@@ -782,7 +783,7 @@ document.addEventListener("click",async e=>{
         persist();haptic("success");
       }
     }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
-    finally{current.loading=false;if(aiConversation===current&&discoverOpen)render()}
+    finally{current.loading=false;if(aiConversation===current&&discoverOpen){current.petMood=current.complete?"delighted":"curious";render()}}
     return;
   }
   const aiAction=e.target.closest("[data-ai]");
@@ -820,7 +821,7 @@ document.addEventListener("click",async e=>{
       const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role+": "+m.text);
       const memory=aiMemoryChoices(sharedWorldMemory());
       const currentConversation=aiConversation;
-      currentConversation.loading=true;currentConversation.error="";render();
+      currentConversation.loading=true;currentConversation.petMood="thinking";currentConversation.error="";render();
       try{
         const token=await getDiscoverAccessToken().catch(()=>null);
         const reply=await fetch("/api/discover-ai",{
@@ -838,7 +839,7 @@ document.addEventListener("click",async e=>{
         currentConversation.draft="";
       }catch(err){
         if(aiConversation===currentConversation)currentConversation.error=String(err.message||"Little Logo is unavailable");
-      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen)render()}
+      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen){currentConversation.petMood="idle";render()}}
       return;
     }
     return;

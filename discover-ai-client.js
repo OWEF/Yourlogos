@@ -15,6 +15,13 @@ export function aiMemoryChoices(memory){
 // Little Logo: Encounter -> three choices -> an explicit connection back to the thinker.
 export const LOGO_DECISIONS=3;
 const logoGlyph='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none"><path d="M16 2.5c0 8-5.5 13.5-13.5 13.5C10.5 16 16 21.5 16 29.5c0-8 5.5-13.5 13.5-13.5C21.5 16 16 10.5 16 2.5Z" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="currentColor"/></svg>';
+
+const petAvatar='<span class="yl-logo-pet-body" aria-hidden="true"><svg viewBox="0 0 98 110" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="49" cy="100" rx="26" ry="4" fill="#92bea0" opacity=".2"/><path d="M27 80 Q18 93 28 97 Q50 105 71 97 Q79 90 69 80" fill="#9db9aa" stroke="#d6dbc5" stroke-width="2"/><path d="M31 77 Q22 58 30 42 Q40 29 50 30 Q68 31 72 48 Q79 65 66 79Z" fill="#c7c3ae" stroke="#e8dcc3" stroke-width="2"/><path d="M25 54Q17 72 25 82M74 54Q81 70 72 82" stroke="#c5bea5" stroke-width="7" stroke-linecap="round" class="yl-pet-arms"/><ellipse cx="50" cy="43" rx="29" ry="30" fill="#e4d5b7" stroke="#ebdfcc" stroke-width="2"/><path d="M20 44Q15 19 43 17Q60 12 78 31Q70 22 65 18Q59 11 49 12Q22 11 20 33Z" fill="#b2bdad"/><path d="M21 35 Q35 15 51 19 Q65 18 77 36" stroke="#8ba797" stroke-width="5" stroke-linecap="round"/><ellipse cx="40" cy="47" rx="2.7" ry="3.6" fill="#34413d" class="yl-pet-eye"/><ellipse cx="59" cy="47" rx="2.7" ry="3.6" fill="#34413d" class="yl-pet-eye"/><path d="M44 60Q50 64 56 60" stroke="#7e6d62" stroke-width="2" stroke-linecap="round" class="yl-pet-mouth"/><path d="M49 53L47 57 51 57" stroke="#b5a58f" stroke-width="1.5" stroke-linecap="round"/><path d="M35 68Q48 74 63 68" stroke="#bfaa8b" stroke-width="1.5"/><path d="M40 87V96M59 87V96" stroke="#8a998b" stroke-width="5" stroke-linecap="round"/><path d="M14 28Q16 17 25 15" stroke="#b6cbb9" stroke-width="2" stroke-linecap="round" class="yl-pet-spark"/><circle cx="82" cy="21" r="2.5" fill="#d9c9a5" class="yl-pet-spark"/></svg></span>';
+function littleLogoPet(mood="idle"){
+ const moods=new Set(["idle","thinking","curious","delighted","reflective"]);
+ const value=moods.has(mood)?mood:"idle";
+ return '<span class="yl-logo-pet yl-logo-pet-'+value+'" role="img" aria-label="Little Logo, your curious companion">'+petAvatar+'</span>';
+}
 const nextArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>';
 function shortObservation(text){
  const value=cleanText(text,850);
@@ -35,7 +42,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  const dots=Array.from({length:LOGO_DECISIONS},(_,i)=>'<span class="yl-logo-progress-dot'+(i<steps?" is-visited":"")+(i===steps&&!completed?" is-current":"")+(completed?" is-done":"")+'"></span>').join("");
  let html='<section class="yl-ai-experiment yl-ai-quiet yl-logo" aria-label="Little Logo philosophical companion">';
  if(!c.consent)return html+
-  '<div class="yl-logo-intro">'+logoGlyph+'<span>MEET LITTLE LOGO</span></div>'+
+  '<div class="yl-logo-intro">'+littleLogoPet("idle")+'<span>MEET LITTLE LOGO</span></div>'+
   '<h2 class="yl-ai-title">A small guide for a bigger question.</h2>'+
   '<p class="yl-ai-consent">Little Logo uses DeepSeek to explore this quote with you. With your permission, it will share this quotation, your choices, and up to four saved reflections. No account needed.</p>'+
   '<button type="button" data-ai="agree" class="yl-ai-main">Begin together '+nextArrow+'</button>'+
@@ -43,22 +50,22 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  const author=Array.isArray(quote)?cleanText(quote[1],80):"";
  const original=Array.isArray(quote)?cleanText(quote[0],190):"";
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
-    '<span class="yl-logo-mark">'+logoGlyph+'</span>'+
+    '<span class="yl-logo-mark">'+littleLogoPet(c.petMood||(c.loading?"thinking":completed?"delighted":steps?"curious":"idle"))+'</span>'+
     '<div><strong>LITTLE LOGO</strong><small>'+(completed?"YOUR CONNECTION":"FOLLOW THE THOUGHT")+'</small></div></div>'+
     '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 3")+'">'+dots+'</div></div>';
  if(!completed&&steps===0&&original){
-  html+='<div class="yl-logo-source"><span>FROM YOUR ENCOUNTER · '+esc(author)+'</span><p>“'+esc(original)+'”</p></div>';
+  html+='<details class="yl-logo-source"><summary>FROM '+esc(author.toUpperCase())+'</summary><p>“'+esc(original)+'”</p></details>';
  }
  if(c.loading&&!latest)html+='<div class="yl-ai-quiet-loading" role="status">Following a thought…</div>';
  if(latest){
   if(completed){
-   html+='<div class="yl-logo-finale"><span class="yl-logo-final-mark" aria-hidden="true">'+logoGlyph+'</span>'+
+   html+='<div class="yl-logo-finale"><span class="yl-logo-final-mark" aria-hidden="true">'+littleLogoPet("delighted")+'</span>'+
      '<h2 class="yl-logo-final-title">Your Connection</h2>'+
      '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,480))+'</p><p class="yl-logo-backlink">FROM '+esc(author.toUpperCase())+'</p></div>';
   }else{
    html+='<div class="yl-ai-current">';
    
-   html+='<p class="yl-ai-observation">'+esc(shortObservation(latest.text))+'</p>'+
+   html+=(steps===0?'<p class="yl-logo-thinker">WHAT WOULD '+esc(author.split(" ").at(-1).toUpperCase())+' NOTICE?</p>':'')+'<p class="yl-ai-observation">'+esc(shortObservation(latest.text))+'</p>'+
      '<h2 class="yl-ai-question">'+esc(cleanText(latest.followUp,220))+'</h2></div>';
   }
  }else if(!c.loading&&!c.error)html+='<p class="yl-ai-quiet-loading">Finding another angle…</p>';
