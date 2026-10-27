@@ -135,3 +135,19 @@ body > .settings-launch svg{width:20px;height:20px}
 /* Match a snappy 640ms handoff while keeping a smooth reveal. */
 .yl-entrance{transition-duration:.54s}
 .yl-entrance.is-departing{transition-delay:.10s}
+
+/* The entrance thumb is Little Logo himself. He travels with the swipe,
+   tilts toward the destination and hops when the ritual completes. */
+.yl-slider__track{overflow:visible!important}
+.yl-slider .yl-slider__thumb.yl-entrance__button{overflow:visible!important;background:radial-gradient(circle,#ebcb9560,#ebcb9510 58%,transparent 72%)!important;border-color:#f1d9ab65!important;box-shadow:0 0 16px #e9c89644!important;will-change:transform}
+.yl-slider__thumb .yl-slider__little-logo{position:absolute!important;width:91px!important;height:91px!important;max-width:none!important;top:-24px;left:-10px;object-fit:contain!important;border-radius:0!important;mix-blend-mode:normal!important;filter:drop-shadow(0 6px 8px #0006) drop-shadow(0 0 10px #e5bc7552);transform:translate3d(0,var(--pet-lift,0px),0) rotate(var(--pet-tilt,-6deg));transition:transform .15s linear;pointer-events:none;will-change:transform}
+.yl-slider.is-grabbing .yl-slider__little-logo{animation:yl-slider-guide-bob .55s ease-in-out infinite alternate;transition:none}
+.yl-slider.is-near .yl-slider__little-logo{filter:drop-shadow(0 0 14px #f3dba489)}
+.yl-slider.is-complete .yl-slider__little-logo{animation:yl-slider-guide-joy .5s ease-out both}
+@keyframes yl-slider-guide-bob{from{transform:translate3d(0,calc(var(--pet-lift,0px) + 2px),0) rotate(var(--pet-tilt,-6deg))}to{transform:translate3d(0,calc(var(--pet-lift,0px) - 6px),0) rotate(calc(var(--pet-tilt,-6deg) + 6deg))}}
+@keyframes yl-slider-guide-joy{0%{transform:translateY(0) scale(1)}55%{transform:translateY(-25px) scale(1.2) rotate(12deg)}100%{transform:translateY(-12px) scale(1.05) rotate(-4deg)}}
+.yl-slider__hint{font-size:10px!important;letter-spacing:.13em!important}
+@media(max-width:380px){.yl-slider__thumb .yl-slider__little-logo{width:81px!important;height:81px!important;top:-19px;left:-8px}}
+@media(prefers-reduced-motion:reduce){.yl-slider__thumb .yl-slider__little-logo{animation:none!important;transition:none!important;transform:none!important}}
+
+.yl-slider__thumb .yl-slider__little-logo{display:block!important;background:url("/little-logo-v1.avif") no-repeat 0% 50%;background-size:600% 100%;border-radius:0}

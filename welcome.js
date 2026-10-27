@@ -20,7 +20,9 @@
   let ready=false,entered=false,transitioning=false,failed=false,dragId=null,progress=0,lastHapticStep=-1;
   const reduced=()=>!!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   const appReady=()=>!!document.querySelector("#app .shell .stage");
-  const travel=()=>Math.max(1,track.clientWidth-thumb.offsetWidth-10);
+  let cachedTravel=0,dragFrame=0,pendingProgress=0;
+  const measureTravel=()=>Math.max(1,track.clientWidth-thumb.offsetWidth-10);
+  const travel=()=>cachedTravel||(cachedTravel=measureTravel());
   const localDay=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
   const THEME_TEASERS={Meaning:"What makes today meaningful?",Suffering:"Can pain change its meaning?",Freedom:"What is yours to choose?",Mortality:"What makes this moment precious?",Love:"What does care ask of us?",Doubt:"What if you are mistaken?",Action:"What is one thing you can change?",Solitude:"Can you enjoy being alone?",Beauty:"What deserves another look?",Time:"Where has the day gone?"};
   function shortThought(q){
@@ -50,6 +52,8 @@
     track.style.setProperty("--progress",(progress*100)+"%");
     track.style.setProperty("--intensity",String(progress));
     thumb.style.setProperty("--thumb-x",(progress*travel())+"px");
+    thumb.style.setProperty("--pet-tilt",(-6+progress*13).toFixed(2)+"deg");
+    thumb.style.setProperty("--pet-lift",(-progress*14).toFixed(1)+"px");
     thumb.setAttribute("aria-valuenow",String(Math.round(progress*100)));
     updateReveal();
     thumb.setAttribute("aria-valuetext",progress>=.96?"Release to enter":Math.round(progress*100)+" percent");
@@ -124,20 +128,25 @@
   thumb.addEventListener("pointerdown",e=>{
     if(thumb.disabled||transitioning)return;
     if(e.pointerType==="mouse"&&e.button!==0)return;
-    dragId=e.pointerId;lastHapticStep=-1;thumb.setPointerCapture?.(e.pointerId);
+    dragId=e.pointerId;cachedTravel=measureTravel();lastHapticStep=-1;thumb.setPointerCapture?.(e.pointerId);
     thumb.classList.add("is-dragging");slider.classList.add("is-grabbing");slider.classList.remove("is-resetting");e.preventDefault();
   });
   thumb.addEventListener("pointermove",e=>{
     if(dragId!==e.pointerId||transitioning)return;
-    const p=position(e);setProgress(p);haptic(progress);
+    pendingProgress=position(e);
+    if(!dragFrame)dragFrame=requestAnimationFrame(()=>{
+      dragFrame=0;if(dragId===null)return;
+      setProgress(pendingProgress);haptic(progress);
+    });
   });
   function endDrag(e){
     if(dragId!==e.pointerId)return;
-    dragId=null;thumb.classList.remove("is-dragging");slider.classList.remove("is-grabbing");
+    dragId=null;if(dragFrame){cancelAnimationFrame(dragFrame);dragFrame=0;setProgress(pendingProgress);}
+    thumb.classList.remove("is-dragging");slider.classList.remove("is-grabbing");
     if(progress>=.88)enter();else {setProgress(0,true);lastHapticStep=-1;}
   }
   thumb.addEventListener("pointerup",endDrag);
-  thumb.addEventListener("pointercancel",e=>{if(dragId!==e.pointerId)return;dragId=null;thumb.classList.remove("is-dragging");slider.classList.remove("is-grabbing");setProgress(0,true)});
+  thumb.addEventListener("pointercancel",e=>{if(dragId!==e.pointerId)return;dragId=null;if(dragFrame){cancelAnimationFrame(dragFrame);dragFrame=0;}thumb.classList.remove("is-dragging");slider.classList.remove("is-grabbing");setProgress(0,true)});
   thumb.addEventListener("keydown",e=>{
     if(thumb.disabled||transitioning)return;
     if(["ArrowRight","ArrowUp"].includes(e.key)){e.preventDefault();setProgress(Math.min(1,progress+.12),true);haptic(progress);if(progress>=.93)enter()}
@@ -162,7 +171,7 @@
   window.addEventListener("yourlogos:boot-error",recover);
   window.addEventListener("error",()=>{if(!ready)recover()});
   window.addEventListener("unhandledrejection",()=>{if(!ready)recover()});
-  window.addEventListener("resize",()=>{if(!transitioning)setProgress(progress,true)});
+  window.addEventListener("resize",()=>{cachedTravel=measureTravel();if(!transitioning)setProgress(progress,true)});
   setTimeout(()=>{if(appReady())markReady();else recover()},7500);
   if(appReady())markReady();
   updateReveal();
