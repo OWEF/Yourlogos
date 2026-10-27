@@ -245,8 +245,8 @@ assert.ok(aiCard.includes("yl-logo-roam-stage")&&aiCard.includes("yl-logo-pet-he
 assert.ok(v33Source.includes("yl-logo-traverse")&&v33Source.includes("prefers-reduced-motion"),"Compositor motion respects reduced-motion preferences");
 assert.ok(html.includes('yl-slider__little-logo')&&html.includes('little-logo-hd-v2.jpg'),"The arrival slider uses the high-resolution single character");
 assert.ok(sw.includes('little-logo-hd-v2.jpg'),"The new HD illustration is available offline");
-assert.ok(aiCard.includes('<img class="yl-logo-pet-atlas"')&&aiCard.includes('src="/little-logo-v1.avif"'),"Companion uses actual approved artwork through visible img element");
-assert.ok(v33Source.includes(".yl-logo-pet-atlas")&&v33Source.includes("overflow:hidden!important"),"Sprite frames are clipped rather than rendering old vector fallback");
+assert.ok(aiCard.includes('src="/little-logo-hd-v2.jpg"')&&aiCard.includes("yl-logo-pet-hero"),"Companion displays the single HD image");
+assert.ok(v33Source.includes(".yl-logo-pet-atlas{display:none!important}")&&v33Source.includes(".yl-logo-roam-stage{overflow:hidden!important"),"Old sprite frames cannot spill into the interface");
 assert.ok(aiClientSource.includes("little-logo-pet-art")||aiClientSource.includes("yl-logo-pet-art"),"Character sprite renderer is present");
 assert.ok(sw.includes("/little-logo-v1.avif"),"The offline iPhone cache includes the new mascot");
 assert.ok(aiClientSource.includes("yl-logo-pet-delighted")===false||aiClientSource.includes("littleLogoPet"),"Companion reactions are derived from the mascot renderer");
