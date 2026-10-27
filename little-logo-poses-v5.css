@@ -62,3 +62,36 @@
     filter:none!important;transition:none!important;animation:none!important;
   }
 }
+
+/* Discover V5: the three rounds now have visibly separate feedback and
+   pondering scenes instead of leaving the last answer on screen. */
+.yl-discover-immersive .yl-logo-progress-track{
+  width:100%;height:3px;background:#d3b58b19;border-radius:20px;overflow:hidden;
+  margin:0 0 clamp(4px,1dvh,12px)
+}
+.yl-discover-immersive .yl-logo-progress-track > span{
+  display:block;height:100%;background:linear-gradient(90deg,#b99a70,#ead0a6);
+  border-radius:20px;box-shadow:0 0 12px #e5c09340;transition:width .35s ease
+}
+.yl-discover-immersive .yl-logo-feedback{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:10px;min-height:clamp(130px,21dvh,210px);
+  padding:8px 6px 22px;animation:yl-logo-feedback-arrival .36s ease-out both
+}
+.yl-discover-immersive .yl-logo-feedback-eyebrow{
+  font:600 10px/1.3 'DM Sans',sans-serif;letter-spacing:.16em;
+  color:#c8a97f
+}
+.yl-discover-immersive .yl-logo-feedback h2{
+  color:#f1dfc8;font:400 clamp(34px,9vw,51px)/1.08 'Cormorant Garamond',Georgia,serif;
+  letter-spacing:-.018em;margin:0
+}
+.yl-discover-immersive .yl-logo-feedback p{
+  font:400 clamp(13px,3.7vw,16px)/1.52 'DM Sans',sans-serif;
+  color:#cfbea8;max-width:32ch;margin:0
+}
+@keyframes yl-logo-feedback-arrival{from{opacity:.45;transform:translateY(9px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+ .yl-discover-immersive .yl-logo-feedback{animation:none!important}
+ .yl-discover-immersive .yl-logo-progress-track>span{transition:none!important}
+}
