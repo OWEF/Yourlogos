@@ -153,6 +153,7 @@ let keepPending=null,keepTimer=null;
 if(!Array.isArray(data.thoughtThreadEvents))data.thoughtThreadEvents=[];
 data.livingThreads=normalizeLivingState(data.livingThreads);
 if(!Array.isArray(data.aiDiscoverThreads))data.aiDiscoverThreads=[];
+if(!Array.isArray(data.discoverJourneyEvents))data.discoverJourneyEvents=[];
 data.aiDiscoverThreads=data.aiDiscoverThreads.filter(x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<91).slice(-30);
 // A return is a gentle, optional act of presence; not a competitive streak.
 if(!Array.isArray(data.arrivals))data.arrivals=[];
@@ -178,7 +179,23 @@ const dailyPick=(dateKey)=>{
   // Protect against a last-day repetition from pre-upgrade practice history.
   const yesterday=data.practice[shiftDate(dateKey,-1)]?.quoteId;
   if(Number.isInteger(yesterday)&&yesterday===id)id=DAILY_ORDER[(slot+1)%DAILY_ORDER.length];
-  return id;
+  // Personalized ranking is applied only to NEW days; an already presented
+  // daily quote never changes when a visitor likes or completes a journey.
+  const eligible=DAILY_ORDER.filter(candidate=>candidate!==data.practice[shiftDate(dateKey,-1)]?.quoteId);
+  const records=(data.discoverJourneyEvents||[]).filter(x=>x&&x.type==="complete").slice(-80);
+  const positives=new Map();
+  for(const qid of data.saved){const theme=QUOTES[qid]?.[2];if(theme)positives.set(theme,(positives.get(theme)||0)+1)}
+  for(const event of records){const theme=QUOTES[event.quoteId]?.[2];if(theme)positives.set(theme,(positives.get(theme)||0)+2)}
+  if(positives.size===0)return id;
+  const rotated=eligible.map((qid,i)=>{
+    const theme=QUOTES[qid][2];
+    const recent=(data.discoverJourneyEvents||[]).slice(-10).filter(x=>x.quoteId===qid).length;
+    const exposure=Object.values(data.practice).filter(x=>x?.quoteId===qid).length;
+    const diversity=(dayIndexFor(dateKey)%4===0)?0:1;
+    const score=(positives.get(theme)||0)*diversity*0.22 - recent*2 - exposure*1.5;
+    return {qid,score,tiebreak:((qid*2654435761+dayIndexFor(dateKey))>>>0)/4294967296};
+  }).sort((x,y)=>y.score-x.score||x.tiebreak-y.tiebreak);
+  return rotated[0]?.qid??id;
 };
 const activeQuote=()=>{const d=today();if(Number.isInteger(data.practice[d]?.quoteId)&&QUOTES[data.practice[d].quoteId])return data.practice[d].quoteId;return dailyPick(d)};
 const persist=()=>localStorage.setItem(KEY,JSON.stringify(data));
@@ -757,6 +774,13 @@ document.addEventListener("click",async e=>{
         choices:finishing?[]:next.choices.map(x=>cleanText(x,82)),complete:finishing});
       current.complete=finishing;
       current.messages=current.messages.slice(-12);
+      if(finishing){
+        data.discoverJourneyEvents=[...data.discoverJourneyEvents,{
+          type:"complete",quoteId:id,date:today(),
+          choices:current.messages.filter(m=>m.role==="user").map(m=>cleanText(m.text,82)).slice(-3)
+        }].slice(-150);
+        persist();haptic("success");
+      }
     }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
     finally{current.loading=false;if(aiConversation===current&&discoverOpen)render()}
     return;
@@ -785,7 +809,10 @@ document.addEventListener("click",async e=>{
       if(!summary){toast("Explore a little more before saving.");return}
       data.aiDiscoverThreads=[...data.aiDiscoverThreads.filter(x=>x.id!==summary.id),summary].slice(-30);
       aiConversation.saved=true;
-      persist();toast("Little Logo kept this in My World");render();return;
+      data.discoverJourneyEvents=[...data.discoverJourneyEvents,{type:"save",quoteId:id,date:today()}].slice(-150);
+      persist();toast("Little Logo kept this in My World");
+      if(aiConversation.complete){discoverOpen=false;aiDiscoverMode=false;aiConversation=null;view="profile";universePane="home";}
+      render();return;
     }
     if(action==="send"){
       if(aiConversation.loading)return;

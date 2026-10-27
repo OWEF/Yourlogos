@@ -12,8 +12,8 @@ export function aiMemoryChoices(memory){
  return (memory?.threads||[]).filter(x=>x?.note||x?.opening).slice(-4)
    .map(x=>cleanText(x.note||x.opening,200)).filter(Boolean);
 }
-// Little Logo: each visit has a beginning, four meaningful choices, and an ending.
-export const LOGO_DECISIONS=4;
+// Little Logo: Encounter -> three choices -> an explicit connection back to the thinker.
+export const LOGO_DECISIONS=3;
 const logoGlyph='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none"><path d="M16 2.5c0 8-5.5 13.5-13.5 13.5C10.5 16 16 21.5 16 29.5c0-8 5.5-13.5 13.5-13.5C21.5 16 16 10.5 16 2.5Z" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="currentColor"/></svg>';
 const nextArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>';
 function shortObservation(text){
@@ -40,16 +40,21 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   '<p class="yl-ai-consent">Little Logo uses DeepSeek to explore this quote with you. With your permission, it will share this quotation, your choices, and up to four saved reflections. No account needed.</p>'+
   '<button type="button" data-ai="agree" class="yl-ai-main">Begin together '+nextArrow+'</button>'+
   '<button type="button" data-ai="cancel" class="yl-ai-secondary">Not now</button></section>';
+ const author=Array.isArray(quote)?cleanText(quote[1],80):"";
+ const original=Array.isArray(quote)?cleanText(quote[0],190):"";
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
     '<span class="yl-logo-mark">'+logoGlyph+'</span>'+
-    '<div><strong>LITTLE LOGO</strong><small>'+(completed?"A THOUGHT TO KEEP":"LET’S SEE WHERE THIS GOES")+'</small></div></div>'+
-    '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 4")+'">'+dots+'</div></div>';
+    '<div><strong>LITTLE LOGO</strong><small>'+(completed?"YOUR CONNECTION":"FOLLOW THE THOUGHT")+'</small></div></div>'+
+    '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 3")+'">'+dots+'</div></div>';
+ if(!completed&&steps===0&&original){
+  html+='<div class="yl-logo-source"><span>FROM YOUR ENCOUNTER · '+esc(author)+'</span><p>“'+esc(original)+'”</p></div>';
+ }
  if(c.loading&&!latest)html+='<div class="yl-ai-quiet-loading" role="status">Following a thought…</div>';
  if(latest){
   if(completed){
    html+='<div class="yl-logo-finale"><span class="yl-logo-final-mark" aria-hidden="true">'+logoGlyph+'</span>'+
-     '<h2 class="yl-logo-final-title">Something to carry.</h2>'+
-     '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,480))+'</p></div>';
+     '<h2 class="yl-logo-final-title">Your Connection</h2>'+
+     '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,480))+'</p><p class="yl-logo-backlink">FROM '+esc(author.toUpperCase())+'</p></div>';
   }else{
    html+='<div class="yl-ai-current">';
    
@@ -77,8 +82,8 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  if(completed){
   html+='<div class="yl-logo-ending-actions">'+
     '<button type="button" data-ai="save" class="yl-ai-main">'+
-      (c.saved?"Kept in My World":"Keep this reflection")+nextArrow+'</button>'+
-    '<button type="button" data-ai="finish" class="yl-ai-secondary">Return to Encounter</button></div>';
+      (c.saved?"See it in My World":"Keep in My World")+nextArrow+'</button>'+
+    '<button type="button" data-ai="finish" class="yl-ai-secondary">Back to Encounter</button></div>';
  }else if(latest&&!c.loading){
   html+='<button type="button" data-ai="finish" class="yl-ai-secondary yl-logo-exit">End reflection here</button>';
  }
