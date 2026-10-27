@@ -378,3 +378,9 @@
  .yl-logo-roam-position,.yl-logo-roam-glow,.yl-logo-roam-stage .yl-logo-pet{animation:none!important;transform:none!important}
  .yl-logo-roam-stage .yl-logo-pet-atlas,.yl-logo-roam-stage .yl-logo-pet-hero{transition:none!important}
 }
+
+/* Interim art compatibility until the approved high-resolution asset is published. */
+.yl-logo-roam-stage .yl-logo-pet-hero{display:none!important}
+.yl-logo-roam-stage .yl-logo-pet-atlas{opacity:1!important}
+.yl-logo-intro .yl-logo-pet-hero,.yl-logo-final-mark .yl-logo-pet-hero{display:none!important}
+.yl-logo-intro .yl-logo-pet-atlas,.yl-logo-final-mark .yl-logo-pet-atlas{display:block!important;opacity:1!important}
