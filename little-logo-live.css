@@ -1,0 +1,87 @@
+/* LilLogo Living Companion v2.1
+   Keeps the approved HD portrait untouched; lightweight SVG accents, eyelids,
+   scarf motion, gaze and stateful body animation live in separate composited layers.
+   No new API calls, images, loops or network polling. */
+.yl-logo .yl-logo-pet{animation:none!important;isolation:isolate;contain:layout style}
+.yl-logo-pet-figure{position:absolute;inset:0;display:block;transform-origin:54% 73%;will-change:transform;animation:yl-life-breathe 4.6s cubic-bezier(.42,0,.58,1) infinite}
+.yl-logo-pet-figure .yl-logo-pet-art{position:absolute!important;inset:0!important;width:100%;height:100%;transform:none!important;pointer-events:none}
+.yl-logo-pet-figure .yl-logo-pet-hero{inset:0!important;display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;opacity:1!important}
+.yl-logo-pet-hair{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.38;transform-origin:62% 31%;animation:yl-life-hair 5.6s ease-in-out infinite alternate}
+.yl-logo-pet-hair svg,.yl-logo-pet-scarf svg{width:100%;height:100%;overflow:visible}
+.yl-logo-pet-scarf{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.36;transform-origin:41% 63%;animation:yl-life-scarf 4.9s ease-in-out infinite alternate}
+.yl-logo-pet-blink{position:absolute;top:34%;height:12%;width:9%;border-radius:55% 55% 60% 60%;background:radial-gradient(ellipse at 47% 36%,#f2d4b1 20%,#e1b891 100%);z-index:3;opacity:0;transform:scaleY(.05);transform-origin:50% 15%;animation:yl-life-blink 8.9s linear infinite;pointer-events:none}
+.yl-logo-pet-blink::after{content:"";position:absolute;left:16%;right:14%;bottom:17%;height:1px;border-radius:100%;background:#79543d;opacity:.6}
+.yl-logo-pet-blink--left{left:58.5%}
+.yl-logo-pet-blink--right{left:78.2%;animation-delay:-.05s}
+.yl-logo-pet-cheek{position:absolute;z-index:3;top:50%;width:10%;height:5%;border-radius:50%;background:radial-gradient(ellipse,#e99b857a,transparent 80%);opacity:0;transition:opacity .22s ease;pointer-events:none}
+.yl-logo-pet-cheek--left{left:55.5%}
+.yl-logo-pet-cheek--right{left:83%}
+.yl-logo-pet-emote{position:absolute;inset:0;z-index:4;pointer-events:none}
+.yl-logo-pet-emote i{position:absolute;display:block;width:11%;aspect-ratio:1;background:#f7d69c;clip-path:polygon(50% 0,59% 39%,100% 50%,59% 61%,50% 100%,41% 61%,0 50%,41% 39%);opacity:0;transform:translate3d(0,9px,0) scale(.3)}
+.yl-logo-pet-emote i:nth-child(1){left:17%;top:24%}
+.yl-logo-pet-emote i:nth-child(2){left:82%;top:15%;width:7%;background:#d6e1c1}
+.yl-logo-pet-emote i:nth-child(3){left:78%;top:63%;width:5%;background:#f8d7a5}
+.yl-logo-pet-shadow{position:absolute;bottom:2%;left:25%;width:50%;height:10%;border-radius:100%;z-index:0;background:#d1aa7529;filter:blur(9px);pointer-events:none;animation:yl-life-shadow 4.6s ease-in-out infinite}
+
+/* A glance is a tiny shift of attention, not a translation of the whole scene. */
+.yl-logo-pet.is-looking .yl-logo-pet-figure{translate:var(--yl-look-x,0px) var(--yl-look-y,0px)}
+.yl-logo-pet-thinking .yl-logo-pet-figure{animation:yl-life-thinking 2.2s cubic-bezier(.4,0,.6,1) infinite!important}
+.yl-logo-pet-curious .yl-logo-pet-figure{animation:yl-life-curious 1.1s cubic-bezier(.19,.86,.34,1) both!important}
+.yl-logo-pet-reflective .yl-logo-pet-figure{animation:yl-life-reflect 1.25s ease-in-out both!important}
+.yl-logo-pet-surprised .yl-logo-pet-figure{animation:yl-life-surprised .85s cubic-bezier(.2,.9,.3,1) both!important}
+.yl-logo-pet-delighted .yl-logo-pet-figure{animation:yl-life-delighted 1.2s cubic-bezier(.2,.8,.3,1) both!important}
+.yl-logo-pet-encourage .yl-logo-pet-figure{animation:yl-life-encourage 1.3s ease-in-out both!important}
+.yl-logo-pet-thinking .yl-logo-pet-scarf{animation-duration:2.4s}
+.yl-logo-pet-curious .yl-logo-pet-hair{animation:yl-life-hair-curious 1.2s ease-out both}
+.yl-logo-pet-surprised .yl-logo-pet-hair{animation:yl-life-hair-surprise .9s ease-out both}
+.yl-logo-pet-delighted .yl-logo-pet-cheek,.yl-logo-pet-encourage .yl-logo-pet-cheek{opacity:.8}
+.yl-logo-pet-thinking .yl-logo-pet-emote i:nth-child(2){animation:yl-life-thought 2.6s ease-in-out infinite}
+.yl-logo-pet-curious .yl-logo-pet-emote i:nth-child(1){animation:yl-life-star 1.05s .14s ease-out both}
+.yl-logo-pet-surprised .yl-logo-pet-emote i:nth-child(1),
+.yl-logo-pet-surprised .yl-logo-pet-emote i:nth-child(2){animation:yl-life-star 1.1s ease-out both}
+.yl-logo-pet-delighted .yl-logo-pet-emote i{animation:yl-life-star 1.3s ease-out both}
+.yl-logo-pet-delighted .yl-logo-pet-emote i:nth-child(2){animation-delay:.12s}
+.yl-logo-pet-delighted .yl-logo-pet-emote i:nth-child(3){animation-delay:.26s}
+.yl-logo-pet-encourage .yl-logo-pet-emote i:nth-child(3){animation:yl-life-star 1.15s .17s ease-out both}
+.yl-logo-pet-reflective .yl-logo-pet-blink{animation:yl-life-slow-blink 1.25s ease-in-out both}
+.yl-logo-pet-surprised .yl-logo-pet-blink{animation:none!important;opacity:0!important}
+
+/* The image stays high-resolution while small features move independently. */
+@keyframes yl-life-breathe{0%,100%{transform:translate3d(0,1px,0) scale(1)}48%{transform:translate3d(0,-2px,0) scale(1.023)}}
+@keyframes yl-life-shadow{0%,100%{opacity:.24;transform:scaleX(.94)}50%{opacity:.13;transform:scaleX(1.07)}}
+@keyframes yl-life-hair{from{transform:rotate(-1.5deg) translateY(0)}to{transform:rotate(2.3deg) translateY(-2px)}}
+@keyframes yl-life-scarf{from{transform:rotate(-1.7deg) translateX(-1px)}to{transform:rotate(3deg) translateX(2px)}}
+@keyframes yl-life-blink{0%,40%,42.3%,100%{opacity:0;transform:scaleY(.05)}40.5%,41.2%{opacity:.96;transform:scaleY(1)}}
+@keyframes yl-life-slow-blink{0%,20%,85%,100%{opacity:0;transform:scaleY(.05)}42%,66%{opacity:.92;transform:scaleY(.9)}}
+@keyframes yl-life-thinking{0%,100%{transform:rotate(-3deg) translate3d(-1px,2px,0)}42%{transform:rotate(4deg) translate3d(2px,-3px,0)}70%{transform:rotate(2deg) translate3d(0,-1px,0)}}
+@keyframes yl-life-curious{0%{transform:rotate(-5deg) translateY(3px)}38%{transform:rotate(11deg) translateY(-8px) scale(1.045)}68%{transform:rotate(6deg) translateY(-5px)}100%{transform:rotate(3deg)}}
+@keyframes yl-life-reflect{0%{transform:translateY(0) rotate(-3deg)}30%{transform:translateY(9px) rotate(4deg)}58%{transform:translateY(3px) rotate(0)}75%{transform:translateY(7px) rotate(3deg)}100%{transform:translateY(0) rotate(0)}}
+@keyframes yl-life-surprised{0%{transform:translateY(6px) scale(.92)}34%{transform:translateY(-16px) rotate(-8deg) scale(1.11)}67%{transform:translateY(1px) rotate(4deg) scale(.98)}100%{transform:none}}
+@keyframes yl-life-delighted{0%{transform:translateY(0) scale(1)}24%{transform:translateY(-17px) rotate(9deg) scale(1.075)}54%{transform:translateY(-4px) rotate(-7deg) scale(.99)}79%{transform:translateY(-9px) rotate(4deg)}100%{transform:none}}
+@keyframes yl-life-encourage{0%,100%{transform:none}30%{transform:translateY(-8px) rotate(-9deg)}70%{transform:translateY(-4px) rotate(8deg)}}
+@keyframes yl-life-hair-curious{20%{transform:rotate(-3deg)}55%{transform:rotate(6deg)}100%{transform:none}}
+@keyframes yl-life-hair-surprise{35%{transform:rotate(8deg) translateY(-6px)}100%{transform:none}}
+@keyframes yl-life-star{0%{opacity:0;transform:translate3d(0,10px,0) scale(.25) rotate(-25deg)}35%{opacity:.95;transform:translate3d(0,-13px,0) scale(1.12) rotate(22deg)}100%{opacity:0;transform:translate3d(8px,-22px,0) scale(.4) rotate(65deg)}}
+@keyframes yl-life-thought{0%,100%{opacity:0;transform:translate3d(0,4px,0) scale(.25)}45%{opacity:.7;transform:translate3d(4px,-5px,0) scale(.65)}}
+
+/* Entrance: Little Logo looks ahead as a user leads the swipe, then celebrates. */
+.yl-slider .yl-slider__thumb.yl-entrance__button{--life-travel:var(--intensity,0)}
+.yl-slider__thumb .yl-slider__little-logo{transform-origin:52% 66%!important;transition:transform .11s linear!important}
+.yl-slider.is-grabbing .yl-slider__thumb .yl-slider__little-logo{animation:yl-life-slider-lead .7s ease-in-out infinite alternate!important}
+.yl-slider.is-near .yl-slider__thumb .yl-slider__little-logo{filter:drop-shadow(0 0 9px #ecc78a99)!important}
+.yl-slider.is-complete .yl-slider__thumb .yl-slider__little-logo{animation:yl-life-slider-arrived .58s cubic-bezier(.2,.9,.2,1) both!important}
+.yl-slider__thumb.yl-entrance__button::after{content:"";position:absolute;left:5%;top:2%;width:13%;aspect-ratio:1;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);background:#ffe1ac;opacity:0;pointer-events:none}
+.yl-slider.is-near .yl-slider__thumb.yl-entrance__button::after{animation:yl-life-star 1s infinite alternate!important}
+@keyframes yl-life-slider-lead{from{transform:translate3d(0,calc(var(--pet-lift,0px) + 2px),0) rotate(var(--pet-tilt,-6deg))}to{transform:translate3d(3px,calc(var(--pet-lift,0px) - 6px),0) rotate(calc(var(--pet-tilt,-6deg) + 5deg))}}
+@keyframes yl-life-slider-arrived{0%{transform:translateY(var(--pet-lift,0px)) rotate(var(--pet-tilt,0deg))}48%{transform:translateY(-24px) rotate(13deg) scale(1.12)}75%{transform:translateY(-8px) rotate(-7deg)}100%{transform:translateY(-11px) rotate(0deg) scale(1.03)}}
+
+/* Motion must never obscure answer cards or override operating-system preferences. */
+@media(prefers-reduced-motion:reduce){
+ .yl-logo .yl-logo-pet,.yl-logo .yl-logo-pet *, .yl-logo .yl-logo-pet *::after,
+ .yl-slider__thumb .yl-slider__little-logo,.yl-slider__thumb.yl-entrance__button::after{
+  animation:none!important;transition:none!important;transform:none!important;translate:none!important
+ }
+ .yl-logo-pet-blink,.yl-logo-pet-emote i,.yl-slider__thumb.yl-entrance__button::after{opacity:0!important}
+ .yl-logo-pet-figure{will-change:auto}
+}
+html.yl-life-paused .yl-logo .yl-logo-pet *{animation-play-state:paused!important}

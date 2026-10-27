@@ -329,6 +329,15 @@ assert.ok(prompt.system.includes("Never ask general questions about existence"),
 assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive full-screen class");
 assert.ok(app.includes('type:"complete"')&&app.includes('positives.get(theme)'),"Journey completions influence next-day quote ranking");
 assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
+
+const livingCSS=read("little-logo-live.css");
+assert.ok(html.includes('/little-logo-live.css'),"Living companion styling is loaded after existing theme");
+assert.ok(sw.includes('/little-logo-live.css'),"PWA caches Living companion styles offline");
+assert.ok(aiClientSource.includes("yl-logo-pet-figure")&&aiClientSource.includes("yl-logo-pet-blink"),"Character includes independent body and blink layers");
+assert.ok(aiClientSource.includes("yl-logo-pet-hair")&&aiClientSource.includes("yl-logo-pet-scarf"),"Character retains artwork and adds subtle separate hair and scarf animation");
+assert.ok(livingCSS.includes("@keyframes yl-life-blink")&&livingCSS.includes("@keyframes yl-life-thinking")&&livingCSS.includes("@keyframes yl-life-delighted"),"Character has deliberate idle and emotional motion");
+assert.ok(livingCSS.includes("prefers-reduced-motion:reduce"),"Companion respects reduced-motion accessibility");
+assert.ok(app.includes('current.petMood="thinking";render()'),"Discover choice transitions to thinking after response");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
 
 assert.ok(v33Source.includes(".yl-logo-pet-atlas{display:none!important}"),"Never expose the repeated frames");
