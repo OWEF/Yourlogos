@@ -7,6 +7,7 @@ const app=read("app.js"),world=read("world-view.js"),cosmos=read("cosmos-v2.html
 const exploreModule=read("explore-catalogue.js"),threadModule=read("thought-threads.js");
 const personalizedModule=read("personalization.js"),onboardingModule=read("onboarding.js");
 const auth=read("auth-client.js"),config=read("auth-config.js"),sw=read("sw.js"),html=read("index.html");
+const v33Source=read("v33.css");
 for(const [name,source] of [["app",app],["world",world],["auth",auth],["explore-catalogue",exploreModule],["thought-threads",threadModule],["personalization",personalizedModule],["onboarding",onboardingModule]]){
   new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
 }
