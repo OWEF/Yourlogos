@@ -283,7 +283,7 @@ assert.throws(()=>makeDiscoverPrompt({...dataForAI,turn:5}),/journey step/,"Fift
 const completeTurn=validateDiscoverTurn({reply:"Your choices suggest that courage may not settle the cost; it makes the cost worth confronting together.",followUp:"",choices:[]},4);
 assert.equal(completeTurn.complete,true);
 assert.equal(completeTurn.choices.length,0,"Closing output cannot offer further taps");
-assert.throws(()=>validateDiscoverTurn({reply:"Another thought of note.",followUp:"",choices:[]},3),/choices/);
+assert.throws(()=>validateDiscoverTurn({reply:"Another thoughtful philosophical observation worthy of deeper consideration.",followUp:"",choices:[]},3),/choices/);
 
 const {guestIdentity}=await import("../discover-ai-server.mjs");
 const cookieResponse={headers:{},setHeader(name,value){this.headers[name]=value}};
