@@ -260,9 +260,9 @@ const finishedConversation={...artificial,complete:true,messages:[
  {role:"assistant",text:"Your challenge leaves something open: freedom asks you to risk a little certainty without forgetting why it mattered.",followUp:"",choices:[],complete:true}
 ]};
 const closingHtml=aiConversationHtml({quote:QUOTES[63],conversation:finishedConversation,available:true,authenticated:true});
-assert.ok(closingHtml.includes("Something to carry.")&&closingHtml.includes('data-ai="finish"'),"Finished reflection must offer a clear exit");
+assert.ok(closingHtml.includes("Your Connection")&&closingHtml.includes('data-ai="finish"'),"Finished reflection must offer a clear exit");
 assert.ok(closingHtml.includes("LITTLE LOGO")&&!closingHtml.includes("· AI</span>"),"Little Logo is the companion identity");
-assert.ok(!closingHtml.includes("data-ai-choice"),"No infinite option loop after four taps");
+assert.ok(!closingHtml.includes("data-ai-choice"),"No infinite option loop after three taps");
 const closingSummary=aiSummary(finishedConversation,QUOTES[63],"2026-10-27");
 assert.ok(closingSummary.question.includes("Your challenge leaves something open"),"Saved finished reflections retain their takeaway");
 assert.ok(app.includes("current.complete=finishing")&&app.includes('action==="finish"'),"App enforces completed state and exit action");
@@ -274,16 +274,16 @@ assert.ok(!auth.includes("signInAnonymously()")&&auth.includes("data.user.is_ano
 assert.ok(aiServerSource.includes("guestIdentity(req,res)")&&aiServerSource.includes("SameSite=Strict"),"Guest AI requires signed browser cookie");
 assert.ok(aiServerSource.includes("YOURLOGOS_AI_GUEST_DAILY_CAP")&&aiServerSource.includes("personalLimit"),"Guest limit is configurable and bounded");
 assert.ok(aiServerSource.includes("refundBudget(id)"),"Failed AI requests should not spend the daily budget");
-assert.equal(DISCOVER_DECISIONS,4,"The AI journey has a finite four-choice arc");
+assert.equal(DISCOVER_DECISIONS,3,"The AI journey has a finite three-choice arc");
 assert.equal(LOGO_DECISIONS,DISCOVER_DECISIONS,"Client and server must agree about journey length");
-const closingPrompt=makeDiscoverPrompt({...dataForAI,turn:4});
+const closingPrompt=makeDiscoverPrompt({...dataForAI,turn:3});
 assert.equal(closingPrompt.context.closing,true);
 assert.ok(closingPrompt.system.includes("THE JOURNEY ENDS NOW"),"Closing prompt must actually end the reflection");
-assert.throws(()=>makeDiscoverPrompt({...dataForAI,turn:5}),/journey step/,"Fifth question cannot be generated");
-const completeTurn=validateDiscoverTurn({reply:"Your choices suggest that courage may not settle the cost; it makes the cost worth confronting together.",followUp:"",choices:[]},4);
+assert.throws(()=>makeDiscoverPrompt({...dataForAI,turn:4}),/journey step/,"Fifth question cannot be generated");
+const completeTurn=validateDiscoverTurn({reply:"Your choices suggest that courage may not settle the cost; it makes the cost worth confronting together.",followUp:"",choices:[]},3);
 assert.equal(completeTurn.complete,true);
 assert.equal(completeTurn.choices.length,0,"Closing output cannot offer further taps");
-assert.throws(()=>validateDiscoverTurn({reply:"Another thoughtful philosophical observation worthy of deeper consideration.",followUp:"",choices:[]},3),/choices/);
+assert.throws(()=>validateDiscoverTurn({reply:"Another thoughtful philosophical observation worthy of deeper consideration.",followUp:"",choices:[]},2),/choices/);
 
 const {guestIdentity}=await import("../discover-ai-server.mjs");
 const cookieResponse={headers:{},setHeader(name,value){this.headers[name]=value}};
@@ -310,5 +310,6 @@ assert.ok(prompt.system.includes("PRODUCT PROMISE")&&prompt.system.includes("ORD
 assert.ok(prompt.system.includes("What do you do first?")&&prompt.system.includes("Speak up right away"),"Prompt provides everyday test examples");
 assert.ok(prompt.system.includes("Never ask general questions about existence"),"No abstract philosophical quiz questions");
 assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive full-screen class");
+assert.ok(app.includes('type:"complete"')&&app.includes('positives.get(theme)'),"Journey completions influence next-day quote ranking");
 assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
