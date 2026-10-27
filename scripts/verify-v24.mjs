@@ -306,4 +306,9 @@ assert.ok(aiServerSource.includes("api.deepseek.com/chat/completions")&&aiServer
 assert.ok(aiServerSource.includes("process.env.DEEPSEEK_API_KEY")&&!aiServerSource.includes("process.env.OPENAI_API_KEY"),"DeepSeek secret stays server-side");
 assert.ok(sw.includes('"/discover-ai-client.js"'),"Offline shell loads without AI network access");
 
+assert.ok(prompt.system.includes("PRODUCT PROMISE")&&prompt.system.includes("ORDINARY DAY"),"Little Logo prioritizes concrete daily experience");
+assert.ok(prompt.system.includes("What do you do first?")&&prompt.system.includes("Speak up right away"),"Prompt provides everyday test examples");
+assert.ok(prompt.system.includes("Never ask general questions about existence"),"No abstract philosophical quiz questions");
+assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive full-screen class");
+assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
