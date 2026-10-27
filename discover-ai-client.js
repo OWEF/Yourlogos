@@ -19,7 +19,7 @@ const logoGlyph='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none"><path d
 // Approved Little Logo artwork, in six compact, transparent sprite poses.
 // The original abstract mark remains as a graceful fallback on older devices.
 const petAvatar='<span class="yl-logo-pet-shadow" aria-hidden="true"></span><span class="yl-logo-pet-figure" aria-hidden="true"><span class="yl-logo-pet-art">'+
- '<img class="yl-logo-pet-hero" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false"></span>'+
+ '<img class="yl-logo-pet-hero" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false"><img class="yl-logo-pet-atlas" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false"></span>'+
  '<span class="yl-logo-pet-hair"><svg viewBox="0 0 100 100" fill="none"><path d="M23 29q-8 2-13 10m18-13q-5-7 3-12m9-5q7-9 16-2" stroke="#f3d2a7" stroke-width="1.7" stroke-linecap="round"/></svg></span>'+
  '<span class="yl-logo-pet-scarf"><svg viewBox="0 0 100 100" fill="none"><path d="M12 70q-8 9-11 4m18-10q-11 5-17 2" stroke="#b9b79b" stroke-width="2" stroke-linecap="round"/></svg></span>'+
  '<span class="yl-logo-pet-blink yl-logo-pet-blink--left"></span><span class="yl-logo-pet-blink yl-logo-pet-blink--right"></span>'+
