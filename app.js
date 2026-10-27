@@ -774,6 +774,13 @@ document.addEventListener("click",async e=>{
         choices:finishing?[]:next.choices.map(x=>cleanText(x,82)),complete:finishing});
       current.complete=finishing;
       current.messages=current.messages.slice(-12);
+      if(finishing){
+        data.discoverJourneyEvents=[...data.discoverJourneyEvents,{
+          type:"complete",quoteId:id,date:today(),
+          choices:current.messages.filter(m=>m.role==="user").map(m=>cleanText(m.text,82)).slice(-3)
+        }].slice(-150);
+        persist();haptic("success");
+      }
     }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
     finally{current.loading=false;if(aiConversation===current&&discoverOpen)render()}
     return;
@@ -785,9 +792,6 @@ document.addEventListener("click",async e=>{
 
     if(!aiConversation||aiConversation.quoteId!==id)return;
     if(action==="finish"){
-      if(aiConversation.complete){data.discoverJourneyEvents=[...data.discoverJourneyEvents,
-        {type:"complete",quoteId:id,date:today(),choices:aiConversation.messages.filter(m=>m.role==="user").map(m=>cleanText(m.text,82)).slice(-3)}
-      ].slice(-150);persist()}
       discoverOpen=false;aiDiscoverMode=false;aiConversation=null;render();return;
     }
     if(action==="cancel"||action==="revoke"){

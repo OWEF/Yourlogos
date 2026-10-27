@@ -226,7 +226,7 @@ assert.equal(discoverAIEnabled(),false,"AI must stay disabled until owner config
 const dataForAI={quoteId:63,quote:{text:QUOTES[63][0],author:QUOTES[63][1],theme:QUOTES[63][2]},
  turn:2,userText:"I want to change, but I am afraid of losing who I am.",memory:["I used to be afraid of being alone."]};
 const prompt=makeDiscoverPrompt(dataForAI);
-assert.ok(prompt.system.includes("actual meaning")&&prompt.system.includes("respect disagreement"),"The AI must make personalized, revisable philosophical moves");
+assert.ok(prompt.system.includes("actual meaning")&&prompt.system.includes("changed tap"),"The AI must make personalized, revisable philosophical moves");
 assert.ok(prompt.system.includes("SELF-CHECK BEFORE OUTPUT")&&prompt.system.includes("exactly three plausible"),"Prompt requires distinct quote-grounded tap choices");
 assert.equal(prompt.context.userWords,dataForAI.userText);
 assert.equal(prompt.context.pastVoluntaryReflections.length,1);
@@ -259,6 +259,7 @@ const finishedConversation={...artificial,complete:true,messages:[
  {role:"user",text:"I'll challenge it"},
  {role:"assistant",text:"Your challenge leaves something open: freedom asks you to risk a little certainty without forgetting why it mattered.",followUp:"",choices:[],complete:true}
 ]};
+finishedConversation.messages.splice(6,2);
 const closingHtml=aiConversationHtml({quote:QUOTES[63],conversation:finishedConversation,available:true,authenticated:true});
 assert.ok(closingHtml.includes("Your Connection")&&closingHtml.includes('data-ai="finish"'),"Finished reflection must offer a clear exit");
 assert.ok(closingHtml.includes("LITTLE LOGO")&&!closingHtml.includes("· AI</span>"),"Little Logo is the companion identity");
@@ -279,7 +280,7 @@ assert.equal(LOGO_DECISIONS,DISCOVER_DECISIONS,"Client and server must agree abo
 const closingPrompt=makeDiscoverPrompt({...dataForAI,turn:3});
 assert.equal(closingPrompt.context.closing,true);
 assert.ok(closingPrompt.system.includes("THE JOURNEY ENDS NOW"),"Closing prompt must actually end the reflection");
-assert.throws(()=>makeDiscoverPrompt({...dataForAI,turn:4}),/journey step/,"Fifth question cannot be generated");
+assert.throws(()=>makeDiscoverPrompt({...dataForAI,turn:4}),/journey step/,"Fourth question cannot be generated");
 const completeTurn=validateDiscoverTurn({reply:"Your choices suggest that courage may not settle the cost; it makes the cost worth confronting together.",followUp:"",choices:[]},3);
 assert.equal(completeTurn.complete,true);
 assert.equal(completeTurn.choices.length,0,"Closing output cannot offer further taps");
