@@ -332,7 +332,7 @@ assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRE
 
 const immersiveCSS=read("little-logo-discover.css");
 assert.ok(html.includes('/little-logo-discover.css'),"Immersive Discover stylesheet loads last");
-assert.ok(sw.includes('/little-logo-discover.css')&&(sw.includes('yourlogos-v75-original-lillogo-cutout')||sw.includes('yourlogos-v74-character-expressions-discover')),"iPhone PWA precaches the new visual treatment");
+assert.ok(sw.includes('/little-logo-discover.css')&&(sw.includes('yourlogos-v76-lillogo-action-rituals')||sw.includes('yourlogos-v75-original-lillogo-cutout')),"iPhone PWA precaches the new visual treatment");
 assert.ok(aiCard.includes('yl-logo-face')&&aiCard.includes('yl-face-happy')&&aiCard.includes('yl-face-surprise'),"Original character renders distinct happy and surprise facial expressions");
 assert.ok(aiCard.includes('yl-logo-scene-light')&&aiCard.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
 assert.ok(immersiveCSS.includes('yl-life-stage-joy')&&immersiveCSS.includes('yl-life-stage-think')&&immersiveCSS.includes('yl-life-stage-startle'),"Companion includes physically different joyful thinking and startled poses");
@@ -346,7 +346,7 @@ assert.ok(html.includes('/little-logo-cutout-fix.css'),"Cutout patch is loaded a
 assert.ok(cutoutCSS.includes('.yl-logo-pet-figure .yl-logo-face')&&cutoutCSS.includes('display:none!important'),"Inaccurate facial overlay is disabled");
 assert.ok(cutoutCSS.includes('mask-image:url("/little-logo-cutout-mask.svg")'),"Original character is composited through a standalone silhouette");
 assert.ok(silhouetteMask.includes('viewBox="0 0 400 400"')&&silhouetteMask.includes('<path'),"Feathered mask targets the original 400px artwork");
-assert.ok(sw.includes('yourlogos-v75-original-lillogo-cutout')&&sw.includes('/little-logo-cutout-mask.svg')&&sw.includes('/little-logo-cutout-fix.css'),"iPhone service worker precaches both fix assets");
+assert.ok(sw.includes('yourlogos-v76-lillogo-action-rituals')&&sw.includes('/little-logo-cutout-mask.svg')&&sw.includes('/little-logo-cutout-fix.css'),"iPhone service worker precaches both fix assets");
 const fxSource=read("little-logo-fx.js");
 const ritualCSS=read("little-logo-ritual.css");
 assert.ok(html.includes('little-logo-ritual.css'),"Reaction stylesheet loads after legacy motion patches");
