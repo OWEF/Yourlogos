@@ -226,8 +226,8 @@ assert.equal(discoverAIEnabled(),false,"AI must stay disabled until owner config
 const dataForAI={quoteId:63,quote:{text:QUOTES[63][0],author:QUOTES[63][1],theme:QUOTES[63][2]},
  turn:2,userText:"I want to change, but I am afraid of losing who I am.",memory:["I used to be afraid of being alone."]};
 const prompt=makeDiscoverPrompt(dataForAI);
-assert.ok(prompt.system.includes("particular quotation")&&prompt.system.includes("substantially revise"),"The AI must make personalized, revisable philosophical moves");
-assert.ok(prompt.system.includes("PERSONALIZATION TEST")&&prompt.system.includes("exactly THREE"),"Prompt requires distinct quote-grounded tap choices");
+assert.ok(prompt.system.includes("actual meaning")&&prompt.system.includes("respect disagreement"),"The AI must make personalized, revisable philosophical moves");
+assert.ok(prompt.system.includes("SELF-CHECK BEFORE OUTPUT")&&prompt.system.includes("exactly three plausible"),"Prompt requires distinct quote-grounded tap choices");
 assert.equal(prompt.context.userWords,dataForAI.userText);
 assert.equal(prompt.context.pastVoluntaryReflections.length,1);
 assert.ok(!prompt.system.includes("OPENAI_API_KEY"));
@@ -237,7 +237,7 @@ const aiMemory=aiMemoryChoices({threads:[{opening:"A remembered thought"},{note:
 assert.equal(aiMemory.length,2);
 const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",text:"I want more freedom"},{role:"assistant",text:"Freedom often costs more than we first expect.",followUp:"What would that cost you?",choices:["My comfort","My certainty","My social ties"]}]};
 const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
-assert.ok(aiCard.includes("I want more freedom")&&aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
+assert.ok(aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
 assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
 const initialAI=aiConversationHtml({quote:QUOTES[63],conversation:{...newAIConversation(63),consent:true},available:true,authenticated:true});
 assert.ok(initialAI.includes('data-ai="send"')&&initialAI.includes("hidden"),"Consent activates first generation without typing");
@@ -306,4 +306,9 @@ assert.ok(aiServerSource.includes("api.deepseek.com/chat/completions")&&aiServer
 assert.ok(aiServerSource.includes("process.env.DEEPSEEK_API_KEY")&&!aiServerSource.includes("process.env.OPENAI_API_KEY"),"DeepSeek secret stays server-side");
 assert.ok(sw.includes('"/discover-ai-client.js"'),"Offline shell loads without AI network access");
 
+assert.ok(prompt.system.includes("PRODUCT PROMISE")&&prompt.system.includes("ORDINARY DAY"),"Little Logo prioritizes concrete daily experience");
+assert.ok(prompt.system.includes("What do you do first?")&&prompt.system.includes("Speak up right away"),"Prompt provides everyday test examples");
+assert.ok(prompt.system.includes("Never ask general questions about existence"),"No abstract philosophical quiz questions");
+assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive full-screen class");
+assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
