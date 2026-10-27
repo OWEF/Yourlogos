@@ -227,3 +227,17 @@
 .yl-logo .yl-ai-history{margin-top:8px;border-color:#ffffff19}
 .yl-logo .yl-ai-history summary{font:400 10px 'DM Sans',sans-serif;color:#a5a095}
 @media(prefers-reduced-motion:reduce){.yl-logo-choice,.yl-logo-choice-arrow,.yl-logo-progress-dot{transition:none!important}}
+
+/* Discover is a full-screen, quiet encounter. The thinking is in the model, not on the screen. */
+.v31-discover.v32-discover.yl-discover-immersive{position:fixed!important;top:0!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:100%!important;max-width:640px!important;max-height:100dvh!important;height:100dvh!important;min-height:100dvh!important;border-radius:0!important;border:0!important;padding:calc(16px + env(safe-area-inset-top)) 22px calc(18px + env(safe-area-inset-bottom))!important;overflow-y:auto;overscroll-behavior:contain;animation:none!important;}
+.yl-discover-immersive .sheet-handle{display:none}
+.yl-discover-immersive .sheet-head{margin-bottom:clamp(18px,5vh,42px)!important}
+.yl-discover-immersive .yl-logo{min-height:calc(76dvh - env(safe-area-inset-top));max-width:520px;margin:0 auto;gap:18px}
+.yl-discover-immersive .yl-logo-top{margin-bottom:clamp(12px,4vh,26px)}
+.yl-discover-immersive .yl-logo .yl-ai-question{font-size:clamp(29px,7vw,41px);line-height:1.13;margin:6px 0 12px;max-width:25ch}
+.yl-discover-immersive .yl-logo-choices{gap:11px;margin:0}
+.yl-discover-immersive .yl-logo-choice{min-height:69px}
+.yl-discover-immersive .yl-logo .yl-ai-observation{font-size:12px;line-height:1.5;max-width:38ch}
+.yl-discover-immersive .yl-logo-privacy{margin-top:auto}
+.yl-discover-immersive .yl-logo .yl-ai-consent{max-width:38ch}
+@media(max-height:700px){.yl-discover-immersive .yl-logo{min-height:0}.yl-discover-immersive .yl-logo-top{margin-bottom:7px}.yl-discover-immersive .yl-logo-choice{min-height:59px}}
