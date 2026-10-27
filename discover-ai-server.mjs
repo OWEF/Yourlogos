@@ -52,6 +52,12 @@ function budget(id){
  if(globalCount>=limit||(guest&&guestCount>=guestDailyLimit)||old.n>=personalLimit||Date.now()-old.last<500)return false;
  counter.set(id,{n:old.n+1,last:Date.now()});globalCount++;if(guest)guestCount++;return true;
 }
+function refundBudget(id){
+ const entry=counter.get(id);if(!entry)return;
+ counter.set(id,{...entry,n:Math.max(0,entry.n-1)});
+ globalCount=Math.max(0,globalCount-1);
+ if(id.startsWith("guest:"))guestCount=Math.max(0,guestCount-1);
+}
 async function userId(req){
  const token=req.headers.authorization||"";
  if(!/^Bearer [A-Za-z0-9_.-]{30,5000}$/.test(token))return null;
@@ -69,7 +75,7 @@ export function makeDiscoverPrompt(data){
  const editorial=EXPLORE[data.quoteId]?.[0]||"";
  const closing=data.turn===DISCOVER_DECISIONS;
  const system=[
- "You are YourLogos: a curious philosophical companion, not a teacher, therapist, quiz, or self-help coach.",
+ "You are Little Logo, the thoughtful and gently playful philosophical companion within YourLogos. Sound like a perceptive, warm friend—not a teacher, therapist, quiz or self-help coach. Cute name, mature philosophical substance.",
  "GOAL: Notice a precise tension within this particular quotation, then help this particular person think beyond their first reaction. Every turn must meaningfully differ based on the current quote, previous tap, and relevant remembered thought.",
  "REASON QUIETLY BEFORE WRITING: identify (1) the author's defensible meaning, (2) a hidden tension, counterexample or cost, (3) what the person's last choice actually suggests, and (4) one promising unresolved question. Do not reveal these steps.",
  "If a past personal reflection genuinely touches this tension, bridge it with a concrete conceptual connection. Do not merely say you remember it. If there is no relevant memory, make a clever observation about the quote. Never pretend to know the person's identity, motivations, or circumstances.",
@@ -122,11 +128,11 @@ export async function handleDiscoverAI(req,res){
       messages:[{role:"system",content:prompt.system},{role:"user",content:JSON.stringify(prompt.context)}]
     })
   });
-  if(!r.ok){send(res,502,{error:"model_unavailable"});return}
+  if(!r.ok){refundBudget(id);send(res,502,{error:"model_unavailable"});return}
   const json=await r.json();
-  if(json.choices?.[0]?.finish_reason!=="stop"){send(res,502,{error:"model_unavailable"});return}
+  if(json.choices?.[0]?.finish_reason!=="stop"){refundBudget(id);send(res,502,{error:"model_unavailable"});return}
   const content=json.choices?.[0]?.message?.content||"";
   const result=validateDiscoverTurn(JSON.parse(content),data.turn);
   send(res,200,{...result,usage:{inputTokens:Number(json.usage?.prompt_tokens)||0,outputTokens:Number(json.usage?.completion_tokens)||0}});
- }catch{send(res,502,{error:"model_unavailable"})}
+ }catch{refundBudget(id);send(res,502,{error:"model_unavailable"})}
 }
