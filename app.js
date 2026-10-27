@@ -754,6 +754,10 @@ document.addEventListener("click",async e=>{
     const current=aiConversation;
     current.petMood=["curious","reflective","surprised"][index];
     current.loading=true;current.error="";render();
+    // Let the response register as a real gesture before settling into thought.
+    await new Promise(resolve=>setTimeout(resolve, window.matchMedia("(prefers-reduced-motion: reduce)").matches?0:460));
+    if(aiConversation!==current||!discoverOpen)return;
+    current.petMood="thinking";render();
     try{
       const token=await getDiscoverAccessToken().catch(()=>null);
       const reply=await fetch("/api/discover-ai",{
@@ -783,7 +787,7 @@ document.addEventListener("click",async e=>{
         persist();haptic("success");
       }
     }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
-    finally{current.loading=false;if(aiConversation===current&&discoverOpen){current.petMood=current.complete?"delighted":"curious";render()}}
+    finally{current.loading=false;if(aiConversation===current&&discoverOpen){current.petMood=current.complete?"delighted":"encourage";render()}}
     return;
   }
   const aiAction=e.target.closest("[data-ai]");
@@ -845,7 +849,7 @@ document.addEventListener("click",async e=>{
         currentConversation.draft="";
       }catch(err){
         if(aiConversation===currentConversation)currentConversation.error=String(err.message||"Little Logo is unavailable");
-      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen){currentConversation.petMood="idle";render()}}
+      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen){currentConversation.petMood="curious";render()}}
       return;
     }
     return;
