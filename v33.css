@@ -179,3 +179,51 @@
 .yl-ai-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 .yl-ai-stance-list{display:grid;gap:10px;margin:8px 0 3px}.yl-ai-stance{display:flex;align-items:center;justify-content:space-between;min-height:51px;gap:12px;text-align:left;padding:12px 15px;border:1px solid #e3d0b63b;border-radius:15px;background:#ffffff08;color:#f0e8dc;font:500 13px/1.3 'DM Sans',sans-serif;cursor:pointer}.yl-ai-stance span:last-child{color:#bad3bf;font-size:18px}.yl-ai-stance:focus-visible{outline:2px solid #a8d1b8;outline-offset:3px}.yl-ai-stance:disabled{opacity:.5}
+
+/* Little Logo: polished editorial choices, finite journey and gentle conclusion. */
+.yl-logo{gap:17px;min-height:0;padding:3px 1px 5px}
+.yl-logo-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:2px 0 13px}
+.yl-logo-identity{display:flex;gap:11px;align-items:center}
+.yl-logo-mark{height:35px;width:35px;flex:0 0 35px;display:grid;place-items:center;color:#c3d9c9;border-radius:50%;border:1px solid #bad3c05d;background:radial-gradient(circle at 35% 25%,#c5e4cc21,#ffffff04 70%);box-shadow:0 0 18px #b5d8c31a}
+.yl-logo-mark svg{width:21px;height:21px}
+.yl-logo-identity strong{display:block;color:#e7ddcc;font:600 10px/1.4 'DM Sans',sans-serif;letter-spacing:.15em}
+.yl-logo-identity small{display:block;color:#928f85;font:500 9px/1.6 'DM Sans',sans-serif;letter-spacing:.05em}
+.yl-logo-progress{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.yl-logo-progress-dot{width:6px;height:6px;border:1px solid #8ba2918a;background:transparent;border-radius:50%;transition:background .3s ease,transform .3s ease}
+.yl-logo-progress-dot.is-visited,.yl-logo-progress-dot.is-done{background:#b8d2bf;border-color:#b8d2bf}
+.yl-logo-progress-dot.is-current{transform:scale(1.4);background:#ead3aa;border-color:#ead3aa;box-shadow:0 0 9px #ead3aa65}
+.yl-logo .yl-ai-current{display:flex;flex-direction:column;gap:12px}
+.yl-logo .yl-ai-you{font:500 10px/1.55 'DM Sans',sans-serif;letter-spacing:.03em;color:#9ab4a3;opacity:.9}
+.yl-logo .yl-ai-observation{max-width:47ch;font:400 13px/1.6 'DM Sans',sans-serif;color:#c0b9af}
+.yl-logo .yl-ai-question{margin:4px 0 5px;font:400 clamp(28px,7.4vw,37px)/1.14 'Cormorant Garamond',Georgia,serif;letter-spacing:-.012em;color:#f3eadd;text-wrap:balance}
+.yl-logo-choices{display:grid;gap:10px;margin:8px 0 6px}
+.yl-logo-choice{--logo-accent:#c4d9c8;--logo-sheen:#a9cdb414;position:relative;width:100%;display:grid;grid-template-columns:30px minmax(0,1fr) 36px;align-items:center;gap:12px;text-align:left;min-height:68px;padding:12px 13px 12px 15px;overflow:hidden;border:1px solid #b3d2be3d;border-radius:19px;background:linear-gradient(125deg,var(--logo-sheen),#ffffff07 56%,#ffffff02);color:#eee6dc;box-shadow:inset 0 1px #ffffff10,0 5px 24px #0000000c;transition:background .2s ease,border-color .2s ease,transform .18s ease,box-shadow .2s ease;-webkit-tap-highlight-color:transparent}
+.yl-logo-choice:before{content:"";position:absolute;top:15px;bottom:15px;left:0;width:2px;background:var(--logo-accent);border-radius:3px;opacity:.65}
+.yl-logo-choice-1{--logo-accent:#d5bfac;--logo-sheen:#e0c5a914;border-color:#d7bea53d}
+.yl-logo-choice-2{--logo-accent:#c4bfd8;--logo-sheen:#bbb4df12;border-color:#b9b0d23d}
+.yl-logo-choice-index{font:italic 17px/1 Georgia,serif;color:var(--logo-accent);opacity:.78;letter-spacing:-.04em}
+.yl-logo-choice-label{font:500 13px/1.45 'DM Sans',sans-serif;overflow-wrap:anywhere;color:#f0e9df}
+.yl-logo-choice-arrow{display:grid;place-items:center;width:33px;height:33px;border:1px solid #ffffff1f;border-radius:50%;color:var(--logo-accent);background:#ffffff09;transition:transform .18s ease,background .18s}
+.yl-logo-choice-arrow svg{width:19px;height:19px}
+.yl-logo-choice:active{transform:scale(.985);border-color:var(--logo-accent);background:linear-gradient(120deg,#e6ddc51f,#ffffff06)}
+.yl-logo-choice:active .yl-logo-choice-arrow{transform:translateX(2px);background:#ffffff14}
+.yl-logo-choice:focus-visible{outline:2px solid var(--logo-accent);outline-offset:3px}
+@media(hover:hover){.yl-logo-choice:hover{transform:translateY(-1px);border-color:var(--logo-accent);box-shadow:0 10px 25px #00000020}}
+.yl-logo-ending-actions{display:grid;gap:8px;margin-top:10px}
+.yl-logo-ending-actions .yl-ai-main{border-radius:17px;min-height:54px}
+.yl-logo-ending-actions .yl-ai-secondary{margin:0 auto}
+.yl-logo-finale{display:flex;flex-direction:column;gap:18px;padding:18px 1px 14px;text-align:left}
+.yl-logo-final-mark{display:grid;place-items:center;width:55px;height:55px;margin:4px 0 2px;border:1px solid #c3d8c35a;border-radius:50%;background:radial-gradient(circle,#b8dbbf20,#ffffff01 70%);color:#badbc2;box-shadow:0 0 40px #b5d9b522}
+.yl-logo-final-mark svg{width:27px;height:27px}
+.yl-logo .yl-logo-final-title{font:400 clamp(29px,7vw,37px)/1.14 'Cormorant Garamond',Georgia,serif;margin:0;color:#f0e3d1}
+.yl-logo-final-insight{font:400 16px/1.65 'DM Sans',sans-serif;color:#d8d1c6;max-width:45ch}
+.yl-logo-exit{align-self:center;margin-top:2px}
+.yl-logo-privacy{display:flex;justify-content:center;margin:1px 0}
+.yl-logo-privacy button{border:0;background:none;font:400 10px 'DM Sans',sans-serif;color:#938e83;padding:7px}
+.yl-logo-intro{display:flex;align-items:center;gap:11px;color:#bdcfbf;margin:8px 0 0}
+.yl-logo-intro svg{width:28px;height:28px}
+.yl-logo-intro span{font:600 10px 'DM Sans',sans-serif;letter-spacing:.15em}
+.yl-logo .yl-ai-consent{font:400 12px/1.65 'DM Sans',sans-serif;color:#bcb4a7}
+.yl-logo .yl-ai-history{margin-top:8px;border-color:#ffffff19}
+.yl-logo .yl-ai-history summary{font:400 10px 'DM Sans',sans-serif;color:#a5a095}
+@media(prefers-reduced-motion:reduce){.yl-logo-choice,.yl-logo-choice-arrow,.yl-logo-progress-dot{transition:none!important}}
