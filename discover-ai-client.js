@@ -60,8 +60,12 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  const dots=Array.from({length:LOGO_DECISIONS},(_,i)=>'<span class="yl-logo-progress-dot'+(i<steps?" is-visited":"")+(i===steps&&!completed?" is-current":"")+(completed?" is-done":"")+'"></span>').join("");
  let html='<section class="yl-ai-experiment yl-ai-quiet yl-logo" aria-label="Little Logo philosophical companion">';
  if(!c.consent)return html+
-  '<div class="yl-logo-intro">'+littleLogoPet("idle")+'<span>MEET LITTLE LOGO</span></div>'+
-  '<h2 class="yl-ai-title">A small guide for a bigger question.</h2>'+
+  '<div class="yl-logo-top"><div class="yl-logo-identity"><div><strong>LITTLE LOGO</strong><small>A THOUGHTFUL COMPANION</small></div></div></div>'+
+  '<div class="yl-logo-roam-stage yl-logo-roam-stage-0" role="group" aria-label="Meet Little Logo">'+
+    '<span class="yl-logo-scene-light" aria-hidden="true"></span><span class="yl-logo-scene-ridge" aria-hidden="true"></span>'+
+    '<span class="yl-logo-roam-orbit" aria-hidden="true"></span><span class="yl-logo-roam-glow" aria-hidden="true"></span>'+
+    '<div class="yl-logo-roam-position">'+littleLogoPet("idle")+'</div></div>'+
+  '<h2 class="yl-ai-title">A small question. A different perspective.</h2>'+
   '<p class="yl-ai-consent">Little Logo uses DeepSeek to explore this quote with you. With your permission, it will share this quotation, your choices, and up to four saved reflections. No account needed.</p>'+
   '<button type="button" data-ai="agree" class="yl-ai-main">Begin together '+nextArrow+'</button>'+
   '<button type="button" data-ai="cancel" class="yl-ai-secondary">Not now</button></section>';
