@@ -347,6 +347,14 @@ assert.ok(cutoutCSS.includes('.yl-logo-pet-figure .yl-logo-face')&&cutoutCSS.inc
 assert.ok(cutoutCSS.includes('mask-image:url("/little-logo-cutout-mask.svg")'),"Original character is composited through a standalone silhouette");
 assert.ok(silhouetteMask.includes('viewBox="0 0 400 400"')&&silhouetteMask.includes('<path'),"Feathered mask targets the original 400px artwork");
 assert.ok(sw.includes('yourlogos-v75-original-lillogo-cutout')&&sw.includes('/little-logo-cutout-mask.svg')&&sw.includes('/little-logo-cutout-fix.css'),"iPhone service worker precaches both fix assets");
+const fxSource=read("little-logo-fx.js");
+const ritualCSS=read("little-logo-ritual.css");
+assert.ok(html.includes('little-logo-ritual.css'),"Reaction stylesheet loads after legacy motion patches");
+assert.ok(sw.includes('little-logo-fx.js')&&sw.includes('little-logo-ritual.css'),"PWA includes reaction scripts and styles offline");
+assert.ok(fxSource.includes('counts={tap:10,answer:17')&&fxSource.includes('reduceMotion()'),"Tap and answer bursts are finite and respect reduced motion");
+assert.ok(ritualCSS.includes('yl-v4-celebration')&&ritualCSS.includes('yl-v4-startle'),"Different interactions have distinct whole-body actions");
+assert.ok(app.includes('lilLogoFX("answer")')&&app.includes('lilLogoFX("tap")')&&app.includes('lilLogoFX("world")'),"Discover events trigger effects");
+assert.ok(app.includes('t.impactOccurred("medium")'),"Telegram host uses a real medium impact for answer actions");
 const livingCSS=read("little-logo-live.css");
 assert.ok(html.includes('/little-logo-live.css'),"Living companion styling is loaded after existing theme");
 assert.ok(sw.includes('/little-logo-live.css'),"PWA caches Living companion styles offline");
