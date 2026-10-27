@@ -294,7 +294,7 @@ const DISCOVERY_LENSES=[
 function discoverHtml(){
   const id=visibleQuoteId(),q=QUOTES[id];
   return '<div class="discover-cover" data-action="close-discover"></div>'+
-    '<section class="discover-sheet discover-v26 v31-discover v32-discover" role="dialog" aria-modal="true" aria-label="Discover this thought">'+
+    '<section class="discover-sheet discover-v26 v31-discover v32-discover'+(aiDiscoverEnabled&&aiDiscoverMode?' yl-discover-immersive':'')+'" role="dialog" aria-modal="true" aria-label="Discover this thought">'+
       '<div class="sheet-handle"></div>'+
       '<div class="sheet-head"><span>DISCOVER</span><div class="v32-header-actions">'+
         '<button type="button" data-action="encounter-sound" class="v32-sound-toggle" data-sound="'+(encounterSoundEnabled()?'on':'off')+'" aria-pressed="'+encounterSoundEnabled()+'" aria-label="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound" title="'+(encounterSoundEnabled()?'Mute':'Enable')+' Encounter sound">'+
