@@ -752,7 +752,7 @@ document.addEventListener("click",async e=>{
     const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role+": "+m.text);
     const context=last?.followUp?"Question: "+last.followUp+" | My response: "+choice:choice;
     const current=aiConversation;
-    current.petMood=["curious","reflective","delighted"][index];
+    current.petMood=["curious","reflective","surprised"][index];
     current.loading=true;current.error="";render();
     try{
       const token=await getDiscoverAccessToken().catch(()=>null);
@@ -792,6 +792,12 @@ document.addEventListener("click",async e=>{
     if(id===null||!q)return;
 
     if(!aiConversation||aiConversation.quoteId!==id)return;
+    if(action==="pet"){
+      const faces=["curious","reflective","surprised","delighted","encourage"];
+      aiConversation.petPlayCount=(aiConversation.petPlayCount||0)+1;
+      aiConversation.petMood=faces[(aiConversation.petPlayCount-1)%faces.length];
+      haptic("selection");render();return;
+    }
     if(action==="finish"){
       discoverOpen=false;aiDiscoverMode=false;aiConversation=null;render();return;
     }

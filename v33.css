@@ -278,3 +278,42 @@
 @keyframes yl-pet-joy{0%,100%{transform:translateY(0) scale(1)}25%,75%{transform:translateY(-7px) scale(1.04)}50%{transform:translateY(1px) scale(.98)}}
 @media (max-height:700px){.yl-logo-mark,.yl-logo-pet{width:58px;height:64px;flex-basis:58px}.yl-discover-immersive .yl-logo-choice{min-height:66px}}
 @media (prefers-reduced-motion:reduce){.yl-logo-pet,.yl-pet-eye,.yl-pet-spark{animation:none!important;transform:none!important}}
+
+
+/* Little Logo v1 — user-approved silver-haired spirit, six AVIF expressions.
+   Sprite positions: idle / curious / thinking / happy / surprised / encourage.
+   Transparent edges allow the illustration to sit on the dark canvas. */
+.yl-logo-mark{width:106px!important;height:101px!important;flex:0 0 106px!important;background:none!important;border:none!important;box-shadow:none!important;overflow:visible!important}
+.yl-logo-identity{gap:9px!important}
+.yl-logo-pet{position:relative;display:inline-block;width:106px;height:100px;aspect-ratio:120/112;background:none;border:0;border-radius:0;padding:0;outline-offset:3px;color:#dfd8ba;cursor:pointer;overflow:visible;touch-action:manipulation;transform-origin:50% 65%;animation:yl-art-idle 3.6s ease-in-out infinite}
+.yl-logo-pet-art{display:block;position:absolute;inset:0;background-image:url('/little-logo-v1.avif');background-repeat:no-repeat;background-size:600% 100%;background-position:0% 50%;pointer-events:none;filter:drop-shadow(0 4px 10px #d5c29916)}
+.yl-logo-pet-fallback{position:absolute;inset:22% 28%;display:grid;place-items:center;opacity:.06;z-index:-1;pointer-events:none}
+.yl-logo-pet-fallback svg{width:100%;height:100%}
+.yl-logo-pet-idle .yl-logo-pet-art{background-position:0% 50%}
+.yl-logo-pet-curious .yl-logo-pet-art{background-position:20% 50%}
+.yl-logo-pet-thinking .yl-logo-pet-art,.yl-logo-pet-reflective .yl-logo-pet-art{background-position:40% 50%}
+.yl-logo-pet-delighted .yl-logo-pet-art{background-position:60% 50%}
+.yl-logo-pet-surprised .yl-logo-pet-art{background-position:80% 50%}
+.yl-logo-pet-encourage .yl-logo-pet-art{background-position:100% 50%}
+.yl-logo-pet-thinking{animation:yl-art-think 1.9s ease-in-out infinite}
+.yl-logo-pet-curious{animation:yl-art-curious .8s ease-in-out both}
+.yl-logo-pet-reflective{animation:yl-art-nod 1.1s ease-in-out both}
+.yl-logo-pet-delighted{animation:yl-art-joy 1s ease-in-out both}
+.yl-logo-pet-surprised{animation:yl-art-surprised .9s ease-in-out both}
+.yl-logo-pet-encourage{animation:yl-art-encourage 1.1s ease-in-out both}
+.yl-logo-intro{align-items:center;gap:13px}
+.yl-logo-intro .yl-logo-pet{width:142px;height:132px}
+.yl-logo-intro span:last-child{font-size:13px}
+.yl-logo-final-mark{width:145px;height:140px;border:0!important;background:none!important;box-shadow:none!important;overflow:visible}
+.yl-logo-final-mark .yl-logo-pet{width:142px;height:132px}
+.yl-logo .yl-logo-identity strong{font-size:12px}
+.yl-logo .yl-logo-identity small{font-size:11px}
+@keyframes yl-art-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px) rotate(.6deg)}}
+@keyframes yl-art-think{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-2px) rotate(2deg)}}
+@keyframes yl-art-curious{0%,100%{transform:rotate(0)}38%{transform:rotate(7deg)}72%{transform:rotate(-3deg)}}
+@keyframes yl-art-nod{0%,100%{transform:translateY(0)}45%{transform:translateY(5px)}}
+@keyframes yl-art-joy{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-8px) scale(1.045)}68%{transform:translateY(-2px)}}
+@keyframes yl-art-surprised{0%,100%{transform:scale(1)}35%{transform:scale(1.06)}65%{transform:scale(.985)}}
+@keyframes yl-art-encourage{0%,100%{transform:rotate(0)}40%{transform:rotate(-5deg)}75%{transform:rotate(3deg)}}
+@media(max-height:700px){.yl-logo-mark{width:78px!important;height:75px!important;flex-basis:78px!important}.yl-logo-mark .yl-logo-pet{width:78px;height:74px}}
+@media(prefers-reduced-motion:reduce){.yl-logo-pet,.yl-logo-pet-art{animation:none!important;transition:none!important;transform:none!important}}
