@@ -64,6 +64,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
     '<div><strong>LITTLE LOGO</strong><small>'+(completed?"YOUR CONNECTION":"FOLLOW THE THOUGHT")+'</small></div></div>'+
     '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 3")+'">'+dots+'</div></div>';
+ html+='<div class="yl-logo-progress-track" role="progressbar" aria-label="Your reflection journey" aria-valuemin="0" aria-valuemax="3" aria-valuenow="'+Math.min(LOGO_DECISIONS,steps+1)+'"><span style="width:'+(completed?"100":((steps+1)*100/LOGO_DECISIONS).toFixed(1))+'%"></span></div>';
  html+='<div class="yl-logo-roam-stage yl-logo-roam-stage-'+steps+(completed?" is-complete":"")+'" role="group" aria-label="Meet Little Logo">'+
   '<span class="yl-logo-scene-light" aria-hidden="true"></span><span class="yl-logo-scene-ridge" aria-hidden="true"></span>'+ '<span class="yl-logo-roam-orbit" aria-hidden="true"></span>'+
   '<span class="yl-logo-roam-glow" aria-hidden="true"></span>'+
@@ -73,7 +74,13 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   html+='<details class="yl-logo-source"><summary>FROM '+esc(author.toUpperCase())+'</summary><p>“'+esc(original)+'”</p></details>';
  }
  if(c.loading&&!latest)html+='<div class="yl-ai-quiet-loading" role="status">Following a thought…</div>';
- if(latest){
+ if(c.loading&&latest){
+  const responding=["curious","reflective","surprised"].includes(c.petMood);
+  html+='<div class="yl-logo-feedback" role="status" aria-live="polite">'+
+    '<span class="yl-logo-feedback-eyebrow">'+(responding?"YOUR CHOICE":"FOLLOWING YOUR THOUGHT")+'</span>'+
+    '<h2>'+(responding?"An interesting direction.":"Hmm…")+'</h2>'+
+    '<p>'+(responding?"Let's see where it leads.":(steps===LOGO_DECISIONS?"Gathering your reflection…":"Little Logo is thinking about your answer."))+'</p></div>';
+ }else if(latest){
   if(completed){
    html+='<div class="yl-logo-finale">'+
      '<h2 class="yl-logo-final-title">Your Connection</h2>'+
@@ -85,7 +92,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
      '<h2 class="yl-ai-question">'+esc(cleanText(latest.followUp,220))+'</h2></div>';
   }
  }else if(!c.loading&&!c.error)html+='<p class="yl-ai-quiet-loading">Finding another angle…</p>';
- if(c.loading&&latest)html+='<p class="yl-ai-loading" role="status">'+(steps===LOGO_DECISIONS?"Gathering your reflection…":"Little Logo is thinking…")+'</p>';
+ // A dedicated feedback view replaces the old question while the AI responds.
  if(!completed&&!c.loading&&latest?.choices?.length){
   html+='<div class="yl-logo-choices" role="group" aria-label="Choose a philosophical direction">'+
    latest.choices.slice(0,3).map((choice,i)=>
