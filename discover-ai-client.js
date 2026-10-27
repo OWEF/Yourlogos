@@ -64,7 +64,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
     '<div><strong>LITTLE LOGO</strong><small>'+(completed?"YOUR CONNECTION":"FOLLOW THE THOUGHT")+'</small></div></div>'+
     '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 3")+'">'+dots+'</div></div>';
- html+='<div class="yl-logo-progress-track" role="progressbar" aria-label="Your reflection journey" aria-valuemin="0" aria-valuemax="3" aria-valuenow="'+steps+'"><span style="width:'+(completed?"100":((steps+1)*100/LOGO_DECISIONS).toFixed(1))+'%"></span></div>';
+ html+='<div class="yl-logo-progress-track" role="progressbar" aria-label="Your reflection journey" aria-valuemin="0" aria-valuemax="3" aria-valuenow="'+Math.min(LOGO_DECISIONS,steps+1)+'"><span style="width:'+(completed?"100":((steps+1)*100/LOGO_DECISIONS).toFixed(1))+'%"></span></div>';
  html+='<div class="yl-logo-roam-stage yl-logo-roam-stage-'+steps+(completed?" is-complete":"")+'" role="group" aria-label="Meet Little Logo">'+
   '<span class="yl-logo-scene-light" aria-hidden="true"></span><span class="yl-logo-scene-ridge" aria-hidden="true"></span>'+ '<span class="yl-logo-roam-orbit" aria-hidden="true"></span>'+
   '<span class="yl-logo-roam-glow" aria-hidden="true"></span>'+
