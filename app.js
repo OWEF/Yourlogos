@@ -9,6 +9,7 @@ import { personalizedExplore } from "./personalization.js";
 import { livingHtml, normalizeLivingState, beginLiving, transitionLiving, noteLiving, openingLiving, archiveLiving } from "./living-threads.js";
 import { buildWorldMemory, worldMemoryHtml } from "./world-memory.js";
 import { aiConversationHtml, safeAIConversation, aiMemoryChoices, aiSummary, cleanText, LOGO_DECISIONS } from "./discover-ai-client.js";
+import { lilLogoFX } from "./little-logo-fx.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName, getDiscoverAccessToken } from "./auth-client.js";
 const QUOTES=[
@@ -258,8 +259,8 @@ const haptic=(kind="selection")=>{
     const native=window.webkit?.messageHandlers?.yourlogosHaptics;
     if(native){native.postMessage(kind);return}
     const t=window.Telegram?.WebApp?.HapticFeedback;
-    if(t){kind==="success"?t.notificationOccurred("success"):kind==="impact"?t.impactOccurred("light"):t.selectionChanged();return}
-    navigator.vibrate?.(kind==="success"?[12,24,12]:8);
+    if(t){kind==="success"?t.notificationOccurred("success"):kind==="impact"?t.impactOccurred("medium"):t.selectionChanged();return}
+    navigator.vibrate?.(kind==="success"?[20,25,30]:kind==="impact"?16:7);
   }catch{}
 };
 
@@ -754,6 +755,7 @@ document.addEventListener("click",async e=>{
     const current=aiConversation;
     current.petMood=["curious","reflective","surprised"][index];
     current.loading=true;current.error="";render();
+    lilLogoFX("answer");haptic("impact");
     // Let the response register as a real gesture before settling into thought.
     await new Promise(resolve=>setTimeout(resolve, window.matchMedia("(prefers-reduced-motion: reduce)").matches?0:460));
     if(aiConversation!==current||!discoverOpen)return;
@@ -787,7 +789,7 @@ document.addEventListener("click",async e=>{
         persist();haptic("success");
       }
     }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
-    finally{current.loading=false;if(aiConversation===current&&discoverOpen){current.petMood=current.complete?"delighted":"encourage";render()}}
+    finally{current.loading=false;if(aiConversation===current&&discoverOpen){current.petMood=current.complete?"delighted":"encourage";render();lilLogoFX(current.complete?"complete":"round");if(!current.complete)haptic("selection")}}
     return;
   }
   const aiAction=e.target.closest("[data-ai]");
@@ -800,7 +802,10 @@ document.addEventListener("click",async e=>{
       const faces=["curious","reflective","surprised","delighted","encourage"];
       aiConversation.petPlayCount=(aiConversation.petPlayCount||0)+1;
       aiConversation.petMood=faces[(aiConversation.petPlayCount-1)%faces.length];
-      haptic("selection");render();return;
+      haptic("selection");render();lilLogoFX("tap");
+      const playful=aiConversation,playfulMood=aiConversation.petMood;
+      setTimeout(()=>{if(aiConversation===playful&&!playful.loading&&!playful.complete&&playful.petMood===playfulMood&&discoverOpen){playful.petMood="idle";render()}},1250);
+      return;
     }
     if(action==="finish"){
       discoverOpen=false;aiDiscoverMode=false;aiConversation=null;render();return;
@@ -823,7 +828,7 @@ document.addEventListener("click",async e=>{
       data.discoverJourneyEvents=[...data.discoverJourneyEvents,{type:"save",quoteId:id,date:today()}].slice(-150);
       persist();toast("Little Logo kept this in My World");
       if(aiConversation.complete){discoverOpen=false;aiDiscoverMode=false;aiConversation=null;view="profile";universePane="home";}
-      render();return;
+      render();lilLogoFX("world");haptic("success");return;
     }
     if(action==="send"){
       if(aiConversation.loading)return;
@@ -849,7 +854,7 @@ document.addEventListener("click",async e=>{
         currentConversation.draft="";
       }catch(err){
         if(aiConversation===currentConversation)currentConversation.error=String(err.message||"Little Logo is unavailable");
-      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen){currentConversation.petMood="curious";render()}}
+      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen){currentConversation.petMood="curious";render();if(!currentConversation.error)lilLogoFX("round")}}
       return;
     }
     return;
