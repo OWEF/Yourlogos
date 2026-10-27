@@ -245,7 +245,7 @@ assert.ok(sw.includes("/little-logo-v1.avif"),"The offline iPhone cache includes
 assert.ok(aiClientSource.includes("yl-logo-pet-delighted")===false||aiClientSource.includes("littleLogoPet"),"Companion reactions are derived from the mascot renderer");
 assert.ok(app.includes('current.petMood=["curious","reflective","surprised"][index]'),"Three responses trigger distinct reactions");
 assert.ok(app.includes('action==="pet"'),"Tapping the companion gives a playful local response");
-assert.ok(css.includes("prefers-reduced-motion")||true,"Animations honor reduced-motion settings");
+assert.ok(v33Source.includes("prefers-reduced-motion"),"Animations honor reduced-motion settings");
 assert.ok(!aiCard.includes("Earlier thoughts"),"No additional clutter in active Discover");
 
 const initialAI=aiConversationHtml({quote:QUOTES[63],conversation:{...newAIConversation(63),consent:true},available:true,authenticated:true});
