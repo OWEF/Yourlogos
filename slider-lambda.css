@@ -151,3 +151,5 @@ body > .settings-launch svg{width:20px;height:20px}
 @media(prefers-reduced-motion:reduce){.yl-slider__thumb .yl-slider__little-logo{animation:none!important;transition:none!important;transform:none!important}}
 
 .yl-slider__thumb .yl-slider__little-logo{display:block!important;background:url("/little-logo-v1.avif") no-repeat 0% 50%;background-size:600% 100%;border-radius:0}
+
+.yl-slider__thumb .yl-slider__little-logo{background:none!important;display:block!important;object-fit:contain!important;object-position:center!important;mix-blend-mode:normal!important;filter:none!important;border-radius:50%!important}

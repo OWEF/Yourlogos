@@ -384,3 +384,23 @@
 .yl-logo-roam-stage .yl-logo-pet-atlas{opacity:1!important}
 .yl-logo-intro .yl-logo-pet-hero,.yl-logo-final-mark .yl-logo-pet-hero{display:none!important}
 .yl-logo-intro .yl-logo-pet-atlas,.yl-logo-final-mark .yl-logo-pet-atlas{display:block!important;opacity:1!important}
+
+/* Single-character HD rendering: never unclip or expose the old 6-frame atlas. */
+.yl-logo-roam-stage{overflow:hidden!important;isolation:isolate}
+.yl-logo-roam-position{will-change:transform}
+.yl-logo-roam-stage .yl-logo-pet,
+.yl-logo-roam-stage .yl-logo-pet-art,
+.yl-logo-intro .yl-logo-pet,
+.yl-logo-final-mark .yl-logo-pet{overflow:hidden!important}
+.yl-logo-pet-atlas{display:none!important}
+.yl-logo-pet-art{background:none!important;filter:none!important}
+.yl-logo-roam-stage .yl-logo-pet-hero,
+.yl-logo-intro .yl-logo-pet-hero,
+.yl-logo-final-mark .yl-logo-pet-hero{display:block!important;position:absolute;inset:0;width:100%!important;height:100%!important;opacity:1!important;object-fit:contain!important;filter:none!important}
+.yl-logo-roam-stage .yl-logo-pet{border-radius:50%!important}
+.yl-logo-roam-stage .yl-logo-pet-thinking .yl-logo-pet-hero,
+.yl-logo-roam-stage .yl-logo-pet-surprised .yl-logo-pet-hero,
+.yl-logo-roam-stage .yl-logo-pet-reflective .yl-logo-pet-hero,
+.yl-logo-roam-stage .yl-logo-pet-delighted .yl-logo-pet-hero,
+.yl-logo-roam-stage .yl-logo-pet-encourage .yl-logo-pet-hero{opacity:1!important}
+@media(prefers-reduced-motion:reduce){.yl-logo-roam-position{animation:none!important}}

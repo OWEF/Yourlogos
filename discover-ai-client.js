@@ -19,8 +19,8 @@ const logoGlyph='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none"><path d
 // Approved Little Logo artwork, in six compact, transparent sprite poses.
 // The original abstract mark remains as a graceful fallback on older devices.
 const petAvatar='<span class="yl-logo-pet-art" aria-hidden="true">'+
- '<img class="yl-logo-pet-hero" src="/little-logo-v1.avif" width="720" height="112" alt="" decoding="async" draggable="false">'+
- '<img class="yl-logo-pet-atlas" src="/little-logo-v1.avif" width="720" height="112" alt="" decoding="async" draggable="false"></span>';
+ '<img class="yl-logo-pet-hero" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false">'+
+ '<img class="yl-logo-pet-atlas" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false"></span>';
 export function littleLogoPet(mood="idle"){
  const moods=new Set(["idle","thinking","curious","delighted","reflective","surprised","encourage"]);
  const value=moods.has(mood)?mood:"idle";

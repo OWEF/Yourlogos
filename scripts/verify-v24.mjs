@@ -243,8 +243,8 @@ assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
 assert.ok(aiCard.includes('data-ai="pet"')&&aiCard.includes("yl-logo-pet"),"Approved Little Logo is a tappable character, not decorative SVG");
 assert.ok(aiCard.includes("yl-logo-roam-stage")&&aiCard.includes("yl-logo-pet-hero"),"Discover gives Little Logo a free-moving stage with high-resolution artwork");
 assert.ok(v33Source.includes("yl-logo-traverse")&&v33Source.includes("prefers-reduced-motion"),"Compositor motion respects reduced-motion preferences");
-assert.ok(html.includes('yl-slider__little-logo')&&html.includes('aria-hidden="true"'),"The arrival slider is guided by Little Logo");
-assert.ok(sw.includes('little-logo-v1.avif'),"The existing illustration is available offline");
+assert.ok(html.includes('yl-slider__little-logo')&&html.includes('little-logo-hd-v2.jpg'),"The arrival slider uses the high-resolution single character");
+assert.ok(sw.includes('little-logo-hd-v2.jpg'),"The new HD illustration is available offline");
 assert.ok(aiCard.includes('<img class="yl-logo-pet-atlas"')&&aiCard.includes('src="/little-logo-v1.avif"'),"Companion uses actual approved artwork through visible img element");
 assert.ok(v33Source.includes(".yl-logo-pet-atlas")&&v33Source.includes("overflow:hidden!important"),"Sprite frames are clipped rather than rendering old vector fallback");
 assert.ok(aiClientSource.includes("little-logo-pet-art")||aiClientSource.includes("yl-logo-pet-art"),"Character sprite renderer is present");
@@ -330,3 +330,5 @@ assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive ful
 assert.ok(app.includes('type:"complete"')&&app.includes('positives.get(theme)'),"Journey completions influence next-day quote ranking");
 assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
+
+assert.ok(v33Source.includes(".yl-logo-pet-atlas{display:none!important}"),"Never expose the repeated frames");
