@@ -23,7 +23,7 @@ const petAvatar='<span class="yl-logo-pet-shadow" aria-hidden="true"></span><spa
  '<span class="yl-logo-pet-hair"><svg viewBox="0 0 100 100" fill="none"><path d="M23 29q-8 2-13 10m18-13q-5-7 3-12m9-5q7-9 16-2" stroke="#f3d2a7" stroke-width="1.7" stroke-linecap="round"/></svg></span>'+
  '<span class="yl-logo-pet-scarf"><svg viewBox="0 0 100 100" fill="none"><path d="M12 70q-8 9-11 4m18-10q-11 5-17 2" stroke="#b9b79b" stroke-width="2" stroke-linecap="round"/></svg></span>'+
  '<span class="yl-logo-pet-blink yl-logo-pet-blink--left"></span><span class="yl-logo-pet-blink yl-logo-pet-blink--right"></span>'+
- '<span class="yl-logo-pet-cheek yl-logo-pet-cheek--left"></span><span class="yl-logo-pet-cheek yl-logo-pet-cheek--right"></span></span>'+
+ '<span class="yl-logo-pet-cheek yl-logo-pet-cheek--left"></span><span class="yl-logo-pet-cheek yl-logo-pet-cheek--right"></span>'+
  '<svg class="yl-logo-face" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">'+
  '<defs><radialGradient id="yl-face-l"><stop offset="59%" stop-color="#eac09f"/><stop offset="78%" stop-color="#eac09f" stop-opacity=".98"/><stop offset="100%" stop-color="#eac09f" stop-opacity="0"/></radialGradient><radialGradient id="yl-face-r"><stop offset="57%" stop-color="#f6dbb6"/><stop offset="77%" stop-color="#f6dbb6" stop-opacity=".96"/><stop offset="100%" stop-color="#f6dbb6" stop-opacity="0"/></radialGradient></defs>'+
  '<g class="yl-face-skin"><ellipse cx="244" cy="191" rx="29" ry="34" fill="url(#yl-face-l)"/><ellipse cx="312" cy="179" rx="22" ry="32" fill="url(#yl-face-r)"/></g>'+
