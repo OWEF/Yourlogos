@@ -18,22 +18,12 @@ const logoGlyph='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none"><path d
 
 // Approved Little Logo artwork, in six compact, transparent sprite poses.
 // The original abstract mark remains as a graceful fallback on older devices.
-const petAvatar='<span class="yl-logo-pet-shadow" aria-hidden="true"></span><span class="yl-logo-pet-figure" aria-hidden="true"><span class="yl-logo-pet-art">'+
- '<img class="yl-logo-pet-hero" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false"><img class="yl-logo-pet-atlas" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false"></span>'+
- '<span class="yl-logo-pet-hair"><svg viewBox="0 0 100 100" fill="none"><path d="M23 29q-8 2-13 10m18-13q-5-7 3-12m9-5q7-9 16-2" stroke="#f3d2a7" stroke-width="1.7" stroke-linecap="round"/></svg></span>'+
- '<span class="yl-logo-pet-scarf"><svg viewBox="0 0 100 100" fill="none"><path d="M12 70q-8 9-11 4m18-10q-11 5-17 2" stroke="#b9b79b" stroke-width="2" stroke-linecap="round"/></svg></span>'+
- '<span class="yl-logo-pet-blink yl-logo-pet-blink--left"></span><span class="yl-logo-pet-blink yl-logo-pet-blink--right"></span>'+
- '<span class="yl-logo-pet-cheek yl-logo-pet-cheek--left"></span><span class="yl-logo-pet-cheek yl-logo-pet-cheek--right"></span>'+
- '<svg class="yl-logo-face" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">'+
- '<defs><radialGradient id="yl-face-l"><stop offset="59%" stop-color="#eac09f"/><stop offset="78%" stop-color="#eac09f" stop-opacity=".98"/><stop offset="100%" stop-color="#eac09f" stop-opacity="0"/></radialGradient><radialGradient id="yl-face-r"><stop offset="57%" stop-color="#f6dbb6"/><stop offset="77%" stop-color="#f6dbb6" stop-opacity=".96"/><stop offset="100%" stop-color="#f6dbb6" stop-opacity="0"/></radialGradient></defs>'+
- '<g class="yl-face-skin"><ellipse cx="244" cy="191" rx="29" ry="34" fill="url(#yl-face-l)"/><ellipse cx="312" cy="179" rx="22" ry="32" fill="url(#yl-face-r)"/></g>'+
- '<g class="yl-face-normal"><ellipse cx="244" cy="192" rx="13" ry="17" fill="#17130f"/><ellipse cx="312" cy="180" rx="10" ry="15" fill="#17130f"/><ellipse cx="240" cy="186" rx="3.1" ry="4" fill="#fff2dd" opacity=".9"/><ellipse cx="309" cy="175" rx="2.4" ry="3.2" fill="#fff6df" opacity=".88"/></g>'+
- '<g class="yl-face-happy"><path d="M229 191 Q244 208 258 186 M302 178 Q314 192 324 173" fill="none" stroke="#3e2619" stroke-width="5" stroke-linecap="round"/><path d="M276 220 Q286 232 298 218" fill="none" stroke="#7a4031" stroke-width="3.2" stroke-linecap="round"/></g>'+
- '<g class="yl-face-reflect"><path d="M229 192 Q244 201 258 191 M301 183 Q312 188 323 177" fill="none" stroke="#57402b" stroke-width="4" stroke-linecap="round"/><path d="M283 218 Q290 216 295 219" fill="none" stroke="#7d5841" stroke-width="2.5" stroke-linecap="round"/></g>'+
- '<g class="yl-face-surprise"><ellipse cx="244" cy="191" rx="15" ry="20" fill="#191511"/><ellipse cx="312" cy="179" rx="12" ry="18" fill="#191511"/><ellipse cx="240" cy="183" rx="4" ry="5" fill="#fff6df"/><ellipse cx="309" cy="172" rx="3.2" ry="4.2" fill="#fff6df"/><ellipse cx="286" cy="220" rx="4.5" ry="6" fill="#623c30"/></g>'+
- '<g class="yl-face-think"><ellipse cx="244" cy="191" rx="12" ry="14" fill="#241a13"/><path d="M301 182 Q312 188 322 175" fill="none" stroke="#583a29" stroke-width="4" stroke-linecap="round"/><path d="M230 158 Q241 150 252 154 M300 150 Q310 143 320 147" stroke="#916c4e" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M284 221q5-4 11 0" stroke="#714b32" fill="none" stroke-width="2.4"/></g>'+
- '<g class="yl-face-encourage"><path d="M230 191 Q244 204 257 188" stroke="#4c2b1c" stroke-width="4.5" fill="none" stroke-linecap="round"/><ellipse cx="312" cy="179" rx="11" ry="15" fill="#21150f"/><ellipse cx="308" cy="175" rx="3.2" ry="3.8" fill="#fff4dc"/><path d="M280 220 Q289 228 298 218" stroke="#774333" stroke-width="2.8" fill="none" stroke-linecap="round"/></g>'+
- '</svg></span>'+
+// Production pose atlas: eight separately illustrated physical states with intact black eyes.
+// The original HD artwork remains a non-sprite fallback for older WebP browsers.
+const petAvatar='<span class="yl-logo-pet-shadow" aria-hidden="true"></span>'+
+ '<span class="yl-logo-pet-figure" aria-hidden="true"><span class="yl-logo-pet-art">'+
+ '<img class="yl-logo-pet-hero" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false">'+
+ '<span class="yl-logo-pet-pose" aria-hidden="true"></span></span></span>'+
  '<span class="yl-logo-pet-emote" aria-hidden="true"><i></i><i></i><i></i></span>';
 export function littleLogoPet(mood="idle"){
  const moods=new Set(["idle","thinking","curious","delighted","reflective","surprised","encourage"]);

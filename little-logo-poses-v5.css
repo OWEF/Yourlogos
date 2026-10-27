@@ -1,0 +1,64 @@
+/* LilLogo V5: ACTUAL illustration atlas, no drawn-over eyes or photo frame.
+   Eight separately painted poses are installed in the Discover character rig.
+   The image has transparent pixels; unlike the old JPG it needs no matte mask.
+   Map 0 idle / 1 happy / 2 curious / 3 thinking / 4 surprised /
+   5 celebrating / 6 encouraging / 7 calm. */
+.yl-discover-immersive .yl-logo-pet-pose{
+  position:absolute!important;
+  display:block!important;
+  left:0!important;
+  top:9%!important;
+  width:100%!important;
+  height:82%!important;
+  z-index:3;
+  background-image:url("/little-logo-poses-v5.webp")!important;
+  background-repeat:no-repeat!important;
+  background-size:800% 100%!important;
+  background-position:0% 50%;
+  -webkit-mask-image:none!important;mask-image:none!important;
+  mix-blend-mode:normal!important;
+  pointer-events:none;
+  filter:drop-shadow(0 8px 10px #15110d35);
+  opacity:1!important
+}
+/* Override every prior atlas/photo rule only on the new PWA Discover scene. */
+.yl-discover-immersive .yl-logo-pet-hero,
+.yl-discover-immersive .yl-logo-pet-atlas,
+.yl-discover-immersive .yl-logo-pet-figure .yl-logo-face{
+ display:none!important;opacity:0!important
+}
+.yl-discover-immersive .yl-logo-pet-art,
+.yl-discover-immersive .yl-logo-pet-figure{
+ overflow:visible!important;
+ background:none!important;
+ -webkit-mask-image:none!important;
+ mask-image:none!important
+}
+.yl-discover-immersive .yl-logo-pet-figure .yl-logo-pet-pose{
+  -webkit-mask-image:none!important;mask-image:none!important
+}
+.yl-discover-immersive .yl-logo-pet-idle .yl-logo-pet-pose{background-position:0% 50%!important}
+.yl-discover-immersive .yl-logo-pet-curious .yl-logo-pet-pose{background-position:28.5714286% 50%!important}
+.yl-discover-immersive .yl-logo-pet-thinking .yl-logo-pet-pose{background-position:100% 50%!important}
+.yl-discover-immersive .yl-logo-pet-reflective .yl-logo-pet-pose{background-position:42.8571429% 50%!important}
+.yl-discover-immersive .yl-logo-pet-surprised .yl-logo-pet-pose{background-position:57.1428571% 50%!important}
+.yl-discover-immersive .yl-logo-pet-delighted .yl-logo-pet-pose{background-position:71.4285714% 50%!important}
+.yl-discover-immersive .yl-logo-pet-encourage .yl-logo-pet-pose{background-position:85.7142857% 50%!important}
+/* Celebration visuals remain original gold, not game-like rainbow confetti. */
+.yl-discover-immersive .yl-logo-roam-stage.is-complete .yl-logo-pet-pose{
+ filter:drop-shadow(0 4px 16px #ddad7366)
+}
+/* Runtime stage transitions retain the previous response choreography,
+   but allow sprite art to change independently with the state class. */
+.yl-discover-immersive .yl-logo-roam-stage .yl-logo-pet{
+ border-radius:0!important;
+ background:none!important;
+ overflow:visible!important;
+}
+.yl-discover-immersive .yl-logo-intro .yl-logo-pet-pose{display:block!important}
+.yl-discover-immersive .yl-logo-intro .yl-logo-pet-hero{display:none!important}
+@media(prefers-reduced-motion:reduce){
+  .yl-discover-immersive .yl-logo-pet-pose{
+    filter:none!important;transition:none!important;animation:none!important;
+  }
+}
