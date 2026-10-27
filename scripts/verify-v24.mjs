@@ -241,6 +241,8 @@ const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,availa
 assert.ok(aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
 assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
 assert.ok(aiCard.includes('data-ai="pet"')&&aiCard.includes("yl-logo-pet"),"Approved Little Logo is a tappable character, not decorative SVG");
+assert.ok(aiCard.includes('<img class="yl-logo-pet-atlas"')&&aiCard.includes('src="/little-logo-v1.avif"'),"Companion uses actual approved artwork through visible img element");
+assert.ok(v33Source.includes(".yl-logo-pet-atlas")&&v33Source.includes("overflow:hidden!important"),"Sprite frames are clipped rather than rendering old vector fallback");
 assert.ok(aiClientSource.includes("little-logo-pet-art")||aiClientSource.includes("yl-logo-pet-art"),"Character sprite renderer is present");
 assert.ok(sw.includes("/little-logo-v1.avif"),"The offline iPhone cache includes the new mascot");
 assert.ok(aiClientSource.includes("yl-logo-pet-delighted")===false||aiClientSource.includes("littleLogoPet"),"Companion reactions are derived from the mascot renderer");
