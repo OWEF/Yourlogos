@@ -1,0 +1,182 @@
+/* YourLogos Discover — original LilLogo, real face states, living stage.
+   Three main tones only: charcoal, parchment, muted gold. */
+.v31-discover.v32-discover.yl-discover-immersive{
+ --lil-charcoal:#141519;--lil-parchment:#f0dfc8;--lil-gold:#c9a77a;
+ position:fixed!important;isolation:isolate;
+ background:radial-gradient(ellipse 72% 37% at 50% 33%,#38291e 0%,#211d1b 47%,transparent 96%),linear-gradient(175deg,#17181b 0%,#131418 58%,#111215 100%)!important;
+ border:0!important;box-shadow:none!important
+}
+.yl-discover-immersive::before{
+ content:"";position:fixed;inset:8% 0 38%;z-index:0;pointer-events:none;
+ background:radial-gradient(ellipse 47% 35% at 50% 53%,#b28a5440,transparent 85%);
+ opacity:.66;animation:yl-scene-breathe 10s ease-in-out infinite alternate
+}
+.yl-discover-immersive > .sheet-head,.yl-discover-immersive > .yl-logo{position:relative;z-index:1}
+.yl-discover-immersive .sheet-head{margin-bottom:clamp(9px,2.1dvh,20px)!important}
+.yl-discover-immersive .yl-logo{gap:clamp(9px,1.6dvh,17px)!important;min-height:0!important}
+.yl-discover-immersive .yl-logo-top{margin:0!important}
+.yl-discover-immersive .yl-logo-identity strong{color:var(--lil-parchment)!important;letter-spacing:.18em}
+.yl-discover-immersive .yl-logo-identity small{color:#c2a989!important}
+.yl-discover-immersive .yl-logo-progress-dot.is-visited,
+.yl-discover-immersive .yl-logo-progress-dot.is-done{background:#c9a77a;border-color:#c9a77a}
+.yl-discover-immersive .yl-logo-progress-dot.is-current{background:#f0dfc8;border-color:#f0dfc8;box-shadow:0 0 10px #c9a77a70}
+
+/* No circular sticker frame. The existing original HD character is blended
+   into its environment; retain dark eyes, scarf and painterly details. */
+.yl-logo-roam-stage{
+ width:100%;height:clamp(163px,24dvh,224px);
+ overflow:hidden!important;border-radius:18px;
+ background:radial-gradient(ellipse 36% 34% at 50% 75%,#7953322f,transparent 92%);
+ isolation:isolate;margin:0!important
+}
+.yl-logo-roam-stage::before{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:radial-gradient(circle at 21% 39%,#dec49c66 0 1px,transparent 2.4px),
+ radial-gradient(circle at 83% 24%,#dec49c48 0 1px,transparent 2.2px),
+ radial-gradient(circle at 75% 78%,#e0c3913d 0 1px,transparent 2.5px);
+ opacity:.75
+}
+.yl-logo-scene-light{
+ position:absolute;left:calc(50% - 112px);top:7%;width:224px;height:175px;
+ border-radius:50%;pointer-events:none;
+ background:radial-gradient(ellipse,#d1a16b31 0%,#d1a16b0b 43%,transparent 72%);
+ animation:yl-scene-breathe 6s ease-in-out infinite alternate
+}
+.yl-logo-scene-ridge{
+ position:absolute;bottom:-51px;left:-20%;width:140%;height:111px;pointer-events:none;
+ border-top:1px solid #a07a4b50;border-radius:55% 50% 0 0/78% 60% 0 0;
+ transform:rotate(-3deg);
+ background:radial-gradient(ellipse at 50% 0%,#9e77402a,transparent 72%)
+}
+.yl-logo-roam-orbit{left:13%!important;right:13%!important;top:auto!important;bottom:12%!important;opacity:.38!important;border-color:#c9a77a4a!important}
+.yl-logo-roam-glow{opacity:.4!important;background:#cfa86b18!important;filter:blur(26px)!important}
+.yl-logo-roam-position{
+ top:0!important;left:calc(50% - 90px)!important;
+ width:180px!important;height:180px!important;
+ animation:yl-life-scene-wander 10s cubic-bezier(.45,0,.55,1) infinite alternate!important
+}
+.yl-logo-roam-stage .yl-logo-pet{
+ width:180px!important;height:180px!important;
+ overflow:visible!important;border-radius:0!important;
+ transform:none!important;animation:none!important;isolation:auto!important;
+ background:none!important;box-shadow:none!important
+}
+.yl-logo-roam-stage .yl-logo-pet-art,
+.yl-logo-roam-stage .yl-logo-pet-figure{overflow:visible!important}
+.yl-logo-roam-stage .yl-logo-pet-hero,
+.yl-logo-intro .yl-logo-pet-hero{
+ display:block!important;opacity:1!important;mix-blend-mode:screen!important;
+ -webkit-mask-image:radial-gradient(ellipse 62% 57% at 53% 49%,#000 57%,transparent 100%);
+ mask-image:radial-gradient(ellipse 62% 57% at 53% 49%,#000 57%,transparent 100%);
+ filter:none!important;border-radius:0!important
+}
+.yl-logo-pet-figure{transform-origin:53% 79%!important}
+.yl-logo-roam-stage .yl-logo-pet-figure{
+ animation:yl-life-stage-idle 4.1s cubic-bezier(.36,0,.64,1) infinite!important
+}
+.yl-logo-roam-stage .yl-logo-pet-thinking .yl-logo-pet-figure{
+ animation:yl-life-stage-think 2.1s ease-in-out infinite!important
+}
+.yl-logo-roam-stage .yl-logo-pet-curious .yl-logo-pet-figure{
+ animation:yl-life-stage-curious 1.2s cubic-bezier(.2,.8,.2,1) both!important
+}
+.yl-logo-roam-stage .yl-logo-pet-reflective .yl-logo-pet-figure{
+ animation:yl-life-stage-reflect 1.4s ease-in-out both!important
+}
+.yl-logo-roam-stage .yl-logo-pet-surprised .yl-logo-pet-figure{
+ animation:yl-life-stage-startle 1s cubic-bezier(.2,.8,.3,1) both!important
+}
+.yl-logo-roam-stage .yl-logo-pet-delighted .yl-logo-pet-figure{
+ animation:yl-life-stage-joy 1.7s cubic-bezier(.2,.82,.31,1) both!important
+}
+.yl-logo-roam-stage .yl-logo-pet-encourage .yl-logo-pet-figure{
+ animation:yl-life-stage-welcome 1.4s cubic-bezier(.18,.85,.3,1) both!important
+}
+.yl-logo-roam-stage.is-complete .yl-logo-scene-light{transform:scale(1.3);opacity:.9}
+
+/* Replace the flat, unchanging eyes with deliberately designed expressions.
+   This face patch matches the APPROVED cream/black-eye LilLogo proportions. */
+.yl-logo-pet-figure .yl-logo-face{
+ position:absolute;inset:0;display:block;width:100%;height:100%;z-index:5;
+ pointer-events:none;overflow:visible;
+ transform:translate(5%,-6%);
+}
+.yl-logo-face .yl-face-skin{opacity:1}
+.yl-logo-face .yl-face-normal,.yl-logo-face .yl-face-happy,
+.yl-logo-face .yl-face-reflect,.yl-logo-face .yl-face-surprise,
+.yl-logo-face .yl-face-think,.yl-logo-face .yl-face-encourage{
+ opacity:0;transform-box:fill-box;transform-origin:center;
+ transition:opacity .13s ease,transform .19s ease
+}
+.yl-logo-pet-idle .yl-face-normal,
+.yl-logo-pet-curious .yl-face-normal{opacity:1}
+.yl-logo-pet-thinking .yl-face-think{opacity:1}
+.yl-logo-pet-reflective .yl-face-reflect{opacity:1}
+.yl-logo-pet-surprised .yl-face-surprise{opacity:1}
+.yl-logo-pet-delighted .yl-face-happy{opacity:1}
+.yl-logo-pet-encourage .yl-face-encourage{opacity:1}
+.yl-logo-pet-curious .yl-face-normal{transform:scale(1.09)}
+.yl-logo-pet-surprised .yl-face-surprise{transform:scale(1.075)}
+.yl-logo-pet-delighted .yl-face-happy{transform:translateY(-1px)}
+.yl-logo-pet .yl-logo-pet-blink{display:none!important}
+.yl-logo-pet-idle .yl-face-normal,
+.yl-logo-pet-curious .yl-face-normal{
+ animation:yl-life-eye-blink 7.6s ease-in-out infinite
+}
+/* Prevent the previous vignette from reading like a UI portrait frame. */
+.yl-logo-intro .yl-logo-pet{border-radius:0!important;overflow:visible!important;isolation:auto!important}
+.yl-logo-intro .yl-logo-pet-art{overflow:visible!important}
+.yl-logo-intro .yl-logo-pet{width:132px!important;height:132px!important}
+.yl-logo-intro .yl-logo-pet-figure{animation:yl-life-stage-idle 4.1s ease-in-out infinite!important}
+.yl-discover-immersive .yl-logo-intro{margin:0!important;gap:6px}
+.yl-discover-immersive .yl-logo-intro span:last-child{color:#ddc5a4}
+.yl-discover-immersive .yl-logo .yl-ai-question{color:#f2e3cd!important;font-size:clamp(28px,7.3vw,39px)!important;margin:2px 0 4px!important}
+.yl-discover-immersive .yl-logo .yl-ai-observation{color:#d2c3ae!important;font-size:clamp(14px,3.8vw,17px)!important}
+.yl-discover-immersive .yl-logo-final-title{color:#f3e2c6!important}
+.yl-discover-immersive .yl-logo-final-insight{color:#ddcfbc!important}
+.yl-discover-immersive .yl-logo-finale{padding:6px 1px!important;gap:13px!important}
+.yl-discover-immersive .yl-logo-choice{
+ min-height:66px!important;padding:12px 15px!important;
+ border-color:#a68a6245!important;background:linear-gradient(120deg,#b8a17812,#ffffff04)!important;
+ box-shadow:inset 0 1px #ffffff08!important
+}
+.yl-discover-immersive .yl-logo-choice-label{font-size:clamp(14px,3.85vw,17px)!important;color:#f0dfc8!important}
+.yl-discover-immersive .yl-logo-choice:focus-visible{outline:2px solid #c9a77a}
+.yl-discover-immersive .yl-ai-main{
+ background:#e5cdaa!important;border-color:#e5cdaa!important;color:#2c241d!important
+}
+.yl-discover-immersive .yl-ai-secondary{color:#ccbfae}
+.yl-discover-immersive .yl-logo-source summary{color:#c9ad86}
+.yl-discover-immersive .yl-logo-privacy button{color:#b3a58f}
+.yl-discover-immersive .yl-logo-choices{gap:8px!important}
+@keyframes yl-scene-breathe{from{opacity:.32;transform:scale(.93)}to{opacity:.82;transform:scale(1.07)}}
+@keyframes yl-life-scene-wander{
+ 0%{transform:translate3d(-56px,4px,0) rotate(-4deg)}
+ 28%{transform:translate3d(-8px,-5px,0) rotate(3deg)}
+ 57%{transform:translate3d(24px,6px,0) rotate(-2deg)}
+ 100%{transform:translate3d(58px,-4px,0) rotate(3deg)}
+}
+@keyframes yl-life-stage-idle{0%,100%{transform:translate3d(0,2px,0) rotate(-1deg) scale(1)}50%{transform:translate3d(0,-6px,0) rotate(2deg) scale(1.035)}}
+@keyframes yl-life-stage-think{0%,100%{transform:translateY(3px) rotate(-8deg)}48%{transform:translateY(-11px) rotate(7deg)}}
+@keyframes yl-life-stage-curious{0%{transform:translateY(5px) rotate(-8deg)}40%{transform:translateY(-15px) rotate(13deg) scale(1.08)}80%{transform:translateY(-4px) rotate(-6deg)}100%{transform:rotate(5deg)}}
+@keyframes yl-life-stage-reflect{0%{transform:translateY(0) rotate(3deg)}35%{transform:translateY(9px) rotate(-5deg)}60%{transform:translateY(3px)}100%{transform:none}}
+@keyframes yl-life-stage-startle{0%{transform:translateY(6px) scale(.95)}35%{transform:translateY(-25px) rotate(-9deg) scale(1.13)}67%{transform:translateY(-4px) rotate(7deg)}100%{transform:none}}
+@keyframes yl-life-stage-joy{0%{transform:translateY(0)}26%{transform:translateY(-27px) rotate(13deg) scale(1.09)}51%{transform:translateY(-7px) rotate(-11deg)}75%{transform:translateY(-16px) rotate(7deg)}100%{transform:none}}
+@keyframes yl-life-stage-welcome{0%{transform:translateY(2px) rotate(-5deg)}36%{transform:translateY(-15px) rotate(13deg)}70%{transform:translateY(-8px) rotate(-8deg)}100%{transform:none}}
+@keyframes yl-life-eye-blink{0%,43%,45%,100%{opacity:1}44%{opacity:0}}
+@media(max-height:745px){
+ .yl-logo-roam-stage{height:158px}
+ .yl-logo-roam-position{top:-6px!important}
+ .yl-discover-immersive .yl-logo-choice{min-height:59px!important;padding:9px 13px!important}
+ .yl-discover-immersive .yl-logo .yl-ai-question{font-size:clamp(27px,6.8vw,34px)!important}
+}
+@media(max-width:365px){
+ .yl-logo-roam-position{left:calc(50% - 77px)!important;width:154px!important;height:154px!important}
+ .yl-logo-roam-stage .yl-logo-pet{width:154px!important;height:154px!important}
+ .yl-logo-roam-stage{height:158px}
+}
+@media(prefers-reduced-motion:reduce){
+ .yl-logo-roam-position,.yl-logo-roam-stage .yl-logo-pet-figure,.yl-logo-scene-light,
+ .yl-discover-immersive::before,.yl-logo-face .yl-face-normal{animation:none!important;transition:none!important;transform:none!important}
+ .yl-logo-pet-figure .yl-logo-face{transform:translate(5%,-6%)!important}
+}
