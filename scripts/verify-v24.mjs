@@ -220,8 +220,8 @@ const aiClientSource=read("discover-ai-client.js"),aiServerSource=read("discover
 for(const [name,source] of [["discover-ai-client",aiClientSource],["discover-ai-server",aiServerSource]]){
  new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
 }
-const {makeDiscoverPrompt,validateDiscoverTurn,discoverAIEnabled}=await import("../discover-ai-server.mjs");
-const {newAIConversation,aiSummary,aiMemoryChoices,aiConversationHtml}=await import("../discover-ai-client.js");
+const {makeDiscoverPrompt,validateDiscoverTurn,discoverAIEnabled,DISCOVER_DECISIONS}=await import("../discover-ai-server.mjs");
+const {newAIConversation,aiSummary,aiMemoryChoices,aiConversationHtml,LOGO_DECISIONS}=await import("../discover-ai-client.js");
 assert.equal(discoverAIEnabled(),false,"AI must stay disabled until owner configures credentials and explicitly enables it");
 const dataForAI={quoteId:63,quote:{text:QUOTES[63][0],author:QUOTES[63][1],theme:QUOTES[63][2]},
  turn:2,userText:"I want to change, but I am afraid of losing who I am.",memory:["I used to be afraid of being alone."]};
@@ -248,12 +248,43 @@ assert.ok(!aiConversationHtml({quote:QUOTES[63],conversation:artificial,availabl
 const savedAI=aiSummary(artificial,QUOTES[63],"2026-10-27");
 assert.equal(savedAI.note,"I want more freedom");
 assert.equal(savedAI.kind,"ai");
+const finishedConversation={...artificial,complete:true,messages:[
+ {role:"assistant",text:"A quiet contradiction appears.",followUp:"Are you avoiding freedom?",choices:["For comfort","For safety","For belonging"]},
+ {role:"user",text:"For safety"},
+ {role:"assistant",text:"The cost of freedom is not always the absence of safety.",followUp:"How does fear inform choice?",choices:["By warning me","By limiting me","By focusing me"]},
+ {role:"user",text:"By warning me"},
+ {role:"assistant",text:"Some warnings are old habits.",followUp:"Can habit be protective?",choices:["Yes, sometimes","Not without reflection","It depends on context"]},
+ {role:"user",text:"Not without reflection"},
+ {role:"assistant",text:"Thinking makes your hesitation visible.",followUp:"Will you keep listening?",choices:["I'll listen closer","I'll challenge it","I'll give it time"]},
+ {role:"user",text:"I'll challenge it"},
+ {role:"assistant",text:"Your challenge leaves something open: freedom asks you to risk a little certainty without forgetting why it mattered.",followUp:"",choices:[],complete:true}
+]};
+const closingHtml=aiConversationHtml({quote:QUOTES[63],conversation:finishedConversation,available:true,authenticated:true});
+assert.ok(closingHtml.includes("Something to carry.")&&closingHtml.includes('data-ai="finish"'),"Finished reflection must offer a clear exit");
+assert.ok(closingHtml.includes("LITTLE LOGO")&&!closingHtml.includes("· AI</span>"),"Little Logo is the companion identity");
+assert.ok(!closingHtml.includes("data-ai-choice"),"No infinite option loop after four taps");
+const closingSummary=aiSummary(finishedConversation,QUOTES[63],"2026-10-27");
+assert.ok(closingSummary.question.includes("Your challenge leaves something open"),"Saved finished reflections retain their takeaway");
+assert.ok(app.includes("current.complete=finishing")&&app.includes('action==="finish"'),"App enforces completed state and exit action");
+
 assert.ok(!app.includes('data-ai="launch"')&&app.includes('"/api/discover-ai"'),"Discover seamlessly selects AI for signed-in users");
 assert.ok(app.includes('previouslyConsented()')&&app.includes('activateDiscoverAI()'),"Discover activates automatically for guests and honors prior consent");
 assert.ok(app.includes('aiPrivateForCurrentSheet')&&!app.includes('aiDiscoverEnabled&&Boolean(verifiedIdentity)'),"No silent fallback to scripted dialogue due to missing email");
 assert.ok(!auth.includes("signInAnonymously()")&&auth.includes("data.user.is_anonymous"),"Guest AI does not create unconfigured Supabase accounts");
 assert.ok(aiServerSource.includes("guestIdentity(req,res)")&&aiServerSource.includes("SameSite=Strict"),"Guest AI requires signed browser cookie");
-assert.ok(aiServerSource.includes("guestDailyLimit=40")&&aiServerSource.includes("personalLimit"),"Guest usage is strictly bounded");
+assert.ok(aiServerSource.includes("YOURLOGOS_AI_GUEST_DAILY_CAP")&&aiServerSource.includes("personalLimit"),"Guest limit is configurable and bounded");
+assert.ok(aiServerSource.includes("refundBudget(id)"),"Failed AI requests should not spend the daily budget");
+assert.equal(DISCOVER_DECISIONS,4,"The AI journey has a finite four-choice arc");
+assert.equal(LOGO_DECISIONS,DISCOVER_DECISIONS,"Client and server must agree about journey length");
+const closingPrompt=makeDiscoverPrompt({...dataForAI,turn:4});
+assert.equal(closingPrompt.context.closing,true);
+assert.ok(closingPrompt.system.includes("THE JOURNEY ENDS NOW"),"Closing prompt must actually end the reflection");
+assert.throws(()=>makeDiscoverPrompt({...dataForAI,turn:5}),/journey step/,"Fifth question cannot be generated");
+const completeTurn=validateDiscoverTurn({reply:"Your choices suggest that courage may not settle the cost; it makes the cost worth confronting together.",followUp:"",choices:[]},4);
+assert.equal(completeTurn.complete,true);
+assert.equal(completeTurn.choices.length,0,"Closing output cannot offer further taps");
+assert.throws(()=>validateDiscoverTurn({reply:"Another thoughtful philosophical observation worthy of deeper consideration.",followUp:"",choices:[]},3),/choices/);
+
 const {guestIdentity}=await import("../discover-ai-server.mjs");
 const cookieResponse={headers:{},setHeader(name,value){this.headers[name]=value}};
 const guestReq={headers:{origin:"https://yourlogos-web-production.up.railway.app",host:"railway-internal-proxy"}};

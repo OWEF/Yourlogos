@@ -8,7 +8,7 @@ import { exploreFor } from "./explore-catalogue.js";
 import { personalizedExplore } from "./personalization.js";
 import { livingHtml, normalizeLivingState, beginLiving, transitionLiving, noteLiving, openingLiving, archiveLiving } from "./living-threads.js";
 import { buildWorldMemory, worldMemoryHtml } from "./world-memory.js";
-import { aiConversationHtml, safeAIConversation, aiMemoryChoices, aiSummary, cleanText } from "./discover-ai-client.js";
+import { aiConversationHtml, safeAIConversation, aiMemoryChoices, aiSummary, cleanText, LOGO_DECISIONS } from "./discover-ai-client.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName, getDiscoverAccessToken } from "./auth-client.js";
 const QUOTES=[
@@ -725,11 +725,13 @@ document.addEventListener("click",async e=>{
   const scope=e.target.closest("[data-scope]");if(scope){libraryScope=scope.dataset.scope;render();return}
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
   const stanceAction=e.target.closest("[data-ai-choice]");
-  if(stanceAction&&discoverOpen&&aiDiscoverEnabled&&aiConversation?.consent&&!aiConversation.loading){
+  if(stanceAction&&discoverOpen&&aiDiscoverEnabled&&aiConversation?.consent&&!aiConversation.loading&&!aiConversation.complete){
     const index=Number(stanceAction.dataset.aiChoice),id=visibleQuoteId(),q=QUOTES[id];
     if(!Number.isInteger(index)||index<0||index>2||!q)return;
     const last=[...aiConversation.messages].reverse().find(m=>m.role==="assistant");
     const choice=last?.choices?.[index]||["I'm intrigued","I doubt it","Show me another angle"][index];
+    const completedDecisions=aiConversation.messages.filter(m=>m.role==="user").length;
+    if(completedDecisions>=LOGO_DECISIONS)return;
     const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role+": "+m.text);
     const context=last?.followUp?"Question: "+last.followUp+" | My response: "+choice:choice;
     const current=aiConversation;
@@ -742,13 +744,18 @@ document.addEventListener("click",async e=>{
           memory:aiMemoryChoices(sharedWorldMemory()),history:requestHistory,userText:context,
           turn:current.messages.filter(m=>m.role==="assistant").length})
       });
-      if(!reply.ok)throw Error(reply.status===429?"Daily AI limit reached.":"DeepSeek is unavailable right now.");
+      if(!reply.ok)throw Error(reply.status===429?"Little Logo has reached its daily reflection allowance.": "Little Logo couldn't connect. Try this choice again.");
       const next=await reply.json();
-      if(!next.reply||!next.followUp||!Array.isArray(next.choices)||next.choices.length!==3)throw Error("Incomplete DeepSeek response.");
+      const finishing=completedDecisions+1===LOGO_DECISIONS;
+      if(!next.reply||Boolean(next.complete)!==finishing||
+         (!finishing&&(!next.followUp||!Array.isArray(next.choices)||next.choices.length!==3)))
+        throw Error("Little Logo couldn't complete this reflection.");
       if(aiConversation!==current||!aiDiscoverMode)return;
       current.messages.push({role:"user",text:choice});
       current.messages.push({role:"assistant",text:cleanText(next.reply,850),
-        followUp:cleanText(next.followUp,300),choices:next.choices.map(x=>cleanText(x,82))});
+        followUp:finishing?"":cleanText(next.followUp,300),
+        choices:finishing?[]:next.choices.map(x=>cleanText(x,82)),complete:finishing});
+      current.complete=finishing;
       current.messages=current.messages.slice(-12);
     }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
     finally{current.loading=false;if(aiConversation===current&&discoverOpen)render()}
@@ -760,9 +767,12 @@ document.addEventListener("click",async e=>{
     if(id===null||!q)return;
 
     if(!aiConversation||aiConversation.quoteId!==id)return;
+    if(action==="finish"){
+      discoverOpen=false;aiDiscoverMode=false;aiConversation=null;render();return;
+    }
     if(action==="cancel"||action==="revoke"){
       if(action==="revoke")localStorage.removeItem(consentKey());
-      aiPrivateForCurrentSheet=true;aiDiscoverMode=false;aiConversation=null;render();return
+      aiPrivateForCurrentSheet=true;aiDiscoverMode=false;aiConversation=null;render();return;
     }
     if(action==="agree"){
       localStorage.setItem(consentKey(),"yes");
@@ -774,7 +784,8 @@ document.addEventListener("click",async e=>{
       const summary=aiSummary(aiConversation,q,today());
       if(!summary){toast("Explore a little more before saving.");return}
       data.aiDiscoverThreads=[...data.aiDiscoverThreads.filter(x=>x.id!==summary.id),summary].slice(-30);
-      persist();toast("Conversation saved to My World");render();return;
+      aiConversation.saved=true;
+      persist();toast("Little Logo kept this in My World");render();return;
     }
     if(action==="send"){
       if(aiConversation.loading)return;
@@ -792,14 +803,14 @@ document.addEventListener("click",async e=>{
         });
         if(!reply.ok)throw Error(reply.status===429?"You've reached the AI conversation limit for today.":reply.status===401?"Please sign in again.":"The AI conversation is unavailable at the moment.");
         const next=await reply.json();
-        if(!next.reply||!next.followUp||!Array.isArray(next.choices)||next.choices.length!==3)throw Error("The response was incomplete. Please try again.");
+        if(!next.reply||next.complete||!next.followUp||!Array.isArray(next.choices)||next.choices.length!==3)throw Error("Little Logo could not begin. Please try again.");
         if(aiConversation!==currentConversation||!aiDiscoverMode)return;
         if(pendingText)currentConversation.messages.push({role:"user",text:pendingText});
         currentConversation.messages.push({role:"assistant",text:cleanText(next.reply,850),followUp:cleanText(next.followUp,300),choices:next.choices.map(x=>cleanText(x,82))});
         currentConversation.messages=currentConversation.messages.slice(-12);
         currentConversation.draft="";
       }catch(err){
-        if(aiConversation===currentConversation)currentConversation.error=String(err.message||"AI is unavailable");
+        if(aiConversation===currentConversation)currentConversation.error=String(err.message||"Little Logo is unavailable");
       }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen)render()}
       return;
     }
