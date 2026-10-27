@@ -332,7 +332,7 @@ assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRE
 
 const immersiveCSS=read("little-logo-discover.css");
 assert.ok(html.includes('/little-logo-discover.css'),"Immersive Discover stylesheet loads last");
-assert.ok(sw.includes('/little-logo-discover.css')&&sw.includes('yourlogos-v74-character-expressions-discover'),"iPhone PWA precaches the new visual treatment");
+assert.ok(sw.includes('/little-logo-discover.css')&&(sw.includes('yourlogos-v75-original-lillogo-cutout')||sw.includes('yourlogos-v74-character-expressions-discover')),"iPhone PWA precaches the new visual treatment");
 assert.ok(aiCard.includes('yl-logo-face')&&aiCard.includes('yl-face-happy')&&aiCard.includes('yl-face-surprise'),"Original character renders distinct happy and surprise facial expressions");
 assert.ok(aiCard.includes('yl-logo-scene-light')&&aiCard.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
 assert.ok(immersiveCSS.includes('yl-life-stage-joy')&&immersiveCSS.includes('yl-life-stage-think')&&immersiveCSS.includes('yl-life-stage-startle'),"Companion includes physically different joyful thinking and startled poses");
