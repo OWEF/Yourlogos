@@ -106,8 +106,19 @@ export function validateDiscoverTurn(output,turn=0){
  const reply=clip(output?.reply,850),followUp=clip(output?.followUp,300);
  const choices=Array.isArray(output?.choices)?output.choices.map(x=>clip(x,82)):[];
  if(reply.length<25)throw Error("Incomplete model reply");
+ // Reject recognizable canned philosophy phrases and the exact speculative
+ // answer patterns that users reported. Never classify their viewpoint.
+ if(/^[A-Za-zÀ-ÿ'’ -]{3,45}\s+(?:would|might)\s+(?:say|notice|ask|argue|observe)\b/i.test(reply)||
+   /(?:this shows you value|you just loosened|your journey proves|beautiful choice|you (?:just )?unlocked)/i.test(reply))
+   throw Error("Unearned philosophical narration");
  if(turn===DISCOVER_DECISIONS)return {reply,followUp:"",choices:[],complete:true};
  if(followUp.length<10||choices.length!==3||choices.some(x=>x.length<3||x.length>82))throw Error("Invalid philosophical choices");
+ const normalized=choices.map(x=>x.toLowerCase().replace(/[^a-z0-9]+/g," ").trim());
+ if(new Set(normalized).size!==3||
+    normalized.some(x=>/^(?:yes|no|maybe|i agree|i disagree|it depends|nothing changes anyway|we pick a new plan|someone admits they assumed)$/.test(x))||
+    (/(?:what happens after|what will (?:they|everyone) do next)/i.test(followUp)&&
+      normalized.some(x=>/^(?:we|they|someone|everyone|nothing)\s+(?:pick|agree|admit|decide|change|happen)/.test(x))))
+    throw Error("Generic or speculative response options");
  return {reply,followUp,choices,complete:false};
 }
 export async function handleDiscoverAI(req,res){
