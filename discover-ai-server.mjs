@@ -133,21 +133,34 @@ export async function handleDiscoverAI(req,res){
  let data,prompt;try{data=await body(req);if(data?.consent!==true)throw Error("Consent");prompt=makeDiscoverPrompt(data)}catch{send(res,400,{error:"invalid_or_unconsented_request"});return}
  if(!budget(id)){send(res,429,{error:"daily_or_rate_limit"});return}
  try{
-  const r=await fetch("https://api.deepseek.com/chat/completions",{
-    method:"POST",signal:AbortSignal.timeout(25000),
-    headers:{"Content-Type":"application/json",Authorization:"Bearer "+process.env.DEEPSEEK_API_KEY},
-    body:JSON.stringify({
-      model:process.env.YOURLOGOS_AI_MODEL||"deepseek-flash",
-      thinking:{type:"disabled"},max_tokens:380,stream:false,
-      response_format:{type:"json_object"},
-      messages:[{role:"system",content:prompt.system},{role:"user",content:JSON.stringify(prompt.context)}]
-    })
-  });
-  if(!r.ok){refundBudget(id);send(res,502,{error:"model_unavailable"});return}
-  const json=await r.json();
-  if(json.choices?.[0]?.finish_reason!=="stop"){refundBudget(id);send(res,502,{error:"model_unavailable"});return}
-  const content=json.choices?.[0]?.message?.content||"";
-  const result=validateDiscoverTurn(JSON.parse(content),data.turn);
-  send(res,200,{...result,usage:{inputTokens:Number(json.usage?.prompt_tokens)||0,outputTokens:Number(json.usage?.completion_tokens)||0}});
+  let result,previous="",inputTokens=0,outputTokens=0;
+  // Normal generation uses a single request. Only invalid/canned responses get
+  // one corrective pass; preserve rate limits and never repeat indefinitely.
+  for(let attempt=0;attempt<2;attempt++){
+   const messages=[{role:"system",content:prompt.system},
+     {role:"user",content:JSON.stringify(prompt.context)}];
+   if(attempt){
+    messages.push({role:"assistant",content:previous.slice(0,1200)});
+    messages.push({role:"user",content:"The previous JSON failed our conversational quality check. Revise the ENTIRE JSON without predicted outcomes, forced philosopher attribution, or generic options. All options must be plausible responses from the visitor's perspective to the same question. Follow the actual previous choice and stay in the same scene. Return JSON only."});
+   }
+   const r=await fetch("https://api.deepseek.com/chat/completions",{
+     method:"POST",signal:AbortSignal.timeout(25000),
+     headers:{"Content-Type":"application/json",Authorization:"Bearer "+process.env.DEEPSEEK_API_KEY},
+     body:JSON.stringify({
+       model:process.env.YOURLOGOS_AI_MODEL||"deepseek-flash",
+       thinking:{type:"disabled"},max_tokens:460,stream:false,
+       response_format:{type:"json_object"},messages
+     })
+   });
+   if(!r.ok)throw Error("DeepSeek unavailable");
+   const json=await r.json();
+   if(json.choices?.[0]?.finish_reason!=="stop")throw Error("Incomplete DeepSeek output");
+   inputTokens+=Number(json.usage?.prompt_tokens)||0;
+   outputTokens+=Number(json.usage?.completion_tokens)||0;
+   previous=json.choices?.[0]?.message?.content||"";
+   try{result=validateDiscoverTurn(JSON.parse(previous),data.turn);break}
+   catch(err){if(attempt===1)throw err}
+  }
+  send(res,200,{...result,usage:{inputTokens,outputTokens}});
  }catch{refundBudget(id);send(res,502,{error:"model_unavailable"})}
 }
