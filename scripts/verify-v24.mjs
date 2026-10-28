@@ -245,6 +245,28 @@ assert.ok(!prompt.system.includes("AUTHOR BRIDGE"),"The old forced author bridge
 assert.ok(app.includes("direction:choice")&&app.includes('m.followUp?"Question: "'),"App sends choice and question context to the server");
 assert.ok(!prompt.system.includes("OPENAI_API_KEY"));
 assert.deepEqual(validateDiscoverTurn({reply:"You might be protecting an old identity because it has kept you safe.",followUp:"What would you risk by changing it?",choices:["I might lose belonging","I might gain freedom","I question the premise"]}).followUp,"What would you risk by changing it?");
+assert.throws(()=>validateDiscoverTurn({
+ reply:"Rousseau would say you just loosened one chain by naming it out loud.",
+ followUp:"What happens after you ask who decided?",
+ choices:["We pick a new plan","Nothing changes anyway","Someone admits they assumed"]
+},2),/narration|speculative/,"The exact screenshot's forced philosophy and speculative choices are rejected");
+assert.throws(()=>validateDiscoverTurn({
+ reply:"A routine can quietly become a rule when nobody questions the usual place.",
+ followUp:"What catches your attention when the group explains their usual choice?",
+ choices:["We pick a new plan","Nothing changes anyway","Someone admits they assumed"]
+},1),/speculative/,"Predicting others' behavior is not a first-person response");
+assert.throws(()=>validateDiscoverTurn({
+ reply:"The familiar plan can feel easier than questioning it, even when nobody chose it.",
+ followUp:"What stands out to you about the dinner routine?",
+ choices:["I agree","I disagree","It depends"]
+},1),/speculative/,"Three generic positions do not make a conversation");
+const validEveryday=validateDiscoverTurn({
+ reply:"It is funny how a repeated plan can become a rule without anyone announcing it.",
+ followUp:"When they say it is what everyone does, what do you notice?",
+ choices:["Nobody actually decided","Maybe everyone still likes it","I never questioned it either"]
+},1);
+assert.equal(validEveryday.choices.length,3,"Three believable, visitor-centered interpretations remain welcome");
+assert.ok(aiServerSource.includes("attempt<2")&&aiServerSource.includes("conversational quality check"),"At most one targeted correction is made for weak model output");
 assert.equal(newAIConversation(12).consent,false,"No background submission or implied consent");
 const aiMemory=aiMemoryChoices({threads:[{opening:"A remembered thought"},{note:"A different memory"}]});
 assert.equal(aiMemory.length,2);
