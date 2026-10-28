@@ -227,12 +227,46 @@ assert.equal(discoverAIEnabled(),false,"AI must stay disabled until owner config
 const dataForAI={quoteId:63,quote:{text:QUOTES[63][0],author:QUOTES[63][1],theme:QUOTES[63][2]},
  turn:2,userText:"I want to change, but I am afraid of losing who I am.",memory:["I used to be afraid of being alone."]};
 const prompt=makeDiscoverPrompt(dataForAI);
-assert.ok(prompt.system.includes("actual meaning")&&prompt.system.includes("changed tap"),"The AI must make personalized, revisable philosophical moves");
+assert.ok(prompt.system.includes("quotation's actual meaning")&&prompt.system.includes("A changed tap must change"),"The AI must make personalized, revisable philosophical moves");
 assert.ok(prompt.system.includes("SELF-CHECK BEFORE OUTPUT")&&prompt.system.includes("exactly three plausible"),"Prompt requires distinct quote-grounded tap choices");
 assert.equal(prompt.context.userWords,dataForAI.userText);
 assert.equal(prompt.context.pastVoluntaryReflections.length,1);
+const historyAware=makeDiscoverPrompt({...dataForAI,turn:1,direction:"Go along — it's easier",
+ history:["Little Logo: Question: Friends pick the same restaurant. What do you do? | Observation: The choice is always familiar.",
+ "Visitor chose: Go along — it's easier"]});
+assert.equal(historyAware.context.selectedDirection,"Go along — it's easier","The exact choice reaches DeepSeek");
+assert.equal(historyAware.context.recentDialog.length,2,"Past dialogue is retained");
+assert.ok(historyAware.context.recentDialog[0].includes("Question:"),"The prior question is available for coherent follow-up");
+assert.ok(historyAware.system.includes("same place")||historyAware.system.includes("SAME situation"),"Dialogue stays grounded in one scene");
+assert.ok(historyAware.system.includes("The visitor cannot know")&&historyAware.system.includes("Nothing changes anyway"),"The rejected future-outcome choice pattern is explicitly addressed");
+assert.ok(historyAware.system.includes("NOT an attribution")||historyAware.system.includes("not an attribution"),"Original thinker is not misquoted");
+assert.ok(prompt.system.includes("BANNED TONE")&&prompt.system.includes("this shows you value"),"Dialogue avoids pseudo-insight and flattery");
+assert.ok(!prompt.system.includes("AUTHOR BRIDGE"),"The old forced author bridge has been removed");
+assert.ok(app.includes("direction:choice")&&app.includes('m.followUp?"Question: "'),"App sends choice and question context to the server");
 assert.ok(!prompt.system.includes("OPENAI_API_KEY"));
 assert.deepEqual(validateDiscoverTurn({reply:"You might be protecting an old identity because it has kept you safe.",followUp:"What would you risk by changing it?",choices:["I might lose belonging","I might gain freedom","I question the premise"]}).followUp,"What would you risk by changing it?");
+assert.throws(()=>validateDiscoverTurn({
+ reply:"Rousseau would say you just loosened one chain by naming it out loud.",
+ followUp:"What happens after you ask who decided?",
+ choices:["We pick a new plan","Nothing changes anyway","Someone admits they assumed"]
+},2),/narration|speculative/,"The exact screenshot's forced philosophy and speculative choices are rejected");
+assert.throws(()=>validateDiscoverTurn({
+ reply:"A routine can quietly become a rule when nobody questions the usual place.",
+ followUp:"What catches your attention when the group explains their usual choice?",
+ choices:["We pick a new plan","Nothing changes anyway","Someone admits they assumed"]
+},1),/speculative/,"Predicting others' behavior is not a first-person response");
+assert.throws(()=>validateDiscoverTurn({
+ reply:"The familiar plan can feel easier than questioning it, even when nobody chose it.",
+ followUp:"What stands out to you about the dinner routine?",
+ choices:["I agree","I disagree","It depends"]
+},1),/speculative/,"Three generic positions do not make a conversation");
+const validEveryday=validateDiscoverTurn({
+ reply:"It is funny how a repeated plan can become a rule without anyone announcing it.",
+ followUp:"When they say it is what everyone does, what do you notice?",
+ choices:["Nobody actually decided","Maybe everyone still likes it","I never questioned it either"]
+},1);
+assert.equal(validEveryday.choices.length,3,"Three believable, visitor-centered interpretations remain welcome");
+assert.ok(aiServerSource.includes("attempt<2")&&aiServerSource.includes("conversational quality check"),"At most one targeted correction is made for weak model output");
 assert.equal(newAIConversation(12).consent,false,"No background submission or implied consent");
 const aiMemory=aiMemoryChoices({threads:[{opening:"A remembered thought"},{note:"A different memory"}]});
 assert.equal(aiMemory.length,2);
@@ -324,8 +358,8 @@ assert.ok(aiServerSource.includes("process.env.DEEPSEEK_API_KEY")&&!aiServerSour
 assert.ok(sw.includes('"/discover-ai-client.js"'),"Offline shell loads without AI network access");
 
 assert.ok(prompt.system.includes("PRODUCT PROMISE")&&prompt.system.includes("ORDINARY DAY"),"Little Logo prioritizes concrete daily experience");
-assert.ok(prompt.system.includes("What do you do first?")&&prompt.system.includes("Speak up right away"),"Prompt provides everyday test examples");
-assert.ok(prompt.system.includes("Never ask general questions about existence"),"No abstract philosophical quiz questions");
+assert.ok(prompt.system.includes("Your friends always go to the same place")&&prompt.system.includes("Ask why we always go there"),"Prompt provides everyday test examples");
+assert.ok(prompt.system.includes("No abstract 'what does freedom/identity/existence mean'"),"No abstract philosophical quiz questions");
 assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive full-screen class");
 assert.ok(app.includes('type:"complete"')&&app.includes('positives.get(theme)'),"Journey completions influence next-day quote ranking");
 assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");

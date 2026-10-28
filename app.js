@@ -750,7 +750,9 @@ document.addEventListener("click",async e=>{
     const choice=last?.choices?.[index]||["I'm intrigued","I doubt it","Show me another angle"][index];
     const completedDecisions=aiConversation.messages.filter(m=>m.role==="user").length;
     if(completedDecisions>=LOGO_DECISIONS)return;
-    const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role+": "+m.text);
+    const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role==="assistant"?
+      "Little Logo: "+(m.followUp?"Question: "+m.followUp+" | ":"")+"Observation: "+m.text:
+      "Visitor chose: "+m.text);
     const context=last?.followUp?"Question: "+last.followUp+" | My response: "+choice:choice;
     const current=aiConversation;
     current.petMood=["curious","reflective","surprised"][index];
@@ -765,7 +767,7 @@ document.addEventListener("click",async e=>{
       const reply=await fetch("/api/discover-ai",{
         method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{})},
         body:JSON.stringify({consent:true,quoteId:id,quote:{text:q[0],author:q[1],theme:q[2]},
-          memory:aiMemoryChoices(sharedWorldMemory()),history:requestHistory,userText:context,
+          memory:aiMemoryChoices(sharedWorldMemory()),history:requestHistory,userText:context,direction:choice,
           turn:current.messages.filter(m=>m.role==="assistant").length})
       });
       if(!reply.ok)throw Error(reply.status===429?"Little Logo has reached its daily reflection allowance.": "Little Logo couldn't connect. Try this choice again.");
@@ -833,7 +835,9 @@ document.addEventListener("click",async e=>{
     if(action==="send"){
       if(aiConversation.loading)return;
       const pendingText=cleanText(document.getElementById("yl-ai-draft")?.value||aiConversation.draft,480);
-      const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role+": "+m.text);
+      const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role==="assistant"?
+        "Little Logo: "+(m.followUp?"Question: "+m.followUp+" | ":"")+"Observation: "+m.text:
+        "Visitor chose: "+m.text);
       const memory=aiMemoryChoices(sharedWorldMemory());
       const currentConversation=aiConversation;
       currentConversation.loading=true;currentConversation.petMood="thinking";currentConversation.error="";render();
