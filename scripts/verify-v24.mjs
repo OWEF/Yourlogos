@@ -429,7 +429,7 @@ const livingV2CSS=read("discover-living-v2.css"),presenceV2=read("little-logo-pr
 for(const asset of ["discover-living-v2.css","little-logo-presence.js","philosopher-portraits.js"])
  assert.ok(sw.includes('"/'+asset+'"'),"New Discover asset is available offline: "+asset);
 assert.ok(html.includes('/discover-living-v2.css')&&html.includes('/little-logo-presence.js'),"Living Discover includes CSS and idle controller");
-assert.ok(aiClientSource.includes("philosopherPortrait(author)")&&portraitV2.includes("kierkegaard"),"Philosopher identity is rendered");
+assert.ok(aiClientSource.includes("philosopherPortrait(author)")&&portraitV2.includes("Søren Kierkegaard"),"Philosopher identity is rendered");
 assert.ok(livingV2CSS.includes("prefers-reduced-motion:reduce")&&presenceV2.includes("reduced()"),"Living encounters respect reduced motion");
 console.log("YourLogos V3.0: source, native beta, routes, curated art, visual lessons and privacy checks PASS.");
 
