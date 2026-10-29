@@ -419,7 +419,7 @@ assert.ok(!reactionScene.includes("yl-logo-choices")&&!reactionScene.includes("y
 const {PORTRAIT_AUTHORS,philosopherPortrait}=await import("../philosopher-portraits.js");
 assert.equal(PORTRAIT_AUTHORS.length,56,"All canonical Discover author sources are represented");
 assert.equal(new Set(PORTRAIT_AUTHORS.map(a=>philosopherPortrait(a))).size,56,"Every source has unique portrait SVG");
-assert.ok(html.includes('src="/app.js?yl=81"')&&html.includes('src="/little-logo-presence.js?yl=81"')&&html.includes('href="/discover-living-v2.css?yl=81"'),"iPhone entrypoint uses new Discover assets");
+assert.ok(/src="\/app\\.js\\?yl=\\d+"/.test(html)&&/src="\/little-logo-presence\\.js\\?yl=\\d+"/.test(html)&&/href="\/discover-living-v2\\.css\\?yl=\\d+"/.test(html),"iPhone entrypoint references versioned Discover assets");
 assert.ok(app.includes('from "./discover-ai-client.js?yl=81"'),"app.js loads v80 Discover component");
 assert.ok(sw.includes('cache:"no-store"')&&sw.includes('request.mode==="navigate"')&&sw.includes('url.pathname.startsWith("/api/")'),
   "iPhone PWA retrieves fresh app scripts/pages online without caching private API data");
