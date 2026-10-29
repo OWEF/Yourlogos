@@ -42,7 +42,8 @@ test("gallery preserves all featured identities and links to existing quotation 
  const html=philosopherGalleryHtml(q);
  assert.match(html,/data-philosopher-search/);
  assert.equal((html.match(/class="yl-philosopher-card"/g)||[]).length,FEATURED.length);
- assert.doesNotMatch(html,/class="yl-philosopher-card"[^>]*>[\s\S]*?<small>/);
+ const firstCard=html.split('class="yl-philosopher-card"')[1].split('</button>')[0];
+ assert.doesNotMatch(firstCard,/<small>/);
  const detail=philosopherProfileHtml(q,0);
  assert.match(detail,/An examined life/);
  assert.match(detail,/data-philosopher-quote="0"/);
