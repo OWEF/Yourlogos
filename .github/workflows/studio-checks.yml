@@ -1,0 +1,21 @@
+name: YourLogos Studio Checks
+on:
+  pull_request:
+  push:
+    branches:
+      - feature/yourlogos-studio-v1
+jobs:
+  studio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check server.mjs
+          node --check studio.js
+      - name: Verify Studio endpoints and safeguards
+        run: node --test tests/studio.test.mjs
