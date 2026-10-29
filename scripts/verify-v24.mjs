@@ -366,7 +366,7 @@ assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRE
 
 const immersiveCSS=read("little-logo-discover.css");
 assert.ok(html.includes('/little-logo-discover.css'),"Immersive Discover stylesheet loads last");
-assert.ok(sw.includes('/little-logo-discover.css')&&(sw.includes('yourlogos-v78-living-encounter')||sw.includes('yourlogos-v76-lillogo-action-rituals')),"iPhone PWA precaches the new visual treatment");
+assert.ok(sw.includes('/little-logo-discover.css')&&(sw.includes('yourlogos-v79-network-refresh')||sw.includes('yourlogos-v76-lillogo-action-rituals')),"iPhone PWA precaches the new visual treatment");
 assert.ok(aiCard.includes("yl-logo-pet-pose")&&!aiCard.includes("yl-logo-face"),"Character uses real painted pose art without mismatched vector faces");
 assert.ok(aiCard.includes('yl-logo-scene-light')&&aiCard.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
 assert.ok(immersiveCSS.includes('yl-life-stage-joy')&&immersiveCSS.includes('yl-life-stage-think')&&immersiveCSS.includes('yl-life-stage-startle'),"Companion includes physically different joyful thinking and startled poses");
@@ -380,7 +380,7 @@ assert.ok(html.includes('/little-logo-cutout-fix.css'),"Cutout patch is loaded a
 assert.ok(cutoutCSS.includes('.yl-logo-pet-figure .yl-logo-face')&&cutoutCSS.includes('display:none!important'),"Inaccurate facial overlay is disabled");
 assert.ok(cutoutCSS.includes('mask-image:url("/little-logo-cutout-mask.svg")'),"Original character is composited through a standalone silhouette");
 assert.ok(silhouetteMask.includes('viewBox="0 0 400 400"')&&silhouetteMask.includes('<path'),"Feathered mask targets the original 400px artwork");
-assert.ok(sw.includes('yourlogos-v78-living-encounter')&&sw.includes('/little-logo-cutout-mask.svg')&&sw.includes('/little-logo-cutout-fix.css'),"iPhone service worker precaches both fix assets");
+assert.ok(sw.includes('yourlogos-v79-network-refresh')&&sw.includes('/little-logo-cutout-mask.svg')&&sw.includes('/little-logo-cutout-fix.css'),"iPhone service worker precaches both fix assets");
 const fxSource=read("little-logo-fx.js");
 const ritualCSS=read("little-logo-ritual.css");
 assert.ok(html.includes('little-logo-ritual.css'),"Reaction stylesheet loads after legacy motion patches");
@@ -413,6 +413,10 @@ assert.ok(!aiClientSource.includes("yl-logo-pet-hair")&&!aiClientSource.includes
 assert.ok(livingCSS.includes("@keyframes yl-life-blink")&&livingCSS.includes("@keyframes yl-life-thinking")&&livingCSS.includes("@keyframes yl-life-delighted"),"Character has deliberate idle and emotional motion");
 assert.ok(livingCSS.includes("prefers-reduced-motion:reduce"),"Companion respects reduced-motion accessibility");
 assert.ok(app.includes('current.petMood="thinking";render()'),"Discover choice transitions to thinking after response");
+assert.ok(sw.includes('cache:"no-store"')&&sw.includes('request.mode==="navigate"')&&sw.includes('url.pathname.startsWith("/api/")'),
+  "iPhone PWA retrieves fresh app scripts/pages online without caching private API data");
+assert.ok(sw.includes("caches.match(request)")&&sw.includes('"/index.html"'),
+  "iPhone PWA still provides offline shell fallback");
 const livingV2CSS=read("discover-living-v2.css"),presenceV2=read("little-logo-presence.js"),portraitV2=read("philosopher-portraits.js");
 for(const asset of ["discover-living-v2.css","little-logo-presence.js","philosopher-portraits.js"])
  assert.ok(sw.includes('"/'+asset+'"'),"New Discover asset is available offline: "+asset);
