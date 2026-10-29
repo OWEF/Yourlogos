@@ -64,16 +64,20 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  // progress bar, answer choices or "Hmm…" text until the next scene is ready.
  if(c.interlude){
   const mood=["curious","reflective","surprised"][Number(c.interludeChoice)||0]||"curious";
-  return '<section class="yl-ai-experiment yl-ai-quiet yl-logo yl-logo-interlude" role="status" aria-live="off" aria-label="Little Logo is responding to your choice">'+
+  const thinking=c.interludePhase==="thinking";
+  const interludeClass=thinking?" yl-logo-interlude-phase-thinking":" yl-logo-interlude-phase-reaction";
+  return '<section class="yl-ai-experiment yl-ai-quiet yl-logo yl-logo-interlude'+interludeClass+'" role="group" aria-label="Little Logo is responding to your choice">'+
+   '<button type="button" class="yl-logo-interlude-close" data-action="close-discover" aria-label="Close reflection">×</button>'+
    '<div class="yl-logo-interlude-space">'+
    '<div class="yl-logo-roam-stage yl-logo-interlude-stage" role="group" aria-label="Little Logo reacts">'+
    '<span class="yl-logo-scene-light" aria-hidden="true"></span>'+
    '<span class="yl-logo-roam-glow" aria-hidden="true"></span>'+
    '<div class="yl-logo-roam-position">'+littleLogoPet(c.interludePhase==="thinking"?"thinking":mood)+'</div>'+
-   '</div></div><span class="yl-logo-interlude-a11y">Reflecting on your answer</span></section>';
+   '</div><p class="yl-logo-interlude-caption" role="status" aria-live="polite">'+(thinking?"Little Logo is following that thought…":"Your answer changes the path.")+'</p></div></section>';
  }
  const author=Array.isArray(quote)?cleanText(quote[1],80):"";
  const original=Array.isArray(quote)?cleanText(quote[0],190):"";
+ const actNames=["THE ENCOUNTER","THE ASSUMPTION","THE SHIFT"];
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
     '<div><strong>LITTLE LOGO</strong><small>'+(completed?"YOUR CONNECTION":"FOLLOW THE THOUGHT")+'</small></div></div>'+
     '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 3")+'">'+dots+'</div></div>';
@@ -83,7 +87,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   '<span class="yl-logo-roam-glow" aria-hidden="true"></span>'+
   '<div class="yl-logo-roam-position">'+littleLogoPet(c.loading&&c.petMood!=="curious"&&c.petMood!=="reflective"&&c.petMood!=="surprised"?"thinking":(c.petMood||(completed?"delighted":steps?"curious":"idle")))+'</div>'+
   '</div>';
- if(author)html+='<div class="yl-thinker-intro"><span class="yl-thinker-avatar">'+philosopherPortrait(author)+'</span><div class="yl-thinker-copy"><span class="yl-thinker-eyebrow">A THOUGHT FROM</span><strong>'+esc(author)+'</strong><span class="yl-thinker-whisper">A philosopher in your everyday world</span></div></div>';
+ if(author)html+='<div class="yl-thinker-intro"><span class="yl-thinker-avatar">'+philosopherPortrait(author)+'</span><div class="yl-thinker-copy"><span class="yl-thinker-eyebrow">A THOUGHT FROM</span><strong>'+esc(author)+'</strong><span class="yl-thinker-whisper">'+(completed?"A thought to carry with you":actNames[Math.min(2,steps)])+'</span></div></div>';
  if(!completed&&steps===0&&original){
   html+='<details class="yl-logo-source"><summary>THE ORIGINAL IDEA</summary><p>“'+esc(original)+'”</p></details>';
  }
@@ -100,7 +104,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
      '<h2 class="yl-logo-final-title">Your Connection</h2>'+
      '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,480))+'</p><p class="yl-logo-backlink">FROM '+esc(author.toUpperCase())+'</p></div>';
   }else{
-   html+='<div class="yl-ai-current">';
+   html+='<div class="yl-ai-current"><span class="yl-discover-act-label">'+actNames[Math.min(2,steps)]+'</span>';
    
    html+='<p class="yl-ai-observation">'+esc(shortObservation(latest.text))+'</p>'+
      '<h2 class="yl-ai-question">'+esc(cleanText(latest.followUp,220))+'</h2></div>';

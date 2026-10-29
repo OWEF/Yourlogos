@@ -782,6 +782,11 @@ document.addEventListener("click",async e=>{
     const startOfPause=performance.now();
     const pauseMs=window.matchMedia("(prefers-reduced-motion: reduce)").matches?150:1350;
     render();lilLogoFX("answer");haptic("impact");
+    const thinkingTimer=window.setTimeout(()=>{
+      if(aiConversation===current&&discoverOpen&&aiDiscoverMode&&current.interlude&&current.loading){
+        current.interludePhase="thinking";render();
+      }
+    },pauseMs);
     try{
       const token=await getDiscoverAccessToken().catch(()=>null);
       const reply=await fetch("/api/discover-ai",{
@@ -815,7 +820,8 @@ document.addEventListener("click",async e=>{
       }
     }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
     finally{
-      if(aiConversation===current&&discoverOpen){
+      window.clearTimeout(thinkingTimer);
+      if(aiConversation===current&&discoverOpen&&aiDiscoverMode){
         const rest=Math.max(0,pauseMs-(performance.now()-startOfPause));
         if(rest)await new Promise(resolve=>setTimeout(resolve,rest));
         current.interlude=false;current.loading=false;
