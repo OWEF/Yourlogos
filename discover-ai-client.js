@@ -1,3 +1,4 @@
+import {philosopherPortrait} from "./philosopher-portraits.js";
 // YourLogos AI Discover pilot UI. All conversation state is ephemeral until
 // the visitor explicitly saves a memory. No model output runs as HTML.
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -88,7 +89,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   }else{
    html+='<div class="yl-ai-current">';
    
-   html+=(steps===0?'<p class="yl-logo-thinker">WHAT WOULD '+esc(author.split(" ").at(-1).toUpperCase())+' NOTICE?</p>':'')+'<p class="yl-ai-observation">'+esc(shortObservation(latest.text))+'</p>'+
+   html+='<p class="yl-ai-observation">'+esc(shortObservation(latest.text))+'</p>'+
      '<h2 class="yl-ai-question">'+esc(cleanText(latest.followUp,220))+'</h2></div>';
   }
  }else if(!c.loading&&!c.error)html+='<p class="yl-ai-quiet-loading">Finding another angle…</p>';
