@@ -97,9 +97,9 @@ function bind(){
   try{
    const c=await makeClient();
    const email=q('#login-email').value.trim();
-   const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/',shouldCreateUser:true}});
+   const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/studio.html',shouldCreateUser:false}});
    if(error)throw error;
-   q('#login-status').textContent='Check your email and follow the link. After signing in to YourLogos, return to /studio.html. Only the founder account can save Studio data.';
+   q('#login-status').textContent='Check your email and open the new secure link in this browser. You should return directly to Studio. Your account is already registered.';
   }catch(err){q('#login-status').textContent=err.message||'Could not send sign-in email'}finally{q('#login-submit').disabled=false}
  });
  q('#sign-out').addEventListener('click',async()=>{if(state.client)await state.client.auth.signOut();state.user=null;showLogin('Signed out.');});
