@@ -11,6 +11,7 @@ import { buildWorldMemory, worldMemoryHtml } from "./world-memory.js";
 import { aiConversationHtml, safeAIConversation, aiMemoryChoices, aiSummary, cleanText, LOGO_DECISIONS } from "./discover-ai-client.js?yl=81";
 import { lilLogoFX } from "./little-logo-fx.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
+import { philosopherCount, philosopherGalleryHtml, philosopherProfileHtml } from "./philosopher-gallery.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity, signOutEmail, fetchPublishedQuotes, readAccountData, writeAccountData, writeAccountName, getDiscoverAccessToken } from "./auth-client.js";
 const QUOTES=[
 ["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning","Twilight of the Idols","What, if anything, gives hardship a direction?"],
@@ -150,6 +151,7 @@ if(typeof data.localName!=="string")data.localName="";
 let verifiedIdentity=null,authBusy=false,authNotice="";
 let threadBranch=0,threadAnswer=0;
 let libraryListScrollY=0;
+let activePhilosopherIndex=null;
 let keepPending=null,keepTimer=null;
 if(!Array.isArray(data.thoughtThreadEvents))data.thoughtThreadEvents=[];
 data.livingThreads=normalizeLivingState(data.livingThreads);
@@ -456,7 +458,9 @@ function profileHtml(){
   if(universePane==="sky")return '<section class="view living-universe-embed" aria-label="Your living sky">'+
     '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living sky of ideas" loading="eager"></iframe>'+
     '</section>';
-  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName,encountersHtml:worldHomeEvidence(data.encounterEvents)})+worldMemoryHtml(sharedWorldMemory());
+  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName,encountersHtml:worldHomeEvidence(data.encounterEvents),thinkerCount:philosopherCount(QUOTES)})+worldMemoryHtml(sharedWorldMemory());
+  if(universePane==="philosophers")return '<div class="world-detail">'+worldBack()+
+    (Number.isInteger(activePhilosopherIndex)?'<button type="button" data-philosopher-back class="yl-philosopher-gallery-back">← All thinkers</button>'+philosopherProfileHtml(QUOTES,activePhilosopherIndex):philosopherGalleryHtml(QUOTES))+'</div>';
   return '<div class="world-detail">'+worldBack()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():mirrorHtml(data.saved.map(i=>QUOTES[i]).filter(Boolean),data.discovery))+'</div>';
 }
 
@@ -636,7 +640,7 @@ document.addEventListener("pointerdown",e=>{
   if(e.isPrimary===false||e.button>0)return;
   const element=e.target instanceof Element?e.target:null;
   const button=element?.closest("button");
-  if(!button||!button.matches('[data-view],[data-world-pane],[data-school],[data-school-back],[data-action],.quote-card,.v26-discover-choices button'))return;
+  if(!button||!button.matches('[data-view],[data-world-pane],[data-school],[data-school-back],[data-action],[data-philosopher],[data-philosopher-back],[data-philosopher-quote],.quote-card,.v26-discover-choices button'))return;
   if(button.disabled)return;
   button.classList.add("motion-tap","motion-pressed");
   const rect=button.getBoundingClientRect();
@@ -691,9 +695,26 @@ document.addEventListener("click",async e=>{
   const tab=e.target.closest("[data-world-pane]");if(tab){
     e.preventDefault();
     const destination=tab.dataset.worldPane;
-    if(!["home","sky","saved","fingerprint","mirror"].includes(destination))return;
-    universePane=destination;openSchoolId=null;libraryScope="all";detailId=null;
+    if(!["home","sky","saved","fingerprint","mirror","philosophers"].includes(destination))return;
+    universePane=destination;activePhilosopherIndex=null;openSchoolId=null;libraryScope="all";detailId=null;
     settingsOpen=false;render();haptic();return;
+  }
+  if(view==="profile"&&universePane==="philosophers"){
+    if(e.target.closest("[data-philosopher-back]")){
+      activePhilosopherIndex=null;render();haptic("selection");return;
+    }
+    const philosopherButton=e.target.closest("[data-philosopher]");
+    if(philosopherButton){
+      const index=Number(philosopherButton.dataset.philosopher);
+      if(!Number.isInteger(index)||index<0||index>=philosopherCount(QUOTES))return;
+      activePhilosopherIndex=index;render();window.scrollTo(0,0);haptic("selection");return;
+    }
+    const philosopherQuote=e.target.closest("[data-philosopher-quote]");
+    if(philosopherQuote){
+      const id=Number(philosopherQuote.dataset.philosopherQuote);
+      if(!Number.isInteger(id)||id<0||!QUOTES[id])return;
+      detailId=id;render();window.scrollTo(0,0);haptic("selection");return;
+    }
   }
   const encounterChoice=e.target.closest("[data-encounter-choice]");
   if(encounterChoice && discoverOpen){
@@ -1061,6 +1082,20 @@ document.addEventListener("click",async e=>{
   persist();render();
 });
 document.addEventListener("input",e=>{
+ if(e.target.matches("[data-philosopher-search]")){
+   const search=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
+   let visible=0;
+   document.querySelectorAll(".yl-philosopher-gallery .yl-philosopher-card").forEach(card=>{
+     card.hidden=!card.dataset.searchKey?.includes(search);
+     if(!card.hidden)visible++;
+   });
+   document.querySelectorAll(".yl-philosopher-gallery [data-gallery-section]").forEach(section=>{
+     section.hidden=!section.querySelector(".yl-philosopher-card:not([hidden])");
+   });
+   const empty=document.querySelector(".yl-philosopher-gallery [data-philosopher-empty]");
+   if(empty)empty.hidden=visible>0;
+   return;
+ }
  if(e.target.id==="yl-ai-draft"&&aiDiscoverMode&&aiConversation){aiConversation.draft=cleanText(e.target.value,480);return}
  if(!discoverOpen||!["yl-living-note","yl-living-opening"].includes(e.target.id))return;
  const id=visibleQuoteId(),key=String(id),current=data.livingThreads.sessions[key];

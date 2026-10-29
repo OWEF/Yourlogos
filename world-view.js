@@ -1,3 +1,4 @@
+import {philosopherPortrait} from "./philosopher-portraits.js";
 /* YourLogos personal space; deliberately separate from the star renderer. */
 const PEOPLE=[
 {id:"socrates",name:"Socrates",themes:["Doubt","Meaning"],responses:["curious","ambivalent"],lenses:["reason","others"],description:"You return to challenging familiar assumptions rather than holding onto certainty.",file:"Socrate du Louvre.jpg",credit:"Socrates bust photo: Eric Gaba (Sting), CC BY-SA 2.5"},
@@ -20,7 +21,7 @@ export function philosopherEvidence(saved,discovery){
 export function portrait(p,cls="large"){
   return '<div class="world-portrait '+cls+'"><img src="'+url(p)+'" alt="Portrait of '+esc(p.name)+'" loading="lazy" onerror="this.hidden=true"/><div class="portrait-initial" aria-hidden="true">'+p.name.charAt(0)+'</div><div class="portrait-shade"></div></div>';
 }
-export function worldHomeHtml({saved,discovery,name,encountersHtml=""}){
+export function worldHomeHtml({saved,discovery,name,encountersHtml="",thinkerCount=0}){
   const e=philosopherEvidence(saved,discovery);
   return '<section class="world-home view" aria-label="My World">'+
     '<div class="world-home-header"><div class="world-kicker">A PERSONAL UNIVERSE</div><h1>My World<span>.</span></h1><p>'+(name?esc(name)+', this is':'This is')+' a portrait made of the questions you return to.</p></div>'+
@@ -31,6 +32,9 @@ export function worldHomeHtml({saved,discovery,name,encountersHtml=""}){
     (encountersHtml||'')+
     '<div class="world-grid"><button type="button" data-world-pane="saved" class="world-tile"><span class="world-tile-icon">✧</span><strong>Saved thoughts</strong><small>'+saved.length+' encounters kept</small></button>'+
     '<button type="button" data-world-pane="fingerprint" class="world-tile"><span class="world-tile-icon">◎</span><strong>Fingerprint</strong><small>Patterns of your curiosity</small></button></div>'+
+    '<button type="button" data-world-pane="philosophers" class="world-philosophers-teaser" aria-label="Open your philosopher gallery">'+
+      '<span class="world-philosophers-faces" aria-hidden="true">'+["Socrates","Friedrich Nietzsche","Søren Kierkegaard"].map(philosopherPortrait).join("")+'</span>'+
+      '<span class="world-philosophers-copy"><small>THE PHILOSOPHER GALLERY</small><strong>Meet the thinkers.</strong><span>'+thinkerCount+' voices and thinkers to explore</span></span><b class="world-philosophers-arrow">↗</b></button>'+
     '<button type="button" data-world-pane="mirror" class="world-mirror-teaser">'+portrait(e.person,"small")+
       '<span class="world-mirror-caption"><small>THE PHILOSOPHER’S MIRROR</small><strong>Who might you think alongside?</strong><span>'+(e.ready?esc(e.person.name)+" · current companion":"Your portrait is still forming")+'</span></span><b>↗</b></button></section>';
 }
