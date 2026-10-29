@@ -756,12 +756,11 @@ document.addEventListener("click",async e=>{
     const context=last?.followUp?"Question: "+last.followUp+" | My response: "+choice:choice;
     const current=aiConversation;
     current.petMood=["curious","reflective","surprised"][index];
-    current.loading=true;current.error="";render();
-    lilLogoFX("answer");haptic("impact");
-    // Let the response register as a real gesture before settling into thought.
-    await new Promise(resolve=>setTimeout(resolve, window.matchMedia("(prefers-reduced-motion: reduce)").matches?0:460));
-    if(aiConversation!==current||!discoverOpen)return;
-    current.petMood="thinking";render();
+    current.interlude=true;current.interludeChoice=index;current.interludePhase="reaction";
+    current.loading=true;current.error="";
+    const startOfPause=performance.now();
+    const pauseMs=window.matchMedia("(prefers-reduced-motion: reduce)").matches?150:1350;
+    render();lilLogoFX("answer");haptic("impact");
     try{
       const token=await getDiscoverAccessToken().catch(()=>null);
       const reply=await fetch("/api/discover-ai",{
@@ -772,6 +771,9 @@ document.addEventListener("click",async e=>{
       });
       if(!reply.ok)throw Error(reply.status===429?"Little Logo has reached its daily reflection allowance.": "Little Logo couldn't connect. Try this choice again.");
       const next=await reply.json();
+      const rest=Math.max(0,pauseMs-(performance.now()-startOfPause));
+      if(rest)await new Promise(resolve=>setTimeout(resolve,rest));
+      if(aiConversation!==current||!discoverOpen)return;
       const finishing=completedDecisions+1===LOGO_DECISIONS;
       if(!next.reply||Boolean(next.complete)!==finishing||
          (!finishing&&(!next.followUp||!Array.isArray(next.choices)||next.choices.length!==3)))
@@ -791,7 +793,16 @@ document.addEventListener("click",async e=>{
         persist();haptic("success");
       }
     }catch(err){if(aiConversation===current)current.error=String(err.message||"Please retry.");}
-    finally{current.loading=false;if(aiConversation===current&&discoverOpen){current.petMood=current.complete?"delighted":"encourage";render();lilLogoFX(current.complete?"complete":"round");if(!current.complete)haptic("selection")}}
+    finally{
+      if(aiConversation===current&&discoverOpen){
+        const rest=Math.max(0,pauseMs-(performance.now()-startOfPause));
+        if(rest)await new Promise(resolve=>setTimeout(resolve,rest));
+        current.interlude=false;current.loading=false;
+        current.petMood=current.complete?"delighted":"encourage";
+        render();lilLogoFX(current.complete?"complete":"round");
+        if(!current.complete)haptic("selection");
+      }
+    }
     return;
   }
   const aiAction=e.target.closest("[data-ai]");
