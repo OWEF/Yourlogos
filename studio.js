@@ -90,6 +90,25 @@ function bind(){
  qa('.nav-btn').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));
  qa('[data-goto]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.goto)));
  q('#refresh-btn').addEventListener('click',loadAll);
+
+ q('#check-session').addEventListener('click',async()=>{
+  const button=q('#check-session');
+  button.disabled=true;
+  q('#login-status').textContent='Checking for an existing signed-in session…';
+  try{
+   const c=await makeClient();
+   const {data,error}=await c.auth.getUser();
+   if(error||!data?.user){
+    q('#login-status').textContent='No active session found in this browser. Your account is confirmed, but this device still needs to sign in once the email quota recovers or a custom SMTP sender is configured.';
+    return;
+   }
+   state.user=data.user;
+   showWorkspace();
+   await loadAll();
+  }catch(err){
+   q('#login-status').textContent='Session check failed: '+(err.message||'unknown error');
+  }finally{button.disabled=false}
+ });
  q('#login-form').addEventListener('submit',async e=>{
   e.preventDefault();
   q('#login-submit').disabled=true;
@@ -97,10 +116,20 @@ function bind(){
   try{
    const c=await makeClient();
    const email=q('#login-email').value.trim();
-   const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/studio.html',shouldCreateUser:false}});
+   const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/studio.html',shouldCreateUser:true}});
    if(error)throw error;
-   q('#login-status').textContent='Check your email and open the new secure link in this browser. You should return directly to Studio. Your account is already registered.';
-  }catch(err){q('#login-status').textContent=err.message||'Could not send sign-in email'}finally{q('#login-submit').disabled=false}
+   q('#login-status').textContent='Check your email and open the new secure link in the same browser. It should return to Studio.';
+  }catch(err){
+   const code=String(err.code||'').toLowerCase();
+   const message=String(err.message||'');
+   if(code==='over_email_send_rate_limit'||/email rate limit exceeded/i.test(message)){
+    q('#login-status').textContent='Supabase has reached its project-wide email quota (2 messages per hour with its built-in sender). No new link was sent. Stop retrying for now. Try “Check existing session” or configure a custom SMTP sender under Supabase Authentication settings.';
+   }else if(code==='otp_disabled'){
+    q('#login-status').textContent='Supabase rejected passwordless login. Check Supabase Authentication → Providers → Email. Your confirmed account has not been deleted.';
+   }else{
+    q('#login-status').textContent=message||'Could not send sign-in email';
+   }
+  }finally{q('#login-submit').disabled=false}
  });
  q('#sign-out').addEventListener('click',async()=>{if(state.client)await state.client.auth.signOut();state.user=null;showLogin('Signed out.');});
  ['overview-new-task','board-new-task','quick-new-task'].forEach(id=>q('#'+id).addEventListener('click',()=>openTask()));
