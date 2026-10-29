@@ -51,8 +51,8 @@ function avatar(entry){
  (entry.type==="text"?'<span class="yl-philosopher-textmark">✧</span>':philosopherPortrait(entry.name))+'</span>';
 }
 function card(entry,index){
- return '<button type="button" class="yl-philosopher-card" data-philosopher="'+index+'" data-search-key="'+escapeHTML(normalize(entry.name+" "+entry.focus+" "+entry.question))+'" aria-label="Explore '+escapeHTML(entry.name)+'">'+
- avatar(entry)+'<strong>'+escapeHTML(entry.name)+'</strong><small>'+escapeHTML(entry.focus)+'</small>'+
+ return '<button type="button" class="yl-philosopher-card" data-philosopher="'+index+'" data-search-key="'+escapeHTML(normalize(entry.name+" "+entry.focus+" "+entry.question))+'" aria-label="Explore '+escapeHTML(entry.name)+': '+escapeHTML(entry.focus)+'">'+
+ avatar(entry)+'<strong>'+escapeHTML(entry.name)+'</strong>'+
  '<span class="yl-philosopher-count">'+badges(entry)+'</span></button>';
 }
 export function philosopherGalleryHtml(quotes){
