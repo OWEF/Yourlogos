@@ -13,7 +13,8 @@ test('Studio static files and safeguards are present',()=>{
  assert.match(js,/from\('studio_milestones'\)/);
  assert.match(js,/from\('studio_updates'\)/);
  assert.match(js,/signInWithOtp/);
- assert.match(js,/shouldCreateUser:true/);
+ assert.match(js,/shouldCreateUser:false/);
+ assert.match(js,/emailRedirectTo:location.origin\+'\/studio\.html'/);
  assert.match(js,/esc\(/);
  assert.match(backend,/if\(pathname==="\/api\/studio-feed"\)/);
  assert.match(backend,/api\.github\.com/);
