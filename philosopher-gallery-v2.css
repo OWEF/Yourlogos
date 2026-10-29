@@ -1,0 +1,66 @@
+/* Gallery portrait edition: compact, character-led, touch-friendly.
+   This layer follows philosopher-gallery.css; no new route or user state. */
+.yl-philosopher-gallery{max-width:790px;padding-bottom:calc(72px + env(safe-area-inset-bottom));}
+.yl-philosopher-gallery h1{font-size:clamp(42px,10.7vw,63px);margin:11px 0 8px}
+.yl-philosopher-lead{font-size:clamp(14px,3.6vw,16px);line-height:1.47;margin:4px 0 17px}
+.yl-philosopher-search{height:48px;border-radius:14px}
+.yl-philosopher-section{margin-top:26px}
+.yl-philosopher-section-head{margin-bottom:11px}
+.yl-philosopher-section-head h2{font-size:clamp(24px,6.3vw,32px)}
+.yl-philosopher-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.yl-philosopher-card{
+ position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+ gap:8px;min-height:167px;padding:10px 6px 13px;
+ border-radius:15px;
+ background:linear-gradient(158deg,#342a23 0%,#272324 43%,#18191c 100%);
+ border:1px solid #bda07843;
+ box-shadow:inset 0 1px #ffffff0d,0 5px 13px #08080924;
+ transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.yl-philosopher-card:hover{border-color:#d7b58a9c;box-shadow:inset 0 1px #ffffff0d,0 8px 18px #05050544;transform:translateY(-2px)}
+.yl-philosopher-card:active{transform:scale(.97)}
+.yl-philosopher-card .yl-philosopher-avatar{
+ width:min(100%,96px);height:auto;aspect-ratio:1;
+ border-radius:9px;box-shadow:none;
+ border:1px solid #d2ad7552;overflow:hidden;
+ background:#322921;
+ flex:0 0 auto;
+}
+.yl-philosopher-card .yl-thinker-pixel{width:100%;height:100%;display:block;image-rendering:pixelated}
+.yl-philosopher-card strong{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;
+ overflow:hidden;overflow-wrap:normal;word-break:normal;
+ width:100%;min-height:33px;margin:0;text-wrap:balance;
+ font:600 clamp(11px,2.7vw,13px)/1.23 'DM Sans',sans-serif;
+ color:#f0e5d4;text-align:center;
+}
+.yl-philosopher-card .yl-philosopher-count{
+ font:500 clamp(9px,2.4vw,11px)/1.2 'DM Sans',sans-serif;
+ color:#c5af92;margin-top:auto;white-space:normal;text-align:center;
+}
+.yl-philosopher-card .yl-philosopher-count::before{content:'•';color:#c19d6b;margin-right:5px}
+.yl-philosopher-profile .yl-philosopher-hero .yl-philosopher-avatar{
+ width:clamp(112px,30vw,152px);height:auto;aspect-ratio:1;border-radius:14px;
+ border:1px solid #c5a17573;background:#352c27;
+}
+.yl-philosopher-profile .yl-philosopher-hero .yl-thinker-pixel{display:block;width:100%;height:100%;image-rendering:pixelated}
+.yl-philosopher-profile .yl-philosopher-hero{gap:17px;align-items:center}
+.yl-philosopher-profile .yl-philosopher-hero h1{font-size:clamp(33px,8.7vw,52px);line-height:.99;text-wrap:balance}
+.yl-philosopher-profile .yl-philosopher-hero p{font-size:13px}
+.yl-philosopher-gallery .yl-philosopher-footnote{margin-top:23px}
+@media(min-width:630px){
+ .yl-philosopher-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+ .yl-philosopher-card{min-height:200px;padding:13px 11px}
+ .yl-philosopher-card .yl-philosopher-avatar{width:112px}
+ .yl-philosopher-card strong{font-size:14px;min-height:35px}
+}
+@media(max-width:359px){
+ .yl-philosopher-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .yl-philosopher-card{min-height:182px;padding:12px}
+ .yl-philosopher-card .yl-philosopher-avatar{width:99px}
+ .yl-philosopher-card strong{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ .yl-philosopher-card{transition:none!important}
+ .yl-philosopher-card:hover,.yl-philosopher-card:active{transform:none!important}
+}
