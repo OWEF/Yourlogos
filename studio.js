@@ -189,6 +189,12 @@ function renderActivity(){
  const feed=state.feed||{};
  const events=[...(feed.commits||[]).map(c=>({type:'commit',date:c.date,title:c.message,url:c.url,desc:'Commit '+c.sha.slice(0,7)})),...(feed.pullRequests||[]).filter(p=>p.merged_at).map(p=>({type:'merge',date:p.merged_at,title:p.title,url:p.url,desc:'Merged pull request #'+p.number}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,55);
  q('#all-git-activity').innerHTML=feed.error?'<p class="empty">GitHub status unavailable: '+esc(feed.error)+'</p>':events.length?events.map(e=>'<div class="git-event"><span class="event-icon '+(e.type==='merge'?'deploy':'')+'">'+(e.type==='merge'?'✓':'⑂')+'</span><span class="event-body"><b><a target="_blank" rel="noopener" href="'+esc(e.url)+'">'+esc(e.title)+'</a></b><small>'+esc(e.desc)+' · '+esc(formatDate(e.date,true))+'</small></span></div>').join(''):'<p class="empty">No GitHub activity returned.</p>';
+ const liveSha=feed.production?.commit||null;
+ if(liveSha){
+  const aligned=feed.commits?.[0]?.sha===liveSha;
+  const label=aligned?'Production aligned with GitHub main':'Live production commit (may trail GitHub main)';
+  q('#all-git-activity').insertAdjacentHTML('afterbegin','<div class="git-event"><span class="event-icon deploy">✓</span><span class="event-body"><b>'+esc(label)+'</b><small>Railway · release '+esc(liveSha.slice(0,10))+' · commit reported by running service</small></span></div>');
+ }
  q('#manual-activity').innerHTML=state.notes.length?state.notes.map(n=>'<div class="note-event"><span class="event-icon">'+esc({note:'✎',decision:'◇',blocker:'!',release:'↗'}[n.kind]||'✎')+'</span><span class="event-body"><b>'+esc((n.kind||'note').toUpperCase())+'</b><small class="note-text">'+esc(n.body)+'</small><small>'+esc(formatDate(n.created_at,true))+'</small></span><button class="small-btn" data-delete-note="'+esc(n.id)+'" aria-label="Delete note">✕</button></div>').join(''):'<p class="empty">Your founder journal is empty. Record decisions, blockers, test results or learnings here.</p>';
 }
 function openTask(id){
