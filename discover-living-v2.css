@@ -26,3 +26,28 @@
 /* Specificity audit: override the historical three-class Discover rule. */
 .yl-discover-immersive .yl-logo .yl-ai-question{font-size:clamp(34px,8.5vw,45px)!important;line-height:1.12!important;letter-spacing:-.015em!important;margin:6px 0 19px!important}
 @media(max-height:735px){.yl-discover-immersive .yl-logo .yl-ai-question{font-size:clamp(30px,7.8vw,39px)!important}}
+
+/* Cinematic interlude: the companion is the ONLY content in the Discover sheet. */
+.yl-discover-immersive:has(.yl-logo-interlude) .sheet-head,
+.yl-discover-immersive:has(.yl-logo-interlude) .sheet-handle{opacity:0!important;pointer-events:none!important}
+.yl-discover-immersive .yl-logo-interlude{
+ min-height:100dvh!important;display:flex!important;justify-content:center!important;align-items:center!important;
+ padding:0!important;position:relative;isolation:isolate;overflow:hidden;
+ animation:yl-reaction-enter .34s ease-out both
+}
+.yl-discover-immersive .yl-logo-interlude-space{position:absolute;inset:0;display:grid;place-items:center;min-height:100dvh}
+.yl-discover-immersive .yl-logo-interlude-stage{height:clamp(240px,39dvh,370px)!important;width:100%;display:grid;place-items:center;overflow:visible!important}
+.yl-discover-immersive .yl-logo-interlude-stage .yl-logo-roam-position{
+ width:clamp(240px,45vw,320px)!important;height:clamp(240px,45vw,320px)!important;
+ left:auto!important;top:auto!important;position:relative!important;animation:none!important
+}
+.yl-discover-immersive .yl-logo-interlude-stage .yl-logo-pet{
+ width:100%!important;height:100%!important
+}
+.yl-discover-immersive .yl-logo-interlude-stage .yl-logo-pet-figure{
+ animation:yl-interlude-emote 1.3s cubic-bezier(.24,.87,.32,1) both!important
+}
+.yl-logo-interlude-a11y{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important}
+@keyframes yl-reaction-enter{from{opacity:0}to{opacity:1}}
+@keyframes yl-interlude-emote{0%{transform:translateY(17px) rotate(-8deg) scale(.88)}30%{transform:translateY(-21px) rotate(8deg) scale(1.1)}65%{transform:translateY(-4px) rotate(-3deg) scale(1.04)}100%{transform:translateY(0) rotate(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.yl-discover-immersive .yl-logo-interlude,.yl-discover-immersive .yl-logo-interlude-stage .yl-logo-pet-figure{animation:none!important}}
