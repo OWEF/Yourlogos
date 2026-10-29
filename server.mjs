@@ -38,9 +38,68 @@ async function artwork(id){
  artInflight.set(id,pending);
  try{return await pending}finally{artInflight.delete(id)}
 }
+
+const STUDIO_REPO="OWEF/Yourlogos";
+// The repository is public. Keep its activity outside of Supabase's private planning data.
+let studioFeedCache=null,studioFeedAt=0,studioFeedPending=null;
+async function getStudioFeed(){
+ if(studioFeedCache&&Date.now()-studioFeedAt<300000)return studioFeedCache;
+ if(studioFeedPending)return studioFeedPending;
+ studioFeedPending=(async()=>{
+  const headers={"Accept":"application/vnd.github+json","User-Agent":"YourLogos-Studio/1.0"};
+  const get=async(route)=>{
+   const resp=await fetch("https://api.github.com/repos/"+STUDIO_REPO+"/"+route,{headers,signal:AbortSignal.timeout(8500)});
+   if(!resp.ok)throw new Error("GitHub returned "+resp.status);
+   const data=await resp.json();
+   if(!Array.isArray(data))throw new Error("Unexpected GitHub response");
+   return data;
+  };
+  try{
+   const [commits,pulls]=await Promise.all([
+    get("commits?per_page=75"),get("pulls?state=closed&sort=updated&direction=desc&per_page=60")
+   ]);
+   const clean={
+    retrievedAt:new Date().toISOString(),
+    repository:STUDIO_REPO,
+    commits:commits.map(c=>({
+      sha:String(c.sha||""),message:String(c.commit?.message||"").split("\n")[0].slice(0,200),
+      date:c.commit?.committer?.date||c.commit?.author?.date||null,
+      url:c.html_url||""
+    })).filter(c=>c.sha&&c.date),
+    pullRequests:pulls.map(p=>({
+      number:p.number,title:String(p.title||"").slice(0,200),
+      merged_at:p.merged_at||null,state:p.state,url:p.html_url||""
+    })).filter(p=>p.number),
+    production:{
+      available:true,
+      commit:process.env.RAILWAY_GIT_COMMIT_SHA||null,
+      deploymentId:process.env.RAILWAY_DEPLOYMENT_ID||null
+    }
+   };
+   studioFeedCache=clean;studioFeedAt=Date.now();return clean;
+  }catch(error){
+   if(studioFeedCache)return {...studioFeedCache,stale:true};
+   throw error;
+  }finally{studioFeedPending=null}
+ })();
+ return studioFeedPending;
+}
+
 createServer(async(req,res)=>{
   const raw=(req.url||"/").split("?")[0];let pathname;
   try{pathname=decodeURIComponent(raw)}catch{res.writeHead(400);res.end();return}
+  if(pathname==="/api/studio-feed"){
+    if(req.method!=="GET"&&req.method!=="HEAD"){res.writeHead(405,{"Allow":"GET, HEAD"});res.end();return}
+    try{
+      const payload=await getStudioFeed();
+      res.writeHead(200,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff"});
+      res.end(req.method==="HEAD"?undefined:JSON.stringify(payload));
+    }catch(e){
+      res.writeHead(503,{"Content-Type":"application/json","Cache-Control":"no-store"});
+      res.end(JSON.stringify({error:"GitHub activity unavailable",commits:[],pullRequests:[]}));
+    }
+    return;
+  }
   if(pathname==="/api/discover-ai"){
     if(req.method!=="POST"){res.writeHead(405,{"Allow":"POST"});res.end();return}
     await handleDiscoverAI(req,res);return;
