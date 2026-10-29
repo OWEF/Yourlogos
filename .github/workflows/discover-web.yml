@@ -1,0 +1,38 @@
+name: Discover web regression
+on:
+  pull_request:
+    paths:
+      - "app.js"
+      - "discover-ai-client.js"
+      - "discover-ai-server.mjs"
+      - "discover-living-v2.css"
+      - "little-logo-presence.js"
+      - "philosopher-portraits.js"
+      - "tests/**"
+      - ".github/workflows/discover-web.yml"
+  push:
+    branches: [main]
+    paths:
+      - "app.js"
+      - "discover-ai-client.js"
+      - "discover-ai-server.mjs"
+      - "discover-living-v2.css"
+      - "little-logo-presence.js"
+      - "philosopher-portraits.js"
+      - "tests/**"
+      - ".github/workflows/discover-web.yml"
+jobs:
+  node-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check discover-ai-client.js
+          node --check little-logo-presence.js
+      - name: Run Discover regression
+        run: node --test tests/discover-encounter.test.mjs
