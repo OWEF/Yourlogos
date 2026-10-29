@@ -1,0 +1,52 @@
+/* YourLogos — Philosopher Gallery; a My World subpage, not a new tab. */
+.world-philosophers-teaser{margin-top:12px;width:100%;min-height:132px;border:1px solid #c7a67555;border-radius:22px;padding:19px;display:flex;gap:17px;align-items:center;text-align:left;color:#f1e5d4;background:radial-gradient(ellipse at 88% 24%,#9f6e3440,transparent 63%),linear-gradient(130deg,#242022,#131416);box-shadow:inset 0 1px #ffffff0a}
+.world-philosophers-teaser:focus-visible,.yl-philosopher-card:focus-visible,.yl-philosopher-reading:focus-visible,.yl-philosopher-search input:focus-visible,.yl-philosopher-gallery-back:focus-visible{outline:2px solid #e6c791;outline-offset:3px}
+.world-philosophers-faces{display:flex;align-items:center;min-width:104px;padding-left:3px}
+.world-philosophers-faces .yl-thinker-pixel{width:46px;height:46px;border-radius:11px;box-shadow:0 4px 14px #0008;border:1px solid #ddbd8157;margin-left:-11px;background:#271f1a}
+.world-philosophers-faces .yl-thinker-pixel:first-child{margin-left:0}
+.world-philosophers-copy{display:flex;flex:1;flex-direction:column;gap:6px;min-width:0}
+.world-philosophers-copy small{font:600 10px/1.2 'DM Sans',sans-serif;letter-spacing:.13em;color:#d0b38b}
+.world-philosophers-copy strong{font:400 clamp(22px,5.6vw,29px)/1.05 'Cormorant Garamond',Georgia,serif}
+.world-philosophers-copy span{font:12px/1.4 'DM Sans',sans-serif;color:#b6aa9b}
+.world-philosophers-arrow{font:23px Georgia,serif;color:#d6bd93}
+.yl-philosopher-gallery,.yl-philosopher-profile{max-width:690px;margin:0 auto;padding:6px 0 48px;color:#efe3d2}
+.yl-philosopher-gallery h1,.yl-philosopher-profile h1{font:400 clamp(44px,11vw,68px)/1 'Cormorant Garamond',Georgia,serif;margin:14px 0 9px;letter-spacing:-.02em}
+.yl-philosopher-gallery h1 span{color:#c8a977}
+.yl-philosopher-lead{font:400 17px/1.55 'DM Sans',sans-serif;color:#c8baa8;max-width:33rem;margin:10px 0 22px}
+.yl-philosopher-search{display:flex;align-items:center;gap:10px;height:53px;padding:0 16px;border:1px solid #b89e784d;border-radius:16px;background:#1b1b1d;color:#d8ba8b}
+.yl-philosopher-search>span{font:27px Georgia,serif;line-height:1}
+.yl-philosopher-search input{background:transparent;border:0;outline:0;color:#f2e5d5;font:15px 'DM Sans',sans-serif;flex:1;min-width:0}
+.yl-philosopher-search input::placeholder{color:#a99d91}
+.yl-philosopher-section{margin-top:31px}
+.yl-philosopher-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 14px}
+.yl-philosopher-section-head h2{font:400 clamp(27px,7vw,34px)/1.18 'Cormorant Garamond',Georgia,serif;margin:0;color:#f0dec7}
+.yl-philosopher-section-head small{font:11px/1.4 'DM Sans',sans-serif;color:#b3a28d;white-space:nowrap}
+.yl-philosopher-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.yl-philosopher-card{min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;min-height:192px;padding:17px 8px 15px;border:1px solid #c9a87d39;border-radius:18px;text-align:center;color:#f1e2d1;background:linear-gradient(155deg,#282321,#171719);transition:border-color .18s ease,transform .18s ease}
+.yl-philosopher-card:hover{border-color:#cfaa77a6;transform:translateY(-2px)}
+.yl-philosopher-avatar{width:73px;height:73px;display:grid;place-items:center;flex:0 0 auto;border:1px solid #d5b48548;border-radius:15px;overflow:hidden;background:radial-gradient(circle at 50% 30%,#4f3929,#191a1b 75%);box-shadow:0 7px 17px #0005}
+.yl-philosopher-avatar .yl-thinker-pixel{width:100%;height:100%;image-rendering:pixelated}
+.yl-philosopher-textmark{font:42px Georgia,serif;color:#ddc49b}
+.yl-philosopher-card strong{font:500 15px/1.3 'DM Sans',sans-serif;overflow-wrap:anywhere}
+.yl-philosopher-card small{font:12px/1.35 'DM Sans',sans-serif;color:#c1ae98;min-height:32px}
+.yl-philosopher-count{margin-top:auto;font:11px 'DM Sans',sans-serif;color:#a99d90}
+.yl-philosopher-empty{margin:26px 0;color:#cbbba5}
+.yl-philosopher-footnote{margin:30px 2px 0;font:12px/1.65 'DM Sans',sans-serif;color:#a69b8d}
+.yl-philosopher-gallery-back{margin:0 0 19px;padding:11px 13px;border:1px solid #aa906c66;border-radius:99px;background:#242424;color:#e3cdad;font:13px 'DM Sans',sans-serif}
+.yl-philosopher-hero{display:flex;align-items:center;gap:20px;margin:9px 0 29px}
+.yl-philosopher-hero .yl-philosopher-avatar{width:104px;height:104px;border-radius:18px}
+.yl-philosopher-profile h1{margin:7px 0 8px;font-size:clamp(38px,9vw,54px)}
+.yl-philosopher-hero p{margin:0;font:14px/1.4 'DM Sans',sans-serif;color:#cbb79e}
+.yl-philosopher-question{padding:22px 22px 25px;border-left:3px solid #cfac7b;border-radius:0 18px 18px 0;background:linear-gradient(125deg,#34281e,#1b1c20);margin-bottom:34px}
+.yl-philosopher-question small{font:600 10px/1.3 'DM Sans',sans-serif;letter-spacing:.15em;color:#d0b28a}
+.yl-philosopher-question h2{margin:10px 0 0;font:400 clamp(27px,6.5vw,36px)/1.15 'Cormorant Garamond',Georgia,serif}
+.yl-philosopher-readings{display:grid;gap:11px}
+.yl-philosopher-reading{display:flex;flex-direction:column;align-items:flex-start;gap:16px;width:100%;min-height:132px;border:1px solid #c6aa8050;border-radius:18px;padding:18px;text-align:left;background:#1b1c20;color:#efe2d0}
+.yl-philosopher-quote{font:400 clamp(23px,5.3vw,30px)/1.18 'Cormorant Garamond',Georgia,serif}
+.yl-philosopher-source{display:flex;align-items:center;gap:12px;justify-content:space-between;width:100%;font:12px/1.4 'DM Sans',sans-serif;color:#b6a58f}
+.yl-philosopher-source>span{font:19px Georgia,serif}
+.yl-philosopher-coming{font:15px/1.6 'DM Sans',sans-serif;color:#c4b5a2}
+[hidden].yl-philosopher-card,[hidden].yl-philosopher-section,[hidden].yl-philosopher-empty{display:none!important}
+@media(min-width:620px){.yl-philosopher-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.yl-philosopher-card{min-height:200px}}
+@media(max-width:359px){.yl-philosopher-card{min-height:185px;padding:12px 6px}.yl-philosopher-avatar{width:64px;height:64px}.world-philosophers-faces{min-width:88px}.world-philosophers-faces .yl-thinker-pixel{width:40px;height:40px}}
+@media(prefers-reduced-motion:reduce){.yl-philosopher-card{transition:none!important}.yl-philosopher-card:hover{transform:none}}
