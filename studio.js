@@ -110,26 +110,33 @@ function bind(){
   }finally{button.disabled=false}
  });
  q('#login-form').addEventListener('submit',async e=>{
-  e.preventDefault();
-  q('#login-submit').disabled=true;
-  q('#login-status').textContent='Sending a secure sign-in email…';
+  e.preventDefault();const btn=q('#login-submit');btn.disabled=true;
+  q('#login-status').textContent='Signing in…';
   try{
    const c=await makeClient();
    const email=q('#login-email').value.trim();
-   const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/studio.html',shouldCreateUser:true}});
+   const password=q('#login-password').value;
+   const {data,error}=await c.auth.signInWithPassword({email,password});
    if(error)throw error;
-   q('#login-status').textContent='Check your email and open the new secure link in the same browser. It should return to Studio.';
+   if(!data?.user)throw new Error('No authenticated user returned.');
+   q('#login-password').value='';
+   state.user=data.user;showWorkspace();await loadAll();
   }catch(err){
-   const code=String(err.code||'').toLowerCase();
-   const message=String(err.message||'');
-   if(code==='over_email_send_rate_limit'||/email rate limit exceeded/i.test(message)){
-    q('#login-status').textContent='Supabase has reached its project-wide email quota (2 messages per hour with its built-in sender). No new link was sent. Stop retrying for now. Try “Check existing session” or configure a custom SMTP sender under Supabase Authentication settings.';
-   }else if(code==='otp_disabled'){
-    q('#login-status').textContent='Supabase rejected passwordless login. Check Supabase Authentication → Providers → Email. Your confirmed account has not been deleted.';
-   }else{
-    q('#login-status').textContent=message||'Could not send sign-in email';
-   }
-  }finally{q('#login-submit').disabled=false}
+   q('#login-status').textContent='Unable to sign in. Check your password. If you have not created one, open Studio in the browser where you previously signed in and choose Set password. '+(err?.message||'');
+  }finally{btn.disabled=false}
+ });
+ q('#manage-password').addEventListener('click',()=>{q('#new-password').value='';q('#confirm-password').value='';q('#password-status').textContent='';q('#password-dialog').showModal()});
+ q('#password-form').addEventListener('submit',async e=>{
+  e.preventDefault();const password=q('#new-password').value;
+  if(password!==q('#confirm-password').value){q('#password-status').textContent='Passwords do not match.';return}
+  const btn=q('#password-save');btn.disabled=true;q('#password-status').textContent='Saving securely…';
+  try{
+   const c=await makeClient();const check=await c.auth.getUser();
+   if(check.error||!check.data?.user)throw new Error('Sign in before changing your password.');
+   const {error}=await c.auth.updateUser({password});
+   if(error)throw error;
+   q('#password-dialog').close();toast('Password saved. Future Studio logins will not require an email link.');
+  }catch(err){q('#password-status').textContent=err.message||'Unable to save password'}finally{btn.disabled=false}
  });
  q('#sign-out').addEventListener('click',async()=>{if(state.client)await state.client.auth.signOut();state.user=null;showLogin('Signed out.');});
  ['overview-new-task','board-new-task','quick-new-task'].forEach(id=>q('#'+id).addEventListener('click',()=>openTask()));
