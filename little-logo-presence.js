@@ -13,6 +13,7 @@ function isQuietScreen(node){
  const stage=node.closest(".yl-logo-roam-stage");
  return stage&&!stage.classList.contains("is-complete") &&
   !document.querySelector(".yl-discover-immersive .yl-logo-feedback") &&
+  !document.querySelector(".yl-discover-immersive .yl-logo-interlude") &&
   !document.querySelector(".yl-discover-immersive .yl-ai-quiet-loading");
 }
 function setMood(node,mood){
