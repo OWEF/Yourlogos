@@ -60,6 +60,18 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   '<p class="yl-ai-consent">Little Logo uses DeepSeek to explore this quote with you. With your permission, it will share this quotation, your choices, and up to four saved reflections. No account needed.</p>'+
   '<button type="button" data-ai="agree" class="yl-ai-main">Begin together '+nextArrow+'</button>'+
   '<button type="button" data-ai="cancel" class="yl-ai-secondary">Not now</button></section>';
+ // A deliberate full-screen emotional beat: no philosopher, question,
+ // progress bar, answer choices or "Hmm…" text until the next scene is ready.
+ if(c.interlude){
+  const mood=["curious","reflective","surprised"][Number(c.interludeChoice)||0]||"curious";
+  return '<section class="yl-ai-experiment yl-ai-quiet yl-logo yl-logo-interlude" role="status" aria-live="off" aria-label="Little Logo is responding to your choice">'+
+   '<div class="yl-logo-interlude-space">'+
+   '<div class="yl-logo-roam-stage yl-logo-interlude-stage" role="group" aria-label="Little Logo reacts">'+
+   '<span class="yl-logo-scene-light" aria-hidden="true"></span>'+
+   '<span class="yl-logo-roam-glow" aria-hidden="true"></span>'+
+   '<div class="yl-logo-roam-position">'+littleLogoPet(c.interludePhase==="thinking"?"thinking":mood)+'</div>'+
+   '</div></div><span class="yl-logo-interlude-a11y">Reflecting on your answer</span></section>';
+ }
  const author=Array.isArray(quote)?cleanText(quote[1],80):"";
  const original=Array.isArray(quote)?cleanText(quote[0],190):"";
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
