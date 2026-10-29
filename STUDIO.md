@@ -21,7 +21,7 @@ This is a separate private management surface served from **the existing YourLog
 ## First-time use
 
 1. Open `https://yourlogos-web-production.up.railway.app/studio.html`.
-2. Sign in with the authorized founder email. The first login registers an Auth account; the default magic link returns to the app home page, and you can reopen `/studio.html` to enter Studio.
+2. Sign in with the authorized founder email. The founder Auth account must already exist. Studio-requested magic links target `/studio.html` directly; add the exact URL to Supabase Auth's redirect URL allowlist if needed.
 3. Open **Task board** and select **Import proposed starter plan**. This creates nine proposed tasks and five milestones. Every task starts **Backlog**, not completed. Only the product foundation milestone is initially Active, as a proposed working stage, not a verified release gate.
 4. Update tasks and milestones manually. Merged code and commits populate automatically from GitHub. Add decisions and blockers in the founder journal.
 
