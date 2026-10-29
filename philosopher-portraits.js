@@ -1,3 +1,4 @@
+import {featuredPortrait} from "./philosopher-featured-art.js";
 // Individually seeded, locally rendered pixel portraits: one consistent art direction,
 // distinct silhouette, hair, clothes, motifs and face for each canonical Discover source.
 // Editorial stylizations, not claims of historically exact likeness.
@@ -52,6 +53,7 @@ function portrait(author){
 }
 export function philosopherPortrait(author){
  const n=String(author||"").trim(),id=PORTRAIT_AUTHORS.indexOf(n);
- const svg=portrait(n);
- return '<svg class="yl-thinker-pixel" data-thinker-id="'+id+'" role="img" aria-label="Stylized pixel portrait of '+n.replace(/[&<>"]/g,"")+'" viewBox="0 0 24 24" shape-rendering="crispEdges">'+svg+'</svg>';
+ const featured=featuredPortrait(n);
+ const svg=featured||portrait(n);
+ return '<svg class="yl-thinker-pixel" data-thinker-id="'+id+'" data-featured-art="'+(featured?"true":"false")+'" role="img" aria-label="Stylized pixel portrait of '+n.replace(/[&<>"]/g,"")+'" viewBox="0 0 '+(featured?"32 32":"24 24")+'" shape-rendering="crispEdges">'+svg+'</svg>';
 }
