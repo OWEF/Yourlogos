@@ -97,7 +97,7 @@ function bind(){
   try{
    const c=await makeClient();
    const email=q('#login-email').value.trim();
-   const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/',shouldCreateUser:false}});
+   const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/',shouldCreateUser:true}});
    if(error)throw error;
    q('#login-status').textContent='Check your email and follow the link. After signing in to YourLogos, return to /studio.html. Only the founder account can save Studio data.';
   }catch(err){q('#login-status').textContent=err.message||'Could not send sign-in email'}finally{q('#login-submit').disabled=false}
