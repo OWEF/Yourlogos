@@ -1,0 +1,35 @@
+name: LilLogo UI regression guard
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "little-logo-presence.js"
+      - "little-logo-live.css"
+      - "little-logo-discover.css"
+      - "little-logo-poses-v5.css"
+      - "tests/lillogo-presence-regression.test.mjs"
+      - ".github/workflows/lillogo-regression.yml"
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "little-logo-presence.js"
+      - "little-logo-live.css"
+      - "little-logo-discover.css"
+      - "little-logo-poses-v5.css"
+      - "tests/lillogo-presence-regression.test.mjs"
+      - ".github/workflows/lillogo-regression.yml"
+jobs:
+  lillogo-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify LilLogo controller syntax
+        run: node --check little-logo-presence.js
+      - name: Run deterministic LilLogo state regression tests
+        run: node --test tests/lillogo-presence-regression.test.mjs
