@@ -1,3 +1,15 @@
+import {STANDARD_SUBSTITUTIONS} from "./discover-quote-standard-substitutions.js";
+// Quote-level meaning may be shared across choices, while AI clarification follows the actual lens.
+export const STANDARD_DRAG_EXERCISES=Object.freeze(Object.fromEntries(
+ STANDARD_SUBSTITUTIONS.map(item=>{
+  const parts=item.template.split(/(\[A\]|\[B\])/g).filter(Boolean).map(token=>
+   token==="[A]"?{slot:"a"}:token==="[B]"?{slot:"b"}:token);
+  return [item.id,Object.freeze({parts,
+   slots:[{key:"a",hint:"FIRST EVERYDAY DETAIL",word:item.wordA},
+     {key:"b",hint:"SECOND EVERYDAY DETAIL",word:item.wordB}],
+   connection:item.connection,sharedAcrossLenses:true})];
+ })
+));
 // Editorially scoped, optional drag-to-substitute examples.
 // Word cards replace roles in a NEW paraphrase, never alter the original quote.
 // Each quote/lens may choose its own roles and sentence shape.
@@ -258,7 +270,7 @@ export function validateDragExercise(record){
 }
 export function getDragExercise(quoteId,lensIndex){
  if(!Number.isInteger(quoteId)||!Number.isInteger(lensIndex)||lensIndex<0||lensIndex>=3)return null;
- return PILOT_DRAG_EXERCISES[quoteId]?.[lensIndex]||null;
+ return PILOT_DRAG_EXERCISES[quoteId]?.[lensIndex]||STANDARD_DRAG_EXERCISES[quoteId]||null;
 }
 export function quoteDragExerciseHtml(quoteId,lensIndex){
  const record=getDragExercise(quoteId,lensIndex);
