@@ -59,3 +59,15 @@ Hegel uses a contextual network, while Kant's *Sapere aude* uses a pathway from 
 - Full visual semantics for all 91, quote-specific backgrounds in actual client rendering, and the source review workflow still require iteration.
 - Manual DeepSeek output checks, reduced-motion/phone QA, free-text recovery, and the non-AI fallback's parity remain open under CZ-7.
 - Do not merge/deploy the draft until full CI and targeted user journeys pass.
+
+
+## Direct manipulation · draggable word cards (November 1 update)
+
+The post-choice micro-exercise uses **free-floating word cards** and **sentence blanks** instead of input boxes. On touch devices, visitors hold and drag a card with their finger into the appropriate blank. For assistive access, visitors may also tap a card, then tap a blank; tap a filled blank to return its card. A reset affordance restores the two cards. The original philosopher quotation stays intact, visible above this **separately labeled everyday paraphrase**.
+
+The quote-specific exercise is stored by quote ID + lens index in `discover-quote-drag.js`, with a reusable `parts` sequence (sentence fragments and named slot placeholders), two `slots` (role, accessible hint, word card) and a `connection` explaining the analogy. The `conceptualExercise` field in `discover-quote-schema.js` formalizes this for future quotes; publication requires three distinct validated substitutions.
+
+**Coverage:** nine variants for Nietzsche 0, Hegel 31 and Kant 70. Other bundled quotes do not display an unreviewed drag exercise. This is intentionally optional after the main clarification and not a comprehension exam, personality inference or compulsory step.
+
+**Safety and QA:** cards are escaped as text, renderer avoids model-generated HTML, pointer and click paths work independently, keyboard Enter/Space activates blanks, touch-action prevents scroll conflicts on active cards, and a visual relationship explanation appears when roles are correctly matched. Automated regression validates structure and rendered affordances. Real-device touch/VoiceOver testing, difficult edge cases and editorial review are still required.
+
