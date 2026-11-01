@@ -21,29 +21,29 @@ const ICON_MOTIFS=[
 const motifSymbol=motif=>ICON_MOTIFS.find(([test])=>test.test(motif))?.[1]||"◌";
 const normalize=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 
-export function conceptVisualHtml(quote,quoteId,selectedDirection){
- const record=resolveTension(quote,quoteId),kind=VISUAL_BY_QUOTE[quoteId];
- const metadata=BUNDLED_INTERPRETATION_ROWS[quoteId],pilot=PILOT_ENCOUNTERS[quoteId];
- if(!record||!kind||!metadata)return "";
- const visual=pilot?.visual||{};
- const left=visual.left||record.poles[0],right=visual.right||record.poles[1];
- const selection=String(selectedDirection??"").trim().slice(0,150);
- const selected=pilot?.options.find(x=>normalize(x.label)===normalize(selection));
- const lens=selected?.focus||selection;
- const motif=visual.background||metadata.motif;
- const glyph=motifSymbol(motif);
- const hue=(quoteId*37+24)%360;
- const alt="Original idea: "+left+" in relation to "+right+
-   (lens?". Highlighted perspective: "+lens:"");
- return '<section class="yl-concept-visual yl-concept-'+kind+
-   '" data-motif="'+sanitize(motif)+'" style="--motif-hue:'+hue+
-   '" aria-label="A conceptual visualization of the quote">'+
-   '<div class="yl-concept-overline">THE IDEA, IN RELATION</div>'+
-   '<div class="yl-concept-diagram" role="img" aria-label="'+sanitize(alt)+'">'+
-     '<div class="yl-concept-node yl-concept-left"><span class="yl-concept-graphic" aria-hidden="true">'+sanitize(glyph)+'</span><strong>'+sanitize(left)+'</strong></div>'+
-     '<div class="yl-concept-link" aria-hidden="true"><span>'+JOINER[visual.template||kind]+'</span></div>'+
-     '<div class="yl-concept-node yl-concept-right"><span class="yl-concept-graphic" aria-hidden="true">◇</span><strong>'+sanitize(right)+'</strong></div>'+
-   '</div>'+
-   (lens?'<p class="yl-concept-lens"><span>THE PERSPECTIVE</span> '+sanitize(lens)+'</p>':"")+
-   '</section>';
+// A visual is earned only by a reviewed scene-to-quote explanation.
+// An ID-based diagram assignment is not sufficient evidence that the illustration helps.
+// Unreviewed quotations still get a concise verbal clarification, without a misleading diagram.
+export function conceptVisualHtml(quote,quoteId,selectedDirection,lensIndex=null){
+ const record=resolveTension(quote,quoteId),pilot=PILOT_ENCOUNTERS[quoteId];
+ if(!record||!pilot)return "";
+ const direction=String(selectedDirection??"").trim().slice(0,280);
+ const mapped=Number.isInteger(lensIndex)&&lensIndex>=0&&lensIndex<3
+   ?lensIndex:pilot.options.findIndex(x=>normalize(x.label)===normalize(direction));
+ if(mapped<0)return ""; // Custom answers require their own grounded explanation from DeepSeek.
+ const option=pilot.options[mapped];
+ if(!option?.sceneMeaning||!option?.quoteConnection||!option?.sceneLeft||
+    !option?.sceneRight||!option?.relation)return "";
+ const motif=pilot.visual?.background||BUNDLED_INTERPRETATION_ROWS[quoteId]?.motif||"";
+ const alt=option.sceneLeft+"; "+option.relation+"; "+option.sceneRight+
+   ". This illustrates: "+option.quoteConnection;
+ return '<section class="yl-concept-visual yl-concept-example" data-motif="'+sanitize(motif)+'">'+
+  '<span class="yl-concept-overline">SEE IT IN THE EXAMPLE</span>'+
+  '<div class="yl-concept-story" role="img" aria-label="'+sanitize(alt)+'">'+
+    '<strong>'+sanitize(option.sceneLeft)+'</strong>'+
+    '<span class="yl-concept-relation">'+sanitize(option.relation)+'</span>'+
+    '<strong>'+sanitize(option.sceneRight)+'</strong>'+
+  '</div>'+
+  '<p class="yl-concept-backlink"><span>BACK TO THE QUOTE</span>'+sanitize(option.quoteConnection)+'</p>'+
+ '</section>';
 }
