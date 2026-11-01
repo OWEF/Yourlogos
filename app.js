@@ -807,7 +807,7 @@ document.addEventListener("click",async e=>{
          (!next.followUp||!Array.isArray(next.choices)||(finishing?next.choices.length!==0:next.choices.length!==3)))
         throw Error("Little Logo couldn't complete this reflection.");
       if(aiConversation!==current||!aiDiscoverMode)return;
-      current.messages.push({role:"user",text:choice});
+      current.messages.push({role:"user",text:choice,lensIndex:custom?null:index});
       current.messages.push({role:"assistant",text:cleanText(next.reply,850),
         followUp:cleanText(next.followUp,finishing?120:210),
         choices:finishing?[]:next.choices.map(x=>cleanText(x,82)),complete:finishing});
