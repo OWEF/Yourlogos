@@ -1,0 +1,28 @@
+/* CZ-13: a small diagram vocabulary rather than generic AI-made illustrations. */
+.yl-discover-immersive .yl-concept-visual{--ink:#ebd9c0;--accent:#c7aa87;--wash:#bb926622;--edge:#d2b99544;border:1px solid var(--edge);border-radius:20px;background:radial-gradient(ellipse at 30% 20%,var(--wash),transparent 80%),#ffffff04;padding:16px 13px;margin:12px 0;max-width:100%;color:var(--ink)}
+.yl-discover-immersive .yl-concept-overline{font:700 10px/1.4 "DM Sans",sans-serif;letter-spacing:.14em;color:#c9b49b;margin-bottom:14px}
+.yl-discover-immersive .yl-concept-diagram{display:grid;grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr);gap:5px;align-items:center;min-height:105px}
+.yl-discover-immersive .yl-concept-node{display:grid;justify-items:center;gap:8px;text-align:center;min-width:0;padding:12px 5px;border:1px solid #d1b28c36;border-radius:15px;background:#0d0d0e2c}
+.yl-discover-immersive .yl-concept-node strong{font:550 clamp(12px,3.4vw,15px)/1.4 "DM Sans",sans-serif;color:#f0ddc6;overflow-wrap:anywhere}
+.yl-discover-immersive .yl-concept-graphic{font:34px/1 "Cormorant Garamond",Georgia,serif;color:var(--accent)}
+.yl-discover-immersive .yl-concept-link{text-align:center;color:var(--accent);font:500 31px/1 Georgia,serif}
+.yl-discover-immersive .yl-concept-lens{font:400 12px/1.6 "DM Sans",sans-serif;color:#d3c0aa;margin:14px 2px 0}
+.yl-discover-immersive .yl-concept-lens span{font:700 10px/1.5 "DM Sans",sans-serif;letter-spacing:.10em;color:var(--accent);margin-right:6px}
+.yl-discover-immersive .yl-concept-balance{--accent:#bcd3bd;--wash:#6aab8120;--edge:#86b48a55}
+.yl-discover-immersive .yl-concept-lens{--accent:#aac9df;--wash:#759ebc21;--edge:#759ebc4b}
+.yl-discover-immersive .yl-concept-layers{--accent:#cebadc;--wash:#9974ad25;--edge:#b19ac65a}
+.yl-discover-immersive .yl-concept-cycle{--accent:#dfc290;--wash:#cea56b25;--edge:#d1b57a55}
+.yl-discover-immersive .yl-concept-path{--accent:#d8b8ab;--wash:#c9977b24;--edge:#b9908055}
+.yl-discover-immersive .yl-concept-layers .yl-concept-node:first-child{transform:translateX(7px)}
+.yl-discover-immersive .yl-concept-layers .yl-concept-node:last-child{transform:translateX(-7px)}
+.yl-discover-immersive .yl-concept-cycle .yl-concept-link span{display:inline-block;border:1px solid #d4b37e66;border-radius:50%;padding:4px}
+.yl-discover-immersive .yl-logo-finale{gap:12px}
+.yl-discover-immersive .yl-logo-final-insight{font:500 clamp(18px,4.6vw,22px)/1.4 "DM Sans",sans-serif;max-width:38ch}
+.yl-discover-immersive .yl-logo-reflect-question{font:500 clamp(23px,5.9vw,31px)/1.2 "Cormorant Garamond",Georgia,serif;color:#f2ddbf;margin:10px 0}
+.yl-discover-immersive .yl-logo-other{margin:12px 0 0}
+.yl-discover-immersive .yl-logo-other summary{color:#cab8a0;font:500 12px "DM Sans",sans-serif;cursor:pointer;list-style:none;text-align:center;padding:12px}
+.yl-discover-immersive .yl-logo-other summary::-webkit-details-marker{display:none}
+.yl-discover-immersive .yl-logo-other textarea{box-sizing:border-box;width:100%;min-height:74px;border-radius:12px;border:1px solid #e5cdaa60;background:#ffffff09;color:#f1e4d0;padding:12px;resize:vertical;font:400 15px/1.5 "DM Sans",sans-serif}
+.yl-discover-immersive .yl-logo-other button{display:block;width:100%;margin-top:8px;min-height:46px;border:1px solid #d9c19d;border-radius:12px;background:#d9c19d;color:#221b17;font:600 13px "DM Sans",sans-serif}
+.yl-discover-immersive .yl-logo-other textarea:focus-visible{outline:2px solid #ddc29d;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.yl-discover-immersive .yl-concept-node{transform:none!important}}
