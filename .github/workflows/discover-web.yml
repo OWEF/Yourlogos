@@ -5,6 +5,11 @@ on:
       - "app.js"
       - "discover-ai-client.js"
       - "discover-ai-server.mjs"
+      - "discover-quote-editorial.js"
+      - "discover-quote-schema.js"
+      - "discover-quote-drag.js"
+      - "discover-quote-standard-substitutions.js"
+      - "discover-concept-grammar.js"
       - "discover-living-v2.css"
       - "little-logo-presence.js"
       - "philosopher-portraits.js"
@@ -42,6 +47,9 @@ jobs:
           node --check philosopher-portraits.js
           node --check philosopher-gallery.js
           node --check discover-ai-client.js
+          node --check discover-quote-standard-substitutions.js
+          node --check discover-quote-drag.js
+          node --check discover-quote-schema.js
           node --check little-logo-presence.js
       - name: Run Discover regression
-        run: node --test tests/discover-encounter.test.mjs tests/philosopher-gallery.test.mjs
+        run: node --test tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs tests/discover-drag.test.mjs tests/philosopher-gallery.test.mjs

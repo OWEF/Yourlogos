@@ -215,126 +215,82 @@ assert.notEqual(memoryForQuote(myWorldMemory,QUOTES[memorySameTheme],memorySameT
                 "Two users with different histories must not receive the same remembered words");
 assert.ok(!worldMemoryHtml(myWorldMemory).includes("<script>"),"My World escapes private note content");
 
-// AI Discover is disabled without server credentials and explicit opt-in.
-// Neither the key nor raw memory may be exposed in static /api/public-config.
+// Discover vNext: one choice -> concise philosophical clarification.
+// Keep the existing security/guest tests below while verifying the revised contract.
 const aiClientSource=read("discover-ai-client.js"),aiServerSource=read("discover-ai-server.mjs"),serverSource=read("server.mjs");
 for(const [name,source] of [["discover-ai-client",aiClientSource],["discover-ai-server",aiServerSource]]){
  new vm.Script(source.replace(/^import[^\n]*\n/gm,"").replace(/^export /gm,""),{filename:name});
 }
 const {makeDiscoverPrompt,validateDiscoverTurn,discoverAIEnabled,DISCOVER_DECISIONS}=await import("../discover-ai-server.mjs");
 const {newAIConversation,aiSummary,aiMemoryChoices,aiConversationHtml,LOGO_DECISIONS}=await import("../discover-ai-client.js");
-assert.equal(discoverAIEnabled(),false,"AI must stay disabled until owner configures credentials and explicitly enables it");
+const {VISUAL_BY_QUOTE,conceptVisualHtml}=await import("../discover-concept-grammar.js");
+assert.equal(discoverAIEnabled(),false,"AI remains disabled without explicit credentials and opt-in");
 const dataForAI={quoteId:63,quote:{text:QUOTES[63][0],author:QUOTES[63][1],theme:QUOTES[63][2]},
- turn:2,userText:"I want to change, but I am afraid of losing who I am.",memory:["I used to be afraid of being alone."]};
-const prompt=makeDiscoverPrompt(dataForAI);
-assert.ok(prompt.system.includes("quotation's actual meaning")&&prompt.system.includes("A changed tap must change"),"The AI must make personalized, revisable philosophical moves");
-assert.ok(prompt.system.includes("SELF-CHECK BEFORE OUTPUT")&&prompt.system.includes("exactly three plausible"),"Prompt requires distinct quote-grounded tap choices");
-assert.equal(prompt.context.userWords,dataForAI.userText);
-assert.equal(prompt.context.pastVoluntaryReflections.length,1);
-const historyAware=makeDiscoverPrompt({...dataForAI,turn:1,direction:"Go along — it's easier",
- history:["Little Logo: Question: Friends pick the same restaurant. What do you do? | Observation: The choice is always familiar.",
- "Visitor chose: Go along — it's easier"]});
-assert.equal(historyAware.context.selectedDirection,"Go along — it's easier","The exact choice reaches DeepSeek");
-assert.equal(historyAware.context.recentDialog.length,2,"Past dialogue is retained");
-assert.ok(historyAware.context.recentDialog[0].includes("Question:"),"The prior question is available for coherent follow-up");
-assert.ok(historyAware.system.includes("same place")||historyAware.system.includes("SAME situation"),"Dialogue stays grounded in one scene");
-assert.ok(historyAware.system.includes("The visitor cannot know")&&historyAware.system.includes("Nothing changes anyway"),"The rejected future-outcome choice pattern is explicitly addressed");
-assert.ok(historyAware.system.includes("NOT an attribution")||historyAware.system.includes("not an attribution"),"Original thinker is not misquoted");
-assert.ok(prompt.system.includes("BANNED TONE")&&prompt.system.includes("this shows you value"),"Dialogue avoids pseudo-insight and flattery");
-assert.ok(!prompt.system.includes("AUTHOR BRIDGE"),"The old forced author bridge has been removed");
-assert.ok(app.includes("direction:choice")&&app.includes('m.followUp?"Question: "'),"App sends choice and question context to the server");
-assert.ok(!prompt.system.includes("OPENAI_API_KEY"));
-assert.deepEqual(validateDiscoverTurn({reply:"You might be protecting an old identity because it has kept you safe.",followUp:"What would you risk by changing it?",choices:["I might lose belonging","I might gain freedom","I question the premise"]}).followUp,"What would you risk by changing it?");
-assert.throws(()=>validateDiscoverTurn({
- reply:"Rousseau would say you just loosened one chain by naming it out loud.",
- followUp:"What happens after you ask who decided?",
- choices:["We pick a new plan","Nothing changes anyway","Someone admits they assumed"]
-},2),/narration|speculative/,"The exact screenshot's forced philosophy and speculative choices are rejected");
-assert.throws(()=>validateDiscoverTurn({
- reply:"A routine can quietly become a rule when nobody questions the usual place.",
- followUp:"What catches your attention when the group explains their usual choice?",
- choices:["We pick a new plan","Nothing changes anyway","Someone admits they assumed"]
-},1),/speculative/,"Predicting others' behavior is not a first-person response");
-assert.throws(()=>validateDiscoverTurn({
- reply:"The familiar plan can feel easier than questioning it, even when nobody chose it.",
- followUp:"What stands out to you about the dinner routine?",
- choices:["I agree","I disagree","It depends"]
-},1),/speculative/,"Three generic positions do not make a conversation");
-const validEveryday=validateDiscoverTurn({
- reply:"It is funny how a repeated plan can become a rule without anyone announcing it.",
- followUp:"When they say it is what everyone does, what do you notice?",
- choices:["Nobody actually decided","Maybe everyone still likes it","I never questioned it either"]
+ turn:0,userText:"This feels difficult to explain.",memory:["A private thought from the visitor"]};
+const openingPrompt=makeDiscoverPrompt(dataForAI);
+assert.ok(openingPrompt.system.includes("ONE ROUND ONLY")&&openingPrompt.system.includes("Turn 0"),"Prompt enforces one-round clarification");
+assert.ok(openingPrompt.context.philosophicalAnchor.claim,"Source-matched philosophical claim is provided");
+assert.equal(openingPrompt.context.pastVoluntaryReflections.length,1);
+assert.equal(openingPrompt.context.userWords,dataForAI.userText);
+const closingPrompt=makeDiscoverPrompt({...dataForAI,turn:1,direction:"I'd ask what changed",history:["A moment","Visitor chose: I'd ask what changed"]});
+assert.equal(closingPrompt.context.selectedDirection,"I'd ask what changed");
+assert.ok(closingPrompt.context.closing,"One selection completes the journey");
+assert.equal(DISCOVER_DECISIONS,1,"No forced second or third choice");
+assert.equal(LOGO_DECISIONS,DISCOVER_DECISIONS,"Client/server limits match");
+assert.throws(()=>makeDiscoverPrompt({...dataForAI,turn:2}),/journey step/);
+assert.equal(validateDiscoverTurn({
+ reply:"Nietzsche asks what helps us endure. Picture this:",
+ followUp:"A friend asks why you stay at a job you dislike. What do you say?",
+ choices:["It pays the bills","I hope things improve","I don't know anymore"]
+},0).choices.length,3);
+const completedTurn=validateDiscoverTurn({
+ reply:"Necessity can sustain endurance without making the job fulfilling.",
+ followUp:"Does needing a reason mean you have chosen it?",choices:[]
 },1);
-assert.equal(validEveryday.choices.length,3,"Three believable, visitor-centered interpretations remain welcome");
-assert.ok(aiServerSource.includes("attempt<2")&&aiServerSource.includes("conversational quality check"),"At most one targeted correction is made for weak model output");
+assert.equal(completedTurn.complete,true);
+assert.ok(completedTurn.followUp);
+assert.throws(()=>validateDiscoverTurn({
+ reply:"I see why you might be uncertain. Let's explore.",
+ followUp:"A friend asks what you believe. What do you say?",choices:["Yes, definitely","No, not really","Maybe, I guess"]
+},0),/speculative/);
+assert.throws(()=>validateDiscoverTurn({
+ reply:"This may make a new relation visible in your everyday life.",
+ followUp:"What next?",choices:["Another choice","One more choice","A last choice"]
+},1),/Final reflection/);
 assert.equal(newAIConversation(12).consent,false,"No background submission or implied consent");
-const aiMemory=aiMemoryChoices({threads:[{opening:"A remembered thought"},{note:"A different memory"}]});
-assert.equal(aiMemory.length,2);
-const artificial={...newAIConversation(63),consent:true,messages:[{role:"user",text:"I want more freedom"},{role:"assistant",text:"Freedom often costs more than we first expect.",followUp:"What would that cost you?",choices:["My comfort","My certainty","My social ties"]}]};
-const aiCard=aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:true,authenticated:true});
-assert.ok(aiCard.includes("What would that cost you?")&&aiCard.includes("My certainty"));
-assert.ok(!aiCard.includes("<textarea"),"No typing is needed in AI Discover");
-assert.ok(aiCard.includes('data-ai="pet"')&&aiCard.includes("yl-logo-pet"),"Approved Little Logo is a tappable character, not decorative SVG");
-assert.ok(aiCard.includes("yl-logo-roam-stage")&&aiCard.includes("yl-logo-pet-hero"),"Discover gives Little Logo a free-moving stage with high-resolution artwork");
-assert.ok(v33Source.includes("yl-logo-traverse")&&v33Source.includes("prefers-reduced-motion"),"Compositor motion respects reduced-motion preferences");
-assert.ok(html.includes('yl-slider__little-logo')&&html.includes('little-logo-hd-v2.jpg'),"The arrival slider uses the high-resolution single character");
-assert.ok(sw.includes('little-logo-hd-v2.jpg'),"The new HD illustration is available offline");
-assert.ok(aiCard.includes('src="/little-logo-hd-v2.jpg"')&&aiCard.includes("yl-logo-pet-hero"),"Companion displays the single HD image");
-assert.ok(v33Source.includes(".yl-logo-pet-atlas{display:none!important}")&&v33Source.includes(".yl-logo-roam-stage{overflow:hidden!important"),"Old sprite frames cannot spill into the interface");
-assert.ok(aiClientSource.includes("little-logo-pet-art")||aiClientSource.includes("yl-logo-pet-art"),"Character sprite renderer is present");
-assert.ok(sw.includes("/little-logo-v1.avif"),"The offline iPhone cache includes the new mascot");
-assert.ok(aiClientSource.includes("yl-logo-pet-delighted")===false||aiClientSource.includes("littleLogoPet"),"Companion reactions are derived from the mascot renderer");
-assert.ok(app.includes('current.petMood=["curious","reflective","surprised"][index]'),"Three responses trigger distinct reactions");
-assert.ok(app.includes('action==="pet"'),"Tapping the companion gives a playful local response");
-assert.ok(v33Source.includes("prefers-reduced-motion"),"Animations honor reduced-motion settings");
-assert.ok(!aiCard.includes("Earlier thoughts"),"No additional clutter in active Discover");
-
-const initialAI=aiConversationHtml({quote:QUOTES[63],conversation:{...newAIConversation(63),consent:true},available:true,authenticated:true});
-assert.ok(initialAI.includes('data-ai="send"')&&initialAI.includes("hidden"),"Consent activates first generation without typing");
-assert.ok(!initialAI.includes("I'm intrigued")&&!initialAI.includes("What unsettles you here?"),"No generic initial stances before model output");
-
-assert.ok(!aiCard.includes("Continue the conversation")&&!aiCard.includes("LIVING DIALOGUE · EXPERIMENTAL"),"Quiet Discover hides verbose AI scaffolding");
-assert.ok(!aiConversationHtml({quote:QUOTES[63],conversation:artificial,available:false,authenticated:true}),"Feature flag hides AI when disabled");
-const savedAI=aiSummary(artificial,QUOTES[63],"2026-10-27");
-assert.equal(savedAI.note,"I want more freedom");
-assert.equal(savedAI.kind,"ai");
-const finishedConversation={...artificial,complete:true,messages:[
- {role:"assistant",text:"A quiet contradiction appears.",followUp:"Are you avoiding freedom?",choices:["For comfort","For safety","For belonging"]},
- {role:"user",text:"For safety"},
- {role:"assistant",text:"The cost of freedom is not always the absence of safety.",followUp:"How does fear inform choice?",choices:["By warning me","By limiting me","By focusing me"]},
- {role:"user",text:"By warning me"},
- {role:"assistant",text:"Some warnings are old habits.",followUp:"Can habit be protective?",choices:["Yes, sometimes","Not without reflection","It depends on context"]},
- {role:"user",text:"Not without reflection"},
- {role:"assistant",text:"Thinking makes your hesitation visible.",followUp:"Will you keep listening?",choices:["I'll listen closer","I'll challenge it","I'll give it time"]},
- {role:"user",text:"I'll challenge it"},
- {role:"assistant",text:"Your challenge leaves something open: freedom asks you to risk a little certainty without forgetting why it mattered.",followUp:"",choices:[],complete:true}
+assert.equal(aiMemoryChoices({threads:[{opening:"A remembered thought"},{note:"A different memory"}]}).length,2);
+const firstAI={...newAIConversation(63),consent:true,messages:[{
+ role:"assistant",text:"Hegel asks us to look beyond the fragment. Picture this:",
+ followUp:"A team judges someone from one quiet meeting. What feels missing?",
+ choices:["Their other commitments","The team's real needs","More context altogether"]
+}]};
+const firstHtml=aiConversationHtml({quote:QUOTES[63],conversation:firstAI,available:true,authenticated:true});
+assert.ok(firstHtml.includes("Their other commitments")&&firstHtml.includes("THE ENCOUNTER"));
+assert.equal((firstHtml.match(/data-ai-choice="/g)||[]).length,3);
+assert.ok(firstHtml.includes('data-ai="own-answer"')&&firstHtml.includes("<details"),"Optional own-words path stays collapsed");
+assert.ok(firstHtml.includes("yl-logo-source-visible"),"Original idea remains visible");
+assert.ok(firstHtml.includes('data-ai="pet"')&&firstHtml.includes("yl-logo-pet-hero"),"Companion remains available");
+const finishedAI={...firstAI,complete:true,messages:[...firstAI.messages,
+ {role:"user",text:"More context altogether",lensIndex:0},
+ {role:"assistant",text:"The silence meant something, but it cannot explain the whole situation alone.",followUp:"What other relationships would change your view?",choices:[],complete:true}
 ]};
-finishedConversation.messages.splice(6,2);
-const closingHtml=aiConversationHtml({quote:QUOTES[63],conversation:finishedConversation,available:true,authenticated:true});
-assert.ok(closingHtml.includes("Your Connection")&&closingHtml.includes('data-ai="finish"'),"Finished reflection must offer a clear exit");
-assert.ok(closingHtml.includes("LITTLE LOGO")&&!closingHtml.includes("· AI</span>"),"Little Logo is the companion identity");
-assert.ok(!closingHtml.includes("data-ai-choice"),"No infinite option loop after three taps");
-const closingSummary=aiSummary(finishedConversation,QUOTES[63],"2026-10-27");
-assert.ok(closingSummary.question.includes("Your challenge leaves something open"),"Saved finished reflections retain their takeaway");
-assert.ok(app.includes("current.complete=finishing")&&app.includes('action==="finish"'),"App enforces completed state and exit action");
-
-assert.ok(!app.includes('data-ai="launch"')&&app.includes('"/api/discover-ai"'),"Discover seamlessly selects AI for signed-in users");
-assert.ok(app.includes('previouslyConsented()')&&app.includes('activateDiscoverAI()'),"Discover activates automatically for guests and honors prior consent");
-assert.ok(app.includes('aiPrivateForCurrentSheet')&&!app.includes('aiDiscoverEnabled&&Boolean(verifiedIdentity)'),"No silent fallback to scripted dialogue due to missing email");
-assert.ok(!auth.includes("signInAnonymously()")&&auth.includes("data.user.is_anonymous"),"Guest AI does not create unconfigured Supabase accounts");
-assert.ok(aiServerSource.includes("guestIdentity(req,res)")&&aiServerSource.includes("SameSite=Strict"),"Guest AI requires signed browser cookie");
-assert.ok(aiServerSource.includes("YOURLOGOS_AI_GUEST_DAILY_CAP")&&aiServerSource.includes("personalLimit"),"Guest limit is configurable and bounded");
-assert.ok(aiServerSource.includes("refundBudget(id)"),"Failed AI requests should not spend the daily budget");
-assert.equal(DISCOVER_DECISIONS,3,"The AI journey has a finite three-choice arc");
-assert.equal(LOGO_DECISIONS,DISCOVER_DECISIONS,"Client and server must agree about journey length");
-const closingPrompt=makeDiscoverPrompt({...dataForAI,turn:3});
-assert.equal(closingPrompt.context.closing,true);
-assert.ok(closingPrompt.system.includes("THE JOURNEY ENDS NOW"),"Closing prompt must actually end the reflection");
-assert.throws(()=>makeDiscoverPrompt({...dataForAI,turn:4}),/journey step/,"Fourth question cannot be generated");
-const completeTurn=validateDiscoverTurn({reply:"Your choices suggest that courage may not settle the cost; it makes the cost worth confronting together.",followUp:"",choices:[]},3);
-assert.equal(completeTurn.complete,true);
-assert.equal(completeTurn.choices.length,0,"Closing output cannot offer further taps");
-assert.throws(()=>validateDiscoverTurn({reply:"Another thoughtful philosophical observation worthy of deeper consideration.",followUp:"",choices:[]},2),/choices/);
+const finishHtml=aiConversationHtml({quote:QUOTES[63],conversation:finishedAI,available:true,authenticated:true});
+assert.ok(finishHtml.includes("WHAT THIS SHOWS")&&finishHtml.includes("yl-quote-drag")&&finishHtml.includes("Drop here"),"All bundled quotes should have concrete, optional word-card exercises");
+assert.ok(finishHtml.includes('data-ai="finish"')&&!finishHtml.includes("data-ai-choice="));
+assert.ok(finishHtml.includes("What other relationships would change your view?"));
+assert.ok(aiSummary(finishedAI,QUOTES[63],"2026-11-01").note.includes("More context"));
+assert.equal(Object.keys(VISUAL_BY_QUOTE).length,91,"All bundled quotes have a deterministic visual archetype");
+assert.ok(conceptVisualHtml(QUOTES[31],31,"We need more context.",0).includes("BACK TO THE QUOTE"));
+assert.equal(conceptVisualHtml(["Bad quote"],31,""),"","Wrong quote cannot receive a diagram");
+assert.ok(!finishHtml.includes("<script>"),"User-origin text is escaped");
+assert.ok(app.includes("direction:choice")&&app.includes('m.followUp?"Question: "'),"Exact answer and question context reach the model");
+assert.ok(app.includes('action==="try-another"')&&app.includes('const custom=stanceAction.dataset.ai==="own-answer"'),"Only explicit retry or hidden own-words choice changes the path");
+assert.ok(aiServerSource.includes("guestIdentity(req,res)")&&aiServerSource.includes("SameSite=Strict"),"Guest cookie and security preserved");
+assert.ok(aiServerSource.includes("YOURLOGOS_AI_GUEST_DAILY_CAP")&&aiServerSource.includes("refundBudget(id)"),"Rate limits and failed-request refund preserved");
+assert.ok(!auth.includes("signInAnonymously()")&&auth.includes("data.user.is_anonymous"),"No unintended anonymous Supabase signup");
+assert.ok(sw.includes("discover-concept-grammar.js")&&sw.includes("discover-concept.css"),"Offline visual grammar is precached");
+assert.ok(html.includes("little-logo-hd-v2.jpg")&&sw.includes("little-logo-hd-v2.jpg"),"Original mascot remains available offline");
+assert.ok(!aiServerSource.includes("OPENAI_API_KEY"),"Server does not read unrelated provider secrets");
 
 const {guestIdentity}=await import("../discover-ai-server.mjs");
 const cookieResponse={headers:{},setHeader(name,value){this.headers[name]=value}};
@@ -349,7 +305,7 @@ assert.ok(guestIdentity({headers:{host:"railway-internal-proxy","sec-fetch-site"
 assert.equal(guestIdentity({headers:{host:"railway-internal-proxy","sec-fetch-site":"cross-site"}},cookieResponse),null,"Cross-site fetch without Origin is denied");
 
 assert.ok(app.includes('...(token?{Authorization:"Bearer "+token}:{})'),"Browser sends account authentication only when available");
-assert.ok(aiCard.includes('data-ai-choice="0"'),"AI tap responses are available without a keyboard");
+assert.ok(firstHtml.includes('data-ai-choice="0"'),"AI tap responses are available without a keyboard");
 assert.ok(serverSource.includes('"/api/discover-ai"')&&serverSource.includes('handleDiscoverAI(req,res)'));
 assert.ok(!serverSource.includes('process.env.OPENAI_API_KEY'),"Static public config must never include the secret API key");
 assert.ok(aiServerSource.includes("getUser")===false&&aiServerSource.includes('/auth/v1/user'),"Supabase verifies bearer token");
@@ -357,18 +313,18 @@ assert.ok(aiServerSource.includes("api.deepseek.com/chat/completions")&&aiServer
 assert.ok(aiServerSource.includes("process.env.DEEPSEEK_API_KEY")&&!aiServerSource.includes("process.env.OPENAI_API_KEY"),"DeepSeek secret stays server-side");
 assert.ok(sw.includes('"/discover-ai-client.js"'),"Offline shell loads without AI network access");
 
-assert.ok(prompt.system.includes("PRODUCT PROMISE")&&prompt.system.includes("ORDINARY DAY"),"Little Logo prioritizes concrete daily experience");
-assert.ok(prompt.system.includes("Your friends always go to the same place")&&prompt.system.includes("Ask why we always go there"),"Prompt provides everyday test examples");
-assert.ok(prompt.system.includes("No abstract 'what does freedom/identity/existence mean'"),"No abstract philosophical quiz questions");
+assert.ok(openingPrompt.system.includes("ONE ROUND ONLY")&&openingPrompt.system.includes("ordinary life"),"Short ordinary-life encounters are required");
+assert.ok(openingPrompt.system.includes("3 distinct plausible")&&openingPrompt.system.includes("single clear question"),"Three defensible lenses and a single question are required");
+assert.ok(openingPrompt.system.includes("not statements to attribute as verbatim words"),"Prevent false thinker attribution");
 assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive full-screen class");
 assert.ok(app.includes('type:"complete"')&&app.includes('positives.get(theme)'),"Journey completions influence next-day quote ranking");
-assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
+assert.ok(!firstHtml.includes("Earlier thoughts")&&!firstHtml.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
 
 const immersiveCSS=read("little-logo-discover.css");
 assert.ok(html.includes('/little-logo-discover.css'),"Immersive Discover stylesheet loads last");
 assert.ok(sw.includes('/little-logo-discover.css')&&Number(sw.match(/const CACHE="yourlogos-v([0-9]+)-/)?.[1]||0)>=81,"iPhone PWA precaches the new visual treatment");
-assert.ok(aiCard.includes("yl-logo-pet-pose")&&!aiCard.includes("yl-logo-face"),"Character uses real painted pose art without mismatched vector faces");
-assert.ok(aiCard.includes('yl-logo-scene-light')&&aiCard.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
+assert.ok(firstHtml.includes("yl-logo-pet-pose")&&!firstHtml.includes("yl-logo-face"),"Character uses real painted pose art without mismatched vector faces");
+assert.ok(firstHtml.includes('yl-logo-scene-light')&&firstHtml.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
 assert.ok(immersiveCSS.includes('yl-life-stage-joy')&&immersiveCSS.includes('yl-life-stage-think')&&immersiveCSS.includes('yl-life-stage-startle'),"Companion includes physically different joyful thinking and startled poses");
 assert.ok(immersiveCSS.includes('mix-blend-mode:screen')&&immersiveCSS.includes('mask-image:'),"Old dark sticker edges blend into the scene");
 assert.ok(immersiveCSS.includes('prefers-reduced-motion:reduce'),"Active character states respect reduced-motion preference");
@@ -391,18 +347,18 @@ assert.ok(app.includes('lilLogoFX("answer")')&&app.includes('lilLogoFX("tap")')&
 assert.ok(app.includes('t.impactOccurred("medium")'),"Telegram host uses a real medium impact for answer actions");
 const loadingPoseCard=aiConversationHtml({
   quote:QUOTES[63],
-  conversation:{...artificial,loading:true,petMood:"thinking"},
+  conversation:{...firstAI,loading:true,petMood:"thinking"},
   available:true,authenticated:true
 });
 assert.ok(loadingPoseCard.includes("yl-logo-feedback"),"Initial AI thinking scene still has distinct display");
-assert.ok(!loadingPoseCard.includes("What would that cost you?")&&!loadingPoseCard.includes("yl-logo-choices"),"Thinking feedback does not leave stale question and options on screen");
-assert.ok(aiCard.includes("yl-logo-progress-track")&&aiCard.includes('role="progressbar"'),"Discover has its own three-stage progress bar");
+assert.ok(!loadingPoseCard.includes("A team judges someone from one quiet meeting")&&!loadingPoseCard.includes("yl-logo-choices"),"Loading feedback hides stale choices");
+assert.ok(firstHtml.includes("yl-logo-progress-track")&&firstHtml.includes('role="progressbar"'),"Discover has its own one-stage progress indicator");
 const poseCSS=read("little-logo-poses-v5.css");
 const poseWebP=fs.readFileSync(new URL("../little-logo-poses-v5.webp",import.meta.url));
 assert.ok(poseWebP.length>25000&&poseWebP.subarray(0,4).toString()==="RIFF","Real eight-pose artwork is present and valid WebP");
 assert.ok(html.includes('little-logo-poses-v5.css'),"Illustration CSS loads last after original styles");
 assert.ok(sw.includes('little-logo-poses-v5.css')&&sw.includes('little-logo-poses-v5.webp'),"Artwork and CSS are available offline in PWA");
-assert.ok(aiCard.includes('yl-logo-pet-pose')&&!aiCard.includes('yl-logo-face'),"Rendered companion uses painted sprite without old eye overlay");
+assert.ok(firstHtml.includes('yl-logo-pet-pose')&&!firstHtml.includes('yl-logo-face'),"Rendered companion uses painted sprite without old eye overlay");
 assert.ok(poseCSS.includes('.yl-logo-pet-delighted .yl-logo-pet-pose')&&poseCSS.includes('.yl-logo-pet-thinking .yl-logo-pet-pose')&&poseCSS.includes('.yl-logo-pet-surprised .yl-logo-pet-pose'),"Distinct physical character poses are mapped to states");
 assert.ok(poseCSS.includes('background-size:800% 100%')&&poseCSS.includes('prefers-reduced-motion:reduce'),"Atlas uses eight frames and honors accessibility");
 const livingCSS=read("little-logo-live.css");
@@ -413,14 +369,14 @@ assert.ok(!aiClientSource.includes("yl-logo-pet-hair")&&!aiClientSource.includes
 assert.ok(livingCSS.includes("@keyframes yl-life-blink")&&livingCSS.includes("@keyframes yl-life-thinking")&&livingCSS.includes("@keyframes yl-life-delighted"),"Character has deliberate idle and emotional motion");
 assert.ok(livingCSS.includes("prefers-reduced-motion:reduce"),"Companion respects reduced-motion accessibility");
 assert.ok(app.includes('current.interlude=true')&&app.includes('current.interlude=false'),"Decision interlude starts and resolves");
-const reactionScene=aiConversationHtml({quote:QUOTES[63],conversation:{...artificial,interlude:true,interludeChoice:1,loading:true},available:true,authenticated:true});
+const reactionScene=aiConversationHtml({quote:QUOTES[63],conversation:{...firstAI,interlude:true,interludeChoice:1,loading:true},available:true,authenticated:true});
 assert.ok(reactionScene.includes("yl-logo-interlude")&&reactionScene.includes("yl-logo-pet"),"Interlude renders mascot");
 assert.ok(!reactionScene.includes("yl-logo-choices")&&!reactionScene.includes("yl-thinker-intro")&&!reactionScene.includes("yl-logo-feedback")&&!reactionScene.includes("yl-ai-question"),"Interlude hides all philosopher, choice and thinking text");
 const {PORTRAIT_AUTHORS,philosopherPortrait}=await import("../philosopher-portraits.js");
 assert.equal(PORTRAIT_AUTHORS.length,56,"All canonical Discover author sources are represented");
 assert.equal(new Set(PORTRAIT_AUTHORS.map(a=>philosopherPortrait(a))).size,56,"Every source has unique portrait SVG");
 assert.ok(html.includes('src="/app.js?yl=')&&html.includes('src="/little-logo-presence.js?yl=')&&html.includes('href="/discover-living-v2.css?yl='),"iPhone entrypoint references versioned Discover assets");
-assert.ok(app.includes('from "./discover-ai-client.js?yl=81"'),"app.js loads v80 Discover component");
+assert.ok(app.includes('from "./discover-ai-client.js?yl=87"'),"app loads current Discover component");
 assert.ok(sw.includes('cache:"no-store"')&&sw.includes('request.mode==="navigate"')&&sw.includes('url.pathname.startsWith("/api/")'),
   "iPhone PWA retrieves fresh app scripts/pages online without caching private API data");
 assert.ok(sw.includes("caches.match(request)")&&sw.includes('"/index.html"'),
