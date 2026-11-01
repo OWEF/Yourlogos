@@ -71,3 +71,16 @@ The quote-specific exercise is stored by quote ID + lens index in `discover-quot
 
 **Safety and QA:** cards are escaped as text, renderer avoids model-generated HTML, pointer and click paths work independently, keyboard Enter/Space activates blanks, touch-action prevents scroll conflicts on active cards, and a visual relationship explanation appears when roles are correctly matched. Automated regression validates structure and rendered affordances. Real-device touch/VoiceOver testing, difficult edge cases and editorial review are still required.
 
+
+
+## Standardized exercise coverage — implementation revision (November 1)
+
+**91/91 bundled quotes have a distinct, authored conceptual substitution.**
+- 3 philosopher pilots (Nietzsche 0, Hegel 31, Kant 70) have **nine interpretation-specific variants** from `discover-quote-drag.js`.
+- The other **88** have one *quote-specific* everyday sentence, two physical touch cards, and a one-line connection to the original idea authored in `discover-quote-standard-substitutions.js`. The same exercise may appear after any of that quote's three distinct AI clarifications; it reinforces the core quote rather than claiming each reading is identical.
+- Each is rendered through the same optional, mobile-accessible `quoteDragExerciseHtml` with pointer dragging, tap-card→blank fallback, reset, swap feedback, and a completion explanation.
+- A missing map fails closed: no invented visual exercise. No generic why/how transformation is applied to unrelated philosophy.
+- The existing 91 constitute an *editorial draft with automated structural coverage*, not 91 expert-audited interpretations. Periodic source review and UX feedback remain essential.
+- For future external quotes, `refreshPublicQuoteCatalogue` holds a newly published quote back until its matching philosophical record, curated three lenses, and drag substitution exist in the app. Creators must add the editorial data and pass `tests/discover-drag.test.mjs` and `tests/discover-quote-schema.test.mjs` first. This is a deliberate release gate, not on-the-fly AI writing.
+
+**Release checks:** CI verifies every ID 0–90 has 3 accessible entry paths, 2 concrete movable cards, 2 sentence blanks, a connection explanation and unique quote-level sentence. User content and canonical quote cannot be overwritten by the exercise. Real-device VoiceOver/mobile reliability and philosophical review are separately tracked in CZ-7.
