@@ -51,3 +51,42 @@ test("Main UI preserves the three-tab architecture and private memory boundaries
  assert.match(app,/interludePhase="thinking"/);
  assert.match(html,/little-logo-presence/);
 });
+
+test("Rejects padded Yes/No/Maybe disguised as three choices (CZ-13)",()=>{
+ assert.throws(()=>validateDiscoverTurn({
+  reply:"Alex stayed quiet, and the room filled in a motive without asking.",
+  followUp:"What would you do with that conclusion?",
+  choices:["Yes, definitely","No, not really","Maybe, I guess"]
+ },0),/Generic or speculative/);
+});
+test("Rejects asking users to predict another person's reply (CZ-13)",()=>{
+ assert.throws(()=>validateDiscoverTurn({
+  reply:"You decided to ask Alex before judging the silence.",
+  followUp:"What will Alex say when you ask?",
+  choices:["I expect an explanation","I'd ask privately","I'd rather wait"]
+ },1),/Generic or speculative/);
+});
+test("Rejects imagined outcomes even under a neutral question (CZ-13)",()=>{
+ assert.throws(()=>validateDiscoverTurn({
+  reply:"One comment changed how the whole team saw Alex's silence.",
+  followUp:"What part of this situation most concerns you?",
+  choices:["They will apologize","I dislike the assumption","I'd ask for context"]
+ },0),/Generic or speculative/);
+});
+test("Accepts distinct, self-directed taps and retains branch context (CZ-13)",()=>{
+ const answer=validateDiscoverTurn({
+  reply:"Alex was silent, but the explanation attached to that silence is still uncertain.",
+  followUp:"What would you do with that conclusion?",
+  choices:["Ask Alex before deciding","Say the silence affected the team","Stay out of the judgment"]
+ },0);
+ assert.equal(answer.choices.length,3);
+ const prompt=makeDiscoverPrompt({
+  quoteId:31,turn:1,
+  quote:{text:"The true is the whole",author:"G. W. F. Hegel",theme:"Knowledge"},
+  direction:answer.choices[0],
+  history:["What would you do with that conclusion?","Ask Alex before deciding"]
+ });
+ assert.equal(prompt.context.selectedDirection,"Ask Alex before deciding");
+ assert.equal(prompt.context.currentTurn,1);
+ assert.ok(prompt.context.recentDialog.some(x=>x.includes("Ask Alex")));
+});
