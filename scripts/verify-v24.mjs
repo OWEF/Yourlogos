@@ -251,7 +251,7 @@ assert.equal(completedTurn.complete,true);
 assert.ok(completedTurn.followUp);
 assert.throws(()=>validateDiscoverTurn({
  reply:"I see why you might be uncertain. Let's explore.",
- followUp:"A friend asks what you believe. What do you say?",choices:["Yes","No","Maybe"]
+ followUp:"A friend asks what you believe. What do you say?",choices:["Yes, definitely","No, not really","Maybe, I guess"]
 },0),/speculative/);
 assert.throws(()=>validateDiscoverTurn({
  reply:"This may make a new relation visible in your everyday life.",
