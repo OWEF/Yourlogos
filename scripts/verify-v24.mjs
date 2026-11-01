@@ -284,7 +284,7 @@ assert.ok(conceptVisualHtml(QUOTES[31],31,"A fresh lens").includes("yl-concept-l
 assert.equal(conceptVisualHtml(["Bad quote"],31,""),"","Wrong quote cannot receive a diagram");
 assert.ok(!finishHtml.includes("<script>"),"User-origin text is escaped");
 assert.ok(app.includes("direction:choice")&&app.includes('m.followUp?"Question: "'),"Exact answer and question context reach the model");
-assert.ok(app.includes('action==="try-another"')&&app.includes('data-ai="own-answer"')===false,"Only deliberate retry can restart a completed journey");
+assert.ok(app.includes('action==="try-another"')&&app.includes('const custom=stanceAction.dataset.ai==="own-answer"'),"Only explicit retry or hidden own-words choice changes the path");
 assert.ok(aiServerSource.includes("guestIdentity(req,res)")&&aiServerSource.includes("SameSite=Strict"),"Guest cookie and security preserved");
 assert.ok(aiServerSource.includes("YOURLOGOS_AI_GUEST_DAILY_CAP")&&aiServerSource.includes("refundBudget(id)"),"Rate limits and failed-request refund preserved");
 assert.ok(!auth.includes("signInAnonymously()")&&auth.includes("data.user.is_anonymous"),"No unintended anonymous Supabase signup");
