@@ -26,3 +26,9 @@
 .yl-discover-immersive .yl-logo-other button{display:block;width:100%;margin-top:8px;min-height:46px;border:1px solid #d9c19d;border-radius:12px;background:#d9c19d;color:#221b17;font:600 13px "DM Sans",sans-serif}
 .yl-discover-immersive .yl-logo-other textarea:focus-visible{outline:2px solid #ddc29d;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.yl-discover-immersive .yl-concept-node{transform:none!important}}
+
+/* Source stays prominent and readable throughout the one-choice encounter. */
+.yl-discover-immersive .yl-logo-source-visible{display:block!important;margin:10px 0 18px!important;padding:14px 0 16px;border-top:1px solid #c9a77a38;border-bottom:1px solid #c9a77a38}
+.yl-discover-immersive .yl-logo-source-heading{display:block;margin-bottom:9px;font:700 11px/1.4 "DM Sans",sans-serif;letter-spacing:.15em;color:#d3b48d}
+.yl-discover-immersive .yl-logo-source-quote{display:block;margin:0;max-width:37ch;font:600 clamp(22px,5.6vw,29px)/1.28 "Cormorant Garamond",Georgia,serif;color:#f3e5d0;text-wrap:pretty}
+@media(max-height:735px){.yl-discover-immersive .yl-logo-source-visible{margin:6px 0 12px!important;padding:10px 0 13px}.yl-discover-immersive .yl-logo-source-quote{font-size:clamp(20px,5vw,25px)}}
