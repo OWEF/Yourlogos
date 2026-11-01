@@ -9,6 +9,8 @@ import { personalizedExplore } from "./personalization.js";
 import { livingHtml, normalizeLivingState, beginLiving, transitionLiving, noteLiving, openingLiving, archiveLiving } from "./living-threads.js";
 import { buildWorldMemory, worldMemoryHtml } from "./world-memory.js";
 import { aiConversationHtml, safeAIConversation, aiMemoryChoices, aiSummary, cleanText, LOGO_DECISIONS } from "./discover-ai-client.js?yl=87";
+import { getBundledDiscoverSpec } from "./discover-quote-schema.js";
+import { getDragExercise } from "./discover-quote-drag.js";
 import { lilLogoFX } from "./little-logo-fx.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { philosopherCount, philosopherGalleryHtml, philosopherProfileHtml } from "./philosopher-gallery.js";
@@ -1161,7 +1163,16 @@ async function refreshPublicQuoteCatalogue(){
    for(const q of incoming){
      if(!Number.isInteger(q.legacy_id)||q.legacy_id!==QUOTES.length)continue;
      if(!valid.has(q.theme)||!q.quote_text||!q.author||!q.source||!q.reflection_prompt)continue;
-     QUOTES.push([q.quote_text,q.author,q.theme,q.source,q.reflection_prompt]);added++;
+     // Future published quotes must have an authored philosophical mapping AND
+     // a valid drag-to-clarify exercise in the versioned editorial bundle.
+     // Otherwise hold the remote quote back rather than offer a broken Discover.
+     const candidate=[q.quote_text,q.author,q.theme,q.source,q.reflection_prompt];
+     const specification=getBundledDiscoverSpec(candidate,q.legacy_id);
+     if(!specification||!getDragExercise(q.legacy_id,0)){
+       console.info("YourLogos: future quote awaiting complete Discover editorial bundle",q.legacy_id);
+       continue;
+     }
+     QUOTES.push(candidate);added++;
    }
    if(added){
      // Remote quote indices and themes are hints to the existing personal sky,
