@@ -38,7 +38,9 @@ test("One choice yields a small conceptual map and optional question",()=>{
  const html=aiConversationHtml({quote:q,conversation:c,available:true,authenticated:true});
  assert.equal(LOGO_DECISIONS,1);
  assert.match(html,/WHAT THIS SHOWS/);
- assert.match(html,/yl-concept-visual/);
+ assert.match(html,/yl-quote-drag/);
+ assert.match(html,/data-exercise-slot="why"/);
+ assert.match(html,/data-exercise-card="how"/);
  assert.match(html,/When does necessity become purpose/);
  assert.doesNotMatch(html,/data-ai-choice=/);
  assert.match(html,/yl-logo-source-visible/);
