@@ -832,19 +832,34 @@ export const PILOT_ENCOUNTERS = Object.freeze({
     "key": "necessity",
     "label": "It pays the bills.",
     "insight": "A necessary reason can sustain you without making the work fulfilling.",
-    "focus": "Security"
+    "focus": "Security",
+    "sceneMeaning": "The bills give you a practical reason to stay.",
+    "quoteConnection": "A 'why' helps you bear a difficult 'how'; it doesn't make the job good.",
+    "sceneLeft": "Bills to pay",
+    "sceneRight": "A job you dislike",
+    "relation": "Reason to stay"
    },
    {
     "key": "hope",
     "label": "I hope it'll get better.",
     "insight": "An imagined future can make today's difficulty bearable.",
-    "focus": "Hope"
+    "focus": "Hope",
+    "sceneMeaning": "You stay because you imagine the job becoming better.",
+    "quoteConnection": "Hope for tomorrow can make today's hardship bearable.",
+    "sceneLeft": "Hope for change",
+    "sceneRight": "A difficult present",
+    "relation": "Reason to endure"
    },
    {
     "key": "uncertainty",
     "label": "I honestly don't know.",
     "insight": "Endurance can continue even after the reason feels unclear.",
-    "focus": "Uncertainty"
+    "focus": "Uncertainty",
+    "sceneMeaning": "You keep going, even though the reason isn't clear anymore.",
+    "quoteConnection": "The quote raises a question: what happens when you lose sight of the 'why'?",
+    "sceneLeft": "No clear reason",
+    "sceneRight": "Still working",
+    "relation": "A missing why"
    }
   ],
   "reflection": "When does a reason for staying become worth reconsidering?",
@@ -866,19 +881,34 @@ export const PILOT_ENCOUNTERS = Object.freeze({
     "key": "past",
     "label": "We need more context.",
     "insight": "The silence is real, but earlier events could change its meaning.",
-    "focus": "Earlier decisions"
+    "focus": "Earlier decisions",
+    "sceneMeaning": "One quiet meeting doesn't tell you what happened beforehand.",
+    "quoteConnection": "A single fact becomes clearer through the relationships around it.",
+    "sceneLeft": "Silence in one meeting",
+    "sceneRight": "Earlier events",
+    "relation": "Missing context"
    },
    {
     "key": "effects",
     "label": "The team was still affected.",
     "insight": "The wider picture includes real consequences, not only hidden motives.",
-    "focus": "Shared consequences"
+    "focus": "Shared consequences",
+    "sceneMeaning": "The team was affected, regardless of the silent person's intentions.",
+    "quoteConnection": "Understanding the whole includes consequences as well as motives.",
+    "sceneLeft": "One person's silence",
+    "sceneRight": "The team affected",
+    "relation": "Shared situation"
    },
    {
     "key": "uncertainty",
     "label": "I wouldn't judge yet.",
     "insight": "Holding back judgment preserves room for relations you haven't seen.",
-    "focus": "Unknown context"
+    "focus": "Unknown context",
+    "sceneMeaning": "You know someone was quiet, but not what that silence means.",
+    "quoteConnection": "You need more than an isolated moment to understand a situation.",
+    "sceneLeft": "What we saw",
+    "sceneRight": "What we don't know",
+    "relation": "Part and whole"
    }
   ],
   "reflection": "What changes when you see an event among its relationships?",
@@ -900,19 +930,34 @@ export const PILOT_ENCOUNTERS = Object.freeze({
     "key": "authority",
     "label": "They usually know best.",
     "insight": "Trusting expertise may be sensible, but trust alone isn't independent judgment.",
-    "focus": "Authority"
+    "focus": "Authority",
+    "sceneMeaning": "You believe the colleague because they've often been reliable.",
+    "quoteConnection": "Trust can be sensible, but independent understanding asks for reasons too.",
+    "sceneLeft": "Their reputation",
+    "sceneRight": "Your judgment",
+    "relation": "Trust and inquiry"
    },
    {
     "key": "inquiry",
     "label": "I'd check it myself.",
     "insight": "Using your understanding means examining reasons rather than merely repeating a claim.",
-    "focus": "Inquiry"
+    "focus": "Inquiry",
+    "sceneMeaning": "You look for evidence before accepting the claim.",
+    "quoteConnection": "Using your understanding means examining reasons, not simply copying a claim.",
+    "sceneLeft": "A confident claim",
+    "sceneRight": "Evidence",
+    "relation": "Check the reason"
    },
    {
     "key": "dialogue",
     "label": "I'd ask how they know.",
     "insight": "Independent thinking can begin with a shared search for reasons.",
-    "focus": "Shared reasoning"
+    "focus": "Shared reasoning",
+    "sceneMeaning": "You ask how the colleague reached their conclusion.",
+    "quoteConnection": "Thinking for yourself can begin through questioning together.",
+    "sceneLeft": "Someone's claim",
+    "sceneRight": "Your question",
+    "relation": "Ask for reasons"
    }
   ],
   "reflection": "What would count as using your own understanding here?",
@@ -925,4 +970,5 @@ export const PILOT_ENCOUNTERS = Object.freeze({
    "motion": "choosing"
   }
  }
-});
+}
+);
