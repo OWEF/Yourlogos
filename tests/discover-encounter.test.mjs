@@ -32,12 +32,12 @@ test("One choice yields a small conceptual map and optional question",()=>{
  const q=["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning"];
  const c={quoteId:0,consent:true,complete:true,messages:[
   {role:"assistant",text:"Nietzsche asks why we endure. Picture this:",followUp:"A friend asks why you stay at a hard job. What do you say?",choices:["It pays the bills","I hope it improves","I am no longer sure"]},
-  {role:"user",text:"It pays the bills"},
+  {role:"user",text:"It pays the bills",lensIndex:0},
   {role:"assistant",text:"A practical reason can sustain endurance without turning difficulty into fulfillment.",followUp:"When does necessity become purpose?",choices:[],complete:true}
  ]};
  const html=aiConversationHtml({quote:q,conversation:c,available:true,authenticated:true});
  assert.equal(LOGO_DECISIONS,1);
- assert.match(html,/THE IDEA, A LITTLE CLEARER/);
+ assert.match(html,/WHAT THIS SHOWS/);
  assert.match(html,/yl-concept-visual/);
  assert.match(html,/When does necessity become purpose/);
  assert.doesNotMatch(html,/data-ai-choice=/);
@@ -156,12 +156,20 @@ test("All 91 quotes map to local editorial visual templates",()=>{
  assert.equal(ids.length,91);
  assert.deepEqual(ids.sort((a,b)=>a-b),Array.from({length:91},(_,i)=>i));
  assert.ok(Object.values(VISUAL_BY_QUOTE).every(kind=>VISUAL_KINDS.includes(kind)));
- const samples=[[0,"He who has a why to live can bear almost any how.","bridge"],[11,"Two things fill the mind with ever-increasing wonder:","balance"],[31,"The true is the whole.","layers"]];
- for(const [id,text,kind] of samples){
-  const html=conceptVisualHtml([text],id,"What I would choose");
-  assert.match(html,new RegExp("yl-concept-"+kind));
-  assert.match(html,/What I would choose/);
+ const pilots=[
+  [0,"He who has a why to live can bear almost any how.",0,"It pays the bills.","Bills to pay"],
+  [31,"The true is the whole.",0,"We need more context.","Earlier events"],
+  [70,"Sapere aude! Have courage to use your own understanding!",1,"I'd check it myself.","Evidence"]
+ ];
+ for(const [id,quoteText,index,choice,expected] of pilots){
+  const html=conceptVisualHtml([quoteText],id,choice,index);
+  assert.match(html,/yl-concept-example/);
+  assert.match(html,/SEE IT IN THE EXAMPLE/);
+  assert.match(html,/BACK TO THE QUOTE/);
+  assert.ok(html.includes(expected));
  }
- assert.equal(conceptVisualHtml(["Unrelated quote"],31,""),"");
- assert.doesNotMatch(conceptVisualHtml(["The true is the whole."],31,"<script>"),/<script>/);
+ assert.equal(conceptVisualHtml(["Two things fill the mind with ever-increasing wonder: the starry sky above me and the moral law within me."],11,"A choice"),"","Unreviewed visual is hidden");
+ assert.equal(conceptVisualHtml(["Unrelated quote"],31,"We need more context.",0),"");
+ assert.equal(conceptVisualHtml(["The true is the whole."],31,"Unmapped own words"),"","Don't force custom text into a preset visual");
+ assert.doesNotMatch(conceptVisualHtml(["The true is the whole."],31,"<script>",0),/<script>/);
 });
