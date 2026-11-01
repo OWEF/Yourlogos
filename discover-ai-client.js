@@ -1,5 +1,5 @@
 import {philosopherPortrait} from "./philosopher-portraits.js";
-import {conceptVisualHtml} from "./discover-concept-grammar.js";
+import {quoteDragExerciseHtml} from "./discover-quote-drag.js";
 // YourLogos AI Discover pilot UI. All conversation state is ephemeral until
 // the visitor explicitly saves a memory. No model output runs as HTML.
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -105,7 +105,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
      (user?.text?'<span class="yl-discover-act-label">YOU CHOSE</span><p class="yl-logo-your-choice">'+esc(cleanText(user.text,150))+'</p>':"")+
      '<h2 class="yl-logo-final-title">WHAT THIS SHOWS</h2>'+
      '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,220))+'</p>'+
-     conceptVisualHtml(quote,c.quoteId,user?.text||"",user?.lensIndex)+
+     quoteDragExerciseHtml(c.quoteId,user?.lensIndex)+
      (latest.followUp?'<span class="yl-discover-act-label">ONE QUESTION TO KEEP</span><h2 class="yl-logo-reflect-question">'+esc(cleanText(latest.followUp,140))+'</h2>':"")+
      '</div>';
   }else{
