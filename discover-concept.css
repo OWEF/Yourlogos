@@ -32,3 +32,15 @@
 .yl-discover-immersive .yl-logo-source-heading{display:block;margin-bottom:9px;font:700 11px/1.4 "DM Sans",sans-serif;letter-spacing:.15em;color:#d3b48d}
 .yl-discover-immersive .yl-logo-source-quote{display:block;margin:0;max-width:37ch;font:600 clamp(22px,5.6vw,29px)/1.28 "Cormorant Garamond",Georgia,serif;color:#f3e5d0;text-wrap:pretty}
 @media(max-height:735px){.yl-discover-immersive .yl-logo-source-visible{margin:6px 0 12px!important;padding:10px 0 13px}.yl-discover-immersive .yl-logo-source-quote{font-size:clamp(20px,5vw,25px)}}
+
+/* Clarity-first: visual details must illustrate an identifiable situation and be labeled. */
+.yl-discover-immersive .yl-concept-example{margin:13px 0 17px;padding:17px 14px;background:#ffffff08;border:1px solid #d3bda040;border-radius:17px}
+.yl-discover-immersive .yl-concept-example .yl-concept-overline{font-size:10px;letter-spacing:.12em;margin-bottom:12px;color:#e2caac}
+.yl-discover-immersive .yl-concept-story{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;padding:6px 0 15px;text-align:center}
+.yl-discover-immersive .yl-concept-story strong{font:600 13px/1.4 "DM Sans",sans-serif;color:#f3e7d7;border:1px solid #d6be9b57;border-radius:12px;padding:11px 10px;flex:1 1 100px;min-width:0;overflow-wrap:anywhere;background:#ffffff08}
+.yl-discover-immersive .yl-concept-relation{font:600 11px/1.5 "DM Sans",sans-serif;color:#dac5a8;max-width:80px;overflow-wrap:break-word}
+.yl-discover-immersive .yl-concept-backlink{border-top:1px solid #ffffff28;margin:0;padding-top:12px;font:500 15px/1.55 "DM Sans",sans-serif;color:#efe5d6}
+.yl-discover-immersive .yl-concept-backlink span{display:block;font:700 10px/1.4 "DM Sans",sans-serif;letter-spacing:.13em;color:#d4b68f;margin-bottom:7px}
+.yl-discover-immersive .yl-logo-your-choice{font:600 14px/1.5 "DM Sans",sans-serif;color:#e4c9a5;margin:5px 0 17px;padding:9px 13px;border-left:2px solid #d7b78a;background:#d4b48612}
+.yl-discover-immersive .yl-logo-final-title{font:700 11px/1.4 "DM Sans",sans-serif;letter-spacing:.14em;color:#d4b68f;margin-bottom:6px}
+@media(max-width:350px){.yl-discover-immersive .yl-concept-story{gap:7px}.yl-discover-immersive .yl-concept-relation{flex:1 1 100%;max-width:none}.yl-discover-immersive .yl-concept-story strong{flex:1 1 100%}}
