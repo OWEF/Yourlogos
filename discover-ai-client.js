@@ -89,7 +89,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   '</div>';
  if(author)html+='<div class="yl-thinker-intro"><span class="yl-thinker-avatar">'+philosopherPortrait(author)+'</span><div class="yl-thinker-copy"><span class="yl-thinker-eyebrow">A THOUGHT FROM</span><strong>'+esc(author)+'</strong><span class="yl-thinker-whisper">'+(completed?"A thought to carry with you":actNames[Math.min(2,steps)])+'</span></div></div>';
  if(!completed&&steps===0&&original){
-  html+='<details class="yl-logo-source"><summary>THE ORIGINAL IDEA</summary><p>“'+esc(original)+'”</p></details>';
+  html+='<div class="yl-logo-source yl-logo-source-visible" aria-label="Original philosophical idea"><span class="yl-logo-source-heading">THE ORIGINAL IDEA</span><blockquote class="yl-logo-source-quote">“'+esc(original)+'”</blockquote></div>';
  }
  if(c.loading&&!latest)html+='<div class="yl-ai-quiet-loading" role="status">Following a thought…</div>';
  if(c.loading&&latest){
