@@ -8,7 +8,7 @@ import { exploreFor } from "./explore-catalogue.js";
 import { personalizedExplore } from "./personalization.js";
 import { livingHtml, normalizeLivingState, beginLiving, transitionLiving, noteLiving, openingLiving, archiveLiving } from "./living-threads.js";
 import { buildWorldMemory, worldMemoryHtml } from "./world-memory.js";
-import { aiConversationHtml, safeAIConversation, aiMemoryChoices, aiSummary, cleanText, LOGO_DECISIONS } from "./discover-ai-client.js?yl=81";
+import { aiConversationHtml, safeAIConversation, aiMemoryChoices, aiSummary, cleanText, LOGO_DECISIONS } from "./discover-ai-client.js?yl=86";
 import { lilLogoFX } from "./little-logo-fx.js";
 import { worldHomeHtml, mirrorHtml } from "./world-view.js";
 import { philosopherCount, philosopherGalleryHtml, philosopherProfileHtml } from "./philosopher-gallery.js";
@@ -763,12 +763,14 @@ document.addEventListener("click",async e=>{
   const fil=e.target.closest("[data-filter]");if(fil){selectedTheme=fil.dataset.filter;render();return}
   const scope=e.target.closest("[data-scope]");if(scope){libraryScope=scope.dataset.scope;render();return}
   const de=e.target.closest("[data-detail]");if(de){detailId=Number(de.dataset.detail);render();return}
-  const stanceAction=e.target.closest("[data-ai-choice]");
+  const stanceAction=e.target.closest('[data-ai-choice],[data-ai="own-answer"]');
   if(stanceAction&&discoverOpen&&aiDiscoverEnabled&&aiConversation?.consent&&!aiConversation.loading&&!aiConversation.complete){
-    const index=Number(stanceAction.dataset.aiChoice),id=visibleQuoteId(),q=QUOTES[id];
-    if(!Number.isInteger(index)||index<0||index>2||!q)return;
+    const custom=stanceAction.dataset.ai==="own-answer";
+    const index=custom?-1:Number(stanceAction.dataset.aiChoice),id=visibleQuoteId(),q=QUOTES[id];
+    if((!custom&&(!Number.isInteger(index)||index<0||index>2))||!q)return;
     const last=[...aiConversation.messages].reverse().find(m=>m.role==="assistant");
-    const choice=last?.choices?.[index]||["I'm intrigued","I doubt it","Show me another angle"][index];
+    const choice=custom?cleanText(document.getElementById("yl-ai-custom-answer")?.value,280):last?.choices?.[index];
+    if(!choice||custom&&choice.length<3){toast("Write a few words to explore.");return;}
     const completedDecisions=aiConversation.messages.filter(m=>m.role==="user").length;
     if(completedDecisions>=LOGO_DECISIONS)return;
     const requestHistory=aiConversation.messages.slice(-10).map(m=>m.role==="assistant"?
@@ -776,8 +778,8 @@ document.addEventListener("click",async e=>{
       "Visitor chose: "+m.text);
     const context=last?.followUp?"Question: "+last.followUp+" | My response: "+choice:choice;
     const current=aiConversation;
-    current.petMood=["curious","reflective","surprised"][index];
-    current.interlude=true;current.interludeChoice=index;current.interludePhase="reaction";
+    current.petMood=["curious","reflective","surprised"][index]||"curious";
+    current.interlude=true;current.interludeChoice=Math.max(0,index);current.interludePhase="reaction";
     current.loading=true;current.error="";
     const startOfPause=performance.now();
     const pauseMs=window.matchMedia("(prefers-reduced-motion: reduce)").matches?150:1350;
@@ -802,12 +804,12 @@ document.addEventListener("click",async e=>{
       if(aiConversation!==current||!discoverOpen)return;
       const finishing=completedDecisions+1===LOGO_DECISIONS;
       if(!next.reply||Boolean(next.complete)!==finishing||
-         (!finishing&&(!next.followUp||!Array.isArray(next.choices)||next.choices.length!==3)))
+         (!next.followUp||!Array.isArray(next.choices)||(finishing?next.choices.length!==0:next.choices.length!==3)))
         throw Error("Little Logo couldn't complete this reflection.");
       if(aiConversation!==current||!aiDiscoverMode)return;
       current.messages.push({role:"user",text:choice});
       current.messages.push({role:"assistant",text:cleanText(next.reply,850),
-        followUp:finishing?"":cleanText(next.followUp,300),
+        followUp:cleanText(next.followUp,finishing?120:210),
         choices:finishing?[]:next.choices.map(x=>cleanText(x,82)),complete:finishing});
       current.complete=finishing;
       current.messages=current.messages.slice(-12);
@@ -846,6 +848,13 @@ document.addEventListener("click",async e=>{
       const playful=aiConversation,playfulMood=aiConversation.petMood;
       setTimeout(()=>{if(aiConversation===playful&&!playful.loading&&!playful.complete&&playful.petMood===playfulMood&&discoverOpen){playful.petMood="idle";render()}},1250);
       return;
+    }
+    if(action==="try-another"&&aiConversation.complete){
+      const opening=aiConversation.messages.find(m=>m.role==="assistant"&&!m.complete);
+      if(!opening)return;
+      aiConversation.messages=[opening];aiConversation.complete=false;aiConversation.interlude=false;
+      aiConversation.petMood="curious";aiConversation.error="";aiConversation.saved=false;
+      render();return;
     }
     if(action==="finish"){
       discoverOpen=false;aiDiscoverMode=false;aiConversation=null;render();return;
