@@ -7,6 +7,7 @@ on:
       - "discover-ai-server.mjs"
       - "discover-quote-editorial.js"
       - "discover-quote-schema.js"
+      - "discover-quote-drag.js"
       - "discover-concept-grammar.js"
       - "discover-living-v2.css"
       - "little-logo-presence.js"
@@ -47,4 +48,4 @@ jobs:
           node --check discover-ai-client.js
           node --check little-logo-presence.js
       - name: Run Discover regression
-        run: node --test tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs tests/philosopher-gallery.test.mjs
+        run: node --test tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs tests/discover-drag.test.mjs tests/philosopher-gallery.test.mjs
