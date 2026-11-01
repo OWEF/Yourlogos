@@ -271,16 +271,16 @@ assert.ok(firstHtml.includes('data-ai="own-answer"')&&firstHtml.includes("<detai
 assert.ok(firstHtml.includes("yl-logo-source-visible"),"Original idea remains visible");
 assert.ok(firstHtml.includes('data-ai="pet"')&&firstHtml.includes("yl-logo-pet-hero"),"Companion remains available");
 const finishedAI={...firstAI,complete:true,messages:[...firstAI.messages,
- {role:"user",text:"More context altogether"},
+ {role:"user",text:"More context altogether",lensIndex:0},
  {role:"assistant",text:"The silence meant something, but it cannot explain the whole situation alone.",followUp:"What other relationships would change your view?",choices:[],complete:true}
 ]};
 const finishHtml=aiConversationHtml({quote:QUOTES[63],conversation:finishedAI,available:true,authenticated:true});
-assert.ok(finishHtml.includes("THE IDEA, A LITTLE CLEARER")&&finishHtml.includes("yl-concept-visual"));
+assert.ok(finishHtml.includes("WHAT THIS SHOWS")&&finishHtml.includes("yl-concept-visual"));
 assert.ok(finishHtml.includes('data-ai="finish"')&&!finishHtml.includes("data-ai-choice="));
 assert.ok(finishHtml.includes("What other relationships would change your view?"));
 assert.ok(aiSummary(finishedAI,QUOTES[63],"2026-11-01").note.includes("More context"));
 assert.equal(Object.keys(VISUAL_BY_QUOTE).length,91,"All bundled quotes have a deterministic visual archetype");
-assert.ok(conceptVisualHtml(QUOTES[31],31,"A fresh lens").includes("yl-concept-layers"));
+assert.ok(conceptVisualHtml(QUOTES[31],31,"We need more context.",0).includes("BACK TO THE QUOTE"));
 assert.equal(conceptVisualHtml(["Bad quote"],31,""),"","Wrong quote cannot receive a diagram");
 assert.ok(!finishHtml.includes("<script>"),"User-origin text is escaped");
 assert.ok(app.includes("direction:choice")&&app.includes('m.followUp?"Question: "'),"Exact answer and question context reach the model");
