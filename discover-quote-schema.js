@@ -83,7 +83,9 @@ export function validateDiscoverSpec(spec,{publish=false}={}){
    if(!spec.encounter.bridge||spec.encounter.bridge.length>85||
       !spec.encounter.scene||!spec.encounter.question)
      errors.push("Reviewed short bridge, scene and clear question required");
-   if(opts.some(x=>!x.insight))errors.push("A verified, concise clarification for each lens required");
+   if(opts.some(x=>!x.insight||!x.sceneMeaning||!x.quoteConnection||
+      !x.sceneLeft||!x.sceneRight||!x.relation))
+     errors.push("Each lens needs a readable scene meaning and an explicit link back to the quote");
    if(!spec.reflection?.question)errors.push("An optional closing question required");
    const incomplete=REVIEW_CHECKS.filter(key=>spec.review?.[key]!==true);
    if(incomplete.length)errors.push("Review gates not cleared: "+incomplete.join(", "));
