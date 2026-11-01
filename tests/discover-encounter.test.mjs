@@ -110,7 +110,7 @@ test("Grounds Discover in quote-specific philosophical claim and opposing poles 
  assert.match(prompt.context.philosophicalAnchor.claim,/relations/i);
  assert.equal(prompt.context.philosophicalAnchor.poles.length,2);
  assert.match(prompt.context.philosophicalAnchor.friction,/fact/i);
- assert.match(prompt.system,/editorial grounding/i);
+ assert.match(prompt.system,/editorial interpretations/i);
 });
 test("Rejects wrong quote paired with an otherwise valid quote ID (CZ-13)",()=>{
  assert.throws(()=>makeDiscoverPrompt({
