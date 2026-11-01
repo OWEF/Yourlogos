@@ -281,7 +281,7 @@ assert.ok(finishHtml.includes("What other relationships would change your view?"
 assert.ok(aiSummary(finishedAI,QUOTES[63],"2026-11-01").note.includes("More context"));
 assert.equal(Object.keys(VISUAL_BY_QUOTE).length,91,"All bundled quotes have a deterministic visual archetype");
 assert.ok(conceptVisualHtml(QUOTES[31],31,"A fresh lens").includes("yl-concept-layers"));
-assert.equal(conceptVisualHtml(["Bad quote"],31,""),"Wrong quote cannot receive a diagram");
+assert.equal(conceptVisualHtml(["Bad quote"],31,""),"","Wrong quote cannot receive a diagram");
 assert.ok(!finishHtml.includes("<script>"),"User-origin text is escaped");
 assert.ok(app.includes("direction:choice")&&app.includes('m.followUp?"Question: "'),"Exact answer and question context reach the model");
 assert.ok(app.includes('action==="try-another"')&&app.includes('data-ai="own-answer"')===false,"Only deliberate retry can restart a completed journey");
