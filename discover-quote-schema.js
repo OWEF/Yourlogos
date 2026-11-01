@@ -3,6 +3,7 @@
 import {CURATED,resolveTension} from "./tension-engine.js";
 import {VISUAL_BY_QUOTE,VISUAL_KINDS} from "./discover-concept-grammar.js";
 import {BUNDLED_INTERPRETATION_ROWS,PILOT_ENCOUNTERS} from "./discover-quote-editorial.js";
+import {getDragExercise,validateDragExercise} from "./discover-quote-drag.js";
 
 export const DISCOVER_SPEC_VERSION=1;
 export const REVIEW_CHECKS=["source","philosophy","lenses","visual","journey","accessibility"];
@@ -36,7 +37,7 @@ export function getBundledDiscoverSpec(quote,id){
    encounter:{bridge:pilot?.bridge||null,scene:pilot?.scene||null,
      question:pilot?.question||null,options,freeText:true},
    reflection:{question:pilot?.reflection||null,saveRequiresAction:true},
-   visual,review:reviewState()
+   visual,conceptualExercise:{kind:"drag-substitution",variants:[0,1,2].map(i=>getDragExercise(id,i))},review:reviewState()
  };
 }
 
@@ -57,7 +58,7 @@ export function createFutureDiscoverDraft({id,quote,philosophy={},encounter={},v
    reflection:{question:null,saveRequiresAction:true},
    visual:{template:visual.template||null,left:visual.left||"",right:visual.right||"",
      background:visual.background||"",symbol:visual.symbol||"",motion:visual.motion||"none"},
-   review:reviewState()};
+   conceptualExercise:{kind:"drag-substitution",variants:[]},review:reviewState()};
 }
 
 export function validateDiscoverSpec(spec,{publish=false}={}){
@@ -83,6 +84,10 @@ export function validateDiscoverSpec(spec,{publish=false}={}){
    if(!spec.encounter.bridge||spec.encounter.bridge.length>85||
       !spec.encounter.scene||!spec.encounter.question)
      errors.push("Reviewed short bridge, scene and clear question required");
+   if(!spec.conceptualExercise||spec.conceptualExercise.kind!=="drag-substitution"||
+      spec.conceptualExercise.variants?.length!==3||
+      spec.conceptualExercise.variants.some(x=>validateDragExercise(x).length))
+     errors.push("Three valid, quote-specific mobile fill-in exercises required");
    if(opts.some(x=>!x.insight||!x.sceneMeaning||!x.quoteConnection||
       !x.sceneLeft||!x.sceneRight||!x.relation))
      errors.push("Each lens needs a readable scene meaning and an explicit link back to the quote");
