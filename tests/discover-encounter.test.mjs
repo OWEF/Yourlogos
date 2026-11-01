@@ -114,3 +114,12 @@ test("Preserves the same source-specific anchor into the last turn (CZ-13)",()=>
  assert.deepEqual(last.context.philosophicalAnchor,first.context.philosophicalAnchor);
  assert.equal(last.context.closing,true);
 });
+
+test("Every bundled quote retains matching curated grounding (CZ-13)",async()=>{
+ const {getEngineCoverage}=await import("../tension-engine.js");
+ const {EXPLORE}=await import("../explore-catalogue.js");
+ const source=readFileSync(new URL("../app.js",import.meta.url),"utf8");
+ const quotes=[...source.matchAll(/^\s*\["((?:[^"\\]|\\.)*)","/gm)].map(m=>[m[1].replace(/\\\"/g,'"')]);
+ assert.equal(quotes.length,EXPLORE.length,"Every editorial quote must be traceable by stable ID");
+ assert.deepEqual(getEngineCoverage(quotes),{curated:quotes.length,total:quotes.length});
+});
