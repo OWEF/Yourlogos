@@ -28,7 +28,7 @@ test("Pilot quotes contain distinct full experiences and choice-dependent meanin
    assert.ok(spec.encounter.bridge.length<=85);
    assert.ok(spec.encounter.scene&&spec.encounter.question&&spec.reflection.question);
    assert.equal(new Set(spec.encounter.options.map(x=>x.insight)).size,3);
-   assert.ok(spec.encounter.options.every(x=>x.insight&&x.focus&&x.key));
+   assert.ok(spec.encounter.options.every(x=>x.insight&&x.focus&&x.key&&x.sceneMeaning&&x.quoteConnection&&x.sceneLeft&&x.sceneRight&&x.relation));
    assert.ok(!canPublishDiscoverSpec(spec),"Pilot content still needs human sign-off");
  }
 });
@@ -41,9 +41,9 @@ test("Future-quote draft requires three independently chosen lenses and full rev
  assert.equal(canPublishDiscoverSpec(draft),false);
  const complete={...draft,
    encounter:{bridge:"Here is a familiar moment:",scene:"A situation anyone can picture.",question:"How would you see it?",
-     freeText:true,options:[{key:"a",label:"One reading",focus:"A",insight:"A precise insight"},
-       {key:"b",label:"Another reading",focus:"B",insight:"Another insight"},
-       {key:"c",label:"Third reading",focus:"C",insight:"Third insight"}]},
+     freeText:true,options:[{key:"a",label:"One reading",focus:"A",insight:"A precise insight",sceneMeaning:"A concrete explanation a",quoteConnection:"An explicit quote link a",sceneLeft:"One detail a",sceneRight:"Another detail a",relation:"helps explain"},
+       {key:"b",label:"Another reading",focus:"B",insight:"Another insight",sceneMeaning:"A concrete explanation b",quoteConnection:"An explicit quote link b",sceneLeft:"One detail b",sceneRight:"Another detail b",relation:"helps explain"},
+       {key:"c",label:"Third reading",focus:"C",insight:"Third insight",sceneMeaning:"A concrete explanation c",quoteConnection:"An explicit quote link c",sceneLeft:"One detail c",sceneRight:"Another detail c",relation:"helps explain"}]},
    reflection:{question:"What would you reconsider?",saveRequiresAction:true},
    review:Object.fromEntries(REVIEW_CHECKS.map(k=>[k,true]))};
  assert.deepEqual(validateDiscoverSpec(complete,{publish:true}),[]);
