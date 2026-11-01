@@ -1,4 +1,5 @@
 import {philosopherPortrait} from "./philosopher-portraits.js";
+import {conceptVisualHtml} from "./discover-concept-grammar.js";
 // YourLogos AI Discover pilot UI. All conversation state is ephemeral until
 // the visitor explicitly saves a memory. No model output runs as HTML.
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -14,7 +15,7 @@ export function aiMemoryChoices(memory){
    .map(x=>cleanText(x.note||x.opening,200)).filter(Boolean);
 }
 // Little Logo: Encounter -> three choices -> an explicit connection back to the thinker.
-export const LOGO_DECISIONS=3;
+export const LOGO_DECISIONS=1;
 const logoGlyph='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none"><path d="M16 2.5c0 8-5.5 13.5-13.5 13.5C10.5 16 16 21.5 16 29.5c0-8 5.5-13.5 13.5-13.5C21.5 16 16 10.5 16 2.5Z" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="currentColor"/></svg>';
 
 // Approved Little Logo artwork, in six compact, transparent sprite poses.
@@ -77,7 +78,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  }
  const author=Array.isArray(quote)?cleanText(quote[1],80):"";
  const original=Array.isArray(quote)?cleanText(quote[0],190):"";
- const actNames=["THE ENCOUNTER","THE ASSUMPTION","THE SHIFT"];
+ const actNames=["THE ENCOUNTER"];
  html+='<div class="yl-logo-top"><div class="yl-logo-identity">'+
     '<div><strong>LITTLE LOGO</strong><small>'+(completed?"YOUR CONNECTION":"FOLLOW THE THOUGHT")+'</small></div></div>'+
     '<div class="yl-logo-progress" aria-label="'+(completed?"Reflection finished":"Reflection "+(steps+1)+" of 3")+'">'+dots+'</div></div>';
@@ -88,8 +89,8 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   '<div class="yl-logo-roam-position">'+littleLogoPet(c.loading&&c.petMood!=="curious"&&c.petMood!=="reflective"&&c.petMood!=="surprised"?"thinking":(c.petMood||(completed?"delighted":steps?"curious":"idle")))+'</div>'+
   '</div>';
  if(author)html+='<div class="yl-thinker-intro"><span class="yl-thinker-avatar">'+philosopherPortrait(author)+'</span><div class="yl-thinker-copy"><span class="yl-thinker-eyebrow">A THOUGHT FROM</span><strong>'+esc(author)+'</strong><span class="yl-thinker-whisper">'+(completed?"A thought to carry with you":actNames[Math.min(2,steps)])+'</span></div></div>';
- if(!completed&&steps===0&&original){
-  html+='<details class="yl-logo-source"><summary>THE ORIGINAL IDEA</summary><p>“'+esc(original)+'”</p></details>';
+ if(original){
+  html+='<div class="yl-logo-source yl-logo-source-visible" aria-label="Original philosophical idea"><span class="yl-logo-source-heading">THE ORIGINAL IDEA</span><blockquote class="yl-logo-source-quote">“'+esc(original)+'”</blockquote></div>';
  }
  if(c.loading&&!latest)html+='<div class="yl-ai-quiet-loading" role="status">Following a thought…</div>';
  if(c.loading&&latest){
@@ -101,10 +102,13 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  }else if(latest){
   if(completed){
    html+='<div class="yl-logo-finale">'+
-     '<h2 class="yl-logo-final-title">Your Connection</h2>'+
-     '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,480))+'</p><p class="yl-logo-backlink">FROM '+esc(author.toUpperCase())+'</p></div>';
+     '<h2 class="yl-logo-final-title">THE IDEA, A LITTLE CLEARER</h2>'+
+     '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,220))+'</p>'+
+     conceptVisualHtml(quote,c.quoteId,user?.text||"")+
+     (latest.followUp?'<span class="yl-discover-act-label">A QUESTION TO KEEP</span><h2 class="yl-logo-reflect-question">'+esc(cleanText(latest.followUp,140))+'</h2>':"")+
+     '</div>';
   }else{
-   html+='<div class="yl-ai-current"><span class="yl-discover-act-label">'+actNames[Math.min(2,steps)]+'</span>';
+   html+='<div class="yl-ai-current"><span class="yl-discover-act-label">'+actNames[0]+'</span>';
    
    html+='<p class="yl-ai-observation">'+esc(shortObservation(latest.text))+'</p>'+
      '<h2 class="yl-ai-question">'+esc(cleanText(latest.followUp,220))+'</h2></div>';
@@ -118,7 +122,10 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
     '<span class="yl-logo-choice-index">0'+(i+1)+'</span>'+
     '<span class="yl-logo-choice-label">'+esc(cleanText(choice,82))+'</span>'+
     '<span class="yl-logo-choice-arrow">'+nextArrow+'</span></button>'
-   ).join("")+'</div>';
+   ).join("")+'</div>'+ 
+   '<details class="yl-logo-other"><summary>Another way to put it?</summary>'+
+   '<textarea id="yl-ai-custom-answer" maxlength="280" rows="3" placeholder="In my own words…"></textarea>'+
+   '<button type="button" data-ai="own-answer">Explore my perspective</button></details>';
  }
  if(c.error)html+='<p class="yl-ai-error" role="status">'+esc(c.error)+'</p>'+
    '<button type="button" data-ai="cancel" class="yl-ai-secondary">Continue privately</button>';
@@ -131,6 +138,7 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
   html+='<div class="yl-logo-ending-actions">'+
     '<button type="button" data-ai="save" class="yl-ai-main">'+
       (c.saved?"See it in My World":"Keep in My World")+nextArrow+'</button>'+
+    '<button type="button" data-ai="try-another" class="yl-ai-secondary">Explore another perspective</button>'+
     '<button type="button" data-ai="finish" class="yl-ai-secondary">Back to Encounter</button></div>';
  }else if(latest&&!c.loading){
   html+='<button type="button" data-ai="finish" class="yl-ai-secondary yl-logo-exit">End reflection here</button>';
