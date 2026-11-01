@@ -1,7 +1,8 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {aiConversationHtml} from "../discover-ai-client.js";
+import {aiConversationHtml,LOGO_DECISIONS} from "../discover-ai-client.js";
+import {conceptVisualHtml,VISUAL_KINDS,VISUAL_BY_QUOTE} from "../discover-concept-grammar.js";
 import {philosopherPortrait} from "../philosopher-portraits.js";
 import {makeDiscoverPrompt,validateDiscoverTurn} from "../discover-ai-server.mjs";
 const quote=["A question worth asking","Søren Kierkegaard","Freedom"];
@@ -27,10 +28,20 @@ test("Slow response visibly changes to a thinking moment",()=>{
  assert.match(html,/following that thought/i);
  assert.match(html,/data-action="close-discover"/);
 });
-test("Subsequent choices advance the conversational act",()=>{
- const c={...first,messages:[...first.messages,{role:"user",text:"Be fully candid"},{role:"assistant",text:"Honesty can shift the burden.",followUp:"What still troubles you?",choices:["The timing","Their agency","My own reasons"]}]};
- const html=aiConversationHtml({quote,conversation:c,available:true,authenticated:true});
- assert.match(html,/THE ASSUMPTION/);
+test("One choice yields a small conceptual map and optional question",()=>{
+ const q=["He who has a why to live can bear almost any how.","Friedrich Nietzsche","Meaning"];
+ const c={quoteId:0,consent:true,complete:true,messages:[
+  {role:"assistant",text:"Nietzsche asks why we endure. Picture this:",followUp:"A friend asks why you stay at a hard job. What do you say?",choices:["It pays the bills","I hope it improves","I am no longer sure"]},
+  {role:"user",text:"It pays the bills"},
+  {role:"assistant",text:"A practical reason can sustain endurance without turning difficulty into fulfillment.",followUp:"When does necessity become purpose?",choices:[],complete:true}
+ ]};
+ const html=aiConversationHtml({quote:q,conversation:c,available:true,authenticated:true});
+ assert.equal(LOGO_DECISIONS,1);
+ assert.match(html,/THE IDEA, A LITTLE CLEARER/);
+ assert.match(html,/yl-concept-visual/);
+ assert.match(html,/When does necessity become purpose/);
+ assert.doesNotMatch(html,/data-ai-choice=/);
+ assert.match(html,/yl-logo-source-visible/);
 });
 test("Historical portraits remain local and quotes remain escaped",()=>{
  assert.match(philosopherPortrait("Søren Kierkegaard"),/svg/);
@@ -39,8 +50,8 @@ test("Historical portraits remain local and quotes remain escaped",()=>{
 });
 test("Philosophical prompt preserves meaningful choices and limits false personality claims",()=>{
  const prompt=makeDiscoverPrompt({quoteId:0,turn:0,quote:{text:"He who has a why to live can bear almost any how.",author:"Friedrich Nietzsche",theme:"Meaning"}});
- assert.match(prompt.system,/defensible values/);
- assert.match(prompt.system,/not a lifelong character trait/i);
+ assert.match(prompt.system,/3 distinct plausible/);
+ assert.match(prompt.system,/not durable beliefs/i);
  assert.throws(()=>validateDiscoverTurn({reply:"A very ordinary choice can feel larger than it is.",followUp:"What might you do?",choices:["Yes","No","Maybe"]},0));
 });
 test("Main UI preserves the three-tab architecture and private memory boundaries",()=>{
@@ -64,7 +75,7 @@ test("Rejects asking users to predict another person's reply (CZ-13)",()=>{
   reply:"You decided to ask Alex before judging the silence.",
   followUp:"What will Alex say when you ask?",
   choices:["I expect an explanation","I'd ask privately","I'd rather wait"]
- },1),/Generic or speculative/);
+ },0),/Generic or speculative/);
 });
 test("Rejects imagined outcomes even under a neutral question (CZ-13)",()=>{
  assert.throws(()=>validateDiscoverTurn({
@@ -110,7 +121,7 @@ test("Rejects wrong quote paired with an otherwise valid quote ID (CZ-13)",()=>{
 test("Preserves the same source-specific anchor into the last turn (CZ-13)",()=>{
  const quote={text:"The true is the whole.",author:"G. W. F. Hegel",theme:"Meaning"};
  const first=makeDiscoverPrompt({quoteId:31,turn:0,quote});
- const last=makeDiscoverPrompt({quoteId:31,turn:3,quote,direction:"Ask for the missing context"});
+ const last=makeDiscoverPrompt({quoteId:31,turn:1,quote,direction:"Ask for the missing context"});
  assert.deepEqual(last.context.philosophicalAnchor,first.context.philosophicalAnchor);
  assert.equal(last.context.closing,true);
 });
@@ -122,4 +133,35 @@ test("Every bundled quote retains matching curated grounding (CZ-13)",async()=>{
  const quotes=[...source.matchAll(/^\s*\["((?:[^"\\]|\\.)*)","/gm)].map(m=>[m[1].replace(/\\\"/g,'"')]);
  assert.equal(quotes.length,EXPLORE.length,"Every editorial quote must be traceable by stable ID");
  assert.deepEqual(getEngineCoverage(quotes),{curated:quotes.length,total:quotes.length});
+});
+
+test("Opening bridge is brief and journey ends after one choice",()=>{
+ assert.throws(()=>makeDiscoverPrompt({quoteId:0,turn:2,quote:{text:"He who has a why to live can bear almost any how.",author:"Friedrich Nietzsche",theme:"Meaning"}}),/Invalid journey step/);
+ const beginning=validateDiscoverTurn({reply:"Nietzsche asks why we endure. Picture this:",followUp:"A friend asks why you stay at a difficult job. What do you say?",choices:["The bills need paying","I still hope for change","I'm not sure anymore"]},0);
+ assert.equal(beginning.complete,false);
+ const ending=validateDiscoverTurn({reply:"A necessary reason can help us endure even when it offers little satisfaction.",followUp:"When does staying still make sense to you?",choices:[]},1);
+ assert.equal(ending.complete,true);
+ assert.equal(ending.choices.length,0);
+ assert.match(ending.followUp,/staying/);
+ assert.throws(()=>validateDiscoverTurn({reply:"A ".repeat(60),followUp:beginning.followUp,choices:beginning.choices},0),/concise/);
+});
+test("Free-text is hidden and not a fourth main choice",()=>{
+ const html=aiConversationHtml({quote,conversation:first,available:true,authenticated:true});
+ assert.equal((html.match(/data-ai-choice="/g)||[]).length,3);
+ assert.match(html,/<details class="yl-logo-other">/);
+ assert.match(html,/data-ai="own-answer"/);
+});
+test("All 91 quotes map to local editorial visual templates",()=>{
+ const ids=Object.keys(VISUAL_BY_QUOTE).map(Number);
+ assert.equal(ids.length,91);
+ assert.deepEqual(ids.sort((a,b)=>a-b),Array.from({length:91},(_,i)=>i));
+ assert.ok(Object.values(VISUAL_BY_QUOTE).every(kind=>VISUAL_KINDS.includes(kind)));
+ const samples=[[0,"He who has a why to live can bear almost any how.","bridge"],[11,"Two things fill the mind with ever-increasing wonder:","balance"],[31,"The true is the whole.","layers"]];
+ for(const [id,text,kind] of samples){
+  const html=conceptVisualHtml([text],id,"What I would choose");
+  assert.match(html,new RegExp("yl-concept-"+kind));
+  assert.match(html,/What I would choose/);
+ }
+ assert.equal(conceptVisualHtml(["Unrelated quote"],31,""),"");
+ assert.doesNotMatch(conceptVisualHtml(["The true is the whole."],31,"<script>"),/<script>/);
 });
