@@ -114,10 +114,16 @@ export function validateDiscoverTurn(output,turn=0){
  if(turn===DISCOVER_DECISIONS)return {reply,followUp:"",choices:[],complete:true};
  if(followUp.length<10||choices.length!==3||choices.some(x=>x.length<3||x.length>82))throw Error("Invalid philosophical choices");
  const normalized=choices.map(x=>x.toLowerCase().replace(/[^a-z0-9]+/g," ").trim());
+ // A padded Yes/No/Maybe remains a quiz, not a philosophical choice.
+ const generic=/^(?:yes|no|maybe|sure|not sure|i agree|i disagree|it depends)(?: (?:really|definitely|i guess|probably|perhaps|of course|i think so))?$/;
+ // Users can describe their own response; they cannot know another person's future action.
+ const outcomeQuestion=/(?:what happens (?:after|if)|what (?:will|would) (?:they|everyone|someone|alex) (?:do|say|think|feel)|how (?:will|would) (?:they|everyone|someone|alex) (?:react|respond))/i;
+ const predictedOutcome=/^(?:we|they|someone|everyone|alex|the team) (?:will|would|might|could|are going to) (?:agree|apologize|change|decide|pick|admit|react|forgive|listen)\b/;
  if(new Set(normalized).size!==3||
-    normalized.some(x=>/^(?:yes|no|maybe|i agree|i disagree|it depends|nothing changes anyway|we pick a new plan|someone admits they assumed)$/.test(x))||
-    (/(?:what happens after|what will (?:they|everyone) do next)/i.test(followUp)&&
-      normalized.some(x=>/^(?:we|they|someone|everyone|nothing)\s+(?:pick|agree|admit|decide|change|happen)/.test(x))))
+    normalized.some(x=>generic.test(x)||
+      /^(?:nothing changes anyway|we pick a new plan|someone admits they assumed)$/.test(x)||
+      predictedOutcome.test(x))||
+    outcomeQuestion.test(followUp))
     throw Error("Generic or speculative response options");
  return {reply,followUp,choices,complete:false};
 }
