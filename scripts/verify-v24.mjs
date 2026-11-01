@@ -275,7 +275,7 @@ const finishedAI={...firstAI,complete:true,messages:[...firstAI.messages,
  {role:"assistant",text:"The silence meant something, but it cannot explain the whole situation alone.",followUp:"What other relationships would change your view?",choices:[],complete:true}
 ]};
 const finishHtml=aiConversationHtml({quote:QUOTES[63],conversation:finishedAI,available:true,authenticated:true});
-assert.ok(finishHtml.includes("WHAT THIS SHOWS")&&!finishHtml.includes("yl-quote-drag"),"Unreviewed quote has explanation but no ungrounded word exercise");
+assert.ok(finishHtml.includes("WHAT THIS SHOWS")&&finishHtml.includes("yl-quote-drag")&&finishHtml.includes("Drop here"),"All bundled quotes should have concrete, optional word-card exercises");
 assert.ok(finishHtml.includes('data-ai="finish"')&&!finishHtml.includes("data-ai-choice="));
 assert.ok(finishHtml.includes("What other relationships would change your view?"));
 assert.ok(aiSummary(finishedAI,QUOTES[63],"2026-11-01").note.includes("More context"));
