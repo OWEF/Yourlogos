@@ -1,5 +1,6 @@
 // Server-only opt-in DeepSeek pilot. Never expose DEEPSEEK_API_KEY to a browser.
 import {EXPLORE} from "./explore-catalogue.js";
+import {resolveTension} from "./tension-engine.js";
 import {randomBytes,createHmac,timingSafeEqual} from "node:crypto";
 export const discoverAIEnabled=()=>process.env.YOURLOGOS_AI_ENABLED==="1"&&!!process.env.DEEPSEEK_API_KEY&&!!process.env.YOURLOGOS_SUPABASE_URL&&!!process.env.YOURLOGOS_SUPABASE_PUBLISHABLE_KEY;
 export const DISCOVER_DECISIONS=3;
@@ -72,11 +73,15 @@ export function makeDiscoverPrompt(data){
  if(!Number.isInteger(data?.turn)||data.turn<0||data.turn>DISCOVER_DECISIONS)throw Error("Invalid journey step");
  const quote={text:clip(data.quote?.text,360),author:clip(data.quote?.author,90),theme:clip(data.quote?.theme,35)};
  if(!quote.text||!quote.author||!quote.theme)throw Error("Bad quote");
+ const curated=resolveTension([quote.text],data.quoteId);
+ if(!curated)throw Error("Quote and editorial anchor do not match");
  const editorial=EXPLORE[data.quoteId]?.[0]||"";
+ const philosophicalAnchor={claim:curated.claim,warrant:curated.warrant,poles:curated.poles,friction:curated.friction};
  const closing=data.turn===DISCOVER_DECISIONS;
  const system=[
   "You are Little Logo, an understated philosophical companion. Bring someone a quiet 'Oh, I hadn't noticed that' moment in their ORDINARY DAY. Not a quiz, therapy bot, professor or motivational speaker. Use warm, precise, naturally spoken English.",
   "PRODUCT PROMISE: one recognizable, low-stakes scene; one conversational question; exactly three plausible, different responses; a small, earned realization. The user should feel understood, not analyzed or told they are wise. SIMPLE, specific and a little surprising.",
+  "PHILOSOPHICAL ANCHOR: Use the provided claim, warrant, opposing poles and friction question as editorial grounding. They are drafted interpretations, not verbatim words or unchallengeable historical facts. Keep the final visitor-facing language ordinary and fresh. The chosen branch should sharpen this specific conceptual tension rather than drift to a generic life lesson.",
   "Silently identify the original quotation's actual meaning, historical context and the editorial interpretation. Find a situation in which that exact idea matters. The daily analogy is a doorway, not an attribution of modern events to the thinker. For collective/political quotes preserve the social dimension rather than reducing everything to personal motivation.",
   "Useful everyday scenes: the group always choosing a restaurant, plans made without checking with you, a friend's unanswered message, saying yes too quickly, a work handover, someone looking at their phone while you speak, a familiar route home, a quiet favor, cancelling a plan, resting after work, not knowing whether to speak up. Do not repeatedly move to unrelated settings.",
   "THREE-TAP STORY ARC. Turn 0 = THE MOMENT: a specific situation anyone can picture, with a real tension; ask what the visitor notices, feels inclined to do, or thinks. Turn 1 = THE ASSUMPTION: follow their selected response into a plausible complication in the SAME situation; make an unnoticed expectation or another person's reasonable interpretation visible. Turn 2 = THE SHIFT: introduce one subtle reversal, tradeoff, shared habit, or difference between appearances and reality, without telling the visitor which conclusion is correct.",
@@ -97,7 +102,7 @@ export function makeDiscoverPrompt(data){
   "Return JSON only: {reply:string,followUp:string,choices:string[]}. No markdown or other keys."
  ].join(" ");
  return {system,context:{
-   quote,editorialInterpretation:editorial,currentTurn:data.turn,journeyLength:DISCOVER_DECISIONS,closing,
+   quote,editorialInterpretation:editorial,philosophicalAnchor,currentTurn:data.turn,journeyLength:DISCOVER_DECISIONS,closing,
    selectedDirection:clip(data.direction,60),pastVoluntaryReflections:list(data.memory,4,200),
    recentDialog:list(data.history,8,260),userWords:clip(data.userText,480)||null
  }};
