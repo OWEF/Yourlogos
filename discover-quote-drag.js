@@ -308,7 +308,8 @@ function update(root){
   slot.setAttribute("aria-label",word?word+"; tap to remove":record.slots.find(s=>s.key===key).hint+"; empty; select a card");
  });
  const status=root.querySelector(".yl-drag-status");
- if(status)status.textContent=done?"The example is complete. Here's how it connects to the original idea.":selected?"Now choose a blank for your card.":"Drag a card to a blank, or tap a card and then a blank.";
+ const bothFilled=record.slots.every(({key})=>!!root.dataset["answer"+key]);
+ if(status)status.textContent=done?"The example is complete. Here's how it connects to the original idea.":bothFilled?"Both cards are placed. Try swapping them to match the example.":selected?"Now choose a blank for your card.":"Drag a card to a blank, or tap a card and then a blank.";
  const complete=root.querySelector(".yl-drag-complete");
  if(complete)complete.hidden=!done;
 }
