@@ -45,6 +45,12 @@ test("Future-quote draft requires three independently chosen lenses and full rev
        {key:"b",label:"Another reading",focus:"B",insight:"Another insight",sceneMeaning:"A concrete explanation b",quoteConnection:"An explicit quote link b",sceneLeft:"One detail b",sceneRight:"Another detail b",relation:"helps explain"},
        {key:"c",label:"Third reading",focus:"C",insight:"Third insight",sceneMeaning:"A concrete explanation c",quoteConnection:"An explicit quote link c",sceneLeft:"One detail c",sceneRight:"Another detail c",relation:"helps explain"}]},
    reflection:{question:"What would you reconsider?",saveRequiresAction:true},
+   conceptualExercise:{kind:"drag-substitution",variants:[0,1,2].map(i=>({
+      parts:["A real example ",{slot:"a"}," connects to ",{slot:"b"},"."],
+      slots:[{key:"a",hint:"First idea",word:"an everyday event "+i},
+             {key:"b",hint:"Second idea",word:"its consequence "+i}],
+      connection:"The example illustrates a distinct relation "+i
+   }))},
    review:Object.fromEntries(REVIEW_CHECKS.map(k=>[k,true]))};
  assert.deepEqual(validateDiscoverSpec(complete,{publish:true}),[]);
  assert.equal(canPublishDiscoverSpec(complete),true);
