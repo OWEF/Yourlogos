@@ -102,10 +102,11 @@ export function aiConversationHtml({quote,conversation,available,authenticated})
  }else if(latest){
   if(completed){
    html+='<div class="yl-logo-finale">'+
-     '<h2 class="yl-logo-final-title">THE IDEA, A LITTLE CLEARER</h2>'+
+     (user?.text?'<span class="yl-discover-act-label">YOU CHOSE</span><p class="yl-logo-your-choice">'+esc(cleanText(user.text,150))+'</p>':"")+
+     '<h2 class="yl-logo-final-title">WHAT THIS SHOWS</h2>'+
      '<p class="yl-logo-final-insight">'+esc(cleanText(latest.text,220))+'</p>'+
-     conceptVisualHtml(quote,c.quoteId,user?.text||"")+
-     (latest.followUp?'<span class="yl-discover-act-label">A QUESTION TO KEEP</span><h2 class="yl-logo-reflect-question">'+esc(cleanText(latest.followUp,140))+'</h2>':"")+
+     conceptVisualHtml(quote,c.quoteId,user?.text||"",user?.lensIndex)+
+     (latest.followUp?'<span class="yl-discover-act-label">ONE QUESTION TO KEEP</span><h2 class="yl-logo-reflect-question">'+esc(cleanText(latest.followUp,140))+'</h2>':"")+
      '</div>';
   }else{
    html+='<div class="yl-ai-current"><span class="yl-discover-act-label">'+actNames[0]+'</span>';
