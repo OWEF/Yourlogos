@@ -305,7 +305,7 @@ assert.ok(guestIdentity({headers:{host:"railway-internal-proxy","sec-fetch-site"
 assert.equal(guestIdentity({headers:{host:"railway-internal-proxy","sec-fetch-site":"cross-site"}},cookieResponse),null,"Cross-site fetch without Origin is denied");
 
 assert.ok(app.includes('...(token?{Authorization:"Bearer "+token}:{})'),"Browser sends account authentication only when available");
-assert.ok(aiCard.includes('data-ai-choice="0"'),"AI tap responses are available without a keyboard");
+assert.ok(firstHtml.includes('data-ai-choice="0"'),"AI tap responses are available without a keyboard");
 assert.ok(serverSource.includes('"/api/discover-ai"')&&serverSource.includes('handleDiscoverAI(req,res)'));
 assert.ok(!serverSource.includes('process.env.OPENAI_API_KEY'),"Static public config must never include the secret API key");
 assert.ok(aiServerSource.includes("getUser")===false&&aiServerSource.includes('/auth/v1/user'),"Supabase verifies bearer token");
@@ -313,18 +313,18 @@ assert.ok(aiServerSource.includes("api.deepseek.com/chat/completions")&&aiServer
 assert.ok(aiServerSource.includes("process.env.DEEPSEEK_API_KEY")&&!aiServerSource.includes("process.env.OPENAI_API_KEY"),"DeepSeek secret stays server-side");
 assert.ok(sw.includes('"/discover-ai-client.js"'),"Offline shell loads without AI network access");
 
-assert.ok(prompt.system.includes("PRODUCT PROMISE")&&prompt.system.includes("ORDINARY DAY"),"Little Logo prioritizes concrete daily experience");
-assert.ok(prompt.system.includes("Your friends always go to the same place")&&prompt.system.includes("Ask why we always go there"),"Prompt provides everyday test examples");
-assert.ok(prompt.system.includes("No abstract 'what does freedom/identity/existence mean'"),"No abstract philosophical quiz questions");
+assert.ok(openingPrompt.system.includes("ONE ROUND ONLY")&&openingPrompt.system.includes("ordinary life"),"Short ordinary-life encounters are required");
+assert.ok(openingPrompt.system.includes("3 distinct plausible")&&openingPrompt.system.includes("single clear question"),"Three defensible lenses and a single question are required");
+assert.ok(openingPrompt.system.includes("not statements to attribute as verbatim words"),"Prevent false thinker attribution");
 assert.ok(app.includes("yl-discover-immersive"),"Discover receives immersive full-screen class");
 assert.ok(app.includes('type:"complete"')&&app.includes('positives.get(theme)'),"Journey completions influence next-day quote ranking");
-assert.ok(!aiCard.includes("Earlier thoughts")&&!aiCard.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
+assert.ok(!firstHtml.includes("Earlier thoughts")&&!firstHtml.includes("YOUR LAST DIRECTION"),"Keep interaction uncluttered");
 
 const immersiveCSS=read("little-logo-discover.css");
 assert.ok(html.includes('/little-logo-discover.css'),"Immersive Discover stylesheet loads last");
 assert.ok(sw.includes('/little-logo-discover.css')&&Number(sw.match(/const CACHE="yourlogos-v([0-9]+)-/)?.[1]||0)>=81,"iPhone PWA precaches the new visual treatment");
-assert.ok(aiCard.includes("yl-logo-pet-pose")&&!aiCard.includes("yl-logo-face"),"Character uses real painted pose art without mismatched vector faces");
-assert.ok(aiCard.includes('yl-logo-scene-light')&&aiCard.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
+assert.ok(firstHtml.includes("yl-logo-pet-pose")&&!firstHtml.includes("yl-logo-face"),"Character uses real painted pose art without mismatched vector faces");
+assert.ok(firstHtml.includes('yl-logo-scene-light')&&firstHtml.includes('yl-logo-scene-ridge'),"Discover uses a cohesive subtle scene behind the mascot");
 assert.ok(immersiveCSS.includes('yl-life-stage-joy')&&immersiveCSS.includes('yl-life-stage-think')&&immersiveCSS.includes('yl-life-stage-startle'),"Companion includes physically different joyful thinking and startled poses");
 assert.ok(immersiveCSS.includes('mix-blend-mode:screen')&&immersiveCSS.includes('mask-image:'),"Old dark sticker edges blend into the scene");
 assert.ok(immersiveCSS.includes('prefers-reduced-motion:reduce'),"Active character states respect reduced-motion preference");
@@ -347,18 +347,18 @@ assert.ok(app.includes('lilLogoFX("answer")')&&app.includes('lilLogoFX("tap")')&
 assert.ok(app.includes('t.impactOccurred("medium")'),"Telegram host uses a real medium impact for answer actions");
 const loadingPoseCard=aiConversationHtml({
   quote:QUOTES[63],
-  conversation:{...artificial,loading:true,petMood:"thinking"},
+  conversation:{...firstAI,loading:true,petMood:"thinking"},
   available:true,authenticated:true
 });
 assert.ok(loadingPoseCard.includes("yl-logo-feedback"),"Initial AI thinking scene still has distinct display");
-assert.ok(!loadingPoseCard.includes("What would that cost you?")&&!loadingPoseCard.includes("yl-logo-choices"),"Thinking feedback does not leave stale question and options on screen");
-assert.ok(aiCard.includes("yl-logo-progress-track")&&aiCard.includes('role="progressbar"'),"Discover has its own three-stage progress bar");
+assert.ok(!loadingPoseCard.includes("A team judges someone from one quiet meeting")&&!loadingPoseCard.includes("yl-logo-choices"),"Loading feedback hides stale choices");
+assert.ok(firstHtml.includes("yl-logo-progress-track")&&firstHtml.includes('role="progressbar"'),"Discover has its own one-stage progress indicator");
 const poseCSS=read("little-logo-poses-v5.css");
 const poseWebP=fs.readFileSync(new URL("../little-logo-poses-v5.webp",import.meta.url));
 assert.ok(poseWebP.length>25000&&poseWebP.subarray(0,4).toString()==="RIFF","Real eight-pose artwork is present and valid WebP");
 assert.ok(html.includes('little-logo-poses-v5.css'),"Illustration CSS loads last after original styles");
 assert.ok(sw.includes('little-logo-poses-v5.css')&&sw.includes('little-logo-poses-v5.webp'),"Artwork and CSS are available offline in PWA");
-assert.ok(aiCard.includes('yl-logo-pet-pose')&&!aiCard.includes('yl-logo-face'),"Rendered companion uses painted sprite without old eye overlay");
+assert.ok(firstHtml.includes('yl-logo-pet-pose')&&!firstHtml.includes('yl-logo-face'),"Rendered companion uses painted sprite without old eye overlay");
 assert.ok(poseCSS.includes('.yl-logo-pet-delighted .yl-logo-pet-pose')&&poseCSS.includes('.yl-logo-pet-thinking .yl-logo-pet-pose')&&poseCSS.includes('.yl-logo-pet-surprised .yl-logo-pet-pose'),"Distinct physical character poses are mapped to states");
 assert.ok(poseCSS.includes('background-size:800% 100%')&&poseCSS.includes('prefers-reduced-motion:reduce'),"Atlas uses eight frames and honors accessibility");
 const livingCSS=read("little-logo-live.css");
@@ -369,14 +369,14 @@ assert.ok(!aiClientSource.includes("yl-logo-pet-hair")&&!aiClientSource.includes
 assert.ok(livingCSS.includes("@keyframes yl-life-blink")&&livingCSS.includes("@keyframes yl-life-thinking")&&livingCSS.includes("@keyframes yl-life-delighted"),"Character has deliberate idle and emotional motion");
 assert.ok(livingCSS.includes("prefers-reduced-motion:reduce"),"Companion respects reduced-motion accessibility");
 assert.ok(app.includes('current.interlude=true')&&app.includes('current.interlude=false'),"Decision interlude starts and resolves");
-const reactionScene=aiConversationHtml({quote:QUOTES[63],conversation:{...artificial,interlude:true,interludeChoice:1,loading:true},available:true,authenticated:true});
+const reactionScene=aiConversationHtml({quote:QUOTES[63],conversation:{...firstAI,interlude:true,interludeChoice:1,loading:true},available:true,authenticated:true});
 assert.ok(reactionScene.includes("yl-logo-interlude")&&reactionScene.includes("yl-logo-pet"),"Interlude renders mascot");
 assert.ok(!reactionScene.includes("yl-logo-choices")&&!reactionScene.includes("yl-thinker-intro")&&!reactionScene.includes("yl-logo-feedback")&&!reactionScene.includes("yl-ai-question"),"Interlude hides all philosopher, choice and thinking text");
 const {PORTRAIT_AUTHORS,philosopherPortrait}=await import("../philosopher-portraits.js");
 assert.equal(PORTRAIT_AUTHORS.length,56,"All canonical Discover author sources are represented");
 assert.equal(new Set(PORTRAIT_AUTHORS.map(a=>philosopherPortrait(a))).size,56,"Every source has unique portrait SVG");
 assert.ok(html.includes('src="/app.js?yl=')&&html.includes('src="/little-logo-presence.js?yl=')&&html.includes('href="/discover-living-v2.css?yl='),"iPhone entrypoint references versioned Discover assets");
-assert.ok(app.includes('from "./discover-ai-client.js?yl=81"'),"app.js loads v80 Discover component");
+assert.ok(app.includes('from "./discover-ai-client.js?yl=86"'),"app loads current Discover component");
 assert.ok(sw.includes('cache:"no-store"')&&sw.includes('request.mode==="navigate"')&&sw.includes('url.pathname.startsWith("/api/")'),
   "iPhone PWA retrieves fresh app scripts/pages online without caching private API data");
 assert.ok(sw.includes("caches.match(request)")&&sw.includes('"/index.html"'),
