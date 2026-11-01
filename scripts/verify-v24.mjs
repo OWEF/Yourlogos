@@ -275,7 +275,7 @@ const finishedAI={...firstAI,complete:true,messages:[...firstAI.messages,
  {role:"assistant",text:"The silence meant something, but it cannot explain the whole situation alone.",followUp:"What other relationships would change your view?",choices:[],complete:true}
 ]};
 const finishHtml=aiConversationHtml({quote:QUOTES[63],conversation:finishedAI,available:true,authenticated:true});
-assert.ok(finishHtml.includes("WHAT THIS SHOWS")&&!finishHtml.includes("yl-concept-visual"),"Unreviewed quote has explanation but no ungrounded diagram");
+assert.ok(finishHtml.includes("WHAT THIS SHOWS")&&!finishHtml.includes("yl-quote-drag"),"Unreviewed quote has explanation but no ungrounded word exercise");
 assert.ok(finishHtml.includes('data-ai="finish"')&&!finishHtml.includes("data-ai-choice="));
 assert.ok(finishHtml.includes("What other relationships would change your view?"));
 assert.ok(aiSummary(finishedAI,QUOTES[63],"2026-11-01").note.includes("More context"));
@@ -376,7 +376,7 @@ const {PORTRAIT_AUTHORS,philosopherPortrait}=await import("../philosopher-portra
 assert.equal(PORTRAIT_AUTHORS.length,56,"All canonical Discover author sources are represented");
 assert.equal(new Set(PORTRAIT_AUTHORS.map(a=>philosopherPortrait(a))).size,56,"Every source has unique portrait SVG");
 assert.ok(html.includes('src="/app.js?yl=')&&html.includes('src="/little-logo-presence.js?yl=')&&html.includes('href="/discover-living-v2.css?yl='),"iPhone entrypoint references versioned Discover assets");
-assert.ok(app.includes('from "./discover-ai-client.js?yl=86"'),"app loads current Discover component");
+assert.ok(app.includes('from "./discover-ai-client.js?yl=87"'),"app loads current Discover component");
 assert.ok(sw.includes('cache:"no-store"')&&sw.includes('request.mode==="navigate"')&&sw.includes('url.pathname.startsWith("/api/")'),
   "iPhone PWA retrieves fresh app scripts/pages online without caching private API data");
 assert.ok(sw.includes("caches.match(request)")&&sw.includes('"/index.html"'),
