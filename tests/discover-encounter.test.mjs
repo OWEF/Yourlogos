@@ -90,3 +90,27 @@ test("Accepts distinct, self-directed taps and retains branch context (CZ-13)",(
  assert.equal(prompt.context.currentTurn,1);
  assert.ok(prompt.context.recentDialog.some(x=>x.includes("Ask Alex")));
 });
+
+test("Grounds Discover in quote-specific philosophical claim and opposing poles (CZ-13)",()=>{
+ const prompt=makeDiscoverPrompt({
+  quoteId:31,turn:0,
+  quote:{text:"The true is the whole.",author:"G. W. F. Hegel",theme:"Meaning"}
+ });
+ assert.match(prompt.context.philosophicalAnchor.claim,/relations/i);
+ assert.equal(prompt.context.philosophicalAnchor.poles.length,2);
+ assert.match(prompt.context.philosophicalAnchor.friction,/fact/i);
+ assert.match(prompt.system,/editorial grounding/i);
+});
+test("Rejects wrong quote paired with an otherwise valid quote ID (CZ-13)",()=>{
+ assert.throws(()=>makeDiscoverPrompt({
+  quoteId:31,turn:0,
+  quote:{text:"Man is condemned to be free.",author:"Jean-Paul Sartre",theme:"Freedom"}
+ }),/Quote and editorial anchor do not match/);
+});
+test("Preserves the same source-specific anchor into the last turn (CZ-13)",()=>{
+ const quote={text:"The true is the whole.",author:"G. W. F. Hegel",theme:"Meaning"};
+ const first=makeDiscoverPrompt({quoteId:31,turn:0,quote});
+ const last=makeDiscoverPrompt({quoteId:31,turn:3,quote,direction:"Ask for the missing context"});
+ assert.deepEqual(last.context.philosophicalAnchor,first.context.philosophicalAnchor);
+ assert.equal(last.context.closing,true);
+});
