@@ -34,3 +34,27 @@ test("Every role must have a matching slot and every assignment a real relation"
  assert.deepEqual(validateDragExercise({slots:[{key:"why",hint:"Why",word:"The bills"}],parts:["hello"],connection:"X"}).length>0,true);
  assert.deepEqual(validateDragExercise({slots:[{key:"a",hint:"A",word:"One"},{key:"b",hint:"B",word:"Two"}],parts:[{slot:"a"},{slot:"a"}],connection:"X"}).length>0,true);
 });
+
+test("Every one of 91 bundled quotes has a distinct, concrete substitution for all three selections",()=>{
+ const signatures=new Set();
+ for(let id=0;id<91;id++){
+  for(let lens=0;lens<3;lens++){
+   const exercise=getDragExercise(id,lens);
+   assert.ok(exercise,"No drag exercise for "+id+" / "+lens);
+   assert.deepEqual(validateDragExercise(exercise),[],"Invalid exercise "+id+" / "+lens);
+   const rendered=quoteDragExerciseHtml(id,lens);
+   assert.match(rendered,/data-yl-quote-drag/);
+   assert.match(rendered,/data-exercise-slot/);
+   assert.match(rendered,/data-exercise-card/);
+   assert.match(rendered,/Back to the quote/);
+   assert.equal((rendered.match(/data-exercise-card=/g)||[]).length,2);
+   assert.equal((rendered.match(/data-exercise-slot=/g)||[]).length,2);
+   assert.ok(!/\[A\]|\[B\]|\{\{/.test(rendered),"Unexpanded placeholder for "+id);
+  }
+  const base=getDragExercise(id,0);
+  const signature=base.parts.map(p=>typeof p==="string"?p:"["+p.slot+"]").join("");
+  assert.ok(!signatures.has(signature),"Repeated exercise sentence across quotes "+id);
+  signatures.add(signature);
+ }
+ assert.equal(signatures.size,91);
+});
