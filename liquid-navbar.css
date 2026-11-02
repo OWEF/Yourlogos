@@ -1,0 +1,54 @@
+/* YourLogos Waterline · navigation only.
+   Adapted from the supplied Nimbus Liquid Navbar reference for the existing
+   no-build, three-destination application. No changes to route or page styles. */
+body > .mobile-tabs .dock-glass.waterline-dock{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border-radius:999px;
+  border:1px solid rgba(244,229,207,.37);
+  background:linear-gradient(160deg,rgba(59,54,51,.69),rgba(21,21,23,.78));
+  -webkit-backdrop-filter:blur(19px) saturate(1.3);
+  backdrop-filter:blur(19px) saturate(1.3);
+  box-shadow:inset 0 1px 1px rgba(255,251,240,.4),
+    inset 0 -1px 0 rgba(5,5,8,.5),
+    0 13px 38px -12px rgba(0,0,0,.9),0 3px 10px rgba(0,0,0,.3);
+}
+body > .mobile-tabs .waterline-dock::before{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,rgba(255,255,255,.10),transparent 30%,transparent 65%,rgba(255,241,209,.08));
+  z-index:0;
+}
+body > .mobile-tabs .waterline-dock .dock-indicator{
+  border-radius:999px;
+  background:radial-gradient(ellipse at 32% 0%,rgba(255,255,255,.48),transparent 72%),
+    linear-gradient(145deg,rgba(249,231,202,.49),rgba(139,116,97,.33) 74%);
+  border:1px solid rgba(255,242,218,.55);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.58),inset 0 -3px 5px rgba(122,83,45,.25),0 5px 15px rgba(0,0,0,.25);
+  transition:transform .48s cubic-bezier(.23,1.23,.25,1);
+}
+body > .mobile-tabs .waterline-dock[data-water-gl="on"] .dock-indicator{visibility:hidden}
+body > .mobile-tabs .waterline-canvas{
+  position:absolute;inset:0;display:block;width:100%;height:100%;
+  z-index:1;pointer-events:none;opacity:1;
+}
+body > .mobile-tabs .waterline-dock[data-water-gl="off"] .waterline-canvas{display:none}
+body > .mobile-tabs .waterline-dock .dock-btn{
+  position:relative;z-index:2;border-radius:999px;
+  color:rgba(230,220,202,.73);
+  -webkit-tap-highlight-color:transparent;
+}
+body > .mobile-tabs .waterline-dock .dock-btn.active{
+  color:#fff9ee;
+  filter:drop-shadow(0 1px 6px rgba(255,235,198,.38));
+}
+body > .mobile-tabs .waterline-dock .dock-btn:focus-visible{
+  outline:2px solid #f0d4a1;outline-offset:-3px;
+}
+body > .mobile-tabs .waterline-dock .dock-btn:active{transform:translateY(1px) scale(.91)}
+@media (prefers-reduced-motion:reduce){
+  body > .mobile-tabs .waterline-dock .dock-indicator{transition:none!important}
+  body > .mobile-tabs .waterline-dock .dock-btn{transition:none!important;animation:none!important}
+  body > .mobile-tabs .waterline-dock .dock-btn svg,
+  body > .mobile-tabs .waterline-dock .dock-btn svg *{animation:none!important}
+}
