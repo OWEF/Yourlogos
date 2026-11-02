@@ -23,9 +23,9 @@ void main(){
   vec2 p=vec2(gl_FragCoord.x,uSize.y*uDpr-gl_FragCoord.y)/uDpr;
   float d=softMin(capsule(p,uLead),capsule(p,uTail),12.);
   for(int i=0;i<3;i++){
-    vec4 dot=uDots[i];
-    if(dot.w>0.){
-      float ring=length(p-dot.xy)-dot.z;
+    vec4 droplet=uDots[i];
+    if(droplet.w>0.){
+      float ring=length(p-droplet.xy)-droplet.z;
       d=softMin(d,ring,4.);
     }
   }
@@ -80,7 +80,7 @@ function makeWebGL(canvas) {
   gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
   const uniforms={};
   for(const name of ["uSize","uDpr","uTime","uLead","uTail","uRipple","uRippleAge","uDots","uPointer"]){
-    uniforms[name]=gl.getUniformLocation(program,name);
+    uniforms[name]=gl.getUniformLocation(program,name==="uDots"?"uDots[0]":name);
   }
   return {gl,program,buffer,uniforms};
 }
@@ -231,8 +231,10 @@ export function attachLiquidNavbar(nav){
     try{state.gl=makeWebGL(canvas);}catch{state.gl=null;}
   }
   dock.dataset.waterGl=state.gl?"on":"off";
-  state.resizeObserver=new ResizeObserver(resize);
-  state.resizeObserver.observe(dock);
+  if("ResizeObserver" in window){
+    state.resizeObserver=new ResizeObserver(resize);
+    state.resizeObserver.observe(dock);
+  }else window.addEventListener?.("resize",resize,{passive:true});
   if("IntersectionObserver" in window){
     state.intersectionObserver=new IntersectionObserver(([entry])=>{
       state.visible=Boolean(entry?.isIntersecting);
