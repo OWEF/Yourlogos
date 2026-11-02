@@ -1,3 +1,4 @@
+import { syncLiquidNavbar } from "./liquid-navbar.js";
 import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { availableThoughts, quoteAt, followingThought } from "./encounter-queue.js";
 import { SCHOOL_SCENES } from "./school-scenes.js";
@@ -552,6 +553,8 @@ function render(){
       }
     });
   }
+  // Refresh the persistent Waterline surface; the dock is never remounted.
+  syncLiquidNavbar(document.querySelector("body > .mobile-tabs"));
   if(view==="today"&&!onboarding&&detailId===null)bindQuoteGesture();
   window.dispatchEvent(new CustomEvent("yourlogos:ready",{detail:{date:today(),quoteId:visibleQuoteId()??activeQuote(),quote:QUOTES[visibleQuoteId()??activeQuote()]}}));
 }
