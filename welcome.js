@@ -57,6 +57,8 @@
     thumb.setAttribute("aria-valuenow",String(Math.round(progress*100)));
     updateReveal();
     thumb.setAttribute("aria-valuetext",progress>=.96?"Release to enter":Math.round(progress*100)+" percent");
+    // Decoration only: Waterline listens without changing the swipe lifecycle.
+    track.dispatchEvent(new CustomEvent("yourlogos:slider-progress",{detail:{progress,animated}}));
   }
   function haptic(p,finished=false){
     const step=Math.floor(p*8);
