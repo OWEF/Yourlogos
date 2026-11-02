@@ -1,0 +1,86 @@
+/* Waterline — entrance slider visual skin, paired with the existing navbar.
+   All rules are scoped to the Philosophy it slider; the drag/entry contract is untouched. */
+.yl-slider.waterline-slider .yl-slider__track{
+  isolation:isolate;
+  border-radius:999px;
+  border:1px solid rgba(244,229,207,.41);
+  background:
+    radial-gradient(ellipse at 22% 0%,rgba(248,225,183,.16),transparent 65%),
+    linear-gradient(155deg,rgba(58,54,51,.93),rgba(20,21,23,.96) 64%,rgba(48,42,40,.95));
+  box-shadow:
+    inset 0 1px 1px rgba(255,251,240,.42),
+    inset 0 -2px 9px rgba(0,0,0,.54),
+    0 13px 32px -11px rgba(0,0,0,.88),
+    0 3px 9px rgba(0,0,0,.38);
+  -webkit-backdrop-filter:blur(18px) saturate(1.28);
+  backdrop-filter:blur(18px) saturate(1.28);
+}
+.yl-slider.waterline-slider .yl-slider__track::before{
+  content:"";position:absolute;inset:2px;
+  border-radius:inherit;pointer-events:none;
+  background:linear-gradient(105deg,rgba(255,255,255,.11),transparent 34%,transparent 68%,rgba(255,236,198,.06));
+  z-index:0;
+}
+.yl-slider.waterline-slider .yl-slider__track::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  border:1px solid rgba(255,251,239,.06);pointer-events:none;z-index:2;
+}
+.yl-slider.waterline-slider .yl-slider__fill{
+  border-radius:999px;
+  background:radial-gradient(ellipse at 48% 0%,rgba(255,255,255,.47),transparent 65%),
+    linear-gradient(110deg,rgba(178,141,94,.70),rgba(248,225,191,.52),rgba(245,203,145,.44));
+  box-shadow:inset 0 2px 5px rgba(255,255,255,.24),inset 0 -4px 9px rgba(99,68,38,.25),0 0 16px rgba(229,191,130,.24);
+  opacity:calc(.25 + var(--intensity)*.43);
+}
+.yl-slider.waterline-slider[data-liquid-gl="on"] .yl-slider__fill{opacity:.10}
+.yl-slider.waterline-slider .yl-liquid-slider-canvas{
+  position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);
+  border-radius:999px;display:block;pointer-events:none;z-index:1;
+  overflow:hidden;
+}
+.yl-slider.waterline-slider[data-liquid-gl="off"] .yl-liquid-slider-canvas{display:none}
+.yl-slider.waterline-slider .yl-slider__title{
+  z-index:2;
+  color:#fff0d9;
+  text-shadow:0 1px 9px rgba(0,0,0,.94),0 1px 18px rgba(0,0,0,.50);
+}
+.yl-slider.waterline-slider .yl-slider__chevron{
+  z-index:2;color:#f1d4a7;text-shadow:0 0 8px rgba(255,220,168,.3);
+}
+.yl-slider.waterline-slider .yl-slider__glint{
+  background:rgba(255,247,225,.88);
+  box-shadow:0 0 10px rgba(255,232,193,.85),0 0 22px rgba(255,201,136,.42);
+  z-index:2;
+}
+.yl-slider.waterline-slider .yl-slider__thumb.yl-entrance__button{
+  border-radius:999px!important;
+  border:1px solid rgba(252,234,201,.60)!important;
+  background:radial-gradient(circle at 36% 22%,rgba(253,237,202,.32),rgba(181,146,108,.16) 48%,rgba(47,39,35,.08) 70%)!important;
+  box-shadow:inset 0 1px 3px rgba(255,255,255,.47),
+    0 4px 13px rgba(0,0,0,.42),
+    0 0 calc(7px + var(--intensity)*16px) rgba(234,195,140,.48)!important;
+}
+.yl-slider.waterline-slider .yl-slider__thumb::after{
+  border-radius:999px;
+  border-color:rgba(255,239,208,.40);
+  box-shadow:0 0 calc(7px + var(--intensity)*19px) rgba(245,208,151,.35);
+}
+.yl-slider.waterline-slider .yl-slider__motes{border-radius:999px}
+.yl-slider.waterline-slider.is-near .yl-slider__track{
+  border-color:rgba(255,240,211,.76);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.54),0 0 26px rgba(235,193,132,.22),0 11px 30px rgba(0,0,0,.75);
+}
+.yl-slider.waterline-slider.is-complete .yl-slider__track{
+  border-color:rgba(255,245,216,.85);
+  box-shadow:inset 0 1px 8px rgba(255,245,211,.39),0 0 32px rgba(244,209,151,.40),0 11px 30px rgba(0,0,0,.64);
+}
+.yl-slider.waterline-slider .yl-slider__thumb:focus-visible{
+  outline:2px solid #ffe5b6;outline-offset:5px;
+}
+@media(prefers-reduced-motion:reduce){
+  .yl-slider.waterline-slider .yl-liquid-slider-canvas{display:none!important}
+  .yl-slider.waterline-slider .yl-slider__fill{opacity:.4}
+  .yl-slider.waterline-slider .yl-slider__track,
+  .yl-slider.waterline-slider .yl-slider__thumb,
+  .yl-slider.waterline-slider .yl-slider__glint{animation:none!important;transition:none!important}
+}
