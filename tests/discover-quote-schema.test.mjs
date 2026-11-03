@@ -117,6 +117,15 @@ test("Uncached query URL falls back to its canonical precache response offline",
  assert.deepEqual(worker.reads,{cache:2,global:0});
 });
 
+test("Canonical precache response wins over older query variants for unseen URLs",async()=>{
+ const worker=offlineWorker({
+  "/app.js?yl=old":"OLD_QUERY_VARIANT",
+  "/app.js":"CANONICAL_APP"
+ });
+ assert.equal(await worker.request("/app.js?yl=unseen"),"CANONICAL_APP");
+ assert.deepEqual(worker.reads,{cache:2,global:0});
+});
+
 test("Offline Discover startup requests resolve from canonical precache entries",async()=>{
  const worker=offlineWorker({
   "/":"INDEX",

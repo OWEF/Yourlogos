@@ -15,6 +15,8 @@ self.addEventListener("fetch",event=>{
    const cache=await caches.open(CACHE);
    const cached=await cache.match(request);
    if(cached)return cached;
+   const canonical=await cache.match(new URL(url.pathname,url.origin).href);
+   if(canonical)return canonical;
    const fallback=await cache.match(request,{ignoreSearch:true});
    if(fallback)return fallback;
    if(request.mode==="navigate")return (await caches.match("/index.html"))||Promise.reject(error);
