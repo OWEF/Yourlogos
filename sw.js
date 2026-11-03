@@ -12,8 +12,11 @@ self.addEventListener("fetch",event=>{
    if(response.ok)event.waitUntil(caches.open(CACHE).then(cache=>cache.put(request,response.clone())).catch(()=>{}));
    return response;
   }).catch(async error=>{
-   const cached=await caches.match(request,{ignoreSearch:true});
+   const cache=await caches.open(CACHE);
+   const cached=await cache.match(request);
    if(cached)return cached;
+   const fallback=await cache.match(request,{ignoreSearch:true});
+   if(fallback)return fallback;
    if(request.mode==="navigate")return (await caches.match("/index.html"))||Promise.reject(error);
    throw error;
   }));

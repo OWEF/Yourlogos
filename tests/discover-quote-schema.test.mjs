@@ -67,7 +67,73 @@ test("Discover startup modules are explicitly precached for offline app evaluati
   assert.ok(sw.includes('"/'+file+'"'),"Offline precache must include "+file);
 });
 
-test("Offline code fallback ignores cache-busting entry URL queries",()=>{
- const sw=readFileSync(new URL("../sw.js",import.meta.url),"utf8");
- assert.ok(sw.includes("caches.match(request,{ignoreSearch:true})"));
+const vm=await import("node:vm");
+const workerSource=readFileSync(new URL("../sw.js",import.meta.url),"utf8");
+function offlineWorker(entries){
+ const listeners={},origin="https://yourlogos.test";
+ const cacheName=workerSource.match(/const CACHE="([^"]+)"/)[1];
+ const store=new Map(Object.entries(entries).map(([url,response])=>[new URL(url,origin).href,response]));
+ let cacheReads=0,globalReads=0;
+ const match=(request,options={})=>{
+  cacheReads++;
+  const url=typeof request==="string"?new URL(request,origin).href:request.url;
+  if(!options.ignoreSearch)return store.get(url);
+  const target=new URL(url);
+  return [...store].find(([key])=>{
+   const candidate=new URL(key);
+   return candidate.origin===target.origin&&candidate.pathname===target.pathname;
+  })?.[1];
+ };
+ const cache={match};
+ vm.runInNewContext(workerSource,{
+  URL,
+  self:{location:{origin},addEventListener(type,listener){listeners[type]=listener},clients:{claim(){}},skipWaiting(){}},
+  caches:{open:async name=>{assert.equal(name,cacheName);return cache},match:async(...args)=>{globalReads++;return match(...args)}},
+  fetch:async()=>{throw Error("Offline")}
+ },{filename:"sw.js"});
+ return {
+  async request(path,mode="no-cors"){
+   let response;
+   const event={request:{url:new URL(path,origin).href,method:"GET",mode},respondWith(value){response=value},waitUntil(){}};
+   listeners.fetch(event);
+   return response?await response:undefined;
+  },
+  get reads(){return {cache:cacheReads,global:globalReads}}
+ };
+}
+
+test("Exact versioned cache response wins over an older canonical response",async()=>{
+ const worker=offlineWorker({
+  "/offline-review-probe.js":"CANONICAL_OLD",
+  "/offline-review-probe.js?yl=new":"EXACT_NEW"
+ });
+ assert.equal(await worker.request("/offline-review-probe.js?yl=new"),"EXACT_NEW");
+ assert.deepEqual(worker.reads,{cache:1,global:0});
+});
+
+test("Uncached query URL falls back to its canonical precache response offline",async()=>{
+ const worker=offlineWorker({"/app.js":"CANONICAL_APP"});
+ assert.equal(await worker.request("/app.js?yl=87"),"CANONICAL_APP");
+ assert.deepEqual(worker.reads,{cache:2,global:0});
+});
+
+test("Offline Discover startup requests resolve from canonical precache entries",async()=>{
+ const worker=offlineWorker({
+  "/":"INDEX",
+  "/app.js":"APP",
+  "/discover-ai-client.js":"AI_CLIENT",
+  "/discover-quote-schema.js":"QUOTE_SCHEMA",
+  "/discover-quote-standard-substitutions.js":"SUBSTITUTIONS"
+ });
+ assert.equal(await worker.request("/","navigate"),"INDEX");
+ assert.equal(await worker.request("/app.js?yl=87"),"APP");
+ assert.equal(await worker.request("/discover-ai-client.js?yl=87"),"AI_CLIENT");
+ assert.equal(await worker.request("/discover-quote-schema.js"),"QUOTE_SCHEMA");
+ assert.equal(await worker.request("/discover-quote-standard-substitutions.js"),"SUBSTITUTIONS");
+});
+
+test("API requests bypass cached responses",async()=>{
+ const worker=offlineWorker({"/api/public-config":"CACHED_CONFIG"});
+ assert.equal(await worker.request("/api/public-config"),undefined);
+ assert.deepEqual(worker.reads,{cache:0,global:0});
 });
