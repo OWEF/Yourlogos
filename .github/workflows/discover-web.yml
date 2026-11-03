@@ -4,6 +4,7 @@ on:
     paths:
       - "app.js"
       - "discover-ai-client.js"
+      - "sw.js"
       - "discover-ai-server.mjs"
       - "discover-quote-editorial.js"
       - "discover-quote-schema.js"
@@ -23,6 +24,7 @@ on:
     paths:
       - "app.js"
       - "discover-ai-client.js"
+      - "sw.js"
       - "discover-ai-server.mjs"
       - "discover-living-v2.css"
       - "little-logo-presence.js"
@@ -43,6 +45,7 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check app.js
+          node --check sw.js
           node --check liquid-navbar.js
           node --check liquid-slider.js
           node --check welcome.js
