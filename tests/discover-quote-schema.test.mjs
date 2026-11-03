@@ -60,3 +60,14 @@ test("Mismatched quote-ID pair fails closed; quote source not silently substitut
  assert.equal(getBundledDiscoverSpec(["A fake quotation","Author","Theme","Source"],31),null);
  assert.equal(CURATED.length,91);
 });
+
+test("Discover startup modules are explicitly precached for offline app evaluation",()=>{
+ const sw=readFileSync(new URL("../sw.js",import.meta.url),"utf8");
+ for(const file of ["discover-quote-schema.js","discover-quote-standard-substitutions.js"])
+  assert.ok(sw.includes('"/'+file+'"'),"Offline precache must include "+file);
+});
+
+test("Offline code fallback ignores cache-busting entry URL queries",()=>{
+ const sw=readFileSync(new URL("../sw.js",import.meta.url),"utf8");
+ assert.ok(sw.includes("caches.match(request,{ignoreSearch:true})"));
+});
