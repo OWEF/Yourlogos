@@ -1,0 +1,85 @@
+# Self-contained art review: no Kimi credits, no write token, no deployment.
+name: CZ-81 Layered Artwork Contract
+on:
+  pull_request:
+    paths:
+      - 'assets/lillogo-v3-layered-hybrid.svg'
+      - 'experiments/cz81-b1c-layer-study.html'
+      - 'tests/cz81-b1c-hybrid.test.mjs'
+      - '.github/workflows/cz81-b1c-art-checks.yml'
+permissions:
+  contents: read
+jobs:
+  verify-layered-master:
+    name: Validate original-art identity and independent layer structure
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Checkout review branch without write credential persistence
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Setup Node for deterministic no-model checks
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v4.4.0
+        with:
+          node-version: '22'
+      - name: Verify SVG XML and master source shape
+        run: |
+          set -euo pipefail
+          python3 -c 'import xml.etree.ElementTree as ET; ET.parse("assets/lillogo-v3-layered-hybrid.svg")'
+          node --check tests/cz81-b1c-hybrid.test.mjs
+      - name: Execute art-structure and original JPEG byte-fidelity tests
+        run: |
+          set -euo pipefail
+          node --test tests/cz81-b1c-hybrid.test.mjs
+      - name: Verify no changes to live YourLogos behavior
+        run: |
+          set -euo pipefail
+          node scripts/verify-v24.mjs
+
+      - name: Capture browser render evidence for human art review
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cz81-art-review"
+          PORT=3000 node server.mjs > "$RUNNER_TEMP/cz81-art-review/server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for i in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:3000/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent --show-error http://127.0.0.1:3000/experiments/cz81-b1c-layer-study.html >/dev/null
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --disable-dev-shm-usage --virtual-time-budget=3000 --window-size=940,950 \
+              --screenshot="$RUNNER_TEMP/cz81-art-review/desktop.png" \
+              http://127.0.0.1:3000/experiments/cz81-b1c-layer-study.html
+            google-chrome --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --disable-dev-shm-usage --virtual-time-budget=3000 --window-size=400,940 \
+              --screenshot="$RUNNER_TEMP/cz81-art-review/mobile.png" \
+              http://127.0.0.1:3000/experiments/cz81-b1c-layer-study.html
+            # Capture curious state separately to inspect head/eye/forelock layer motion.
+            google-chrome --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --disable-dev-shm-usage --virtual-time-budget=3000 --window-size=940,950 \
+              --screenshot="$RUNNER_TEMP/cz81-art-review/desktop-curious.png" \
+              'http://127.0.0.1:3000/experiments/cz81-b1c-layer-study.html?state=curious'
+            google-chrome --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --disable-dev-shm-usage --virtual-time-budget=3000 --window-size=400,940 \
+              --screenshot="$RUNNER_TEMP/cz81-art-review/mobile-curious.png" \
+              'http://127.0.0.1:3000/experiments/cz81-b1c-layer-study.html?state=curious'
+            test -s "$RUNNER_TEMP/cz81-art-review/desktop-curious.png"
+            test -s "$RUNNER_TEMP/cz81-art-review/mobile-curious.png"
+            test -s "$RUNNER_TEMP/cz81-art-review/desktop.png"
+            test -s "$RUNNER_TEMP/cz81-art-review/mobile.png"
+          else
+            echo 'Chrome not available on runner; visual QA not verified'
+          fi
+      - name: Upload screenshots for independent human comparison (no user data)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz81-b1c-visual-review
+          path: ${{ runner.temp }}/cz81-art-review/*.png
+          if-no-files-found: warn
+          retention-days: 5
