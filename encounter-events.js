@@ -42,10 +42,12 @@ export function createEncounterEventBus() {
       assertType(type);
       const list = handlers.get(type);
       // Snapshot so an unsubscribe during delivery does not reorder this pass.
-      for (const handler of list.slice()) {
+      const snapshot = list.slice();
+      for (const handler of snapshot) {
         handler(Object.freeze({type, payload}));
       }
-      return list.length;
+      // Return the number notified, not the possibly mutated live list size.
+      return snapshot.length;
     }
   };
 }
