@@ -91,12 +91,16 @@ function setState(next){
   status.textContent=captions[next]+(reduced()?' Reduced motion is on: static pose, no animation.':'');
 }
 for(const b of buttons)b.addEventListener('click',()=>setState(b.dataset.state));
-document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='hidden')sprite.classList.add('paused');
-  else if(!reduced())sprite.classList.remove('paused');
+function syncVisibility(){
+  sprite.classList.toggle('paused',document.visibilityState==='hidden'||reduced());
+}
+document.addEventListener('visibilitychange',syncVisibility);
+window.matchMedia?.('(prefers-reduced-motion: reduce)')?.addEventListener?.('change',()=>{
+  syncVisibility();
+  setState(state);
 });
-window.matchMedia?.('(prefers-reduced-motion: reduce)')?.addEventListener?.('change',()=>{setState(state)});
-window.addEventListener('pagehide',()=>{sprite.classList.remove('paused')},{once:true});
+window.addEventListener('pagehide',()=>{sprite.classList.add('paused')},{once:true});
+syncVisibility();
 setState('idle');
 })();
 </script>
