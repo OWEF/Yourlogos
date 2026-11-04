@@ -78,6 +78,14 @@
       "maxWallSeconds": 150,
       "maxStepsPerTurn": 8,
       "artifactType": "draft-pr"
+    },
+    {
+      "path": ".github/workflows/cz80-a1-kimi-frontend-pilot.yml",
+      "issue": 118,
+      "role": "frontend-ux",
+      "maxWallSeconds": 150,
+      "maxStepsPerTurn": 8,
+      "artifactType": "draft-pr"
     }
   ],
   "smokeTest": {
