@@ -119,3 +119,26 @@ jobs:
             exit 1
           fi
           echo 'CZ-78 enum-only, read-only model boundary verified without Kimi.'
+
+      - name: Assert concurrency gates only eligible Kimi implementation jobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in \
+            .github/workflows/cz69-kimi-cz17-pilot.yml \
+            .github/workflows/cz76-kimi-qa-pilot.yml \
+            .github/workflows/cz77-kimi-frontend-pilot.yml \
+            .github/workflows/cz78-kimi-debugging-pilot.yml; do
+            if grep -q '^concurrency:' "$file"; then
+              echo "::error::Top-level group cancels unrelated issue event workflows: $file"
+              exit 1
+            fi
+            count="$(grep -c '^    concurrency:' "$file")"
+            if [[ "$count" != "1" ]]; then
+              echo "::error::Expected exactly one job-level concurrency block: $file"
+              exit 1
+            fi
+            grep -A2 '^    concurrency:' "$file" | grep -Fq 'group: cz-69-kimi-coding'
+            grep -A2 '^    concurrency:' "$file" | grep -Fq 'cancel-in-progress: false'
+          done
+          echo 'One serial group held by eligible jobs only; skipped issue workflows do not enter it.'
