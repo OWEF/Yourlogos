@@ -59,6 +59,17 @@ jobs:
               --disable-dev-shm-usage --virtual-time-budget=3000 --window-size=400,940 \
               --screenshot="$RUNNER_TEMP/cz81-art-review/mobile.png" \
               http://127.0.0.1:3000/experiments/cz81-b1c-layer-study.html
+            # Capture curious state separately to inspect head/eye/forelock layer motion.
+            google-chrome --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --disable-dev-shm-usage --virtual-time-budget=3000 --window-size=940,950 \
+              --screenshot="$RUNNER_TEMP/cz81-art-review/desktop-curious.png" \
+              'http://127.0.0.1:3000/experiments/cz81-b1c-layer-study.html?state=curious'
+            google-chrome --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --disable-dev-shm-usage --virtual-time-budget=3000 --window-size=400,940 \
+              --screenshot="$RUNNER_TEMP/cz81-art-review/mobile-curious.png" \
+              'http://127.0.0.1:3000/experiments/cz81-b1c-layer-study.html?state=curious'
+            test -s "$RUNNER_TEMP/cz81-art-review/desktop-curious.png"
+            test -s "$RUNNER_TEMP/cz81-art-review/mobile-curious.png"
             test -s "$RUNNER_TEMP/cz81-art-review/desktop.png"
             test -s "$RUNNER_TEMP/cz81-art-review/mobile.png"
           else
