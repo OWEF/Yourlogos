@@ -17,7 +17,8 @@ export function classifyExit(value) {
   if (value === "" || value === undefined || value === null || value === "missing") return "not_started";
   const n = Number(value);
   if (n === 0) return "success";
-  if (n === 124 || n === 137) return "timeout";
+  if (n === 124) return "timeout";
+  if (n === 137) return "forced_stop_or_resource_limit";
   if (n === 130 || n === 143) return "terminated";
   return "failed";
 }
