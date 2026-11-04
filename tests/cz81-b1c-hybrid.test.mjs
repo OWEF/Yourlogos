@@ -68,7 +68,9 @@ test("prototype discloses art limits and never alters app or user data",()=>{
   assert.match(html,/masks are hand-estimated/i);
   assert.match(html,/founder compares it with CZ-23/i);
   const namespaceFreeSvg=svg.replace(/xmlns(?::xlink)?="[^"]+"/g,"");
-  assert.doesNotMatch(html+namespaceFreeSvg,/<script[^>]+src=|https?:\\/\\/|fetch\\(|XMLHttpRequest|WebSocket|new Worker|localStorage|sessionStorage|indexedDB|Supabase|KIMI_MODEL_API_KEY/);
+  for (const forbidden of ["<script src=","http:","https:","fetch(","XMLHttpRequest","WebSocket","new Worker","localStorage","sessionStorage","indexedDB","Supabase","KIMI_MODEL_API_KEY"]) {
+    assert.ok(!(html+namespaceFreeSvg).includes(forbidden),`Unexpected external dependency: ${forbidden}`);
+  }
   assert.doesNotMatch(svg,/<script\b/);
 });
 
