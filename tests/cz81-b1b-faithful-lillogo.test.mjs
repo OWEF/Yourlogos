@@ -15,6 +15,8 @@ test("uses the original art via same-origin relative paths only",()=>{
   assert.match(source,/\.\.\/little-logo-poses-v5\.webp/);
   assert.match(source,/\.\.\/little-logo-hd-v2\.jpg/);
   assert.match(source,/background-size:800% 100%/);
+  assert.match(source,/Source atlas: 1200 x 123; 8 equally spaced frames: 150 x 123/);
+  assert.match(source,/\.sprite\{position:relative;width:230px;height:189px/);
   assert.match(source,/background-position:0% 50%/);
   assert.match(source,/28\.5714286% 50%/);
   assert.doesNotMatch(source,/url\(["']?\/little-logo-|src="\/little-logo-/);
