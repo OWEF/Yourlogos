@@ -15,6 +15,9 @@ on:
       - '.github/workflows/cz82-one-run-lillogo-b1.yml'
       - '.github/scripts/cz82-one-run-approval.mjs'
       - '.github/scripts/cz82-one-run-approval.test.mjs'
+      - '.github/workflows/cz83-one-run-lillogo-b1b.yml'
+      - '.github/scripts/cz83-b1b-approval.mjs'
+      - '.github/scripts/cz83-b1b-approval.test.mjs'
       - '.github/scripts/cz75-smart-allowance.mjs'
       - '.github/scripts/cz75-smart-allowance.test.mjs'
       - '.github/workflows/kimi-code-auth-smoke.yml'
@@ -142,7 +145,8 @@ jobs:
             .github/workflows/cz78-kimi-debugging-pilot.yml \
             .github/workflows/cz79-kimi-backend-pilot.yml \
             .github/workflows/cz80-a1-kimi-frontend-pilot.yml \
-            .github/workflows/cz82-one-run-lillogo-b1.yml; do
+            .github/workflows/cz82-one-run-lillogo-b1.yml \
+            .github/workflows/cz83-one-run-lillogo-b1b.yml; do
             if grep -q '^concurrency:' "$file"; then
               echo "::error::Top-level group cancels unrelated issue event workflows: $file"
               exit 1
@@ -223,3 +227,12 @@ jobs:
           node --check .github/scripts/cz75-smart-allowance.mjs
           node --test .github/scripts/cz75-smart-allowance.test.mjs
           echo 'CZ-75 adaptive budget advice verified; model dispatch remains off.'
+
+      - name: Validate CZ-83 bounded normal B1b owner issue gate with zero-model checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check .github/scripts/cz83-b1b-approval.mjs
+          node --test .github/scripts/cz83-b1b-approval.test.mjs
+          node .github/scripts/cz83-b1b-approval.mjs --check
+          echo 'CZ-83 B1b 360s fixed role, owner + title + output gate passed. No Kimi model call.'
