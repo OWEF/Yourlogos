@@ -79,5 +79,12 @@
       "maxStepsPerTurn": 8,
       "artifactType": "draft-pr"
     }
-  ]
+  ],
+  "smokeTest": {
+    "path": ".github/workflows/kimi-code-auth-smoke.yml",
+    "mode": "owner-main-manual-only",
+    "maxWallSeconds": 150,
+    "requiresManualQuotaAttestation": true,
+    "defaultDisabled": true
+  }
 }
