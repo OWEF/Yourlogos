@@ -1,0 +1,227 @@
+# CZ-78: supervised read-only diagnosis; no file or production writes.
+# Exact owner title transition on GitHub issue #109.
+name: CZ-78 Kimi D read-only quote diagnosis
+
+on:
+  issues:
+    types: [edited]
+
+permissions: {}
+
+concurrency:
+  group: cz-69-kimi-coding
+  cancel-in-progress: false
+
+jobs:
+  kimi-implementation:
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event.issue.user.login == 'OWEF' &&
+      github.event.issue.number == 109 &&
+      github.event.issue.pull_request == null &&
+      github.event.issue.title == '[RUN-CZ78-KIMI-D] Read-only diagnosis of personalized daily quote repeats' &&
+      github.event.changes.title.from == '[CZ78-DEBUG-IDLE] Read-only diagnosis of personalized daily quote repeats'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.validate.outputs.changed }}
+    steps:
+      - name: Checkout trusted default branch without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+
+      - name: Install pinned Kimi CLI before exposing membership key
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          # This check is offline and requires no membership key or model call.
+          # Prevent an unsupported CLI flag from consuming a coding attempt.
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--output-format'
+          kimi --help | grep -q -- '--agent-file'
+          node .github/scripts/cz69-role-router.mjs --check
+          test "$(node .github/scripts/cz69-role-router.mjs debugging)" = '.github/kimi/profiles/debugging.md'
+          node --check .github/scripts/cz69-safe-report.mjs
+          node --test .github/scripts/cz69-safe-report.test.mjs
+          cp .github/scripts/cz69-safe-report.mjs "$RUNNER_TEMP/cz69-safe-report.mjs"
+          node --check .github/scripts/cz78-allowlisted-diagnosis.mjs
+          node --test .github/scripts/cz78-allowlisted-diagnosis.test.mjs
+          cp .github/scripts/cz78-allowlisted-diagnosis.mjs "$RUNNER_TEMP/cz78-sanitizer.mjs"
+
+      - name: Run one bounded Kimi D read-only diagnosis without GitHub write token
+        id: model
+        shell: bash
+        timeout-minutes: 4
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/cz69-kimi-home
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '6'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          if [[ -z "${KIMI_MODEL_API_KEY:-}" ]]; then
+            echo "::error::Required KIMI_CODE_API_KEY secret is absent"
+            exit 1
+          fi
+          mkdir -p "$KIMI_CODE_HOME"
+          # Trusted, fixed task; issue title/body and PR content are NEVER injected.
+          # Kimi D profile permits only Read/Grep/Glob, but this is not
+          # an OS sandbox; task is fixed and owner-triggered only.
+          prompt=$(cat <<'TASK'
+          You are Kimi D, YourLogos READ-ONLY debugging specialist.
+          Inspect AGENTS.md and relevant public portions of app.js:
+          DAILY_ORDER, dailyPick, activeQuote and saved practice records.
+          Consult encounter-queue.js and personalization.js only if useful.
+          Assess plausible causes of premature daily quote repetition.
+          Do not assert a bug without deterministic reproduction.
+          You must NOT run Bash, edit files, call APIs, read secrets,
+          launch agents, access runtime state, or deploy anything.
+          This is GitHub issue #109 / Linear CZ-78. No issue body supplied.
+          Produce EXACTLY two plain lines, with these names:
+          CZ17_CLASS=RANKING_OVERRIDE_RISK
+          CZ17_REPRO=MULTIDAY_STRONG_PREFERENCES
+          You may instead choose exactly one value from either set:
+          CZ17_CLASS: RANKING_OVERRIDE_RISK, PERSISTED_DAILY_RECORD,
+          NORMAL_DECK_WRAP, INSUFFICIENT_EVIDENCE.
+          CZ17_REPRO: MULTIDAY_STRONG_PREFERENCES, SAVED_DAY_RECORD,
+          FULL_DECK_CYCLE, MISSING_RUNTIME_DATA.
+          No other text, headings, explanations, tool logs or quotes.
+          TASK
+          )
+          # Phase 1 micro-pilot: 8 agent steps per turn, 1 failed-step attempt,
+          # no automatic retries, 150-second hard process timeout.
+          # These are execution caps, not verified token or dollar ceilings.
+          start_seconds=$SECONDS
+          set +e
+          timeout --signal=TERM --kill-after=5s 120s \
+            kimi --agent-file .github/kimi/profiles/debugging.md -p "$prompt" --output-format stream-json \
+            > "$RUNNER_TEMP/kimi-stdout.jsonl" 2> "$RUNNER_TEMP/kimi-stderr.txt"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "elapsed_sec=$((SECONDS-start_seconds))" >> "$GITHUB_OUTPUT"
+          echo "Kimi process stopped; raw model output intentionally withheld."
+          # Never automatically retry after a failure or hard timeout.
+
+      - name: Generate bounded sanitized diagnostics, even on timeout
+        if: always()
+        shell: bash
+        env:
+          MODEL_RC: ${{ steps.model.outputs.exit_code || 'missing' }}
+          MODEL_SECONDS: ${{ steps.model.outputs.elapsed_sec || '0' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cz69-safe"
+          if [[ -f "$RUNNER_TEMP/cz69-safe-report.mjs" ]]; then
+            node "$RUNNER_TEMP/cz69-safe-report.mjs" \
+              "$RUNNER_TEMP/kimi-stdout.jsonl" "$RUNNER_TEMP/kimi-stderr.txt" \
+              "$MODEL_RC" "$MODEL_SECONDS" "$RUNNER_TEMP/cz69-safe/report.json"
+          else
+            printf '%s\n' '{"schema":"cz69-harness-diagnostics-v1","exitClass":"not_started","safeFieldsOnly":true,"usage":"not_verified"}' \
+              > "$RUNNER_TEMP/cz69-safe/report.json"
+          fi
+          node -e '
+            const r=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
+            if (r.safeFieldsOnly !== true) process.exit(1);
+            console.log("CZ-69 sanitized outcome: "+r.exitClass);
+            require("node:fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              "### CZ-69 sanitized model-run evidence\n" +
+              "- Exit class: "+r.exitClass+"\n" +
+              "- Duration: "+(r.elapsedSeconds ?? "not started")+" seconds\n" +
+              "- Model usage: not verified\n" +
+              "- No raw prompts, model replies, tools, paths or credentials published\n");
+          ' "$RUNNER_TEMP/cz69-safe/report.json"
+
+      - name: Upload safe timeout evidence (never raw agent logs)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz69-safe-diagnostics
+          path: ${{ runner.temp }}/cz69-safe/report.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Fail closed when Kimi did not complete
+        if: steps.model.outputs.exit_code != '0'
+        run: |
+          echo "::error::Kimi did not finish; no code validation or draft PR"
+          exit 1
+
+      - name: Fail closed if the debugger edited code; prepare strict sanitized diagnosis
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$(git status --porcelain=v1 --untracked-files=all)" ]]; then
+            echo "::error::Read-only debugger changed repository files"
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/cz78-classifier"
+          node "$RUNNER_TEMP/cz78-sanitizer.mjs" \
+            "$RUNNER_TEMP/kimi-stdout.jsonl" \
+            "$RUNNER_TEMP/cz78-classifier/report.json" \
+            "$RUNNER_TEMP/cz78-classifier/report.md"
+          echo 'Fixed-enum read-only diagnostic passed; no source modified.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload only strict diagnosis enums
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz78-diagnosis-codes
+          path: ${{ runner.temp }}/cz78-classifier/report.json
+          if-no-files-found: error
+          retention-days: 3
+
+  publish-diagnosis:
+    name: Report diagnosis to owner issue #109 (no Kimi key)
+    needs: kimi-implementation
+    if: needs.kimi-implementation.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout trusted templates without saved token
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Download only diagnosis enum artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: cz78-diagnosis-codes
+          path: ${{ runner.temp }}/cz78-codes/
+      - name: Regenerate fixed code-owned report and comment exactly once
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import {readFileSync,writeFileSync} from "node:fs";
+            import {reportMarkdown} from "./.github/scripts/cz78-allowlisted-diagnosis.mjs";
+            const result=JSON.parse(readFileSync(process.argv[1],"utf8"));
+            writeFileSync(process.argv[2],reportMarkdown(result));
+          ' "$RUNNER_TEMP/cz78-codes/report.json" "$RUNNER_TEMP/cz78-comment.md"
+          gh issue comment 109 --body-file "$RUNNER_TEMP/cz78-comment.md"
+          echo 'Fixed-enum diagnostic posted; no model response exposed.' >> "$GITHUB_STEP_SUMMARY"
