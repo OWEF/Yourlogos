@@ -8,6 +8,9 @@ on:
       - '.github/scripts/cz69-safe-report.test.mjs'
       - '.github/workflows/cz69-kimi-cz17-pilot.yml'
       - '.github/workflows/cz69-harness-checks.yml'
+      - '.github/kimi/**'
+      - '.github/scripts/cz69-role-router.mjs'
+      - '.github/scripts/cz69-role-router.test.mjs'
 
 permissions:
   contents: read
@@ -28,6 +31,11 @@ jobs:
         run: |
           node --check .github/scripts/cz69-safe-report.mjs
           node --test .github/scripts/cz69-safe-report.test.mjs
+      - name: Validate four explicitly selected specialist roles without model usage
+        run: |
+          node --check .github/scripts/cz69-role-router.mjs
+          node .github/scripts/cz69-role-router.mjs --check
+          node --test .github/scripts/cz69-role-router.test.mjs
       - name: Assert narrow test-only pilot and safe artifact boundary
         shell: bash
         run: |
