@@ -56,6 +56,8 @@ test("a standalone, keyboard-friendly mobile comparison and state control exist"
   assert.match(html,/:focus-visible/);
   assert.match(html,/aria-live="polite"/);
   assert.match(html,/addEventListener\("visibilitychange",apply\)/);
+  assert.match(html,/new URLSearchParams\(window\.location\.search\)\.get\("state"\)/);
+  assert.match(html,/initialState==="curious"\?"curious":"idle"/);
   assert.match(html,/document\.hidden\|\|motion\.matches/);
   assert.match(html,/prefers-reduced-motion: reduce/);
   const code=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
