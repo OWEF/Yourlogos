@@ -83,8 +83,8 @@ jobs:
           fi
           mkdir -p "$KIMI_CODE_HOME"
           # Trusted, fixed task; issue title/body and PR content are NEVER injected.
-          # The agent can use shell and network; this is a limited, owner-controlled
-          # first pilot, not a general public-input or production-safe agent.
+          # The selected role denies Bash/delegation, but profile controls alone
+          # are not OS sandboxing. This runner handles only a fixed owner task.
           prompt=$(cat <<'TASK'
           You are Kimi A, YourLogos Frontend & UX specialist.
           ONE bounded issue #106 / Linear CZ-77 task: fix an accessibility
@@ -184,6 +184,10 @@ jobs:
             esac
           done < <(git status --porcelain | cut -c4-)
           git diff --check
+          if git diff --quiet -- little-logo-presence.js; then
+            echo '::error::No LilLogo source fix was produced'
+            exit 1
+          fi
           if [[ ! -f tests/lillogo-reduced-motion.test.mjs ]]; then
             echo "::error::Expected fresh regression test was not created"
             exit 1
@@ -247,6 +251,10 @@ jobs:
           cp "$RUNNER_TEMP/cz77-candidate/tests/lillogo-reduced-motion.test.mjs" tests/
           cp "$RUNNER_TEMP/cz77-candidate/little-logo-presence.js" little-logo-presence.js
           git diff --check
+          if git diff --quiet -- little-logo-presence.js; then
+            echo '::error::No source change in candidate artifact'
+            exit 1
+          fi
           files="$(git status --porcelain | cut -c4-)"
           while IFS= read -r file; do
             [[ -z "$file" ]] && continue
