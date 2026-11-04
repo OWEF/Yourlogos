@@ -41,13 +41,13 @@ test("head, eyes, hair and eyelids have distinct movement mechanisms",()=>{
   assert.match(svg,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
-test("original body remains knocked out; revealed gaps use source-colour underpainting",()=>{
-  assert.match(svg,/<mask id="bodyHeadKnockout"/);
-  assert.match(svg,/<g id="neckUnderpaint"[^>]*clip-path="url\\(#underpaintClip\\)"/);
-  assert.match(svg,/<filter id="softUnderpaint"/);
-  assert.match(svg,/<feGaussianBlur stdDeviation="2\\.2"/);
-  assert.match(svg,/<use href="#originalPortrait" filter="url\\(#softUnderpaint\\)"/);
-  assert.doesNotMatch(svg,/fill="url\\(#underheadFill\\)"/);
+test("original body remains knocked out; source-colour underpainting avoids dark contour seam",()=>{
+  assert.ok(svg.includes('<mask id="bodyHeadKnockout"'));
+  assert.ok(svg.includes('<g id="neckUnderpaint" data-editable-layer="occlusion-restoration-provisional" clip-path="url(#underpaintClip)"'));
+  assert.ok(svg.includes('<filter id="softUnderpaint"'));
+  assert.ok(svg.includes('<feGaussianBlur stdDeviation="2.2"'));
+  assert.ok(svg.includes('<use href="#originalPortrait" filter="url(#softUnderpaint)"'));
+  assert.ok(!svg.includes('fill="url(#underheadFill)"'),"reject dark solid underpaint behind pale face");
   assert.match(svg,/occluded anatomy is approximated/);
 });
 
