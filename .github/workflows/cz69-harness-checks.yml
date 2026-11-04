@@ -10,6 +10,7 @@ on:
       - '.github/workflows/cz76-kimi-qa-pilot.yml'
       - '.github/workflows/cz77-kimi-frontend-pilot.yml'
       - '.github/workflows/cz78-kimi-debugging-pilot.yml'
+      - '.github/workflows/cz79-kimi-backend-pilot.yml'
       - '.github/scripts/cz78-allowlisted-diagnosis.mjs'
       - '.github/scripts/cz78-allowlisted-diagnosis.test.mjs'
       - '.github/workflows/cz69-harness-checks.yml'
@@ -128,7 +129,8 @@ jobs:
             .github/workflows/cz69-kimi-cz17-pilot.yml \
             .github/workflows/cz76-kimi-qa-pilot.yml \
             .github/workflows/cz77-kimi-frontend-pilot.yml \
-            .github/workflows/cz78-kimi-debugging-pilot.yml; do
+            .github/workflows/cz78-kimi-debugging-pilot.yml \
+            .github/workflows/cz79-kimi-backend-pilot.yml; do
             if grep -q '^concurrency:' "$file"; then
               echo "::error::Top-level group cancels unrelated issue event workflows: $file"
               exit 1
@@ -142,3 +144,23 @@ jobs:
             grep -A2 '^    concurrency:' "$file" | grep -Fq 'cancel-in-progress: false'
           done
           echo 'One serial group held by eligible jobs only; skipped issue workflows do not enter it.'
+
+      - name: Validate one owner-bound Kimi B backend choice-length task
+        shell: bash
+        run: |
+          set -euo pipefail
+          file=.github/workflows/cz79-kimi-backend-pilot.yml
+          grep -Fq 'github.event.issue.number == 112' "$file"
+          grep -Fq "github.actor == 'OWEF'" "$file"
+          grep -Fq 'github.event.changes.title.from' "$file"
+          grep -Fq -- '--agent-file .github/kimi/profiles/backend-apis.md' "$file"
+          grep -Fq "KIMI_LOOP_MAX_STEPS_PER_TURN: '8'" "$file"
+          grep -Fq 'timeout --signal=TERM --kill-after=5s 150s' "$file"
+          grep -Fq 'discover-ai-server.mjs|tests/discover-choice-length.test.mjs' "$file"
+          grep -Fq 'name: cz79-backend-candidate' "$file"
+          grep -Fq -- '--draft --base main' "$file"
+          if grep -Eq 'gh pr merge|path:.*kimi-(stdout|stderr)' "$file"; then
+            echo '::error::Unexpected auto-release or raw model output'
+            exit 1
+          fi
+          echo 'Kimi B backend pilot boundaries verified without model usage.'
