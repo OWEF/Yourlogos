@@ -8,6 +8,7 @@ on:
       - '.github/scripts/cz69-safe-report.test.mjs'
       - '.github/workflows/cz69-kimi-cz17-pilot.yml'
       - '.github/workflows/cz76-kimi-qa-pilot.yml'
+      - '.github/workflows/cz77-kimi-frontend-pilot.yml'
       - '.github/workflows/cz69-harness-checks.yml'
       - '.github/kimi/**'
       - '.github/scripts/cz69-role-router.mjs'
@@ -73,3 +74,23 @@ jobs:
             exit 1
           fi
           echo 'CZ-76 static QA role activation checked without model call.'
+
+      - name: Check Kimi A issue 106 only and reduced-motion task boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          file=.github/workflows/cz77-kimi-frontend-pilot.yml
+          grep -Fq 'github.event.issue.number == 106' "$file"
+          grep -Fq "github.actor == 'OWEF'" "$file"
+          grep -Fq 'github.event.changes.title.from' "$file"
+          grep -Fq -- '--agent-file .github/kimi/profiles/frontend-ux.md' "$file"
+          grep -Fq "KIMI_LOOP_MAX_STEPS_PER_TURN: '8'" "$file"
+          grep -Fq 'timeout --signal=TERM --kill-after=5s 150s' "$file"
+          grep -Fq 'little-logo-presence.js|tests/lillogo-reduced-motion.test.mjs' "$file"
+          grep -Fq 'name: cz77-frontend-candidate' "$file"
+          grep -Fq -- '--draft --base main' "$file"
+          if grep -Eq 'gh pr merge|path:.*kimi-(stdout|stderr)' "$file"; then
+            echo "::error::Unsafe release or unredacted model logs"
+            exit 1
+          fi
+          echo 'CZ-77 static frontend role gate passed without Kimi API usage.'
