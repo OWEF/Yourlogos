@@ -1,0 +1,78 @@
+# CZ-69: founder-triggered, minimal cloud authentication probe only.
+# No checkout, GitHub mutations, production access, or automatic code execution.
+name: Kimi Code cloud authentication smoke test
+
+on:
+  workflow_dispatch:
+    inputs:
+      endpoint:
+        description: "Kimi Code membership API region"
+        required: true
+        type: choice
+        options:
+          - overseas
+          - mainland-cn
+        default: overseas
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cz-69-kimi-auth-smoke
+  cancel-in-progress: false
+
+jobs:
+  kimi-auth-smoke:
+    name: One-shot Kimi Code CLI authentication (no repo checkout)
+    if: github.repository == 'OWEF/Yourlogos' && github.actor == 'OWEF' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+
+      - name: Install pinned Kimi Code CLI without exposing secrets
+        run: |
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+
+      - name: Verify one bounded membership-backed request
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: ${{ inputs.endpoint == 'mainland-cn' && 'https://api.kimi.com/coding/v1' || 'https://api.kimi.ai/coding/v1' }}
+          KIMI_CODE_HOME: ${{ runner.temp }}/cz-69-kimi
+          CI: 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${KIMI_MODEL_API_KEY:-}" ]]; then
+            echo '::error::KIMI_CODE_API_KEY is missing or empty. Add it under Actions repository secrets.'
+            exit 1
+          fi
+          mkdir -p "$KIMI_CODE_HOME"
+          cd "$RUNNER_TEMP" # Never read repository files or execute project code.
+
+          # Silence model text, stderr, and tool traces in public Actions logs.
+          set +e
+          timeout --signal=TERM --kill-after=5s 150s \
+            kimi -p 'No tools. Respond with exactly: KIMI_CLOUD_OK' --output-format text \
+            > "$RUNNER_TEMP/kimi-stdout.txt" 2> "$RUNNER_TEMP/kimi-stderr.txt"
+          exit_code=$?
+          set -e
+          if [[ "$exit_code" -ne 0 ]]; then
+            echo "::error::Kimi CLI request failed (exit code ${exit_code}). Raw logs intentionally withheld to protect secrets."
+            exit 1
+          fi
+          if ! grep -Fq 'KIMI_CLOUD_OK' "$RUNNER_TEMP/kimi-stdout.txt"; then
+            echo '::error::Kimi CLI ran, but the expected model-response marker was absent.'
+            exit 1
+          fi
+          echo 'CZ-69 smoke test passed: GitHub cloud runner reached Kimi Code.'
+          echo '### CZ-69 Kimi cloud-auth smoke' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Completed a single bounded, read-only model call.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- No repository checkout, GitHub write permission, PR, merge, or production access.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- This does not establish automatic development dispatch or subscription billing guarantees.' >> "$GITHUB_STEP_SUMMARY"
