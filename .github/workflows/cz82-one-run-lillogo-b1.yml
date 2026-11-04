@@ -201,11 +201,11 @@ jobs:
           done < <(git status --porcelain | cut -c4-)
           git diff --check
           if [[ ! -s experiments/cz81-curious-companion-lab.html ]]; then
-            echo '::error::No new event contract module was produced'
+            echo '::error::No standalone LilLogo preview file was produced'
             exit 1
           fi
-          if [[ ! -f tests/cz81-curious-companion-lab.test.mjs ]]; then
-            echo "::error::Expected fresh regression test was not created"
+          if [[ ! -s tests/cz81-curious-companion-lab.test.mjs ]]; then
+            echo "::error::Expected new LilLogo preview regression test was not created"
             exit 1
           fi
           node --check tests/cz81-curious-companion-lab.test.mjs
@@ -287,11 +287,11 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "$BRANCH"
           git add -- experiments/cz81-curious-companion-lab.html tests/cz81-curious-companion-lab.test.mjs
-          git commit -m 'fix(cz-81-b1): create standalone LilLogo motion preview'
+          git commit -m 'feat(cz-81-b1): add subtle LilLogo motion preview'
           gh auth setup-git
           git push origin "HEAD:refs/heads/$BRANCH"
           gh pr create --draft --base main --head "$BRANCH" \
-            --title 'fix(cz-81-b1): subtle LilLogo motion preview and regression tests' \
-            --body 'Kimi A Frontend & UX candidate for [Linear CZ-81 B1](https://linear.app/czd217/issue/CZ-81/lillogo-v3-articulated-character-rig-and-event-driven-animation) and [GitHub #119](https://github.com/OWEF/Yourlogos/issues/119). Scope: one minimal Encounter semantic event contract and one deterministic regression test. Selected frontend-ux role, separate token-limited Kimi job, file allowlist and CI. Independent tech-lead review and founder approval required before merge; **DO NOT MERGE OR DEPLOY**. Fresh PR CI must be independently approved and checked.'
+            --title 'feat(cz-81-b1): subtle LilLogo motion preview and regressions' \
+            --body 'Kimi A Frontend & UX candidate for [Linear CZ-81 B1](https://linear.app/czd217/issue/CZ-81/lillogo-v3-articulated-character-rig-and-event-driven-animation) and [GitHub #119](https://github.com/OWEF/Yourlogos/issues/119). Scope: one standalone offline LilLogo companion motion preview and one deterministic regression test, with no live app changes. Selected frontend-ux role, separate token-limited Kimi job, file allowlist and CI. Independent tech-lead review and founder approval required before merge; **DO NOT MERGE OR DEPLOY**. Fresh PR CI must be independently approved and checked.'
           echo '### CZ-81 B1 frontend draft PR staged' >> "$GITHUB_STEP_SUMMARY"
           echo '- Await independent tech-lead code review and founder release approval' >> "$GITHUB_STEP_SUMMARY"
