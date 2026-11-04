@@ -46,6 +46,10 @@ jobs:
           set -euo pipefail
           npm install --global '@moonshot-ai/kimi-code@2.4.1'
           kimi --version
+          # This check is offline and requires no membership key or model call.
+          # Prevent an unsupported CLI flag from consuming a coding attempt.
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--output-format'
 
       - name: Run one bounded Kimi implementation without GitHub write token
         shell: bash
@@ -56,6 +60,7 @@ jobs:
           KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
           KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
           KIMI_CODE_HOME: ${{ runner.temp }}/cz69-kimi-home
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
           KIMI_LOOP_MAX_STEPS_PER_TURN: '18'
           KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
           KIMI_CODE_INFINITE_RETRY: 'false'
@@ -93,17 +98,23 @@ jobs:
           dependencies. Keep code changes minimal. Return concise evidence.
           TASK
           )
-          # Strict pilot budget: at most 18 agent steps; 1 attempt per failed step,
-          # no infinite retries, no background steering or Ralph loops, 5 minutes.
+          # Strict pilot budget from KIMI_* environment config: at most 18
+          # agent steps, one attempt per failing step, no infinite retries,
+          # no background steering, and a 5-minute wall-clock limit.
+          # Do not use older CLI flags absent from current Kimi Code command reference.
           # These are execution caps, NOT a provider-side token/dollar hard ceiling.
           set +e
           timeout --signal=TERM --kill-after=5s 300s \
-            kimi -p "$prompt" --max-steps-per-turn 18 --max-ralph-iterations 0 --output-format text \
+            kimi -p "$prompt" --output-format text \
             > "$RUNNER_TEMP/kimi-result.txt" 2> "$RUNNER_TEMP/kimi-error.txt"
           rc=$?
           set -e
           if [[ "$rc" -ne 0 ]]; then
-            echo "::error::Kimi run failed (exit code $rc); raw output withheld to protect credentials"
+            if grep -Eiq '(unknown option|unrecognized option|unexpected argument|invalid option)' "$RUNNER_TEMP/kimi-error.txt"; then
+              echo '::error::Kimi CLI arguments rejected; check pinned-version CLI --help (raw output withheld)'
+            else
+              echo "::error::Kimi run failed (exit code $rc); raw output withheld to protect credentials"
+            fi
             exit 1
           fi
 
