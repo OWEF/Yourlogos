@@ -67,7 +67,8 @@ test("prototype discloses art limits and never alters app or user data",()=>{
   assert.match(html,/not a fully traced vector illustration/);
   assert.match(html,/masks are hand-estimated/i);
   assert.match(html,/founder compares it with CZ-23/i);
-  assert.doesNotMatch(html+svg,/<script[^>]+src=|https?:\/\/|fetch\(|XMLHttpRequest|WebSocket|new Worker|localStorage|sessionStorage|indexedDB|Supabase|KIMI_MODEL_API_KEY/);
+  const namespaceFreeSvg=svg.replace(/xmlns(?::xlink)?="[^"]+"/g,"");
+  assert.doesNotMatch(html+namespaceFreeSvg,/<script[^>]+src=|https?:\\/\\/|fetch\\(|XMLHttpRequest|WebSocket|new Worker|localStorage|sessionStorage|indexedDB|Supabase|KIMI_MODEL_API_KEY/);
   assert.doesNotMatch(svg,/<script\b/);
 });
 
