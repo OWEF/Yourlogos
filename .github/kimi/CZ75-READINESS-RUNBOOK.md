@@ -1,12 +1,12 @@
 # CZ-75 | YourLogos supervised engineering readiness
 
-**State:** Kimi model calls must be held until manual quota/billing attestation. This document describes the intended procedure, not proof of the current private Kimi account settings.
+**State (legacy CZ75 paths):** Kimi model calls must be held until manual quota/billing attestation. This document describes the intended procedure, not proof of the current private Kimi account settings.
 
 ## Allowed operating mode
 
 CZ-69 established the supervised engineering bridge. CZ-75 adds a minimum reliability boundary before another CZ-13 development sprint. Allowed: one small, fixed-scope founder-triggered task with offline preflight, deterministic CI, independent review and founder release approval. Not allowed: public-input or unrestricted tasks, automatic retries, parallel swarms, arbitrary new budget tiers, automatic PR merge or production release.
 
-## Before EACH model run
+## Before EACH legacy CZ75 model run
 
 1. Inspect the Kimi **Subscription → My Credits** page (or Kimi Code Console), including shared monthly membership credits and rolling five-hour Kimi Code usage. Legacy subscriptions may retain a weekly quota. Kimi CLI **/usage** is an interactive way to inspect usage, not a verified machine-readable GitHub quota source.
 2. In the Kimi account **Extra Usage** settings, confirm Extra Usage is **OFF** if additional usage charges are not approved. This is an account-side control; GitHub cannot turn it off, read its state or cap spending.
@@ -64,3 +64,7 @@ Official documentation:
 - https://www.kimi.com/en/help/membership/membership-update-rules
 - https://www.kimi.com/en/help/membership/membership-extra-usage
 - https://www.kimi.com/code/docs/en/kimi-code/membership.html
+
+## CZ-82 successor — new tasks with no repo variable toggles
+
+The pre-CZ82 legacy workflows above remain default-off and unchanged. A newly reviewed, fixed-task GitHub workflow may use the owner-attested one-use READY-to-RUN issue transition in CZ82-ONE-RUN-APPROVAL.md. It requires the founder to check Kimi quota and account-side Extra Usage OFF, but does not claim provider-verified quota, a cash cap or authorization to repeat tasks without fresh approval. No automatic model retries, new subscriptions or unattended merges.
