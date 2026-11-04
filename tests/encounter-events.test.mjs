@@ -49,6 +49,21 @@ test("unsubscribe stops delivery and is safe to call twice",()=>{
  assert.deepEqual(calls,["b"]);
 });
 
+test("in-flight unsubscribe preserves snapshot delivery and accurate count",()=>{
+ const bus=createEncounterEventBus();
+ const received=[];
+ let unsubscribe;
+ unsubscribe=bus.subscribe("lens.choose",()=>{
+  received.push("first");
+  unsubscribe();
+ });
+ bus.subscribe("lens.choose",()=>received.push("second"));
+ assert.equal(bus.publish("lens.choose",{lens:1}),2);
+ assert.deepEqual(received,["first","second"]);
+ assert.equal(bus.publish("lens.choose",{lens:1}),1);
+ assert.deepEqual(received,["first","second","second"]);
+});
+
 test("publishing with no subscribers is a no-op",()=>{
  const bus=createEncounterEventBus();
  assert.equal(bus.publish("exercise.place",{}),0);
