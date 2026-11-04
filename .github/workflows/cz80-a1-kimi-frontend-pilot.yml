@@ -1,0 +1,293 @@
+# CZ-80: supervised role-specific Kimi A frontend micro-fix; no production authority.
+# Only a trusted owner title edit on exact GitHub issue #118 triggers this task.
+name: CZ-80 A1 Kimi A event contract bounded pilot
+
+on:
+  issues:
+    types: [edited]
+
+permissions: {}
+
+jobs:
+  kimi-implementation:
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event.issue.user.login == 'OWEF' &&
+      github.event.issue.number == 118 &&
+      github.event.issue.pull_request == null &&
+      github.event.issue.title == '[RUN-CZ80-A1-KIMI-A] Encounter event seam' &&
+      github.event.changes.title.from == '[CZ80-A1-IDLE] Encounter event seam'
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    timeout-minutes: 7
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.validate.outputs.changed }}
+    steps:
+      - name: Checkout trusted default branch without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+
+      - name: CZ75 manual quota and billing attestation (no model)
+        shell: bash
+        env:
+          CZ75_MANUAL_QUOTA_READY: ${{ vars.CZ75_MANUAL_QUOTA_READY }}
+        run: |
+          set -euo pipefail
+          if [[ "$CZ75_MANUAL_QUOTA_READY" != "true" ]]; then
+            echo "::error::CZ75 HOLD: quota status and Extra Usage setting require operator review"
+            echo "Check Kimi membership credit usage, current 5-hour capacity, and confirm Extra Usage is OFF."
+            echo "Then set GitHub Actions repository variable CZ75_MANUAL_QUOTA_READY=true."
+            exit 1
+          fi
+          echo 'Founder-managed quota and billing attestation present; this is NOT provider-verified telemetry.'
+          node .github/scripts/cz75-readiness-gate.mjs .github/workflows/cz80-a1-kimi-frontend-pilot.yml
+
+      - name: Install pinned Kimi CLI before exposing membership key
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          # This check is offline and requires no membership key or model call.
+          # Prevent an unsupported CLI flag from consuming a coding attempt.
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--output-format'
+          kimi --help | grep -q -- '--agent-file'
+          node .github/scripts/cz69-role-router.mjs --check
+          test "$(node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+          node --check .github/scripts/cz69-safe-report.mjs
+          node --test .github/scripts/cz69-safe-report.test.mjs
+          cp .github/scripts/cz69-safe-report.mjs "$RUNNER_TEMP/cz69-safe-report.mjs"
+
+      - name: Run one bounded Kimi frontend fix without GitHub write token
+        id: model
+        shell: bash
+        timeout-minutes: 4
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/cz69-kimi-home
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '8'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          if [[ -z "${KIMI_MODEL_API_KEY:-}" ]]; then
+            echo "::error::Required KIMI_CODE_API_KEY secret is absent"
+            exit 1
+          fi
+          mkdir -p "$KIMI_CODE_HOME"
+          # Trusted, fixed task; issue title/body and PR content are NEVER injected.
+          # The selected role denies Bash/delegation, but profile controls alone
+          # are not OS sandboxing. This runner handles only a fixed owner task.
+          prompt=$(cat <<'TASK'
+          You are Kimi A, YourLogos Frontend & UX specialist.
+          ONE fixed small task: GitHub issue #118 / Linear CZ-80.
+          Read AGENTS.md, DESIGN.md, app.js, encounter-v31.js as CONTEXT only.
+          Create ONLY TWO NEW FILES: encounter-events.js and
+          tests/encounter-events.test.mjs. No existing source edits.
+          Deliver a minimal dependency-free ES module for future state-driven
+          Encounter semantic notifications (NOT application state ownership).
+          Events: encounter.enter, lens.press, lens.choose, insight.ready,
+          insight.error, exercise.place, exercise.complete, encounter.finish,
+          encounter.resume. The event bus must never write a save, mark
+          completion or infer user beliefs. No global/window side effects.
+          Prefer createEncounterEventBus with subscribe (returns unsubscribe)
+          and publish(type, payload) validating allowed event names.
+          Create deterministic Node tests importing the actual module;
+          test all allowed events, reject unknown names, ordering, unsubscribe,
+          no subscribers, input immutability and no side effects on import.
+          Keep concise and self-contained; this A1 task does NOT wire to app.js,
+          implement animations, redraw LilLogo, or alter any live functionality.
+          Touch ONLY encounter-events.js and tests/encounter-events.test.mjs.
+          No Bash, secrets, network calls, agents, GitHub writes, deploys,
+          auth, DB, server, or unrelated files. CI runs the real tests.
+          If unable to finish within the cap, stop without retries.
+          TASK
+          )
+          # Phase 1 micro-pilot: 8 agent steps per turn, 1 failed-step attempt,
+          # no automatic retries, 150-second hard process timeout.
+          # These are execution caps, not verified token or dollar ceilings.
+          start_seconds=$SECONDS
+          set +e
+          timeout --signal=TERM --kill-after=5s 150s \
+            kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json \
+            > "$RUNNER_TEMP/kimi-stdout.jsonl" 2> "$RUNNER_TEMP/kimi-stderr.txt"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "elapsed_sec=$((SECONDS-start_seconds))" >> "$GITHUB_OUTPUT"
+          echo "Kimi process stopped; raw model output intentionally withheld."
+          # Never automatically retry after a failure or hard timeout.
+
+      - name: Generate bounded sanitized diagnostics, even on timeout
+        if: always()
+        shell: bash
+        env:
+          MODEL_RC: ${{ steps.model.outputs.exit_code || 'missing' }}
+          MODEL_SECONDS: ${{ steps.model.outputs.elapsed_sec || '0' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cz69-safe"
+          if [[ -f "$RUNNER_TEMP/cz69-safe-report.mjs" ]]; then
+            node "$RUNNER_TEMP/cz69-safe-report.mjs" \
+              "$RUNNER_TEMP/kimi-stdout.jsonl" "$RUNNER_TEMP/kimi-stderr.txt" \
+              "$MODEL_RC" "$MODEL_SECONDS" "$RUNNER_TEMP/cz69-safe/report.json"
+          else
+            printf '%s\n' '{"schema":"cz69-harness-diagnostics-v1","exitClass":"not_started","safeFieldsOnly":true,"usage":"not_verified"}' \
+              > "$RUNNER_TEMP/cz69-safe/report.json"
+          fi
+          node -e '
+            const r=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
+            if (r.safeFieldsOnly !== true) process.exit(1);
+            console.log("CZ-69 sanitized outcome: "+r.exitClass);
+            require("node:fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              "### CZ-69 sanitized model-run evidence\n" +
+              "- Exit class: "+r.exitClass+"\n" +
+              "- Duration: "+(r.elapsedSeconds ?? "not started")+" seconds\n" +
+              "- Model usage: not verified\n" +
+              "- No raw prompts, model replies, tools, paths or credentials published\n");
+          ' "$RUNNER_TEMP/cz69-safe/report.json"
+
+      - name: Upload safe timeout evidence (never raw agent logs)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz69-safe-diagnostics
+          path: ${{ runner.temp }}/cz69-safe/report.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Fail closed when Kimi did not complete
+        if: steps.model.outputs.exit_code != '0'
+        run: |
+          echo "::error::Kimi did not finish; no code validation or draft PR"
+          exit 1
+
+      - name: Validate scope and run tests with no Kimi credentials
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              encounter-events.js|tests/encounter-events.test.mjs) ;;
+              *) echo "::error::Out-of-scope file changed: $file"; exit 1 ;;
+            esac
+          done < <(git status --porcelain | cut -c4-)
+          git diff --check
+          if [[ ! -s encounter-events.js ]]; then
+            echo '::error::No new event contract module was produced'
+            exit 1
+          fi
+          if [[ ! -f tests/encounter-events.test.mjs ]]; then
+            echo "::error::Expected fresh regression test was not created"
+            exit 1
+          fi
+          node --check encounter-events.js
+          node --test tests/encounter-events.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node scripts/verify-v24.mjs
+          mkdir -p "$RUNNER_TEMP/candidate/tests"
+          cp tests/encounter-events.test.mjs "$RUNNER_TEMP/candidate/tests/"
+          cp encounter-events.js "$RUNNER_TEMP/candidate/encounter-events.js"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            echo '### CZ-80 Kimi A candidate passed scoped validation' >> "$GITHUB_STEP_SUMMARY"
+            echo '- Allowed changes: new event contract module and regression tests' >> "$GITHUB_STEP_SUMMARY"
+            echo '- Regression and V2.4 tests passed, no production operation' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            echo 'No changes after Kimi analysis; do not create a PR.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload candidate for independent review (no credentials)
+        if: steps.validate.outputs.changed == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz80-a1-frontend-candidate
+          path: ${{ runner.temp }}/candidate/
+          if-no-files-found: error
+          retention-days: 3
+
+  open-draft-pr:
+    name: Stage scoped patch as an unmerged draft PR
+    needs: kimi-implementation
+    if: needs.kimi-implementation.result == 'success' && needs.kimi-implementation.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout main, without saved credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Fetch only the candidate artifact from the preceding job
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: cz80-a1-frontend-candidate
+          path: ${{ runner.temp }}/cz80-a1-candidate/
+      - name: Check artifact paths and create isolated draft PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: automation/cz80-a1-frontend-pilot-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          test -f "$RUNNER_TEMP/cz80-a1-candidate/tests/encounter-events.test.mjs"
+          test -f "$RUNNER_TEMP/cz80-a1-candidate/encounter-events.js"
+          cp "$RUNNER_TEMP/cz80-a1-candidate/tests/encounter-events.test.mjs" tests/
+          cp "$RUNNER_TEMP/cz80-a1-candidate/encounter-events.js" encounter-events.js
+          git diff --check
+          if [[ ! -s encounter-events.js ]]; then
+            echo '::error::No event contract module in candidate artifact'
+            exit 1
+          fi
+          files="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              encounter-events.js|tests/encounter-events.test.mjs) ;;
+              *) echo "::error::Unexpected candidate path: $file"; exit 1 ;;
+            esac
+          done <<< "$files"
+          if [[ -z "$files" ]]; then
+            echo "::error::Candidate patch contained no changes"
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add -- encounter-events.js tests/encounter-events.test.mjs
+          git commit -m 'fix(cz-77): create standalone Encounter semantic event contract'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$BRANCH"
+          gh pr create --draft --base main --head "$BRANCH" \
+            --title 'fix(cz-77): Encounter semantic event seam and tests' \
+            --body 'Kimi A Frontend & UX candidate for [Linear CZ-80](https://linear.app/czd217/issue/CZ-80/encounter-reward-choreography-responsive-interactions-and-meaningful) and [GitHub #118](https://github.com/OWEF/Yourlogos/issues/118). Scope: one minimal Encounter semantic event contract and one deterministic regression test. Selected frontend-ux role, separate token-limited Kimi job, file allowlist and CI. Independent tech-lead review and founder approval required before merge; **DO NOT MERGE OR DEPLOY**. Fresh PR CI must be independently approved and checked.'
+          echo '### CZ-80 frontend draft PR staged' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Await independent tech-lead code review and founder release approval' >> "$GITHUB_STEP_SUMMARY"

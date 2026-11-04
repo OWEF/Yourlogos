@@ -11,6 +11,7 @@ on:
       - '.github/workflows/cz77-kimi-frontend-pilot.yml'
       - '.github/workflows/cz78-kimi-debugging-pilot.yml'
       - '.github/workflows/cz79-kimi-backend-pilot.yml'
+      - '.github/workflows/cz80-a1-kimi-frontend-pilot.yml'
       - '.github/workflows/kimi-code-auth-smoke.yml'
       - '.github/kimi/cz75-readiness-policy.json'
       - '.github/scripts/cz75-readiness-gate.mjs'
@@ -134,7 +135,8 @@ jobs:
             .github/workflows/cz76-kimi-qa-pilot.yml \
             .github/workflows/cz77-kimi-frontend-pilot.yml \
             .github/workflows/cz78-kimi-debugging-pilot.yml \
-            .github/workflows/cz79-kimi-backend-pilot.yml; do
+            .github/workflows/cz79-kimi-backend-pilot.yml \
+            .github/workflows/cz80-a1-kimi-frontend-pilot.yml; do
             if grep -q '^concurrency:' "$file"; then
               echo "::error::Top-level group cancels unrelated issue event workflows: $file"
               exit 1
@@ -177,3 +179,24 @@ jobs:
           node --test .github/scripts/cz75-readiness-gate.test.mjs
           node .github/scripts/cz75-readiness-gate.mjs --check
           echo 'CZ-75 policy and all Kimi entrypoints validated with zero model credits.'
+
+      - name: Check issue 118 trusted CZ-80 A1 dispatch (no model)
+        shell: bash
+        run: |
+          set -euo pipefail
+          file=.github/workflows/cz80-a1-kimi-frontend-pilot.yml
+          grep -Fq 'github.event.issue.number == 118' "$file"
+          grep -Fq "github.actor == 'OWEF'" "$file"
+          grep -Fq "github.event.changes.title.from" "$file"
+          grep -Fq "[RUN-CZ80-A1-KIMI-A] Encounter event seam" "$file"
+          grep -Fq -- '--agent-file .github/kimi/profiles/frontend-ux.md' "$file"
+          grep -Fq "CZ75_MANUAL_QUOTA_READY" "$file"
+          grep -Fq 'timeout --signal=TERM --kill-after=5s 150s' "$file"
+          grep -Fq 'encounter-events.js|tests/encounter-events.test.mjs' "$file"
+          grep -Fq 'name: cz80-a1-frontend-candidate' "$file"
+          grep -Fq -- 'gh pr create --draft --base main' "$file"
+          if grep -Eq 'gh pr merge|path:.*kimi-(stdout|stderr)' "$file"; then
+            echo "::error::Unsafe release or model logs in CZ-80 A1"
+            exit 1
+          fi
+          echo 'CZ-80 A1 workflow static validation passed without model use.'

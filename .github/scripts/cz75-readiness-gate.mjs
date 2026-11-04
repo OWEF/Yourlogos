@@ -10,7 +10,8 @@ const EXPECTED = Object.freeze([
   ["cz76-kimi-qa-pilot.yml", 103, "testing-qa", 150, 8, "draft-pr"],
   ["cz77-kimi-frontend-pilot.yml", 106, "frontend-ux", 150, 8, "draft-pr"],
   ["cz78-kimi-debugging-pilot.yml", 109, "debugging", 120, 6, "allowlisted-issue-comment"],
-  ["cz79-kimi-backend-pilot.yml", 112, "backend-apis", 150, 8, "draft-pr"]
+  ["cz79-kimi-backend-pilot.yml", 112, "backend-apis", 150, 8, "draft-pr"],
+  ["cz80-a1-kimi-frontend-pilot.yml", 118, "frontend-ux", 150, 8, "draft-pr"]
 ]);
 const PREFIX = ".github/workflows/";
 const SWITCH = "CZ75_MANUAL_QUOTA_READY";
