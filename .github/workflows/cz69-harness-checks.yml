@@ -63,7 +63,7 @@ jobs:
           grep -Fq 'github.event.changes.title.from' "$file"
           grep -Fq 'node .github/scripts/cz69-role-router.mjs --check' "$file"
           grep -Fq -- '--agent-file .github/kimi/profiles/testing-qa.md' "$file"
-          grep -Fq 'KIMI_LOOP_MAX_STEPS_PER_TURN: '\''8'\''' "$file"
+          grep -Fq "KIMI_LOOP_MAX_STEPS_PER_TURN: '8'" "$file"
           grep -Fq 'timeout --signal=TERM --kill-after=5s 150s' "$file"
           grep -Fq 'tests/encounter-queue-purity.test.mjs' "$file"
           grep -Fq 'name: cz76-qa-candidate' "$file"
