@@ -1,0 +1,46 @@
+# No Kimi membership key or API calls. Runs on PR before any harness merge.
+name: CZ-69 Harness Regression Checks
+
+on:
+  pull_request:
+    paths:
+      - '.github/scripts/cz69-safe-report.mjs'
+      - '.github/scripts/cz69-safe-report.test.mjs'
+      - '.github/workflows/cz69-kimi-cz17-pilot.yml'
+      - '.github/workflows/cz69-harness-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  static-harness:
+    name: Validate safe diagnostics and workflow boundaries
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+      - name: Test diagnostics with malicious input fixtures
+        run: |
+          node --check .github/scripts/cz69-safe-report.mjs
+          node --test .github/scripts/cz69-safe-report.test.mjs
+      - name: Assert narrow test-only pilot and safe artifact boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          file=.github/workflows/cz69-kimi-cz17-pilot.yml
+          grep -Fq 'github.event.issue.number == 97' "$file"
+          grep -Fq -- '--output-format stream-json' "$file"
+          grep -Fq 'timeout --signal=TERM --kill-after=5s 150s' "$file"
+          grep -Fq 'name: cz69-safe-diagnostics' "$file"
+          grep -Fq 'name: cz17-kimi-candidate' "$file"
+          grep -Fq -- '--draft --base main' "$file"
+          if grep -Eq 'path:.*kimi-(stdout|stderr)|gh pr merge' "$file"; then
+            echo "::error::Raw model output artifact or auto merge detected"
+            exit 1
+          fi
+          echo "CZ-69 static harness guard passed without model usage."
