@@ -9,6 +9,12 @@
   <path id="forelockGeometry" d="M60 166 C80 151 77 133 91 121 C108 110 115 87 145 76 C169 61 177 41 215 47 C230 28 256 31 276 46 C308 38 343 54 358 77 C367 91 365 103 378 122 C370 138 371 165 355 184 C365 157 352 131 341 118 C329 104 294 88 273 91 C237 77 205 97 180 117 C155 136 150 154 128 176 C106 198 80 207 62 207 C92 189 103 176 112 159 C94 175 76 175 60 166 Z"/>
   <clipPath id="headClip" clipPathUnits="userSpaceOnUse"><use href="#headGeometry"/></clipPath>
   <clipPath id="forelockClip" clipPathUnits="userSpaceOnUse"><use href="#forelockGeometry"/></clipPath>
+  <clipPath id="underpaintClip" clipPathUnits="userSpaceOnUse">
+    <use href="#headGeometry"/><use href="#forelockGeometry"/>
+  </clipPath>
+  <filter id="softUnderpaint" x="-5%" y="-5%" width="110%" height="110%">
+    <feGaussianBlur stdDeviation="2.2"/>
+  </filter>
   <clipPath id="eyeClip" clipPathUnits="userSpaceOnUse">
     <ellipse cx="253" cy="169" rx="15.2" ry="22.5"/>
     <ellipse cx="330" cy="164" rx="13.4" ry="20.5"/>
@@ -23,11 +29,6 @@
     <ellipse cx="253" cy="169" rx="15.2" ry="22.5" fill="#000"/>
     <ellipse cx="330" cy="164" rx="13.4" ry="20.5" fill="#000"/>
   </mask>
-  <radialGradient id="underheadFill" cx="53%" cy="44%" r="78%">
-    <stop offset="0" stop-color="#4a3627"/>
-    <stop offset=".58" stop-color="#241d1a"/>
-    <stop offset="1" stop-color="#141313"/>
-  </radialGradient>
   <radialGradient id="eyeSkin" cx="32%" cy="22%" r="86%">
     <stop offset="0" stop-color="#ffebce"/>
     <stop offset=".65" stop-color="#ebcbaa"/>
@@ -58,9 +59,11 @@
 </g>
 <!-- Editable layer 2: subdued underpainting for revealed pixels during head motion.
      IMPORTANT: occluded anatomy is approximated; human art review required. -->
-<g id="neckUnderpaint" data-editable-layer="occlusion-restoration-provisional">
-  <use href="#headGeometry" fill="url(#underheadFill)"/>
-  <use href="#forelockGeometry" fill="url(#underheadFill)"/>
+<g id="neckUnderpaint" data-editable-layer="occlusion-restoration-provisional" clip-path="url(#underpaintClip)">
+  <!-- The source-colour, blurred underpainting fills pixels exposed by tiny
+       head pivots. This avoids a solid DARK CIRCULAR SEAM at the face contour.
+       It is still provisional; edge/occlusion art requires human approval. -->
+  <use href="#originalPortrait" filter="url(#softUnderpaint)"/>
 </g>
 <!-- Editable layer 3: head/face from the SAME original image; rotates around neck. -->
 <g id="headRig" data-editable-layer="head-independent">
