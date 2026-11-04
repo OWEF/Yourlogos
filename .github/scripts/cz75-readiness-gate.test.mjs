@@ -70,4 +70,6 @@ test("legacy manual Kimi auth smoke is gated before any billable model request",
       "CZ75_MANUAL_QUOTA_READY: true")),/quota gate/);
   assert.throws(()=>verifySmokeSource(
     smoke.replace("github.actor == 'OWEF'","github.actor == 'untrusted'")),/quota gate/);
+  assert.throws(()=>verifySmokeSource(
+    smoke.replace("KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'","KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '5'")),/quota gate/);
 });
