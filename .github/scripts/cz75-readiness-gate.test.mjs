@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {
-  verifyReadinessPolicy, verifyWorkflowSource, verifyRepo
+  verifyReadinessPolicy, verifyWorkflowSource, verifySmokeSource, verifyRepo
 } from "./cz75-readiness-gate.mjs";
 
 const policy=JSON.parse(readFileSync(new URL("../kimi/cz75-readiness-policy.json",import.meta.url),"utf8"));
@@ -14,7 +14,7 @@ const baseline=readText(role.path);
 test("only the reviewed five small owner-bound workflows pass, without a model",()=>{
   assert.equal(verifyReadinessPolicy(policy),true);
   assert.deepEqual(verifyRepo(policy,readText),{
-    workflowCount:5,modelUsage:"not_verified",mode:"small-trusted-owner-tasks-only"
+    workflowCount:5,legacySmokeChecked:true,modelUsage:"not_verified",mode:"small-trusted-owner-tasks-only"
   });
 });
 
@@ -60,4 +60,14 @@ test("the manual attestation is an operator declaration, not a financial cap",()
   assert.equal(policy.quotaAttestation.defaultOn,false);
   assert.equal(policy.tiers.complex.enabled,false);
   assert.equal(policy.automaticProductionMerge,false);
+});
+
+test("legacy manual Kimi auth smoke is gated before any billable model request",()=>{
+  const smoke=readText(policy.smokeTest.path);
+  assert.equal(verifySmokeSource(smoke),true);
+  assert.throws(()=>verifySmokeSource(
+    smoke.replace("CZ75_MANUAL_QUOTA_READY: ${{ vars.CZ75_MANUAL_QUOTA_READY }}",
+      "CZ75_MANUAL_QUOTA_READY: true")),/quota gate/);
+  assert.throws(()=>verifySmokeSource(
+    smoke.replace("github.actor == 'OWEF'","github.actor == 'untrusted'")),/quota gate/);
 });
