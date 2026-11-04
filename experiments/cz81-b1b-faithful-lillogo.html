@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#111318" />
+<title>YourLogos · CZ-81 B1b — Faithful LilLogo motion study</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1015;--ink:#f4eadb;--mute:#aa9f92;--gold:#e6bf86;--stroke:#6e614e70}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100dvh;display:flex;justify-content:center;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:2px solid #f4d39b;outline-offset:3px}h1,h2,p{margin:0}
+.shell{width:min(100%,520px);min-height:100dvh;padding:max(18px,env(safe-area-inset-top)) 22px max(26px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px;background:radial-gradient(ellipse 95% 34% at 50% 22%,#513d2c56 0,transparent 75%),linear-gradient(170deg,#1c1d21,#111318 62%,#11151b)}
+.mast{display:flex;align-items:center;justify-content:space-between;gap:8px}.brand{font-size:11px;letter-spacing:.24em;font-weight:700;color:#e9d9c0}.tag{border:1px solid #dcb77e48;color:#d8b784;border-radius:999px;padding:6px 10px;letter-spacing:.1em;font-size:10px}
+.notice{border:1px solid #e3bd8370;border-radius:16px;padding:14px 16px;background:radial-gradient(circle at 85% 0,#d4aa7233,transparent 65%),#3a2e271a;font-size:12.5px;line-height:1.6;color:#d3c4b1}.notice strong{color:#f0d7b2;letter-spacing:.08em;font-size:10.5px}.notice p+p{margin-top:6px}
+.stage{position:relative;display:grid;place-items:center;min-height:270px}.halo{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:250px;height:215px;background:radial-gradient(circle,#b28a5845,#d5a3690d 46%,transparent 73%);filter:blur(9px);animation:halo 6s ease-in-out infinite alternate}.ground{position:absolute;bottom:12px;width:230px;height:28px;border-radius:50%;border-top:1px solid #a28a6850;background:radial-gradient(ellipse,#bd925b24,transparent 75%)}
+.sprite{position:relative;width:230px;height:230px;z-index:2}.sway{position:absolute;inset:0;transform-origin:50% 88%;animation:sway 7.4s ease-in-out infinite}.breathe{position:absolute;inset:0;transform-origin:50% 92%;animation:breathe 5.6s ease-in-out infinite}.pose{position:absolute;inset:0;background-image:url("../little-logo-poses-v5.webp");background-repeat:no-repeat;background-size:800% 100%;filter:drop-shadow(0 12px 8px #0003);transition:opacity .9s ease}.pose-idle{background-position:0% 50%;opacity:1}.pose-curious{background-position:28.5714286% 50%;opacity:0}.glance{position:absolute;inset:0;animation:glance 9s ease-in-out infinite}
+.sprite.is-curious .sway{animation-name:swayCurious;animation-duration:5.2s}.sprite.is-curious .pose-idle{opacity:0}.sprite.is-curious .pose-curious{opacity:1}
+.paused .sway,.paused .breathe,.paused .glance,.paused .halo{animation-play-state:paused}
+.controls{display:flex;gap:10px;justify-content:center}.state-btn{min-width:128px;min-height:48px;border-radius:14px;border:1px solid #bc9b6d56;color:#eee0ca;background:linear-gradient(122deg,#d7b47c14,#ffffff02);letter-spacing:.05em;transition:border-color .2s,background .2s}.state-btn:hover{border-color:#e6be82}.state-btn[aria-pressed="true"]{background:linear-gradient(125deg,#e9bf8543,#e5bd8420);border-color:#e7bf82;box-shadow:0 0 0 1px #e7bf8233}
+.status{text-align:center;font-size:12px;color:#c1a781;min-height:18px}
+.reference{display:flex;gap:14px;align-items:center;border:1px solid #c3a47944;border-radius:16px;padding:12px;background:linear-gradient(125deg,#191a20,#28241f)}.reference img{width:72px;height:72px;object-fit:cover;border-radius:12px;border:1px solid #ffffff14}.reference div{font-size:11.5px;line-height:1.55;color:#ab9e8b}.reference strong{display:block;color:#e5c996;font-size:11px;letter-spacing:.12em;margin-bottom:3px}
+.notes{font-size:12px;line-height:1.65;color:#c5b8a6}.notes li{margin:5px 0 5px 18px}.notes ul{margin:6px 0 0;padding:0}
+.endnote{font-size:10.5px;text-align:center;color:#aa9f8f;margin-top:auto;padding-top:16px;letter-spacing:.08em}
+@keyframes sway{0%,100%{transform:rotate(-1.8deg) translateY(0)}42%{transform:rotate(2.2deg) translateY(-2px)}74%{transform:rotate(-1deg) translateY(1px)}}
+@keyframes swayCurious{0%,100%{transform:rotate(-3.4deg) translateY(1px)}45%{transform:rotate(3.8deg) translateY(-3px)}}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,1.02)}}
+@keyframes glance{0%,30%,100%{transform:translate(0,0)}36%,52%{transform:translate(3px,0)}58%,78%{transform:translate(-2px,1px)}}
+@keyframes halo{from{opacity:.56;scale:1}to{opacity:1;scale:1.07}}
+@media(min-width:650px){body{padding:24px}.shell{border-radius:26px;min-height:760px;box-shadow:0 28px 100px #0009}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.pose{transition:none}}
+</style>
+</head>
+<body>
+<main class="shell" id="study">
+  <header class="mast"><div class="brand">YOURLOGOS <span style="opacity:.4">/</span> LILLOGO MOTION</div><span class="tag">CZ-81 B1b · STUDY</span></header>
+
+  <section class="notice" role="note" aria-label="Technique limitation">
+    <strong>TECHNIQUE LIMITATION — READ FIRST</strong>
+    <p>The original LilLogo art (<code>little-logo-hd-v2.jpg</code>, atlas <code>little-logo-poses-v5.webp</code>) is a <em>flattened raster illustration</em>. A true independent head, eye and eyelid rig <strong>cannot be reconstructed</strong> from it without redrawing or inventing anatomy, which this study refuses to do.</p>
+    <p>Instead, head and gaze changes come from the <em>artist's own two painted poses</em> (idle and curious) cross-faded at full opacity, plus whole-character micro-tilt of 1.8–3.8 degrees and a slow breathing scale. The tilt layer moves the entire sprite — it only <em>reads</em> as a head shift because the sprite is head-dominant. No blink is faked: a convincing eyelid would require drawing over the original eyes, so blinking is deliberately absent rather than fabricated.</p>
+  </section>
+
+  <section class="stage" aria-label="LilLogo, the original cream-coloured companion">
+    <div class="halo" aria-hidden="true"></div>
+    <div class="ground" aria-hidden="true"></div>
+    <div class="sprite" id="sprite" data-layer="character">
+      <div class="sway" data-layer="tilt">
+        <div class="breathe" data-layer="breath">
+          <div class="glance" data-layer="gaze-drift">
+            <div class="pose pose-idle" data-layer="pose-idle" role="img" aria-label="Little Logo, luminous cream character with pale curling hair, glossy black eyes and a dark flowing cape, in the artist's original idle pose"></div>
+            <div class="pose pose-curious" data-layer="pose-curious" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="controls" role="group" aria-label="LilLogo attention state">
+    <button type="button" class="state-btn" id="btn-idle" data-state="idle" aria-pressed="true">Idle</button>
+    <button type="button" class="state-btn" id="btn-curious" data-state="curious" aria-pressed="false">Curious</button>
+  </div>
+  <p class="status" id="status" aria-live="polite">LilLogo · Idle — settled posture, soft drifting gaze.</p>
+
+  <section class="reference">
+    <img src="../little-logo-hd-v2.jpg" alt="Original reference portrait of LilLogo: a luminous cream-coloured small character with long pale tousled hair, two large glossy black eyes and a flowing dark cape, lit by warm gold light on a near-black background" width="72" height="72" />
+    <div><strong>ORIGINAL ART REFERENCE</strong><code>little-logo-hd-v2.jpg</code> — authoritative identity source (CZ-23). Shown for side-by-side comparison only; the animated sprite above uses the original painted pose atlas, not a redrawn mascot.</div>
+  </section>
+
+  <section class="notes">
+    <h2 style="font-size:12px;letter-spacing:.16em;color:var(--gold);margin-bottom:4px">WHAT THIS STUDY PROVES — AND WHAT IT DOES NOT</h2>
+    <ul>
+      <li>Two authored states (idle / curious) can be presented faithfully using only the original atlas cells, same-origin, offline.</li>
+      <li>Layered motion (tilt layer, breath layer, gaze-drift layer, pose layers) keeps amplitude subtle and independent in timing.</li>
+      <li>It does <strong>not</strong> prove an independent head rig, real blink, or verified CZ-23 identity in motion — those need a layered source file or approved redraw.</li>
+    </ul>
+  </section>
+
+  <p class="endnote">REVIEW PROTOTYPE · ORIGINAL ART ONLY · NO NETWORK · NO AI CALLS · NO PERSONAL DATA SAVED</p>
+</main>
+<script>
+(()=>{'use strict';
+const sprite=document.getElementById('sprite');
+const status=document.getElementById('status');
+const buttons=[document.getElementById('btn-idle'),document.getElementById('btn-curious')];
+const captions={idle:'LilLogo · Idle — settled posture, soft drifting gaze.',curious:'LilLogo · Curious — the artist’s painted lean-in pose, held gently.'};
+const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches===true;
+let state='idle';
+function setState(next){
+  state=next;
+  sprite.classList.toggle('is-curious',next==='curious');
+  for(const b of buttons)b.setAttribute('aria-pressed',String(b.dataset.state===next));
+  status.textContent=captions[next]+(reduced()?' Reduced motion is on: static pose, no animation.':'');
+}
+for(const b of buttons)b.addEventListener('click',()=>setState(b.dataset.state));
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden')sprite.classList.add('paused');
+  else if(!reduced())sprite.classList.remove('paused');
+});
+window.matchMedia?.('(prefers-reduced-motion: reduce)')?.addEventListener?.('change',()=>{setState(state)});
+window.addEventListener('pagehide',()=>{sprite.classList.remove('paused')},{once:true});
+setState('idle');
+})();
+</script>
+</body>
+</html>
