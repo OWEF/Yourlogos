@@ -43,6 +43,9 @@ test("honors reduced motion, pauses on hidden tab, and declares the flattening l
   assert.match(source,/@media\(prefers-reduced-motion:reduce\)/);
   assert.match(source,/prefers-reduced-motion: reduce/);
   assert.match(source,/visibilitychange/);
+  assert.match(source,/function syncVisibility\(\)/);
+  assert.match(source,/classList\.toggle\('paused',document\.visibilityState==='hidden'\|\|reduced\(\)\)/);
+  assert.match(source,/pagehide.*classList\.add\('paused'\)/);
   assert.match(source,/animation-play-state:paused/);
   assert.match(source,/aria-live="polite"/);
   assert.match(source,/flattened raster illustration/);
