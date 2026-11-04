@@ -7,6 +7,7 @@ on:
       - '.github/scripts/cz69-safe-report.mjs'
       - '.github/scripts/cz69-safe-report.test.mjs'
       - '.github/workflows/cz69-kimi-cz17-pilot.yml'
+      - '.github/workflows/cz76-kimi-qa-pilot.yml'
       - '.github/workflows/cz69-harness-checks.yml'
       - '.github/kimi/**'
       - '.github/scripts/cz69-role-router.mjs'
@@ -52,3 +53,23 @@ jobs:
             exit 1
           fi
           echo "CZ-69 static harness guard passed without model usage."
+      - name: Check owner-only Kimi C activation boundaries (no model)
+        shell: bash
+        run: |
+          set -euo pipefail
+          file=.github/workflows/cz76-kimi-qa-pilot.yml
+          grep -Fq 'github.event.issue.number == 103' "$file"
+          grep -Fq "github.actor == 'OWEF'" "$file"
+          grep -Fq 'github.event.changes.title.from' "$file"
+          grep -Fq 'node .github/scripts/cz69-role-router.mjs --check' "$file"
+          grep -Fq -- '--agent-file .github/kimi/profiles/testing-qa.md' "$file"
+          grep -Fq 'KIMI_LOOP_MAX_STEPS_PER_TURN: '\''8'\''' "$file"
+          grep -Fq 'timeout --signal=TERM --kill-after=5s 150s' "$file"
+          grep -Fq 'tests/encounter-queue-purity.test.mjs' "$file"
+          grep -Fq 'name: cz76-qa-candidate' "$file"
+          grep -Fq -- '--draft --base main' "$file"
+          if grep -Eq 'gh pr merge|path:.*kimi-(stdout|stderr)' "$file"; then
+            echo '::error::Unsafe release or raw model artifact path'
+            exit 1
+          fi
+          echo 'CZ-76 static QA role activation checked without model call.'
