@@ -53,7 +53,7 @@ test("removing one-shot or billing-safety boundaries is rejected", () => {
     ["tests/cz81-curious-companion-lab.test.mjs", "tests/any.test.mjs"]
   ]) {
     assert.ok(workflow.includes(before), "Fixture missing: " + before);
-    assert.throws(() => verifyOneRunWorkflow(workflow.replace(before, after)), /CZ82 DENY/);
+    assert.throws(() => verifyOneRunWorkflow(workflow.replace(before, after)), /CZ82 DENY/, "boundary mutation accepted: " + before);
   }
 });
 test("no always-on quota flag, no schedule, no workflow dispatch and no raw model logs", () => {
