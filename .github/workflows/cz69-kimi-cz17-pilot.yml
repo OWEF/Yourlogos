@@ -1,0 +1,200 @@
+# CZ-69 / CZ-17: single-issue Kimi coding pilot; no production authority.
+# Authorize only an exact owner-issued title transition on GitHub issue #97.
+name: CZ-69 Kimi CZ-17 bounded coding pilot
+
+on:
+  issues:
+    types: [edited]
+
+permissions: {}
+
+concurrency:
+  group: cz-69-kimi-coding
+  cancel-in-progress: false
+
+jobs:
+  kimi-implementation:
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event.issue.user.login == 'OWEF' &&
+      github.event.issue.number == 97 &&
+      github.event.issue.pull_request == null &&
+      github.event.issue.title == '[RUN-KIMI-CZ17] Verify daily quote freshness under personalization' &&
+      github.event.changes.title.from == '[CZ-17][Kimi pilot] Verify daily quote freshness under personalization'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.validate.outputs.changed }}
+    steps:
+      - name: Checkout trusted default branch without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+
+      - name: Install pinned Kimi CLI before exposing membership key
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+
+      - name: Run one bounded Kimi implementation without GitHub write token
+        shell: bash
+        timeout-minutes: 8
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/cz69-kimi-home
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          if [[ -z "${KIMI_MODEL_API_KEY:-}" ]]; then
+            echo "::error::Required KIMI_CODE_API_KEY secret is absent"
+            exit 1
+          fi
+          mkdir -p "$KIMI_CODE_HOME"
+          # Trusted, fixed task; issue title/body and PR content are NEVER injected.
+          # The agent can use shell and network; this is a limited, owner-controlled
+          # first pilot, not a general public-input or production-safe agent.
+          prompt=$(cat <<'TASK'
+          You are Kimi, the YourLogos implementation specialist. Work exclusively
+          on issue CZ-17 (GitHub issue #97) and nothing else.
+          Review AGENTS.md, app.js daily quote picker near lines 168-217,
+          encounter-queue.js and existing tests. The suspected defect is that
+          positive preference scores can override the deterministic daily deck
+          and permit a repeat before every daily-feature quote has appeared.
+          First REPRODUCE with a deterministic Node regression test; if not
+          reproducible, avoid speculative production edits and explain why.
+          Only edit app.js and a single new
+          tests/daily-quote-freshness.test.mjs file. Preserve existing quote
+          text/IDs, daily stability, local-day boundaries, persisted history,
+          previous-day exclusion and relevant personalization. No other files.
+          No network requests, no provider APIs besides your normal Kimi model
+          calls, and no reading or printing environment variables or credentials.
+          Do not use git push, GitHub CLI or any deployment action. Do not change
+          CI workflows or files outside the two allowed paths. Do not install
+          dependencies. Keep code changes minimal. Return concise evidence.
+          TASK
+          )
+          set +e
+          timeout --signal=TERM --kill-after=5s 420s \
+            kimi -p "$prompt" --output-format text \
+            > "$RUNNER_TEMP/kimi-result.txt" 2> "$RUNNER_TEMP/kimi-error.txt"
+          rc=$?
+          set -e
+          if [[ "$rc" -ne 0 ]]; then
+            echo "::error::Kimi run failed (exit code $rc); raw output withheld to protect credentials"
+            exit 1
+          fi
+
+      - name: Validate scope and run tests with no Kimi credentials
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              app.js|tests/daily-quote-freshness.test.mjs) ;;
+              *) echo "::error::Out-of-scope file changed: $file"; exit 1 ;;
+            esac
+          done < <(git status --porcelain | cut -c4-)
+          git diff --check
+          if [[ ! -f tests/daily-quote-freshness.test.mjs ]]; then
+            echo "::error::Expected fresh regression test was not created"
+            exit 1
+          fi
+          node --check app.js
+          node --test tests/daily-quote-freshness.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node scripts/verify-v24.mjs
+          mkdir -p "$RUNNER_TEMP/candidate/tests"
+          cp app.js "$RUNNER_TEMP/candidate/app.js"
+          cp tests/daily-quote-freshness.test.mjs "$RUNNER_TEMP/candidate/tests/"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            echo '### CZ-17 Kimi candidate passed scoped validation' >> "$GITHUB_STEP_SUMMARY"
+            echo '- Changed files restricted to app.js and tests/daily-quote-freshness.test.mjs' >> "$GITHUB_STEP_SUMMARY"
+            echo '- Regression and V2.4 tests passed, no production operation' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            echo 'No changes after Kimi analysis; do not create a PR.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload candidate for independent review (no credentials)
+        if: steps.validate.outputs.changed == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz17-kimi-candidate
+          path: ${{ runner.temp }}/candidate/
+          if-no-files-found: error
+          retention-days: 3
+
+  open-draft-pr:
+    name: Stage scoped patch as an unmerged draft PR
+    needs: kimi-implementation
+    if: needs.kimi-implementation.result == 'success' && needs.kimi-implementation.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout main, without saved credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Fetch only the candidate artifact from the preceding job
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: cz17-kimi-candidate
+          path: ${{ runner.temp }}/cz17-candidate/
+      - name: Check artifact paths and create isolated draft PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: automation/cz17-kimi-pilot-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          test -f "$RUNNER_TEMP/cz17-candidate/app.js"
+          test -f "$RUNNER_TEMP/cz17-candidate/tests/daily-quote-freshness.test.mjs"
+          cp "$RUNNER_TEMP/cz17-candidate/app.js" app.js
+          cp "$RUNNER_TEMP/cz17-candidate/tests/daily-quote-freshness.test.mjs" tests/
+          git diff --check
+          files="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              app.js|tests/daily-quote-freshness.test.mjs) ;;
+              *) echo "::error::Unexpected candidate path: $file"; exit 1 ;;
+            esac
+          done <<< "$files"
+          if [[ -z "$files" ]]; then
+            echo "::error::Candidate patch contained no changes"
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add -- app.js tests/daily-quote-freshness.test.mjs
+          git commit -m 'test(cz-17): Kimi pilot on daily quote freshness'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$BRANCH"
+          gh pr create --draft --base main --head "$BRANCH" \
+            --title 'test(cz-17): Kimi daily quote freshness pilot' \
+            --body 'Kimi cloud candidate for [Linear CZ-17](https://linear.app/czd217/issue/CZ-17/audit-daily-quote-freshness-and-encounter-replay-variety) and [GitHub #97](https://github.com/OWEF/Yourlogos/issues/97). Scoped changes: app.js and one new Node regression test only. Automated tests ran in the separate read-only-token Kimi job. Independent tech-lead review required. **DO NOT MERGE OR DEPLOY**. Actions-created PRs may need CI checks rerun separately; no CI pass is inferred from draft creation.'
+          echo '### CZ-17 draft PR staged' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Await independent tech-lead code review and founder release approval' >> "$GITHUB_STEP_SUMMARY"
