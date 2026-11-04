@@ -55,7 +55,10 @@ function init(){
  const observer=new MutationObserver(attach);
  observer.observe(app,{subtree:true,childList:true});
  document.addEventListener("visibilitychange",()=>{if(document.hidden){clearTimeout(clock);clearTimeout(revert)}else{attach();schedule()}});
- window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener?.("change",attach);
+ window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener?.("change",()=>{
+  if(reduced()){clearTimeout(clock);clearTimeout(revert);clock=0;revert=0;return}
+  attach();schedule();
+ });
  attach();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
