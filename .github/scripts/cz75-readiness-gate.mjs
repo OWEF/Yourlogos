@@ -62,6 +62,9 @@ export function verifySmokeSource(source) {
     source.includes("CZ75 HOLD: quota status and Extra Usage setting require operator review"));
   need(source.indexOf("- name: CZ75 manual quota and billing attestation") <
     source.indexOf("- name: Verify one bounded membership-backed request"));
+  need(source.includes("KIMI_LOOP_MAX_STEPS_PER_TURN: '1'") &&
+    source.includes("KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'") &&
+    source.includes("KIMI_CODE_INFINITE_RETRY: 'false'"));
   need(source.includes("timeout --signal=TERM --kill-after=5s 150s") &&
     !source.includes("gh pr merge") && !source.includes("gh run rerun") &&
     !source.includes("pull-requests: write"));
