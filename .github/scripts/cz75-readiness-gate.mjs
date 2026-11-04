@@ -46,6 +46,26 @@ export function verifyReadinessPolicy(policy) {
       x.maxStepsPerTurn === steps && x.artifactType === artifact,
     "unreviewed workflow manifest change: " + filename);
   }
+  const s=policy.smokeTest;
+  ensure(s?.path === ".github/workflows/kimi-code-auth-smoke.yml" &&
+    s.mode === "owner-main-manual-only" && s.maxWallSeconds === 150 &&
+    s.requiresManualQuotaAttestation === true && s.defaultDisabled === true,
+    "legacy auth smoke not governed");
+  return true;
+}
+export function verifySmokeSource(source) {
+  const need=(v)=>ensure(v,"legacy Kimi auth smoke outside safe quota gate");
+  need(source.includes("workflow_dispatch:") && source.includes("github.actor == 'OWEF'") &&
+    source.includes("github.ref == 'refs/heads/main'"));
+  need(source.includes("CZ75 manual quota and billing attestation") &&
+    source.includes("CZ75_MANUAL_QUOTA_READY: ${{ vars.CZ75_MANUAL_QUOTA_READY }}") &&
+    source.includes("CZ75 HOLD: quota status and Extra Usage setting require operator review"));
+  need(source.indexOf("- name: CZ75 manual quota and billing attestation") <
+    source.indexOf("- name: Verify one bounded membership-backed request"));
+  need(source.includes("timeout --signal=TERM --kill-after=5s 150s") &&
+    !source.includes("gh pr merge") && !source.includes("gh run rerun") &&
+    !source.includes("pull-requests: write"));
+  need(!source.includes("actions/checkout@") && source.includes("No repository checkout"));
   return true;
 }
 export function verifyWorkflowSource(source, entry) {
@@ -93,7 +113,8 @@ export function verifyWorkflowSource(source, entry) {
 export function verifyRepo(policy, readText) {
   verifyReadinessPolicy(policy);
   for (const entry of policy.workflows) verifyWorkflowSource(readText(entry.path), entry);
-  return {workflowCount:policy.workflows.length, modelUsage:"not_verified", mode:policy.mode};
+  verifySmokeSource(readText(policy.smokeTest.path));
+  return {workflowCount:policy.workflows.length, legacySmokeChecked:true, modelUsage:"not_verified", mode:policy.mode};
 }
 function runCli() {
   const policy = JSON.parse(readFileSync(resolve(".github/kimi/cz75-readiness-policy.json"), "utf8"));
@@ -101,7 +122,7 @@ function runCli() {
   if (arg === "--check") {
     const result = verifyRepo(policy, p=>readFileSync(resolve(p), "utf8"));
     console.log("CZ-75 safe policy PASS: " + result.workflowCount +
-      " owner-only workflows; one model job at a time; no provider usage inferred.");
+      " owner-only workflows plus locked smoke; one model job at a time; no provider usage inferred.");
   } else {
     const target=policy.workflows.find(w=>w.path===arg);
     ensure(target, "unknown task workflow in preflight");
