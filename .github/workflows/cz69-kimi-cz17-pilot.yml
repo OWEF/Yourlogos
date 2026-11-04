@@ -23,7 +23,7 @@ jobs:
       github.event.issue.title == '[RUN-KIMI-CZ17] Verify daily quote freshness under personalization' &&
       github.event.changes.title.from == '[CZ-17][Kimi pilot] Verify daily quote freshness under personalization'
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 9
     permissions:
       contents: read
     outputs:
@@ -49,13 +49,19 @@ jobs:
 
       - name: Run one bounded Kimi implementation without GitHub write token
         shell: bash
-        timeout-minutes: 8
+        timeout-minutes: 6
         env:
           KIMI_MODEL_NAME: kimi-for-coding
           KIMI_MODEL_PROVIDER_TYPE: kimi
           KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
           KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
           KIMI_CODE_HOME: ${{ runner.temp }}/cz69-kimi-home
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '18'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
           CI: 'true'
         run: |
           set -euo pipefail
@@ -87,9 +93,12 @@ jobs:
           dependencies. Keep code changes minimal. Return concise evidence.
           TASK
           )
+          # Strict pilot budget: at most 18 agent steps; 1 attempt per failed step,
+          # no infinite retries, no background steering or Ralph loops, 5 minutes.
+          # These are execution caps, NOT a provider-side token/dollar hard ceiling.
           set +e
-          timeout --signal=TERM --kill-after=5s 420s \
-            kimi -p "$prompt" --output-format text \
+          timeout --signal=TERM --kill-after=5s 300s \
+            kimi -p "$prompt" --max-steps-per-turn 18 --max-ralph-iterations 0 --output-format text \
             > "$RUNNER_TEMP/kimi-result.txt" 2> "$RUNNER_TEMP/kimi-error.txt"
           rc=$?
           set -e
