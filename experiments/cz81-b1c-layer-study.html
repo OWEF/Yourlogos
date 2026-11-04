@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#101216" />
+<title>YourLogos — LilLogo layered master study (CZ-81)</title>
+<style>
+:root{color-scheme:dark;--bg:#111318;--panel:#1b1c21;--ink:#f1e7d7;--muted:#b1a597;--gold:#e8c58a;--border:#75624a88}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(18px,env(safe-area-inset-top)) 16px max(30px,env(safe-area-inset-bottom));line-height:1.5}
+main{margin:0 auto;max-width:880px}
+.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.kicker{letter-spacing:.18em;font-size:11px;color:var(--gold);font-weight:700}
+h1{font-size:clamp(23px,4.8vw,36px);font-weight:550;line-height:1.16;margin:18px 0 8px;letter-spacing:-.025em}
+.intro{font-size:14px;color:var(--muted);max-width:680px}
+.flag{font-size:11px;letter-spacing:.08em;color:var(--gold);border:1px solid var(--border);border-radius:20px;padding:6px 12px}
+.compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:25px 0}
+.pane{border:1px solid #9c83503a;border-radius:20px;padding:14px;background:radial-gradient(circle at 50% 25%,#4a362e50,transparent 69%),var(--panel);min-width:0}
+.pane strong{display:block;color:#ecd4ad;font-size:13px}
+.sub{font-size:11px;color:var(--muted);margin-top:3px}
+.artwork{width:100%;height:auto;display:block;aspect-ratio:1;object-fit:contain}
+.pane img,.pane object{border-radius:9px}
+.controls{display:flex;gap:10px;margin:8px 0 12px;flex-wrap:wrap}
+.state{border:1px solid var(--border);border-radius:11px;padding:11px 17px;color:var(--ink);background:#2d2924;min-width:115px;cursor:pointer}
+.state[aria-pressed="true"]{background:#765c37;box-shadow:inset 0 0 0 1px #eac992}
+.state:focus-visible{outline:2px solid #f2d2a0;outline-offset:3px}
+.status{font-size:12px;min-height:23px;color:var(--gold)}
+.info{border-top:1px solid #76634b70;margin-top:22px;padding-top:19px;color:var(--muted);font-size:13px}
+.info h2{color:var(--ink);font-size:15px;font-weight:580;margin:0 0 6px}
+.info p{margin:0 0 9px}
+.source{font:11px ui-monospace,monospace;color:#b4a28b;word-break:break-word}
+.fallback{font-size:11px;color:var(--muted);display:none}
+@media(max-width:420px){.compare{gap:8px}.pane{padding:9px;border-radius:14px}.sub{font-size:10px}.pane strong{font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><span class="kicker">YOURLOGOS · ART LAB</span><span class="flag">CZ-81 B1c · REVIEW ONLY</span></div>
+  <h1>A companion that notices with you.</h1>
+  <p class="intro">A hybrid layered artwork study built from LilLogo's existing portrait. The approved character is the reference; motion is deliberately understated. This is not yet a finished, approved replacement for the live mascot.</p>
+  <div class="compare" aria-label="Original character alongside experimental rig">
+    <section class="pane"><strong>Original character</strong><div class="sub">Unchanged approved raster portrait</div>
+      <img class="artwork" src="../little-logo-hd-v2.jpg" alt="Original LilLogo portrait: soft pale hair, dark glossy eyes and flowing dark scarf" width="400" height="400" />
+    </section>
+    <section class="pane"><strong>Layered master</strong><div class="sub">Independent face, eyes, eyelids and hair</div>
+      <object id="rigObject" class="artwork" data="../assets/lillogo-v3-layered-hybrid.svg" type="image/svg+xml" role="img" aria-label="Editable hybrid LilLogo prototype with separately moving head, gaze and forelock">
+        <img class="artwork" src="../little-logo-hd-v2.jpg" alt="Original LilLogo fallback" width="400" height="400" />
+      </object>
+      <p id="error" class="fallback" role="status">Layered SVG could not be loaded. The original illustration remains available above.</p>
+    </section>
+  </div>
+  <div class="controls" role="group" aria-label="LilLogo attention state">
+    <button class="state" id="idle" type="button" aria-pressed="true">Idle</button>
+    <button class="state" id="curious" type="button" aria-pressed="false">Curious</button>
+  </div>
+  <p class="status" aria-live="polite" id="stateStatus">Idle · the original face, steady attention.</p>
+  <section class="info">
+    <h2>What is independently editable?</h2>
+    <p>The SVG contains separately transformable <strong>head, eyes, eyelids and forelock</strong>, plus a body layer where the original head pixels are masked out to prevent a doubled face. The original portrait is embedded as a single local image resource, rather than redrawn as an unfamiliar mascot.</p>
+    <h2>What still needs human review?</h2>
+    <p>Occluded body/neck pixels have only provisional underpainting. The masks are hand-estimated and may leave seams or face/eye mismatches during movement. This is a <strong>hybrid raster/vector structure, not a fully traced vector illustration</strong>. We will not call it production-ready or artist-faithful until the founder compares it with CZ-23 on a real iPhone.</p>
+    <p class="source">Files: assets/lillogo-v3-layered-hybrid.svg · experiments/cz81-b1c-layer-study.html</p>
+  </section>
+</main>
+<script>
+(()=>{
+  "use strict";
+  const view=document.getElementById("rigObject");
+  const idle=document.getElementById("idle");
+  const curious=document.getElementById("curious");
+  const status=document.getElementById("stateStatus");
+  const error=document.getElementById("error");
+  const motion=window.matchMedia("(prefers-reduced-motion: reduce)");
+  let current="idle";
+  function root(){return view.contentDocument?.documentElement??null}
+  function apply(){
+    const art=root();
+    if(art){
+      art.classList.toggle("state-curious",current==="curious");
+      art.classList.toggle("state-idle",current!=="curious");
+      art.classList.toggle("is-paused",document.hidden||motion.matches);
+    }
+    idle.setAttribute("aria-pressed",String(current==="idle"));
+    curious.setAttribute("aria-pressed",String(current==="curious"));
+    status.textContent=current==="curious"
+      ?"Curious · a slight head tilt, gaze change and independent forelock shift."
+      :"Idle · the original face, steady attention.";
+    if(motion.matches)status.textContent+=" Reduced motion: transitions disabled.";
+  }
+  idle.addEventListener("click",()=>{current="idle";apply()});
+  curious.addEventListener("click",()=>{current="curious";apply()});
+  view.addEventListener("load",()=>{error.style.display="none";apply()});
+  view.addEventListener("error",()=>{error.style.display="block"});
+  document.addEventListener("visibilitychange",apply);
+  motion.addEventListener?.("change",apply);
+  window.addEventListener("pagehide",()=>{root()?.classList.add("is-paused")},{once:true});
+  apply();
+})();
+</script>
+</body>
+</html>
