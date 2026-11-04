@@ -16,11 +16,14 @@ export const REPROS = Object.freeze({
   MISSING_RUNTIME_DATA: "Ask for reproducible date/history fixtures before claiming a runtime defect. Do not request private user data in public GitHub comments."
 });
 const matchEnum = (text, field, choices) => {
-  const pattern = new RegExp("(?:^|\\n)" + field + "=([A-Z_]+)(?:\\r?\\n|$)", "g");
-  const values = [];
-  let m;
-  while ((m = pattern.exec(text)) !== null) values.push(m[1]);
-  return values.length === 1 && Object.hasOwn(choices, values[0]) ? values[0] : null;
+  // Split independently: a consuming multiline regex can skip duplicate
+  // adjacent fields, allowing an ambiguous classification to pass.
+  const prefix = field + "=";
+  const values = String(text).split(/\r?\n/).filter(line => line.startsWith(prefix))
+    .map(line => line.slice(prefix.length));
+  const value = values[0];
+  return values.length === 1 && /^[A-Z_]+$/.test(value) &&
+    Object.hasOwn(choices, value) ? value : null;
 };
 export function classifyAssistantStream(raw) {
   let final = "";
