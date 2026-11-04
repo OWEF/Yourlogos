@@ -8,10 +8,6 @@ on:
 
 permissions: {}
 
-concurrency:
-  group: cz-69-kimi-coding
-  cancel-in-progress: false
-
 jobs:
   kimi-implementation:
     if: >-
@@ -23,6 +19,9 @@ jobs:
       github.event.issue.title == '[RUN-CZ76-KIMI-C] Encounter queue immutability regression guard' &&
       github.event.changes.title.from == '[CZ76-QA-IDLE] Encounter queue immutability regression guard'
     runs-on: ubuntu-24.04
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
     timeout-minutes: 7
     permissions:
       contents: read

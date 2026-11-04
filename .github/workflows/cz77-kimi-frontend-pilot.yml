@@ -8,10 +8,6 @@ on:
 
 permissions: {}
 
-concurrency:
-  group: cz-69-kimi-coding
-  cancel-in-progress: false
-
 jobs:
   kimi-implementation:
     if: >-
@@ -23,6 +19,9 @@ jobs:
       github.event.issue.title == '[RUN-CZ77-KIMI-A] LilLogo reduced-motion preference change cleanup' &&
       github.event.changes.title.from == '[CZ14-FRONTEND-IDLE] LilLogo reduced-motion preference change cleanup'
     runs-on: ubuntu-24.04
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
     timeout-minutes: 7
     permissions:
       contents: read
