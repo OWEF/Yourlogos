@@ -1,5 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import {
   buildSafeReport, classifyExit, summarizeJsonl, summarizePaths
 } from "./cz69-safe-report.mjs";
@@ -73,4 +77,32 @@ test("untrusted numeric fields are bounded and usage is never invented", () => {
   assert.equal(r.streaming.stderrBytes,0);
   assert.equal(r.usage,"not_verified");
   assert.ok(!("tokens" in r));
+});
+
+test("CLI persists only sanitized evidence after a timed-out model", () => {
+  const dir = mkdtempSync(join(tmpdir(), "cz69-report-"));
+  const secret = "SHOULD_NEVER_REACH_PUBLIC_ARTIFACT";
+  const stdout = join(dir, "raw.jsonl");
+  const stderr = join(dir, "stderr.txt");
+  const result = join(dir, "report.json");
+  try {
+    writeFileSync(stdout, JSON.stringify({
+      role:"assistant", content:secret,
+      tool_calls:[{function:{name:"Shell",arguments:"echo " + secret}}]
+    }) + "\n");
+    writeFileSync(stderr, "private tool trace " + secret + "\n");
+    const proc=spawnSync(process.execPath,
+      [new URL("./cz69-safe-report.mjs", import.meta.url).pathname,
+       stdout, stderr, "124", "150", result],
+      {encoding:"utf8", timeout:10000}
+    );
+    assert.equal(proc.status,0,proc.stderr);
+    const safe=readFileSync(result,"utf8");
+    assert.match(safe,/"exitClass": "timeout"/);
+    assert.match(safe,/"toolRequests": 1/);
+    assert.doesNotMatch(safe,/SHOULD_NEVER_REACH_PUBLIC_ARTIFACT/);
+    assert.doesNotMatch(proc.stdout,/SHOULD_NEVER_REACH_PUBLIC_ARTIFACT/);
+  } finally {
+    rmSync(dir,{recursive:true,force:true});
+  }
 });
