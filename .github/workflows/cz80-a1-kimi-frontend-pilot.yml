@@ -1,5 +1,5 @@
 # CZ-80: supervised role-specific Kimi A frontend micro-fix; no production authority.
-# Only trusted owner title transition on GitHub issue #118 may trigger this workflow.
+# Only a trusted owner title edit on exact GitHub issue #118 triggers this task.
 name: CZ-80 A1 Kimi A event contract bounded pilot
 
 on:
@@ -16,7 +16,7 @@ jobs:
       github.event.issue.user.login == 'OWEF' &&
       github.event.issue.number == 118 &&
       github.event.issue.pull_request == null &&
-      github.event.issue.title == '[RUN-CZ77-KIMI-A] Encounter semantic event seam and tests' &&
+      github.event.issue.title == '[RUN-CZ80-A1-KIMI-A] Encounter event seam' &&
       github.event.changes.title.from == '[CZ80-A1-IDLE] Encounter event seam'
     runs-on: ubuntu-24.04
     concurrency:
@@ -246,7 +246,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
       - name: Fetch only the candidate artifact from the preceding job
-        uses: actions/download-artifact@d3f86a118a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: cz80-a1-frontend-candidate
           path: ${{ runner.temp }}/cz80-a1-candidate/
@@ -288,6 +288,6 @@ jobs:
           git push origin "HEAD:refs/heads/$BRANCH"
           gh pr create --draft --base main --head "$BRANCH" \
             --title 'fix(cz-77): Encounter semantic event seam and tests' \
-            --body 'Kimi A Frontend & UX candidate for [Linear CZ-80](https://linear.app/czd217/issue/CZ-80/kimi-a-pilot-stop-lillogo-timers-when-reduced-motion-preference) and [GitHub #118](https://github.com/OWEF/Yourlogos/issues/118). Scope: one minimal Encounter semantic event contract and one deterministic regression test. Selected frontend-ux role, separate token-limited Kimi job, file allowlist and CI. Independent tech-lead review and founder approval required before merge; **DO NOT MERGE OR DEPLOY**. Fresh PR CI must be independently approved and checked.'
+            --body 'Kimi A Frontend & UX candidate for [Linear CZ-80](https://linear.app/czd217/issue/CZ-80/encounter-reward-choreography-responsive-interactions-and-meaningful) and [GitHub #118](https://github.com/OWEF/Yourlogos/issues/118). Scope: one minimal Encounter semantic event contract and one deterministic regression test. Selected frontend-ux role, separate token-limited Kimi job, file allowlist and CI. Independent tech-lead review and founder approval required before merge; **DO NOT MERGE OR DEPLOY**. Fresh PR CI must be independently approved and checked.'
           echo '### CZ-80 frontend draft PR staged' >> "$GITHUB_STEP_SUMMARY"
           echo '- Await independent tech-lead code review and founder release approval' >> "$GITHUB_STEP_SUMMARY"
