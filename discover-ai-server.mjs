@@ -106,7 +106,8 @@ export function makeDiscoverPrompt(data){
 }
 export function validateDiscoverTurn(output,turn=0){
  const reply=clip(output?.reply,850),followUp=clip(output?.followUp,300);
- const choices=Array.isArray(output?.choices)?output.choices.map(x=>clip(x,82)):[];
+ // Preserve overlength model choices long enough to reject them, not silently truncate.
+ const choices=Array.isArray(output?.choices)?output.choices.map(x=>clip(x,300)):[];
  if(reply.length<20||reply.length>(turn===DISCOVER_DECISIONS?190:85))throw Error("Reply must be concise");
  // Reject recognizable canned philosophy phrases and the exact speculative
  // answer patterns that users reported. Never classify their viewpoint.
