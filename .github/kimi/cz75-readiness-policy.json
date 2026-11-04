@@ -1,0 +1,83 @@
+{
+  "schema": "cz75-supervised-allowance-v1",
+  "mode": "small-trusted-owner-tasks-only",
+  "maxConcurrentKimiJobs": 1,
+  "automaticRetries": false,
+  "automaticSubagents": false,
+  "automaticProductionMerge": false,
+  "quotaSource": "operator-only-not-machine-verified",
+  "quotaAttestation": {
+    "variable": "CZ75_MANUAL_QUOTA_READY",
+    "value": "true",
+    "defaultOn": false,
+    "meaning": "Operator has checked current Kimi subscription quota and verified Extra Usage billing settings outside GitHub; this variable is NOT provider-verified."
+  },
+  "reservePlanningPercent": {
+    "approvedEngineering": 60,
+    "debugRework": 20,
+    "untouchedReserve": 20
+  },
+  "tiers": {
+    "small": {
+      "enabled": true,
+      "maxWallSeconds": 150,
+      "maxStepsPerTurn": 8,
+      "maxAttemptsPerFailedStep": 1,
+      "requiresOwnerIssueTrigger": true
+    },
+    "normal": {
+      "enabled": false,
+      "maxWallSeconds": 300,
+      "maxStepsPerTurn": 18,
+      "requiresExplicitFounderBudgetApproval": true
+    },
+    "complex": {
+      "enabled": false,
+      "maxWallSeconds": 600,
+      "maxStepsPerTurn": 35,
+      "requiresExplicitFounderBudgetApproval": true
+    }
+  },
+  "workflows": [
+    {
+      "path": ".github/workflows/cz69-kimi-cz17-pilot.yml",
+      "issue": 97,
+      "role": "legacy-test-only",
+      "maxWallSeconds": 150,
+      "maxStepsPerTurn": 8,
+      "artifactType": "draft-pr"
+    },
+    {
+      "path": ".github/workflows/cz76-kimi-qa-pilot.yml",
+      "issue": 103,
+      "role": "testing-qa",
+      "maxWallSeconds": 150,
+      "maxStepsPerTurn": 8,
+      "artifactType": "draft-pr"
+    },
+    {
+      "path": ".github/workflows/cz77-kimi-frontend-pilot.yml",
+      "issue": 106,
+      "role": "frontend-ux",
+      "maxWallSeconds": 150,
+      "maxStepsPerTurn": 8,
+      "artifactType": "draft-pr"
+    },
+    {
+      "path": ".github/workflows/cz78-kimi-debugging-pilot.yml",
+      "issue": 109,
+      "role": "debugging",
+      "maxWallSeconds": 120,
+      "maxStepsPerTurn": 6,
+      "artifactType": "allowlisted-issue-comment"
+    },
+    {
+      "path": ".github/workflows/cz79-kimi-backend-pilot.yml",
+      "issue": 112,
+      "role": "backend-apis",
+      "maxWallSeconds": 150,
+      "maxStepsPerTurn": 8,
+      "artifactType": "draft-pr"
+    }
+  ]
+}
