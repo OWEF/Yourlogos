@@ -1,0 +1,315 @@
+# CZ-83: founder-approved normal-tier Kimi A B1b task, not a standing grant.
+# No manual repo variable; exact issue #125 B1b READY -> RUN title edit is the one-use grant.
+name: CZ-83 One-run Kimi A faithful LilLogo B1b
+
+on:
+  issues:
+    types: [edited]
+
+permissions: {}
+
+jobs:
+  kimi-implementation:
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event.issue.user.login == 'OWEF' &&
+      github.event.issue.number == 125 &&
+      github.event.issue.pull_request == null &&
+      github.event.issue.title == '[RUN-CZ81-B1B-APPROVED] Faithful LilLogo head and eye motion preview' &&
+      github.event.changes.title.from == '[CZ81-B1B-READY] Faithful LilLogo head and eye motion preview'
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.validate.outputs.changed }}
+    steps:
+      - name: Checkout trusted default branch without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+
+      - name: Verify one-run owner authorization (no model)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The explicit founder-approved exact issue-title transition is the
+          # one-run grant. No persistent Actions variable is enabled.
+          node .github/scripts/cz83-b1b-approval.mjs --check
+          node --test .github/scripts/cz83-b1b-approval.test.mjs
+          node .github/scripts/cz83-b1b-approval.mjs --event "$GITHUB_EVENT_PATH"
+
+      - name: Install pinned Kimi CLI before exposing membership key
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          # This check is offline and requires no membership key or model call.
+          # Prevent an unsupported CLI flag from consuming a coding attempt.
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--output-format'
+          kimi --help | grep -q -- '--agent-file'
+          node .github/scripts/cz69-role-router.mjs --check
+          test "$(node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+          node --check .github/scripts/cz69-safe-report.mjs
+          node --test .github/scripts/cz69-safe-report.test.mjs
+          cp .github/scripts/cz69-safe-report.mjs "$RUNNER_TEMP/cz69-safe-report.mjs"
+
+      - name: Run one bounded Kimi frontend fix without GitHub write token
+        id: model
+        shell: bash
+        timeout-minutes: 8
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/cz69-kimi-home
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '18'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          if [[ -z "${KIMI_MODEL_API_KEY:-}" ]]; then
+            echo "::error::Required KIMI_CODE_API_KEY secret is absent"
+            exit 1
+          fi
+          mkdir -p "$KIMI_CODE_HOME"
+          # Trusted, fixed task; issue title/body and PR content are NEVER injected.
+          # The selected role denies Bash/delegation, but profile controls alone
+          # are not OS sandboxing. This runner handles only a fixed owner task.
+          prompt=$(cat <<'TASK'
+          You are Kimi A, YourLogos Frontend/UX specialist.
+          ONE owner-approved NORMAL tier run: GitHub #125 / Linear CZ-81 B1b.
+          Follow AGENTS.md and DESIGN.md. Deliver ONE focused, reviewable
+          motion experiment instead of a full articulated rig.
+          ORIGINAL ART IDENTITY: little-logo-hd-v2.jpg shows a luminous
+          cream-coloured small character with long pale tousled/curling
+          hair, two large glossy black eyes, tiny hands, a flowing dark
+          cape/scarf, warm gold light on near-black. The eight-panel
+          original character atlas is little-logo-poses-v5.webp. These
+          original references and CZ-23 are authoritative. Existing
+          experiments/cz80-cz81-reward-lab.html is a DIFFERENT generic
+          cream scarf mascot for technical motion only. Do NOT copy its
+          identity. Avoid unneeded source rediscovery.
+          
+          WRITE ONLY EXACTLY THESE TWO NEW FILES:
+          1. experiments/cz81-b1b-faithful-lillogo.html
+          2. tests/cz81-b1b-faithful-lillogo.test.mjs
+          
+          Build a standalone same-origin/offline review HTML preview
+          that uses existing images via relative ../ same-origin paths.
+          Expose IDLE and CURIOUS controls, with subtle independent
+          head/gaze/blink movement, NOT just bouncing the whole PNG.
+          A limited but faithful technique is better than redrawing
+          an invented face. If a true independent head cannot be
+          reconstructed from a flattened original, disclose that
+          limitation prominently. Never assert full rig or verified
+          CZ-23 identity if not actually proven.
+          Use subtle 1-4 degree head shifts, slow blink, soft gaze.
+          No arms/scarf/legs rig in this run. No noisy confetti or
+          constant movement. Respect prefers-reduced-motion with
+          static state cues; pause on hidden tab and clean listeners.
+          Keyboard accessible controls, focus, no motion blocking.
+          No CDN, remote fonts, API, server, Kimi calls, fetch,
+          data persistence, analytics, app state or external audio.
+          
+          Second file uses Node node:test and assert; inspect the REAL
+          HTML for same-origin original portrait, two state controls,
+          reduced motion, visibility pause, independent-layer intent,
+          and absence of external network/AI/save calls. Be truthful
+          about what tests can prove versus human visual QA.
+          
+          Do not alter app.js, stylesheet, portrait, atlas, original
+          91 quotes, actual Encounter, My World, auth, consent, backend,
+          CI, GitHub Actions or any unrelated file. No Bash, shell,
+          other agents, secrets, network commands, PR writes,
+          production changes, paid purchases or retries. This is one
+          normal-tier 360-second cap and 18 steps/turn.
+          If art cannot be rigged faithfully, make a safe review
+          candidate and clearly label its limitation, never fabricate.
+          TASK
+          )
+          # Phase 1 micro-pilot: 8 agent steps per turn, 1 failed-step attempt,
+          # no automatic retries, 360-second hard process timeout.
+          # These are execution caps, not verified token or dollar ceilings.
+          start_seconds=$SECONDS
+          set +e
+          timeout --signal=TERM --kill-after=5s 360s \
+            kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json \
+            > "$RUNNER_TEMP/kimi-stdout.jsonl" 2> "$RUNNER_TEMP/kimi-stderr.txt"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "elapsed_sec=$((SECONDS-start_seconds))" >> "$GITHUB_OUTPUT"
+          echo "Kimi process stopped; raw model output intentionally withheld."
+          # Never automatically retry after a failure or hard timeout.
+
+      - name: Generate bounded sanitized diagnostics, even on timeout
+        if: always()
+        shell: bash
+        env:
+          MODEL_RC: ${{ steps.model.outputs.exit_code || 'missing' }}
+          MODEL_SECONDS: ${{ steps.model.outputs.elapsed_sec || '0' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cz69-safe"
+          if [[ -f "$RUNNER_TEMP/cz69-safe-report.mjs" ]]; then
+            node "$RUNNER_TEMP/cz69-safe-report.mjs" \
+              "$RUNNER_TEMP/kimi-stdout.jsonl" "$RUNNER_TEMP/kimi-stderr.txt" \
+              "$MODEL_RC" "$MODEL_SECONDS" "$RUNNER_TEMP/cz69-safe/report.json"
+          else
+            printf '%s\n' '{"schema":"cz69-harness-diagnostics-v1","exitClass":"not_started","safeFieldsOnly":true,"usage":"not_verified"}' \
+              > "$RUNNER_TEMP/cz69-safe/report.json"
+          fi
+          node -e '
+            const r=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
+            if (r.safeFieldsOnly !== true) process.exit(1);
+            console.log("CZ-69 sanitized outcome: "+r.exitClass);
+            require("node:fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              "### CZ-69 sanitized model-run evidence\n" +
+              "- Exit class: "+r.exitClass+"\n" +
+              "- Duration: "+(r.elapsedSeconds ?? "not started")+" seconds\n" +
+              "- Model usage: not verified\n" +
+              "- No raw prompts, model replies, tools, paths or credentials published\n");
+          ' "$RUNNER_TEMP/cz69-safe/report.json"
+
+      - name: Upload safe timeout evidence (never raw agent logs)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz69-safe-diagnostics
+          path: ${{ runner.temp }}/cz69-safe/report.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Fail closed when Kimi did not complete
+        if: steps.model.outputs.exit_code != '0'
+        run: |
+          echo "::error::Kimi did not finish; no code validation or draft PR"
+          exit 1
+
+      - name: Validate scope and run tests with no Kimi credentials
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              experiments/cz81-b1b-faithful-lillogo.html|tests/cz81-b1b-faithful-lillogo.test.mjs) ;;
+              *) echo "::error::Out-of-scope file changed: $file"; exit 1 ;;
+            esac
+          done < <(git status --porcelain | cut -c4-)
+          git diff --check
+          if [[ ! -s experiments/cz81-b1b-faithful-lillogo.html ]]; then
+            echo '::error::No faithful head/gaze LilLogo preview was produced'
+            exit 1
+          fi
+          if [[ ! -s tests/cz81-b1b-faithful-lillogo.test.mjs ]]; then
+            echo "::error::Expected new LilLogo preview regression test was not created"
+            exit 1
+          fi
+          node --check tests/cz81-b1b-faithful-lillogo.test.mjs
+          node --test tests/cz81-b1b-faithful-lillogo.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node scripts/verify-v24.mjs
+          mkdir -p "$RUNNER_TEMP/candidate/tests" "$RUNNER_TEMP/candidate/experiments"
+          cp tests/cz81-b1b-faithful-lillogo.test.mjs "$RUNNER_TEMP/candidate/tests/"
+          cp experiments/cz81-b1b-faithful-lillogo.html "$RUNNER_TEMP/candidate/experiments/cz81-b1b-faithful-lillogo.html"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            echo '### CZ-81 B1b Kimi A preview passed scoped validation' >> "$GITHUB_STEP_SUMMARY"
+            echo '- Allowed changes: standalone LilLogo preview and regression test' >> "$GITHUB_STEP_SUMMARY"
+            echo '- Regression and V2.4 tests passed, no production operation' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            echo 'No changes after Kimi analysis; do not create a PR.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload candidate for independent review (no credentials)
+        if: steps.validate.outputs.changed == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz83-lillogo-b1b-candidate
+          path: ${{ runner.temp }}/candidate/
+          if-no-files-found: error
+          retention-days: 3
+
+  open-draft-pr:
+    name: Stage scoped patch as an unmerged draft PR
+    needs: kimi-implementation
+    if: needs.kimi-implementation.result == 'success' && needs.kimi-implementation.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout main, without saved credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Fetch only the candidate artifact from the preceding job
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: cz83-lillogo-b1b-candidate
+          path: ${{ runner.temp }}/cz83-lillogo-b1b-candidate/
+      - name: Check artifact paths and create isolated draft PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: automation/cz83-b1b-normal-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          test -f "$RUNNER_TEMP/cz83-lillogo-b1b-candidate/tests/cz81-b1b-faithful-lillogo.test.mjs"
+          test -f "$RUNNER_TEMP/cz83-lillogo-b1b-candidate/experiments/cz81-b1b-faithful-lillogo.html"
+          cp "$RUNNER_TEMP/cz83-lillogo-b1b-candidate/tests/cz81-b1b-faithful-lillogo.test.mjs" tests/
+          cp "$RUNNER_TEMP/cz83-lillogo-b1b-candidate/experiments/cz81-b1b-faithful-lillogo.html" experiments/cz81-b1b-faithful-lillogo.html
+          git diff --check
+          if [[ ! -s experiments/cz81-b1b-faithful-lillogo.html ]]; then
+            echo '::error::Missing faithful LilLogo B1b preview in candidate artifact'
+            exit 1
+          fi
+          files="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              experiments/cz81-b1b-faithful-lillogo.html|tests/cz81-b1b-faithful-lillogo.test.mjs) ;;
+              *) echo "::error::Unexpected candidate path: $file"; exit 1 ;;
+            esac
+          done <<< "$files"
+          if [[ -z "$files" ]]; then
+            echo "::error::Candidate patch contained no changes"
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add -- experiments/cz81-b1b-faithful-lillogo.html tests/cz81-b1b-faithful-lillogo.test.mjs
+          git commit -m 'feat(cz-81-b1b): add faithful LilLogo head/gaze preview'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$BRANCH"
+          gh pr create --draft --base main --head "$BRANCH" \
+            --title 'feat(cz-81-b1b): faithful LilLogo head/gaze preview and regressions' \
+            --body 'Kimi A Frontend & UX candidate for [Linear CZ-81 B1b](https://linear.app/czd217/issue/CZ-81/lillogo-v3-articulated-character-rig-and-event-driven-animation) and [GitHub #125](https://github.com/OWEF/Yourlogos/issues/125). Scope: one standalone approved-look head/gaze preview and deterministic Node test, with no live app changes. Selected frontend-ux role, separate token-limited Kimi job, file allowlist and CI. Independent tech-lead review and founder approval required before merge; **DO NOT MERGE OR DEPLOY**. Fresh PR CI must be independently approved and checked.'
+          echo '### CZ-81 B1b frontend draft PR staged' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Await independent tech-lead code review and founder release approval' >> "$GITHUB_STEP_SUMMARY"
