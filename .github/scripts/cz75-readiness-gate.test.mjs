@@ -11,10 +11,10 @@ const clone=()=>structuredClone(policy);
 const role=policy.workflows.find(x=>x.role==="testing-qa");
 const baseline=readText(role.path);
 
-test("only the reviewed five small owner-bound workflows pass, without a model",()=>{
+test("only the reviewed six small owner-bound workflows pass, without a model",()=>{
   assert.equal(verifyReadinessPolicy(policy),true);
   assert.deepEqual(verifyRepo(policy,readText),{
-    workflowCount:5,legacySmokeChecked:true,modelUsage:"not_verified",mode:"small-trusted-owner-tasks-only"
+    workflowCount:6,legacySmokeChecked:true,modelUsage:"not_verified",mode:"small-trusted-owner-tasks-only"
   });
 });
 
