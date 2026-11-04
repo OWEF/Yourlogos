@@ -1,6 +1,6 @@
-# YourLogos — AI Engineering Working Agreement (v0.1)
+# YourLogos — AI Engineering Working Agreement (v0.2)
 
-> Operating contract for a **supervised, phone-first** Codex + Kimi workflow. This is a proposal until the founder approves and merges the PR. It does not configure autonomous execution by itself.
+> Current working agreement for a **supervised, phone-first** ChatGPT/Codex + Kimi engineering workflow. GitHub cloud execution and one independent PR review have been demonstrated; four optional specialist profiles are prepared separately, not automatically enabled. This file itself does not start an agent.
 
 ## Mission and decision rights
 
@@ -12,7 +12,7 @@ YourLogos exists to rekindle curiosity through thoughtful, playful philosophical
 - **GitHub Actions:** Runs configured, scoped CI checks. A green check is evidence, **not** comprehensive product or security approval.
 - **Linear:** Source of truth for scope, task state, decisions, incidents, and follow-up obligations.
 
-**Important:** The initial Option A handoff between Codex and Kimi is **supervised/manual**. No autonomous Codex-to-Kimi orchestration, cloud Kimi runner, recurring audit job, or phone push notification is implied by this file.
+**Current operating state:** The founder-approved GitHub Actions workflow can run a tightly bounded Kimi task from an owner-authored issue and preserve sanitized run evidence. The first passing model-generated test was reviewed in draft PR #101. The workflow cannot approve or merge its own changes; the repository's Actions PR-creation setting was reportedly enabled by the founder, but native automatic PR creation needs verification on a later approved task. No autonomous 24/7 orchestration, recurring coding runs or phone push notifications are enabled.
 
 ## Read project context before editing
 
@@ -67,6 +67,6 @@ Keep progress updates short enough to review from a phone:
 **Risks:** Only unresolved findings, including whether mobile visual QA remains unverified.
 **Decision requested:** One concrete approve/revise/hold question; say **no decision needed** if none.
 
-## Next automation boundary
+## Specialist team — staged, not automatically running
 
-The first milestone is **one supervised PR** following this protocol. Only after the workflow proves reliable should the team evaluate GitHub-triggered notifications, scheduled CI reporting, or permitted hosted Kimi execution. No extra dashboard or always-on local computer is required for the initial coordination layer, but locally run Kimi Code cannot continue after the PC is off.
+The four specialist profiles are defined under `.github/kimi/profiles/` for Frontend/UX, Backend/APIs, Testing/QA and read-only Debugging. They are explicitly selected via `--agent-file` only after tech-lead task triage and a separately approved model run. Their offline manifest and tests live in `.github/kimi/`. They do **not** create four parallel sessions, multiple subscriptions or new autonomous schedules. Keep one active Kimi task at a time; deterministic GitHub Actions tests remain the default QA engine. A custom agent tool allowlist is not an OS sandbox. Keep model keys isolated, file-scope validation in the runner and independent review before a founder-authorized merge. Future allowance tiers and accurate usage-reserve monitoring are tracked in CZ-75.
