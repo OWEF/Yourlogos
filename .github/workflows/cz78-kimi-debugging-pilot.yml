@@ -8,10 +8,6 @@ on:
 
 permissions: {}
 
-concurrency:
-  group: cz-69-kimi-coding
-  cancel-in-progress: false
-
 jobs:
   kimi-implementation:
     if: >-
@@ -23,6 +19,9 @@ jobs:
       github.event.issue.title == '[RUN-CZ78-KIMI-D] Read-only diagnosis of personalized daily quote repeats' &&
       github.event.changes.title.from == '[CZ78-DEBUG-IDLE] Read-only diagnosis of personalized daily quote repeats'
     runs-on: ubuntu-24.04
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
     timeout-minutes: 7
     permissions:
       contents: read
