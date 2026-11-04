@@ -40,6 +40,21 @@ jobs:
         with:
           node-version: '24'
 
+      - name: CZ75 manual quota and billing attestation (no model)
+        shell: bash
+        env:
+          CZ75_MANUAL_QUOTA_READY: ${{ vars.CZ75_MANUAL_QUOTA_READY }}
+        run: |
+          set -euo pipefail
+          if [[ "$CZ75_MANUAL_QUOTA_READY" != "true" ]]; then
+            echo "::error::CZ75 HOLD: quota status and Extra Usage setting require operator review"
+            echo "Check Kimi membership credit usage, current 5-hour capacity, and confirm Extra Usage is OFF."
+            echo "Then set GitHub Actions repository variable CZ75_MANUAL_QUOTA_READY=true."
+            exit 1
+          fi
+          echo 'Founder-managed quota and billing attestation present; this is NOT provider-verified telemetry.'
+          node .github/scripts/cz75-readiness-gate.mjs .github/workflows/cz79-kimi-backend-pilot.yml
+
       - name: Install pinned Kimi CLI before exposing membership key
         run: |
           set -euo pipefail

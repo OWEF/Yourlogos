@@ -38,6 +38,20 @@ jobs:
           npm install --global '@moonshot-ai/kimi-code@2.4.1'
           kimi --version
 
+      - name: CZ75 manual quota and billing attestation (no model)
+        shell: bash
+        env:
+          CZ75_MANUAL_QUOTA_READY: ${{ vars.CZ75_MANUAL_QUOTA_READY }}
+        run: |
+          set -euo pipefail
+          if [[ "$CZ75_MANUAL_QUOTA_READY" != "true" ]]; then
+            echo "::error::CZ75 HOLD: quota status and Extra Usage setting require operator review"
+            echo "Review your Kimi membership allowance and confirm Extra Usage OFF before the smoke call."
+            echo "Set repository Actions variable CZ75_MANUAL_QUOTA_READY=true only after that check."
+            exit 1
+          fi
+          echo 'Manual Kimi quota attestation present, not independently provider-verified.'
+
       - name: Verify one bounded membership-backed request
         env:
           KIMI_MODEL_NAME: kimi-for-coding
@@ -45,6 +59,10 @@ jobs:
           KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
           KIMI_MODEL_BASE_URL: ${{ inputs.endpoint == 'mainland-cn' && 'https://api.kimi.com/coding/v1' || 'https://api.kimi.ai/coding/v1' }}
           KIMI_CODE_HOME: ${{ runner.temp }}/cz-69-kimi
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '1'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
           CI: 'true'
         shell: bash
         run: |
