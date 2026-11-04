@@ -146,7 +146,7 @@ jobs:
           candidate and clearly label its limitation, never fabricate.
           TASK
           )
-          # Phase 1 micro-pilot: 8 agent steps per turn, 1 failed-step attempt,
+          # CZ-83 normal tier: 18 agent steps per turn, 1 failed-step attempt,
           # no automatic retries, 360-second hard process timeout.
           # These are execution caps, not verified token or dollar ceilings.
           start_seconds=$SECONDS
