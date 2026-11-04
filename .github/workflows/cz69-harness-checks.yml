@@ -12,6 +12,9 @@ on:
       - '.github/workflows/cz78-kimi-debugging-pilot.yml'
       - '.github/workflows/cz79-kimi-backend-pilot.yml'
       - '.github/workflows/cz80-a1-kimi-frontend-pilot.yml'
+      - '.github/workflows/cz82-one-run-lillogo-b1.yml'
+      - '.github/scripts/cz82-one-run-approval.mjs'
+      - '.github/scripts/cz82-one-run-approval.test.mjs'
       - '.github/workflows/kimi-code-auth-smoke.yml'
       - '.github/kimi/cz75-readiness-policy.json'
       - '.github/scripts/cz75-readiness-gate.mjs'
@@ -136,7 +139,8 @@ jobs:
             .github/workflows/cz77-kimi-frontend-pilot.yml \
             .github/workflows/cz78-kimi-debugging-pilot.yml \
             .github/workflows/cz79-kimi-backend-pilot.yml \
-            .github/workflows/cz80-a1-kimi-frontend-pilot.yml; do
+            .github/workflows/cz80-a1-kimi-frontend-pilot.yml \
+            .github/workflows/cz82-one-run-lillogo-b1.yml; do
             if grep -q '^concurrency:' "$file"; then
               echo "::error::Top-level group cancels unrelated issue event workflows: $file"
               exit 1
@@ -200,3 +204,12 @@ jobs:
             exit 1
           fi
           echo 'CZ-80 A1 workflow static validation passed without model use.'
+
+      - name: Verify one-use founder authorization without Kimi calls
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check .github/scripts/cz82-one-run-approval.mjs
+          node --test .github/scripts/cz82-one-run-approval.test.mjs
+          node .github/scripts/cz82-one-run-approval.mjs --check
+          echo "CZ-82 one-use authorization static checks passed without Kimi spend."
