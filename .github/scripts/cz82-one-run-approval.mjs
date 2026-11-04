@@ -57,7 +57,7 @@ export function verifyOneRunWorkflow(source, spec = B1) {
   ok(source.includes("persist-credentials: false"), "read-checkout");
   ok(source.includes("if [[ ! -s experiments/cz81-curious-companion-lab.html ]]") &&
       source.includes("tests/cz81-curious-companion-lab.test.mjs") &&
-      source.includes("experiments/cz81-curious-companion-lab.html|tests/cz81-curious-companion-lab.test.mjs"), "file-scope");
+      source.split("experiments/cz81-curious-companion-lab.html|tests/cz81-curious-companion-lab.test.mjs").length === 3, "file-scope-both-jobs");
   const gate = source.indexOf("- name: Verify one-run owner authorization (no model)");
   const install = source.indexOf("- name: Install pinned Kimi CLI before exposing membership key");
   const secret = source.indexOf("KIMI_MODEL_API_KEY: ");
