@@ -74,7 +74,9 @@ h1{font-size:clamp(23px,4.8vw,36px);font-weight:550;line-height:1.16;margin:18px
   const status=document.getElementById("stateStatus");
   const error=document.getElementById("error");
   const motion=window.matchMedia("(prefers-reduced-motion: reduce)");
-  let current="idle";
+  // Static capture mode for art review: a fixed, non-user-data query value only.
+  const initialState=new URLSearchParams(window.location.search).get("state");
+  let current=initialState==="curious"?"curious":"idle";
   function root(){return view.contentDocument?.documentElement??null}
   function apply(){
     const art=root();
