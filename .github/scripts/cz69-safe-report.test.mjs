@@ -61,7 +61,7 @@ test("only exact allowed file names are surfaced, all others are counted", () =>
 test("status classifier distinguishes normal, timeout, termination and never-started", () => {
   assert.equal(classifyExit("0"),"success");
   assert.equal(classifyExit("124"),"timeout");
-  assert.equal(classifyExit("137"),"timeout");
+  assert.equal(classifyExit("137"),"forced_stop_or_resource_limit");
   assert.equal(classifyExit("143"),"terminated");
   assert.equal(classifyExit("1"),"failed");
   assert.equal(classifyExit("missing"),"not_started");
