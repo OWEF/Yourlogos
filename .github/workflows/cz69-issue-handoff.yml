@@ -1,0 +1,45 @@
+# CZ-69: safe ChatGPT -> GitHub Actions dispatch proof.
+# Stage 2 uses no Kimi key, no source checkout and no GitHub writes.
+# An owner-authored issue with a reserved prefix is the *only* accepted event.
+name: CZ-69 trusted issue handoff probe
+
+on:
+  issues:
+    types: [opened]
+
+permissions: {}
+
+concurrency:
+  group: cz69-trusted-issue-handoff-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  acknowledge:
+    name: Check trusted founder-created handoff
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event.issue.user.login == 'OWEF' &&
+      github.event.issue.pull_request == null &&
+      startsWith(github.event.issue.title, '[CZ69-HANDOFF] ')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Confirm event reached a temporary GitHub runner
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Do NOT execute or display the public issue title/body as shell.
+          # No checkout, API keys, external commands or repository token writes.
+          [[ "$ISSUE_NUMBER" =~ ^[0-9]+$ ]] || exit 1
+          echo "CZ-69 trusted issue handoff received: #$ISSUE_NUMBER"
+          {
+            echo '### CZ-69 trusted ChatGPT → GitHub handoff'
+            echo "- GitHub issue: $ISSUE_URL"
+            echo '- Trusted owner-authored handoff event accepted.'
+            echo '- No Kimi API call, secret, repository checkout, or code execution.'
+            echo '- Next gate: independently reviewed, sandboxed Kimi task execution.'
+          } >> "$GITHUB_STEP_SUMMARY"
