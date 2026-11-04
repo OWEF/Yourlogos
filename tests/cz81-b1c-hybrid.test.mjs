@@ -41,9 +41,13 @@ test("head, eyes, hair and eyelids have distinct movement mechanisms",()=>{
   assert.match(svg,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
-test("original body is not ghosted beneath a translated head",()=>{
+test("original body remains knocked out; revealed gaps use source-colour underpainting",()=>{
   assert.match(svg,/<mask id="bodyHeadKnockout"/);
-  assert.match(svg,/<g id="neckUnderpaint"/);
+  assert.match(svg,/<g id="neckUnderpaint"[^>]*clip-path="url\\(#underpaintClip\\)"/);
+  assert.match(svg,/<filter id="softUnderpaint"/);
+  assert.match(svg,/<feGaussianBlur stdDeviation="2\\.2"/);
+  assert.match(svg,/<use href="#originalPortrait" filter="url\\(#softUnderpaint\\)"/);
+  assert.doesNotMatch(svg,/fill="url\\(#underheadFill\\)"/);
   assert.match(svg,/occluded anatomy is approximated/);
 });
 
