@@ -1,0 +1,34 @@
+{
+  "schema": "cz69-role-router-v1",
+  "mode": "explicit-one-at-a-time",
+  "maxConcurrentKimiSessions": 1,
+  "automaticSubagents": false,
+  "automaticRetries": false,
+  "automaticRelease": false,
+  "roles": {
+    "frontend-ux": {
+      "profile": ".github/kimi/profiles/frontend-ux.md",
+      "purpose": "Approved mobile-first UI, interaction and accessibility changes",
+      "tier": "scoped",
+      "requiresReview": true
+    },
+    "backend-apis": {
+      "profile": ".github/kimi/profiles/backend-apis.md",
+      "purpose": "Approved backend/API logic with authorization boundaries",
+      "tier": "restricted",
+      "requiresReview": true
+    },
+    "testing-qa": {
+      "profile": ".github/kimi/profiles/testing-qa.md",
+      "purpose": "Deterministic tests, negative paths and QA evidence",
+      "tier": "scoped",
+      "requiresReview": true
+    },
+    "debugging": {
+      "profile": ".github/kimi/profiles/debugging.md",
+      "purpose": "Read-only failure analysis using sanitized evidence",
+      "tier": "read-only",
+      "requiresReview": true
+    }
+  }
+}
