@@ -1,0 +1,57 @@
+name: CZ AI Skills Library — deterministic PR validation
+on:
+  pull_request:
+    paths:
+      - 'docs/cz-ai-library/**'
+      - 'AGENTS.md'
+      - '.github/kimi/profiles/**'
+      - '.github/scripts/validate-cz-ai-library.mjs'
+      - 'tests/cz-ai-library.test.mjs'
+      - 'tests/cz-ai-context-selection.test.mjs'
+      - '.github/scripts/select-cz-ai-context.mjs'
+      - '.github/actions/cz-ai-select-context/action.yml'
+      - '.github/workflows/cz-ai-skills-validation.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout PR, no persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Static syntax and existing role guard
+        run: |
+          node --check .github/scripts/validate-cz-ai-library.mjs
+          node --check tests/cz-ai-library.test.mjs
+          node --check .github/scripts/select-cz-ai-context.mjs
+          node --check tests/cz-ai-context-selection.test.mjs
+          node .github/scripts/cz69-role-router.mjs --check
+      - name: Run model-free skills library contract tests
+        run: |
+          node .github/scripts/validate-cz-ai-library.mjs
+          node --test tests/cz-ai-library.test.mjs tests/cz-ai-context-selection.test.mjs
+      - name: Exercise reusable zero-model selector action
+        id: context
+        uses: ./.github/actions/cz-ai-select-context
+        with:
+          role: frontend-ux
+          task: LilLogo animation and blink regression
+          project: YourLogos
+          max-tokens: '2000'
+      - name: Check selected context and budget
+        shell: bash
+        env:
+          CONTEXT_PATH: ${{ steps.context.outputs.context-path }}
+          SUMMARY_PATH: ${{ steps.context.outputs.summary-path }}
+        run: |
+          test -s "$CONTEXT_PATH" && test -s "$SUMMARY_PATH"
+          node -e 'const x=require("node:fs").readFileSync(process.argv[1],"utf8"); if(!x.includes("animation-lifecycle")||x.includes("# Backend/API changes"))process.exit(1)' "$CONTEXT_PATH"
+          node -e 'const x=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")); if(x.estimatedTokens>2000||x.skillIds.length>2||x.lessonIds.length>3)process.exit(1)' "$SUMMARY_PATH"
+          echo 'Bounded reusable action tested with no Kimi, no API key and no model usage.' >> "$GITHUB_STEP_SUMMARY"
