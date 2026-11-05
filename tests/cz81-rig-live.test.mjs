@@ -114,4 +114,6 @@ test("local Encounter companion is purely decorative and gated",()=>{
   assert.match(local,/class="yl-logo-v3-rig"/);
   assert.doesNotMatch(local,/data-ai="pet"/);
   assert.match(css,/\.yl-living-companion/);
+  const legacy=readFileSync(new URL("../little-logo-presence.js",import.meta.url),"utf8");
+  assert.match(legacy,/if\(layeredReview\)return;/);
 });
