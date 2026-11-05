@@ -7,6 +7,8 @@ on:
       - '.github/kimi/profiles/**'
       - '.github/scripts/validate-cz-ai-library.mjs'
       - 'tests/cz-ai-library.test.mjs'
+      - 'tests/cz-ai-context-selection.test.mjs'
+      - '.github/scripts/select-cz-ai-context.mjs'
       - '.github/workflows/cz-ai-skills-validation.yml'
 permissions:
   contents: read
@@ -27,8 +29,21 @@ jobs:
         run: |
           node --check .github/scripts/validate-cz-ai-library.mjs
           node --check tests/cz-ai-library.test.mjs
+          node --check .github/scripts/select-cz-ai-context.mjs
+          node --check tests/cz-ai-context-selection.test.mjs
           node .github/scripts/cz69-role-router.mjs --check
       - name: Run model-free skills library contract tests
         run: |
           node .github/scripts/validate-cz-ai-library.mjs
-          node --test tests/cz-ai-library.test.mjs
+          node --test tests/cz-ai-library.test.mjs tests/cz-ai-context-selection.test.mjs
+      - name: Demonstrate task-scoped retrieval without Kimi or provider secrets
+        run: |
+          node .github/scripts/select-cz-ai-context.mjs \
+            --role frontend-ux --task 'LilLogo animation and blink regression' \
+            --project YourLogos --max-tokens 2000 \
+            --out "$RUNNER_TEMP/cz-ai-packet.md" \
+            --summary "$RUNNER_TEMP/cz-ai-selection.json"
+          test -s "$RUNNER_TEMP/cz-ai-packet.md"
+          node -e 'const x=require("node:fs").readFileSync(process.argv[1],"utf8"); if(!x.includes("animation-lifecycle")||x.includes("# Backend/API changes"))process.exit(1)' "$RUNNER_TEMP/cz-ai-packet.md"
+          node -e 'const x=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")); if(x.estimatedTokens>2000||x.skillIds.length>2||x.lessonIds.length>3)process.exit(1)' "$RUNNER_TEMP/cz-ai-selection.json"
+          echo 'Context selection completed without Kimi/API key, and no library content uploaded.' >> "$GITHUB_STEP_SUMMARY"
