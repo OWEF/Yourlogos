@@ -1,0 +1,116 @@
+# CZ AI Lessons v1: merged-fix evidence → DRAFT lesson proposal, never automatic acceptance.
+# Trusted base branch push, never pull_request_target or a checkout of an unmerged PR.
+name: CZ AI — draft incident lessons (zero model)
+on:
+  push:
+    branches: [main]
+permissions: {}
+concurrency:
+  group: cz-ai-lesson-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  inspect:
+    if: github.repository == 'OWEF/Yourlogos' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: read
+    outputs:
+      eligible: ${{ steps.gate.outputs.eligible }}
+    steps:
+      - name: Checkout trusted merged main code, no persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Use pinned Node 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Check syntax and run deterministic zero-model tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check .github/scripts/cz-ai-lesson-gate.mjs
+          node --check .github/scripts/cz-ai-lesson-artifact.mjs
+          node --test tests/cz-ai-lesson-gate.test.mjs tests/cz-ai-lesson-artifact.test.mjs
+      - name: Inspect associated merged fix, changed regression test and CI evidence
+        id: gate
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node .github/scripts/cz-ai-lesson-gate.mjs --event
+      - name: Save sanitized candidate and metadata, never agent output
+        if: steps.gate.outputs.eligible == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz-ai-lesson-candidate
+          path: ${{ runner.temp }}/cz-ai-lesson-candidate/
+          if-no-files-found: error
+          retention-days: 3
+  stage-draft:
+    name: Save candidate as a founder-review draft PR
+    needs: inspect
+    if: needs.inspect.result == 'success' && needs.inspect.outputs.eligible == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout exact trusted merge commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Retrieve sanitized evidence from the read-only inspector
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz-ai-lesson-candidate
+          path: ${{ runner.temp }}/cz-ai-lesson-candidate/
+      - name: Validate metadata and store draft-only candidate
+        id: draft
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          meta="$RUNNER_TEMP/cz-ai-lesson-candidate/metadata.json"
+          document="$RUNNER_TEMP/cz-ai-lesson-candidate/candidate.md"
+          test -s "$meta" && test -s "$document"
+          node --check .github/scripts/cz-ai-lesson-artifact.mjs
+          node .github/scripts/cz-ai-lesson-artifact.mjs "$meta" "$document" "$GITHUB_SHA"
+          pr="$(node -e 'const x=require(process.argv[1]); process.stdout.write(String(x.sourcePR))' "$meta")"
+          target="$(node -e 'const x=require(process.argv[1]); process.stdout.write(x.path)' "$meta")"
+          [[ "$pr" =~ ^[0-9]{1,6}$ ]]
+          [[ "$target" =~ ^docs/cz-ai-library/candidates/[0-9]{4}-[0-9]{2}-[0-9]{2}-pr-[0-9]+\.md$ ]]
+          branch="automation/cz-ai-lesson-pr-$pr"
+          if gh api "repos/OWEF/Yourlogos/branches/$branch" >/dev/null 2>&1; then
+            echo 'Candidate branch already exists; no duplicate draft.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          test ! -e "$target"
+          mkdir -p "$(dirname "$target")"
+          install -m 0644 "$document" "$target"
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git add -- "$target"
+          git commit -m "docs(cz-ai): candidate lesson from merged fix #$pr"
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$branch"
+          gh pr create --draft --base main --head "$branch" \
+            --title "lesson(candidate): verified-fix evidence from PR #$pr" \
+            --body "[CZ-AI-LESSON-CANDIDATE] Automatically collected from merged [source PR #$pr](https://github.com/OWEF/Yourlogos/pull/$pr). This is an UNTRUSTED CANDIDATE, not accepted knowledge. Independent Agent C/tech-lead verification and founder approval are required. The eventual reviewer must promote a verified lesson into lessons/ and the accepted index before merge. No model was invoked; no software, trading state, production credentials or approved skill catalog was changed. GitHub's GITHUB_TOKEN-created PR may require a human to approve CI. DO NOT MERGE THIS DRAFT AS-IS."
+          echo "Prepared an unmerged lesson candidate from source PR #$pr. Await review and founder decision." >> "$GITHUB_STEP_SUMMARY"
