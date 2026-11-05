@@ -102,7 +102,39 @@ try{
  const bytes=Buffer.from(screenshot.data,"base64");
  assert.ok(bytes.length>4000,"Screenshot unexpectedly small");
  await writeFile(path.join(artifact,"cz80-cz81-mobile-live.png"),bytes);
- process.stdout.write("CZ80/81 real-app local choice, UI feedback and rig event PASS; no AI, save or model usage\n");
+ // A separate, fully mocked consented AI path: no external DeepSeek requests,
+ // but the real app state machine, consent choice and My World save are exercised.
+ const mockSource="(()=>{\n const original=window.fetch.bind(window);\n window.fetch=(input,options={})=>{\n  const url=String(typeof input==='string'?input:input?.url||'');\n  if(url.includes('/api/discover-ai-config'))return Promise.resolve(new Response(JSON.stringify({enabled:true}),{status:200,headers:{'Content-Type':'application/json'}}));\n  if(url.endsWith('/api/discover-ai')){\n   const payload=JSON.parse(options?.body||'{}');\n   const response=payload.turn===0?\n    {reply:'The question can change how we understand our choices.',followUp:'Which direction would you explore?',choices:['Look at everyday experience','Question its assumption','Consider another viewpoint'],complete:false}:\n    {reply:'Your chosen direction offers one possible connection, not a judgment about you.',followUp:'What question might you carry?',choices:[],complete:true};\n   return Promise.resolve(new Response(JSON.stringify(response),{status:200,headers:{'Content-Type':'application/json'}}));\n  }\n  return original(input,options);\n };\n})();";
+ await send("Page.addScriptToEvaluateOnNewDocument",{source:mockSource});
+ await send("Page.navigate",{url:origin+"/?cz80=preview&cz81=preview"});
+ await until(()=>evalJS("Boolean(document.querySelector('[data-action=discover]'))"),"AI fixture landing");
+ if(await evalJS("document.getElementById('yl-onboarding')?.hidden===false")){
+  await evalJS("document.querySelector('[data-intro=back]').click();true");
+  await until(()=>evalJS("document.getElementById('yl-onboarding')?.hidden===true"),"fixture onboarding");
+ }
+ if(await evalJS("document.getElementById('yl-entrance')?.hidden===false")){
+  await until(()=>evalJS("document.getElementById('yl-enter')?.disabled===false"),"fixture welcome ready");
+  await evalJS("document.getElementById('yl-enter').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));true");
+  await until(()=>evalJS("document.getElementById('yl-entrance')?.hidden===true"),"fixture welcome dismissed");
+ }
+ await evalJS("document.querySelector('[data-action=discover]').click();true");
+ await until(()=>evalJS("Boolean(document.querySelector('[data-ai=agree]'))"),"consented AI opening");
+ await evalJS("document.querySelector('[data-ai=agree]').click();true");
+ await until(()=>evalJS("Boolean(document.querySelector('[data-ai-choice]'))"),"mock initial AI insight and three choices");
+ assert.equal(await evalJS("document.querySelectorAll('[data-ai-choice]').length"),3);
+ await evalJS("document.querySelector('[data-ai-choice]').click();true");
+ await until(()=>evalJS("Boolean(document.querySelector('.yl-logo-finale'))"),"mock completed AI insight");
+ assert.equal(await evalJS("document.querySelector('.discover-sheet')?.dataset.cz80Beat"),"insight");
+ await until(()=>evalJS("Boolean(document.querySelector('object.yl-logo-v3-rig')?.contentDocument?.documentElement?.classList.contains('state-reflective'))"),"AI insight triggered subtle rig pose");
+ // A completed insight is NOT automatically a saved My World record.
+ assert.equal(await evalJS("JSON.parse(localStorage.getItem('yourlogos_web_v1')||'{}').aiDiscoverThreads?.length||0"),0);
+ const screenshotAI=await send("Page.captureScreenshot",{format:"png",fromSurface:true,captureBeyondViewport:false});
+ await writeFile(path.join(artifact,"cz80-cz81-ai-mocked-final.png"),Buffer.from(screenshotAI.data,"base64"));
+ await evalJS("document.querySelector('[data-ai=save]').click();true");
+ await until(()=>evalJS("Boolean(JSON.parse(localStorage.getItem('yourlogos_web_v1')||'{}').aiDiscoverThreads?.length)"),"explicit My World AI save");
+ assert.equal(await evalJS("Boolean(document.querySelector('.discover-sheet'))"),false,"saved journey leaves Encounter");
+
+ process.stdout.write("CZ80/81 local flow + mocked consented AI completion and explicit save PASS; no provider AI usage\\n");
 }finally{
  try{ws?.close()}catch{}
  server.kill("SIGTERM");
