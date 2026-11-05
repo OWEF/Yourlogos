@@ -318,7 +318,8 @@ jobs:
           Path('/tmp/cz81-happy-script.mjs').write_text(js)
           print('Scoped Happy face rig verified structurally; human visual recognition still pending.')
           PY
-          node --check /tmp/cz81-happy-script.mjs        node --test tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node --check /tmp/cz81-happy-script.mjs
+          node --test tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
           node scripts/verify-v24.mjs
           mkdir -p "$RUNNER_TEMP/e1-happy-reviewed/experiments"
           cp 'experiments/cz81-happy-rig-v1.html' "$RUNNER_TEMP/e1-happy-reviewed/experiments/"
