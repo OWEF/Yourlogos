@@ -1,0 +1,323 @@
+# Founder-approved single-use Kimi A task, based on the proven CZ-81 guarded bridge.
+# Source is PR #132 exact SHA; no production code, secrets or settings are deployed.
+# Triggerable ONCE by the specific initial owner commit on the unique branch.
+name: CZ-81 M1 Kimi A Recovery Ten-minute Pilot
+on:
+  push:
+    branches: [automation/cz81-m1-recovery-10m-20261105]
+    paths: ['.github/workflows/cz81-m1-kimi-a-recovery-once.yml']
+permissions: {}
+jobs:
+  kimi-implementation:
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/automation/cz81-m1-recovery-10m-20261105' &&
+      github.event.before == '422f6bec2936cc2140c0045ef69ee3553834d80a' &&
+      github.event.head_commit.message == 'dispatch(cz81-m1-recovery): approved quarantined eye QA' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    timeout-minutes: 17
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.validate.outputs.changed }}
+    steps:
+      - name: Checkout trusted default branch without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+
+      - name: Verify original reviewed source and one-shot founder approval without using model
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTOR" = 'OWEF'
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$GITHUB_EVENT_NAME" = 'push'
+          test "$GITHUB_REF" = 'refs/heads/automation/cz81-m1-recovery-10m-20261105'
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          test -f assets/lillogo-v3-layered-hybrid.svg
+          test -f little-logo-hd-v2.jpg
+          test -f little-logo-poses-v5.webp
+          test -f .github/kimi/profiles/frontend-ux.md
+          echo 'One-shot founder dispatch and pinned PR #132 source verified.'
+
+      - name: Install pinned Kimi CLI before exposing membership key
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          # This check is offline and requires no membership key or model call.
+          # Prevent an unsupported CLI flag from consuming a coding attempt.
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--output-format'
+          kimi --help | grep -q -- '--agent-file'
+          node .github/scripts/cz69-role-router.mjs --check
+          test "$(node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+          node --check .github/scripts/cz69-safe-report.mjs
+          node --test .github/scripts/cz69-safe-report.test.mjs
+          cp .github/scripts/cz69-safe-report.mjs "$RUNNER_TEMP/cz69-safe-report.mjs"
+
+      - name: Run exactly one Kimi A independent eye-gaze microtask without GitHub write token
+        id: model
+        shell: bash
+        timeout-minutes: 11
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/cz69-kimi-home
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          if [[ -z "${KIMI_MODEL_API_KEY:-}" ]]; then
+            echo "::error::Required KIMI_CODE_API_KEY secret is absent"
+            exit 1
+          fi
+          mkdir -p "$KIMI_CODE_HOME"
+          # Trusted, fixed task; issue title/body and PR content are NEVER injected.
+          # The selected role denies Bash/delegation, but profile controls alone
+          # are not OS sandboxing. This runner handles only a fixed owner task.
+          prompt=$(cat <<'TASK'
+          Kimi A: execute ONE founder-approved CZ-81 M1 eye/gaze recovery.
+          GitHub #133, PR #132 SHA 8176585ada4b1edf68e90c00e1b6c0fe92138105.
+          Prior run #41975061729 completed the model, but QA 34/36:
+          blink test expected 3 beats but actual 2; raster use count
+          test expected 4 but actual 5. Candidate was not preserved.
+          This run preserves allowlisted output before CI and is NOT a
+          rerun of the original job. Make a small faithful eye improvement
+          and correctly grounded, non-brittle tests; do not fake success.
+
+          Existing SVG assets/lillogo-v3-layered-hybrid.svg has original
+          embedded JPEG, 400x400, independent headRig, eyeRig, eyelids,
+          hairRig groups. Preserve source image bytes, facial identity,
+          mask proportions and existing state class names.
+          Existing blink rigidly repeats each 9 seconds; eyeRig shifts
+          approximately +1.8,-0.6px in curious. Improve independent
+          natural eye microaction and irregular blink without head moving,
+          add no heavy runtime or extra background timer.
+          Respect is-paused and prefers-reduced-motion for static open eye.
+
+          MODIFY EXACTLY TWO PATHS:
+          assets/lillogo-v3-layered-hybrid.svg (eye layers/CSS only)
+          tests/cz81-eye-gaze.test.mjs (small focused Node tests)
+          No third file or new demo, no extra dependencies, backend,
+          user data, quotes, My World, auth, other models, network,
+          script execution, commands, or production changes.
+          In tests verify behavior, not arbitrary exact blink count,
+          and verify embedded raster unchanged without hardcoding
+          a number of <use> elements. Do not assert real Safari QA
+          from static tests. If source art prevents faithful eyes,
+          preserve it and disclose the limitation.
+          One Kimi session, 600 seconds, 24 steps, zero retries.
+          TASK
+          )
+          # CZ-81 normal tier: 18 agent steps per turn, 1 failed-step attempt,
+          # no automatic retries, 600-second hard process timeout.
+          # These are execution caps, not verified token or dollar ceilings.
+          start_seconds=$SECONDS
+          set +e
+          timeout --signal=TERM --kill-after=5s 600s \
+            kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json \
+            > "$RUNNER_TEMP/kimi-stdout.jsonl" 2> "$RUNNER_TEMP/kimi-stderr.txt"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "elapsed_sec=$((SECONDS-start_seconds))" >> "$GITHUB_OUTPUT"
+          echo "Kimi process stopped; raw model output intentionally withheld."
+          # Never automatically retry after a failure or hard timeout.
+
+      - name: Generate bounded sanitized diagnostics, even on timeout
+        if: always()
+        shell: bash
+        env:
+          MODEL_RC: ${{ steps.model.outputs.exit_code || 'missing' }}
+          MODEL_SECONDS: ${{ steps.model.outputs.elapsed_sec || '0' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cz69-safe"
+          if [[ -f "$RUNNER_TEMP/cz69-safe-report.mjs" ]]; then
+            node "$RUNNER_TEMP/cz69-safe-report.mjs" \
+              "$RUNNER_TEMP/kimi-stdout.jsonl" "$RUNNER_TEMP/kimi-stderr.txt" \
+              "$MODEL_RC" "$MODEL_SECONDS" "$RUNNER_TEMP/cz69-safe/report.json"
+          else
+            printf '%s\n' '{"schema":"cz69-harness-diagnostics-v1","exitClass":"not_started","safeFieldsOnly":true,"usage":"not_verified"}' \
+              > "$RUNNER_TEMP/cz69-safe/report.json"
+          fi
+          node -e '
+            const r=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
+            if (r.safeFieldsOnly !== true) process.exit(1);
+            console.log("CZ-69 sanitized outcome: "+r.exitClass);
+            require("node:fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              "### CZ-69 sanitized model-run evidence\n" +
+              "- Exit class: "+r.exitClass+"\n" +
+              "- Duration: "+(r.elapsedSeconds ?? "not started")+" seconds\n" +
+              "- Model usage: not verified\n" +
+              "- No raw prompts, model replies, tools, paths or credentials published\n");
+          ' "$RUNNER_TEMP/cz69-safe/report.json"
+
+      - name: Upload safe timeout evidence (never raw agent logs)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz69-safe-diagnostics
+          path: ${{ runner.temp }}/cz69-safe/report.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Fail closed when Kimi did not complete
+        if: steps.model.outputs.exit_code != '0'
+        run: |
+          echo "::error::Kimi did not finish; no code validation or draft PR"
+          exit 1
+
+      # On model success, keep allowlisted source in quarantine BEFORE CI.
+      # Prevent losing the implementation when its own tests fail. This is
+      # review evidence, NOT permission to merge or to dispatch a next agent.
+      - name: Preserve limited candidate for independent review on QA failure
+        if: steps.model.outputs.exit_code == '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg|tests/cz81-eye-gaze.test.mjs) ;;
+              *) echo "::error::Out-of-scope candidate; no quarantine upload: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test -s assets/lillogo-v3-layered-hybrid.svg
+          test -s tests/cz81-eye-gaze.test.mjs
+          test "$(stat -c%s assets/lillogo-v3-layered-hybrid.svg)" -le 500000
+          test "$(stat -c%s tests/cz81-eye-gaze.test.mjs)" -le 100000
+          if git diff --quiet -- assets/lillogo-v3-layered-hybrid.svg; then
+            echo "::error::No actual edited source; no quarantine upload"; exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/cz81-m1-recovery-quarantine/assets" "$RUNNER_TEMP/cz81-m1-recovery-quarantine/tests"
+          cp assets/lillogo-v3-layered-hybrid.svg "$RUNNER_TEMP/cz81-m1-recovery-quarantine/assets/"
+          cp tests/cz81-eye-gaze.test.mjs "$RUNNER_TEMP/cz81-m1-recovery-quarantine/tests/"
+
+      - name: Upload isolated QA candidate before independent tests
+        if: steps.model.outputs.exit_code == '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz81-m1-recovery-quarantined-source
+          path: ${{ runner.temp }}/cz81-m1-recovery-quarantine/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Validate scoped eye-rig code and regression without Kimi key
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg|tests/cz81-eye-gaze.test.mjs) ;;
+              *) echo "::error::Out-of-scope change: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test -s assets/lillogo-v3-layered-hybrid.svg
+          test -s tests/cz81-eye-gaze.test.mjs
+          if git diff --quiet -- assets/lillogo-v3-layered-hybrid.svg; then
+            echo "::error::No original eye-rig SVG modification"; exit 1
+          fi
+          git diff --check
+          node --check tests/cz81-eye-gaze.test.mjs
+          node --test tests/cz81-eye-gaze.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node scripts/verify-v24.mjs
+          mkdir -p "$RUNNER_TEMP/candidate/tests" "$RUNNER_TEMP/candidate/assets"
+          cp tests/cz81-eye-gaze.test.mjs "$RUNNER_TEMP/candidate/tests/"
+          cp assets/lillogo-v3-layered-hybrid.svg "$RUNNER_TEMP/candidate/assets/"
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+          echo 'Scoped M1 eye-rig source and tests passed; draft PR only.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload candidate for independent review (no credentials)
+        if: steps.validate.outputs.changed == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz81-m1-recovery-candidate
+          path: ${{ runner.temp }}/candidate/
+          if-no-files-found: error
+          retention-days: 3
+
+  open-draft-pr:
+    name: Stage scoped eye-rig patch as DRAFT PR
+    needs: kimi-implementation
+    if: needs.kimi-implementation.result == 'success' && needs.kimi-implementation.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout approved PR review SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Load scoped validated artifact from previous job
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: cz81-m1-recovery-candidate
+          path: ${{ runner.temp }}/cz81-m1-recovery-candidate/
+      - name: Verify two-file allowlist and write DRAFT PR only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: automation/cz81-m1-eye-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test -s "$RUNNER_TEMP/cz81-m1-recovery-candidate/assets/lillogo-v3-layered-hybrid.svg"
+          test -s "$RUNNER_TEMP/cz81-m1-recovery-candidate/tests/cz81-eye-gaze.test.mjs"
+          cp "$RUNNER_TEMP/cz81-m1-recovery-candidate/assets/lillogo-v3-layered-hybrid.svg" assets/
+          cp "$RUNNER_TEMP/cz81-m1-recovery-candidate/tests/cz81-eye-gaze.test.mjs" tests/
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg|tests/cz81-eye-gaze.test.mjs) ;;
+              *) echo "::error::Out of scope: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          if git diff --quiet -- assets/lillogo-v3-layered-hybrid.svg; then
+            echo "::error::Eye-rig source unchanged"; exit 1
+          fi
+          git diff --check
+          node --check tests/cz81-eye-gaze.test.mjs
+          node --test tests/cz81-eye-gaze.test.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add -- assets/lillogo-v3-layered-hybrid.svg tests/cz81-eye-gaze.test.mjs
+          git commit -m 'feat(cz81-m1): independently animated original-eye gaze'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$BRANCH"
+          gh pr create --draft --base release/cz80-cz81-integrated-review --head "$BRANCH" \
+            --title 'feat(cz81-m1): independent LilLogo gaze and blink prototype' \
+            --body 'M1 Kimi A task [GitHub #133](https://github.com/OWEF/Yourlogos/issues/133) / Linear CZ-81. Only original SVG eye/eyelid changes and deterministic tests; no application, API, subscription, production or release changes. Independent technical and founder visual review pending; **DO NOT MERGE OR DEPLOY**.'
+          echo 'M1 draft PR staged; code and visual approval gates remain.' >> "$GITHUB_STEP_SUMMARY"
