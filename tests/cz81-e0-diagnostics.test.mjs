@@ -96,8 +96,8 @@ test('malformed and misleading raw events cannot inject new report fields or arb
       '{"type":"assistant","role":"assistant","message":"private"}'
     ].join('\n'));
     fs.writeFileSync(path.join(raw,'stderr.log'),'Bearer PRIVATE-KEY-AAA');
-    const p=run(process.execPath,[observer,'finalize',\`--raw-dir=${raw}\`,\`--report-dir=${report}\`,
-      \`--candidate=${path.join(dir,'absent.svg')}\`,'--seconds=34','--exit-code=124']);
+    const p=run(process.execPath,[observer,'finalize',`--raw-dir=${raw}`,`--report-dir=${report}`,
+      `--candidate=${path.join(dir,'absent.svg')}`,'--seconds=34','--exit-code=124']);
     assert.equal(p.status,0,p.stderr);
     const json=fs.readFileSync(path.join(report,'summary.json'),'utf8');
     const s=JSON.parse(json);
