@@ -106,3 +106,12 @@ test("integration is behind its own flag, no AI, persistence, or remote asset de
  assert.doesNotMatch(controller+css,/fetch\(|localStorage|sessionStorage|indexedDB|XMLHttpRequest|WebSocket|\/api\//);
  assert.doesNotMatch(css,/html\s*\{|body\s*\{/);
 });
+
+test("local Encounter companion is purely decorative and gated",()=>{
+  const local=readFileSync(new URL("../living-threads.js",import.meta.url),"utf8");
+  assert.match(local,/const companion=CZ81_PREVIEW_ENABLED/);
+  assert.match(local,/class="yl-living-companion" aria-hidden="true"/);
+  assert.match(local,/class="yl-logo-v3-rig"/);
+  assert.doesNotMatch(local,/data-ai="pet"/);
+  assert.match(css,/\.yl-living-companion/);
+});
