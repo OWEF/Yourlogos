@@ -12,7 +12,8 @@ const html=readFileSync(new URL("../index.html",import.meta.url),"utf8");
 
 test("preview flag is off on Node and normal app loads",()=>{
   assert.equal(CZ80_PREVIEW_ENABLED,false);
-  assert.match(source,/new URLSearchParams\(window\.location\.search\)\.get\("cz80"\)==="preview"/);
+  const js=readFileSync(new URL("../encounter-choreography.js",import.meta.url),"utf8");
+  assert.match(js,/new URLSearchParams\(window\.location\.search\)\.get\("cz80"\)==="preview"/);
   assert.match(html,/href="\/encounter-choreography\.css\?cz80=1"/);
   assert.match(css,/html\[data-cz80-preview="on"\]/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
