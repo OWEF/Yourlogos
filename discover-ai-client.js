@@ -1,5 +1,6 @@
 import {philosopherPortrait} from "./philosopher-portraits.js";
 import {quoteDragExerciseHtml} from "./discover-quote-drag.js";
+import {CZ81_PREVIEW_ENABLED} from "./lillogo-rig-controller.js";
 // YourLogos AI Discover pilot UI. All conversation state is ephemeral until
 // the visitor explicitly saves a memory. No model output runs as HTML.
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -27,10 +28,20 @@ const petAvatar='<span class="yl-logo-pet-shadow" aria-hidden="true"></span>'+
  '<img class="yl-logo-pet-hero" src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" decoding="async" draggable="false">'+
  '<span class="yl-logo-pet-pose" aria-hidden="true"></span></span></span>'+
  '<span class="yl-logo-pet-emote" aria-hidden="true"><i></i><i></i><i></i></span>';
+// The approved JPG stays untouched unless the founder explicitly selects
+// ?cz81=preview. The nested SVG remains review-only until art approval.
+function layeredRigAvatar(mood){
+ return '<span class="yl-logo-pet-shadow" aria-hidden="true"></span>'+
+  '<span class="yl-logo-pet-figure yl-logo-pet-v3-figure" aria-hidden="true">'+
+  '<span class="yl-logo-pet-art">'+
+  '<object class="yl-logo-v3-rig" type="image/svg+xml" data="/assets/lillogo-v3-layered-hybrid.svg" tabindex="-1" aria-hidden="true" data-rig-mood="'+mood+'">'+
+  '<img src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" draggable="false">'+
+  '</object></span></span>';
+}
 export function littleLogoPet(mood="idle"){
  const moods=new Set(["idle","thinking","curious","delighted","reflective","surprised","encourage"]);
  const value=moods.has(mood)?mood:"idle";
- return '<button type="button" class="yl-logo-pet yl-logo-pet-'+value+'" data-ai="pet" aria-label="Say hello to Little Logo" title="Say hello to Little Logo">'+petAvatar+'</button>';
+ return '<button type="button" class="yl-logo-pet yl-logo-pet-'+value+(CZ81_PREVIEW_ENABLED?' yl-logo-pet-layered':'')+'" data-ai="pet" aria-label="Say hello to Little Logo" title="Say hello to Little Logo">'+(CZ81_PREVIEW_ENABLED?layeredRigAvatar(value):petAvatar)+'</button>';
 }
 const nextArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>';
 function shortObservation(text){
