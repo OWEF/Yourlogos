@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="194" height="194" viewBox="0 0 194 194">
+  <title>LilLogo — E1.1 Happy Only (art study)</title>
+  <desc>Static front-facing happy expression study built over the approved local
+  little-logo-hd-v2.jpg portrait. Flat JPEG source limits faithful mouth/cheek
+  recreation; the original faint neutral mouth is covered with a skin-toned
+  patch before the new smile, lifted cheeks, soft curved eyelids and raised
+  brows are drawn. Source face is slightly turned, so feature marks follow the
+  source asymmetry. No tilt, no animation, no scripts.</desc>
+
+  <defs>
+    <clipPath id="faceClip">
+      <circle cx="97" cy="97" r="94"/>
+    </clipPath>
+    <filter id="patchBlur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <filter id="cheekBlur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <filter id="lidBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.1"/>
+    </filter>
+  </defs>
+
+  <!-- approved local source portrait, unchanged, clipped round at 194px -->
+  <g clip-path="url(#faceClip)">
+    <image href="../little-logo-hd-v2.jpg" x="0" y="0" width="194" height="194" preserveAspectRatio="xMidYMid slice"/>
+  </g>
+  <circle cx="97" cy="97" r="94" fill="none" stroke="#f6ecdc" stroke-width="3"/>
+
+  <!-- ============ cover original neutral features (skin-tone patches) ============ -->
+
+  <!-- blush + softened original faint neutral mouth zone -->
+  <g filter="url(#cheekBlur)">
+    <ellipse cx="124" cy="100" rx="7" ry="3.2" fill="#eda08c" opacity="0.38"/>
+    <ellipse cx="157" cy="99" rx="5.5" ry="2.8" fill="#eda08c" opacity="0.38"/>
+  </g>
+  <ellipse cx="136" cy="106" rx="14" ry="8" fill="#f3e2c6" filter="url(#patchBlur)"/>
+
+  <!-- ============ happy features ============ -->
+
+  <!-- soft curved upper eyelids lowering gently onto the glossy eyes -->
+  <path d="M 118 79 Q 125.5 74 133 79" fill="none" stroke="#f3e2c6" stroke-width="2.6" stroke-linecap="round" filter="url(#lidBlur)"/>
+  <path d="M 153 82 Q 161 77 169 82" fill="none" stroke="#f3e2c6" stroke-width="2.6" stroke-linecap="round" filter="url(#lidBlur)"/>
+
+  <!-- small catchlights keep the glossy-eye identity under the soft lids -->
+  <circle cx="122.5" cy="87" r="1.4" fill="#ffffff" opacity="0.85"/>
+  <circle cx="158" cy="94" r="1.4" fill="#ffffff" opacity="0.85"/>
+
+  <!-- raised, gently arched eyebrows -->
+  <path d="M 117 70.5 Q 125.5 65.5 134 71" fill="none" stroke="#d4b48c" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M 152 71.5 Q 161 66.5 170 72.5" fill="none" stroke="#d4b48c" stroke-width="1.6" stroke-linecap="round"/>
+
+  <!-- happy smile: open curve with tongue -->
+  <path d="M 126 110 Q 134 119 143 110 Q 134 115 126 110 Z" fill="#5a3226"/>
+  <path d="M 129.5 112.3 Q 134 115.8 139 112.3 Q 134.2 113.7 129.5 112.3 Z" fill="#e08d7c"/>
+  <path d="M 126 110 Q 134 119 143 110" fill="none" stroke="#4a2b20" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- lifted cheeks: soft crease arcs under the eyes, kept clear of the hand -->
+  <path d="M 120 106 Q 127 108.8 134 106.8" fill="none" stroke="#e3c39a" stroke-width="1.2" stroke-linecap="round" opacity="0.65"/>
+  <path d="M 143 103 Q 148 105 153 103" fill="none" stroke="#e3c39a" stroke-width="1.2" stroke-linecap="round" opacity="0.65"/>
+</svg>
