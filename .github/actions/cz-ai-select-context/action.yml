@@ -1,0 +1,50 @@
+# Reusable ZERO-MODEL step for a separately reviewed, founder-approved Kimi workflow.
+# Do NOT pass dynamic issue/PR/user text as task input. No Kimi key or GitHub write permission.
+name: CZ AI — select relevant bounded skills and lessons
+description: Build a task-scoped local context file before any model secret is exposed
+inputs:
+  role:
+    description: One exact reviewed role key
+    required: true
+  task:
+    description: Reviewed bounded task description; never arbitrary issue/PR text
+    required: true
+  project:
+    description: Public, non-sensitive project label
+    required: true
+    default: YourLogos
+  max-tokens:
+    description: Approximate character/4 packet budget, not billing or exact token count
+    required: false
+    default: '2500'
+outputs:
+  context-path:
+    description: Local file to append once to the authorized Kimi prompt
+    value: ${{ steps.select.outputs.context_path }}
+  summary-path:
+    description: Local safe selection metadata; do not log full prompt
+    value: ${{ steps.select.outputs.summary_path }}
+runs:
+  using: composite
+  steps:
+    - id: select
+      shell: bash
+      env:
+        CZ_ROLE: ${{ inputs.role }}
+        CZ_TASK: ${{ inputs.task }}
+        CZ_PROJECT: ${{ inputs.project }}
+        CZ_TOKEN_BUDGET: ${{ inputs.max-tokens }}
+      run: |
+        set -euo pipefail
+        context="$RUNNER_TEMP/cz-ai-context-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.md"
+        summary="$RUNNER_TEMP/cz-ai-selection-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+        test ! -e "$context" && test ! -e "$summary"
+        node .github/scripts/validate-cz-ai-library.mjs
+        node .github/scripts/cz69-role-router.mjs --check
+        node .github/scripts/select-cz-ai-context.mjs \
+          --role "$CZ_ROLE" --task "$CZ_TASK" --project "$CZ_PROJECT" \
+          --max-tokens "$CZ_TOKEN_BUDGET" --out "$context" --summary "$summary"
+        test -s "$context" && test -s "$summary"
+        echo "context_path=$context" >> "$GITHUB_OUTPUT"
+        echo "summary_path=$summary" >> "$GITHUB_OUTPUT"
+        # No model call, no context text in workflow summary.
