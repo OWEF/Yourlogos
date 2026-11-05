@@ -203,6 +203,42 @@ jobs:
           echo "::error::Kimi did not finish; no code validation or draft PR"
           exit 1
 
+      # On model success, keep allowlisted source in quarantine BEFORE CI.
+      # Prevent losing the implementation when its own tests fail. This is
+      # review evidence, NOT permission to merge or to dispatch a next agent.
+      - name: Preserve limited candidate for independent review on QA failure
+        if: steps.model.outputs.exit_code == '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg|tests/cz81-eye-gaze.test.mjs) ;;
+              *) echo "::error::Out-of-scope candidate; no quarantine upload: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test -s assets/lillogo-v3-layered-hybrid.svg
+          test -s tests/cz81-eye-gaze.test.mjs
+          test "$(stat -c%s assets/lillogo-v3-layered-hybrid.svg)" -le 500000
+          test "$(stat -c%s tests/cz81-eye-gaze.test.mjs)" -le 100000
+          if git diff --quiet -- assets/lillogo-v3-layered-hybrid.svg; then
+            echo "::error::No actual edited source; no quarantine upload"; exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/cz81-m1-quarantine/assets" "$RUNNER_TEMP/cz81-m1-quarantine/tests"
+          cp assets/lillogo-v3-layered-hybrid.svg "$RUNNER_TEMP/cz81-m1-quarantine/assets/"
+          cp tests/cz81-eye-gaze.test.mjs "$RUNNER_TEMP/cz81-m1-quarantine/tests/"
+
+      - name: Upload isolated QA candidate before independent tests
+        if: steps.model.outputs.exit_code == '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz81-m1-quarantined-source
+          path: ${{ runner.temp }}/cz81-m1-quarantine/
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Validate scoped eye-rig code and regression without Kimi key
         id: validate
         shell: bash
