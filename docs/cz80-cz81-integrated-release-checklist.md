@@ -27,6 +27,28 @@
 - [ ] Real AI consented backend path: network failure/429/401, suspended/resumed requests and prompt response; existing consent remains enforceable.
 - [ ] Founder explicitly approves the character artwork AND release to production; no silent upgrade of default flags.
 
+## Real iPhone Safari acceptance runbook — NOT YET EXECUTED
+
+**Review build prerequisite:** use an isolated, HTTPS-hosted build of the *exact PR #132 head SHA* with both `?cz80=preview&cz81=preview` flags. The current production URL is **not** a review build: do not claim its query parameters exercise this unmerged PR. A review-hosted build must be separately approved before any additional Railway runtime/service or public release. GitHub Actions' 390×844 Chromium screenshots are useful evidence but cannot substitute for a genuine iPhone test.
+
+**Test record:** reviewer: ______ · device/iPhone model: ______ · iOS: ______ · Safari/PWA: ______ · review HTTPS origin: ______ · exact deployed SHA: ______ · test date/time/timezone: ______.
+
+Run on the **same exact SHA**, once in Safari (fresh and returning) and once as an installed PWA where supported. Record PASS/FAIL/N/A with screenshot or short screen recording for each:
+
+| ID | Real-device test | Pass condition | Result / evidence |
+| --- | --- | --- | --- |
+| IP-01 | Compare CZ-23 approved original with AI and local LilLogo (idle, curious, reflective, saved) | No distracting dark square; facial identity, hair and scarf recognizable; no visible neck/eye distortion | NOT RUN |
+| IP-02 | Enter one-choice Encounter; tap 3 alternatives in separate replays and use Back/Close | Visible first feedback, valid transition only, no duplicate actions, controls remain reachable | NOT RUN |
+| IP-03 | Scroll AI sheet, rotate/resize if applicable, navigate away and back | No blocked buttons, excessive page bleed, safe-area overlap, viewport jump or content loss | NOT RUN |
+| IP-04 | Toggle Settings → Accessibility → Motion → Reduce Motion ON/OFF while page is open | Animation stops/resumes correctly; completion still legible; no flicker or runaway timers | NOT RUN |
+| IP-05 | Enable VoiceOver, navigate choices, Save, Close and re-enter | Accessible names, meaningful focus order, no focus trap and reliable activation | NOT RUN |
+| IP-06 | Background/foreground; lock/unlock; repeat Encounter navigation ≥3 times | No duplicated LilLogo renderers, stale pose, frozen scroll, repeated sound or overheating | NOT RUN |
+| IP-07 | Consent AI, exercise normal response and a network disconnect/failure; only explicitly save after user decision | AI error is never a success/celebration, consent enforced, real save occurs once only | NOT RUN |
+| IP-08 | Installed PWA warm restart and offline cold launch; local Encounter offline then return online | Cached dependencies including matte load; local mode works; API/network bypass remains safe | NOT RUN |
+| IP-09 | Open without both preview flags | Original production art/behavior unaffected | NOT RUN |
+
+**Exit criteria:** IP-01 through IP-09 PASS or a documented N/A accepted by founder; screenshots and device details attached to PR #132; original-art founder signoff; independent technical review after fixes; exact-head CI SUCCESS and explicit separate production-release approval. If any item fails, mark **NO-GO** and keep both issues In Progress. No simulated device or Chromium result may be recorded as real Safari evidence.
+
 ## Release and rollback (pending authorization)
 1. Retain old PRs #129 (art study), #130 (CZ-80), #131 (CZ-81) as source history; do **not** merge them separately when using the integrated candidate PR.
 2. Finish green CI, visual QA and all blocking acceptance tests on one exact release SHA.
