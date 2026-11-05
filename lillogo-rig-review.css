@@ -1,0 +1,89 @@
+/* CZ-81: layered original-art preview ONLY. Without ?cz81=preview the
+   production character stays exactly as before. */
+html[data-cz81-preview="on"] .yl-logo-pet-layered,
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-pet-figure,
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-pet-art,
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-pet-shadow {
+  transform:none!important;
+  translate:none!important;
+  animation:none!important;
+  transition:none!important;
+  filter:none!important;
+}
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-pet-figure {
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  opacity:1!important;
+}
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-v3-rig {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  border:0;
+  /* Soften opaque corners of the original JPG when it sits on the sheet.
+     The character shape and layer geometry are not replaced. */
+  -webkit-mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
+  mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
+}
+/* CZ-81 AI portrait isolation pass (review flag only).
+   The original JPEG has a near-black square background. In the larger AI
+   presentation that square is more apparent than in the compact local flow.
+   A small, source-derived alpha matte removes the surrounding photograph
+   backdrop without recoloring the character; the animated SVG and its source
+   portrait bytes stay unchanged.
+   Keep the compact local rendering untouched, since it is already accepted. */
+html[data-cz81-preview="on"] .yl-ai-experiment .yl-logo-pet-layered .yl-logo-v3-rig {
+  /* Preserve all RGB/art layers; remove only the photographed backdrop
+     using a portrait-derived, blurred alpha silhouette mask. */
+  -webkit-mask-image:url("/assets/lillogo-v3-ai-matte.svg");
+  mask-image:url("/assets/lillogo-v3-ai-matte.svg");
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+  mask-position:center;
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  mix-blend-mode:normal;
+
+}
+
+html[data-cz81-preview="on"] .yl-logo-pet-layered :is(.yl-logo-pet-pose,.yl-logo-pet-hero) {
+  display:none!important;
+}
+html[data-cz81-preview="on"] .yl-logo-pet-layered:focus-visible {
+  outline:2px solid #e3c291;
+  outline-offset:4px;
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-cz81-preview="on"] .yl-logo-pet-layered *,
+  html[data-cz81-preview="on"] .yl-logo-pet-layered *::before,
+  html[data-cz81-preview="on"] .yl-logo-pet-layered *::after{
+    animation:none!important;
+    transition:none!important;
+  }
+}
+/* Local deterministic Encounter receives the same quietly observing character
+   without introducing a fake AI button or modifying conversation choices. */
+html[data-cz81-preview="on"] .discover-sheet .yl-living-companion{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:0 auto 8px;
+  width:124px;
+  height:112px;
+  pointer-events:none;
+}
+html[data-cz81-preview="on"] .discover-sheet .yl-living-companion .yl-logo-v3-rig{
+  display:block;
+  width:110px;
+  height:110px;
+  -webkit-mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
+  mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
+  border:0;
+  pointer-events:none;
+}

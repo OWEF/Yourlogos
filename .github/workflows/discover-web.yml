@@ -45,6 +45,8 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check app.js
+          node --check encounter-choreography.js
+          node --check lillogo-rig-controller.js
           node --check sw.js
           node --check liquid-navbar.js
           node --check liquid-slider.js
@@ -61,3 +63,23 @@ jobs:
         run: node --test tests/liquid-navbar.test.mjs tests/liquid-slider.test.mjs
       - name: Run Discover regression
         run: node --test tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs tests/discover-drag.test.mjs tests/philosopher-gallery.test.mjs
+      - name: Verify CZ-80 real Encounter event choreography (no model)
+        run: node --test tests/encounter-events.test.mjs tests/cz80-live-choreography.test.mjs
+      - name: Verify CZ-81 original-art rig controller without model use
+        run: node --test tests/cz81-rig-live.test.mjs
+      - name: Verify offline Encounter and LilLogo imports with real cached worker
+        run: node --test tests/cz80-offline-cache.test.mjs
+      - name: Verify real mobile Encounter + LilLogo choreography (headless Chromium)
+        env:
+          CZ81_ARTIFACT_DIR: ${{ runner.temp }}/cz81-real-app-review
+        run: node scripts/cz80-cz81-preview-smoke.mjs
+      - name: Upload review-only mobile screenshot
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz80-cz81-live-mobile-review
+          path: |
+            ${{ runner.temp }}/cz81-real-app-review/*.png
+            little-logo-hd-v2.jpg
+          if-no-files-found: warn
+          retention-days: 5

@@ -1,6 +1,9 @@
 // LilLogo's quiet autonomous presence. No network calls, canvases or frame polling.
 // Rendered character is replaced by the existing app; this controller follows
 // each new instance and never modifies persisted philosophical choices.
+// The layered review has its own single observer and state controller.
+// Do not schedule the legacy whole-portrait ambient loops in that mode.
+const layeredReview=typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("cz81")==="preview";
 const moods=["idle","curious","reflective","thinking","surprised","delighted","encourage"];
 const spontaneous=["curious","idle","reflective","idle","thinking","idle","curious"];
 let pet=null,clock=0,revert=0,lastTick=0,tick=0;
@@ -50,6 +53,7 @@ function attach(){
  schedule();
 }
 function init(){
+ if(layeredReview)return;
  const app=document.getElementById("app");
  if(!app)return;
  const observer=new MutationObserver(attach);
