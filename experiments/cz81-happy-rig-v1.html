@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CZ-81 Happy Facial Rig v1 — feasibility prototype</title>
+<style>
+  :root {
+    --bg: #14100c;
+    --card: #1f1913;
+    --ink: #f3e8d5;
+    --muted: #b9a68c;
+    --accent: #e8b06a;
+    --line: #3a2f24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 16px;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 18px; margin: 4px 0 2px; }
+  p.sub { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+  figure { margin: 0; }
+  figcaption { font-size: 12px; color: var(--muted); margin-top: 6px; text-align: center; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+  }
+  svg.rig, img.ref { display: block; border-radius: 50%; }
+  .controls {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin: 16px 0 8px;
+  }
+  button {
+    flex: 1 1 120px;
+    min-height: 48px;
+    font: 600 16px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    background: #2b221a;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  button:active { background: #3a2d21; }
+  button.primary { background: var(--accent); color: #241a0e; border-color: var(--accent); }
+  #status {
+    font-size: 13px; color: var(--muted); margin: 6px 2px 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .note {
+    border-left: 3px solid var(--accent);
+    background: var(--card);
+    padding: 10px 12px;
+    font-size: 13px; color: var(--muted);
+    border-radius: 0 10px 10px 0;
+  }
+  .note strong { color: var(--ink); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Happy facial rig — feasibility v1</h1>
+  <p class="sub">CZ-81 Phase A/B · articulated SVG feature rig over the unchanged approved portrait · head fully static</p>
+
+  <div class="row">
+    <figure class="card">
+      <!-- ============ ACTIVE RIG (large preview) ============ -->
+      <svg id="rigSvg" class="rig" data-rig width="320" height="320" viewBox="0 0 194 194" role="img"
+           aria-label="LilLogo portrait with animated happy expression rig">
+        <defs>
+          <clipPath id="faceClip"><circle cx="97" cy="97" r="94"/></clipPath>
+          <filter id="patchBlur" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="4"/>
+          </filter>
+          <filter id="softBlur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="2"/>
+          </filter>
+          <filter id="lidBlur" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="1.2"/>
+          </filter>
+        </defs>
+
+        <!-- approved local source portrait, unchanged, clipped round -->
+        <g clip-path="url(#faceClip)">
+          <image href="../little-logo-hd-v2.jpg" x="0" y="0" width="194" height="194" preserveAspectRatio="xMidYMid slice"/>
+        </g>
+        <circle cx="97" cy="97" r="94" fill="none" stroke="#f6ecdc" stroke-width="2.4"/>
+
+        <!-- permanent soft cover over the original faint neutral mouth mark -->
+        <ellipse class="mouthPatch" cx="136" cy="100" rx="13" ry="7.5" fill="#f3e2c6" filter="url(#patchBlur)" opacity="0.85"/>
+
+        <g class="faceRig" id="faceRig">
+          <!-- ===== cheekRig: blush + soft creases, intensity ramps with t ===== -->
+          <g class="cheekRig" id="cheekRig">
+            <ellipse class="blushL" cx="120" cy="103" rx="8.5" ry="3.8" fill="#eda08c" filter="url(#softBlur)" opacity="0"/>
+            <ellipse class="blushR" cx="157" cy="97" rx="6.5" ry="3.2" fill="#eda08c" filter="url(#softBlur)" opacity="0"/>
+            <path class="creaseL" d="M 115 98 Q 123 100.5 131 99.5" fill="none" stroke="#dcae84"
+                  stroke-width="1" stroke-linecap="round" opacity="0"/>
+            <path class="creaseR" d="M 149 93 Q 155 95.5 161 94.5" fill="none" stroke="#dcae84"
+                  stroke-width="1" stroke-linecap="round" opacity="0"/>
+          </g>
+
+          <!-- ===== mouthRig: neutral mark fades out, open smile curve grows in ===== -->
+          <g class="mouthRig" id="mouthRig">
+            <g class="neutralMark" stroke="#b98f68" stroke-width="0.9" stroke-linecap="round" opacity="1">
+              <path d="M 133.6 98.6 L 138.4 101.4" fill="none"/>
+              <path d="M 138.4 98.6 L 133.6 101.4" fill="none"/>
+            </g>
+            <path class="mouthFill" d="" fill="#5a3226" opacity="0"/>
+            <path class="tongue" d="" fill="#e08d7c" opacity="0"/>
+            <path class="lipStroke" d="" fill="none" stroke="#4a2b20" stroke-width="1" stroke-linecap="round" opacity="0"/>
+          </g>
+
+          <!-- ===== eyelidRig: skin-tone lids descend as soft happy arcs onto the glossy eyes ===== -->
+          <g class="eyelidRig" id="eyelidRig">
+            <path class="lidFillL" d="" fill="#f3e2c6" filter="url(#lidBlur)" opacity="0"/>
+            <path class="lidFillR" d="" fill="#f3e2c6" filter="url(#lidBlur)" opacity="0"/>
+            <path class="lidArcL" d="" fill="none" stroke="#a97c52" stroke-width="1.1" stroke-linecap="round" opacity="0"/>
+            <path class="lidArcR" d="" fill="none" stroke="#a97c52" stroke-width="1.1" stroke-linecap="round" opacity="0"/>
+          </g>
+
+          <!-- ===== browRig: patches cover the original faint dashes as brows lift a few px ===== -->
+          <g class="browRig" id="browRig">
+            <ellipse class="browPatchL" cx="126" cy="69" rx="7.5" ry="3.2" fill="#f6e8d0" filter="url(#softBlur)" opacity="0"/>
+            <ellipse class="browPatchR" cx="159" cy="64" rx="6.5" ry="2.8" fill="#f6e8d0" filter="url(#softBlur)" opacity="0"/>
+            <path class="browL" d="" fill="none" stroke="#c9a075" stroke-width="1.3" stroke-linecap="round" opacity="0"/>
+            <path class="browR" d="" fill="none" stroke="#c9a075" stroke-width="1.3" stroke-linecap="round" opacity="0"/>
+          </g>
+        </g>
+      </svg>
+      <figcaption>Active rig (preview)</figcaption>
+    </figure>
+
+    <figure class="card">
+      <img class="ref" src="../little-logo-hd-v2.jpg" width="320" height="320" alt="Original approved LilLogo portrait, unchanged">
+      <figcaption>Original portrait (reference)</figcaption>
+    </figure>
+  </div>
+
+  <div class="row" style="margin-top:14px">
+    <figure class="card">
+      <div id="smallSlot"></div>
+      <figcaption>Rig at real 194 px face size</figcaption>
+    </figure>
+    <figure class="card">
+      <img class="ref" src="../little-logo-hd-v2.jpg" width="194" height="194" alt="Original portrait at 194 px">
+      <figcaption>Original at 194 px</figcaption>
+    </figure>
+  </div>
+
+  <div class="controls">
+    <button id="btnNeutral" type="button">Neutral</button>
+    <button id="btnHappy" type="button" class="primary">Happy</button>
+    <button id="btnReplay" type="button">Replay</button>
+  </div>
+  <p id="status" role="status">State: neutral</p>
+
+  <div class="note">
+    <strong>Prototype notes.</strong> The JPEG portrait is flat, so the original fixed neutral
+    mouth mark (and, while lifted, the faint brow dashes) are softly masked and the happy
+    mouth, lids, brows and cheeks are redrawn as interpolated SVG feature curves — no pixels
+    of the portrait are moved and the head never transforms. If feature masks ever read as
+    pasted-on stickers at this fidelity, that is a known limitation of the flattened source,
+    not a solved deformation. <strong>Human art review and real iPhone/Safari validation
+    PENDING.</strong>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduceMotion = false;
+  try {
+    reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch (e) { /* matchMedia unavailable: animate normally */ }
+
+  // ---- render targets: the main svg plus the cloned 194px instance ----
+  var rigs = [document.getElementById("rigSvg")];
+  (function cloneSmall() {
+    var src = rigs[0];
+    var slot = document.getElementById("smallSlot");
+    if (!src || !slot) return;
+    var clone = src.cloneNode(true);
+    clone.removeAttribute("id");
+    clone.setAttribute("width", "194");
+    clone.setAttribute("height", "194");
+    clone.setAttribute("aria-hidden", "true");
+    // remap ids inside the clone so url(#...) refs stay valid and unique
+    var idEls = clone.querySelectorAll("[id]");
+    var map = {};
+    for (var i = 0; i < idEls.length; i++) {
+      var oldId = idEls[i].getAttribute("id");
+      idEls[i].setAttribute("id", oldId + "-sm");
+      map[oldId] = oldId + "-sm";
+    }
+    var els = clone.querySelectorAll("*");
+    for (var k = 0; k < els.length; k++) {
+      for (var a = 0; a < 2; a++) {
+        var attr = a === 0 ? "clip-path" : "filter";
+        var v = els[k].getAttribute(attr);
+        if (v) {
+          var m2 = v.match(/url\(#([^)]+)\)/);
+          if (m2 && map[m2[1]]) els[k].setAttribute(attr, "url(#" + map[m2[1]] + ")");
+        }
+      }
+    }
+    slot.appendChild(clone);
+    rigs.push(clone);
+  })();
+
+  function $(sel) {
+    var out = [];
+    for (var i = 0; i < rigs.length; i++) {
+      var el = rigs[i].querySelector(sel);
+      if (el) out.push(el);
+    }
+    return out;
+  }
+  function setAttr(sel, name, value) {
+    var els = $(sel);
+    for (var i = 0; i < els.length; i++) els[i].setAttribute(name, value);
+  }
+  function setD(sel, d) { setAttr(sel, "d", d); }
+  function setOp(sel, o) { setAttr(sel, "opacity", o.toFixed(3)); }
+  function n(v) { return v.toFixed(2); }
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  // ---- the rig: t = 0 neutral .. 1 happy. Pure functions of t. ----
+  function render(t) {
+    // mouth: corners lift with cheek push, center opens
+    var cy = 105 - 2.5 * t;            // corner y
+    var topY = 105 + 2 * t;            // upper lip center
+    var botY = 105 + 9.5 * t;          // lower lip center
+    var mOp = clamp01(t * 1.5);
+    setD(".mouthFill",
+      "M 127 " + n(cy) +
+      " Q 131 " + n(topY) + " 135 " + n(topY) +
+      " Q 139 " + n(topY) + " 143 " + n(cy) +
+      " Q 135 " + n(botY) + " 127 " + n(cy) + " Z");
+    setD(".tongue",
+      "M 131 " + n(106 + 4 * t) +
+      " Q 135 " + n(108 + 6.5 * t) + " 139 " + n(106 + 4 * t) +
+      " Q 135 " + n(106.8 + 4 * t) + " 131 " + n(106 + 4 * t) + " Z");
+    setD(".lipStroke",
+      "M 127 " + n(cy) + " Q 135 " + n(botY) + " 143 " + n(cy));
+    setOp(".mouthFill", mOp);
+    setOp(".tongue", clamp01((t - 0.35) * 2));
+    setOp(".lipStroke", t);
+    setOp(".neutralMark", clamp01(1 - t * 2));
+
+    // cheeks: blush + creases deepen
+    setOp(".blushL", 0.42 * t);
+    setOp(".blushR", 0.42 * t);
+    setD(".creaseL", "M 115 98 Q 123 " + n(100.5 + 1.6 * t) + " 131 " + n(99.5 + 0.6 * t));
+    setD(".creaseR", "M 149 93 Q 155 " + n(95.5 + 1.4 * t) + " 161 " + n(94.5 + 0.5 * t));
+    setOp(".creaseL", 0.55 * t);
+    setOp(".creaseR", 0.55 * t);
+
+    // eyelids: happy arcs descend onto the eyes; skin fill above each arc
+    var dip = 11 * t;
+    setD(".lidArcL", "M 113 76 Q 123 " + n(74 + dip) + " 134 76");
+    setD(".lidArcR", "M 152 71 Q 161 " + n(69 + dip) + " 170 71");
+    setD(".lidFillL", "M 113 76 Q 123 " + n(74 + dip) + " 134 76 L 134 58 L 113 58 Z");
+    setD(".lidFillR", "M 152 71 Q 161 " + n(69 + dip) + " 170 71 L 170 53 L 152 53 Z");
+    var lidOp = clamp01(t * 1.4);
+    setOp(".lidFillL", lidOp);
+    setOp(".lidFillR", lidOp);
+    setOp(".lidArcL", clamp01(t * 1.2));
+    setOp(".lidArcR", clamp01(t * 1.2));
+
+    // brows: anchored where the original dashes sit, lifted a few px when happy
+    var lift = 3 * t;
+    setD(".browL", "M 121.5 " + n(68.8 - lift) + " Q 125.5 " + n(66.8 - lift) + " 129.5 " + n(69 - lift));
+    setD(".browR", "M 154.5 " + n(64.2 - lift) + " Q 158.8 " + n(62 - lift) + " 163 " + n(64.5 - lift));
+    var bOp = clamp01(t * 1.3);
+    setOp(".browL", bOp);
+    setOp(".browR", bOp);
+    setOp(".browPatchL", 0.85 * t);
+    setOp(".browPatchR", 0.85 * t);
+  }
+
+  // ---- tiny animation core: eased interpolation of the single rig parameter ----
+  var t = 0, from = 0, to = 0, startMs = 0, durMs = 0, rafId = 0, chainToken = 0;
+
+  function easeInOutCubic(p) {
+    return p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  }
+  function status(txt) {
+    var el = document.getElementById("status");
+    if (el) el.textContent = "State: " + txt;
+  }
+  function frame(now) {
+    var p = durMs > 0 ? clamp01((now - startMs) / durMs) : 1;
+    t = from + (to - from) * easeInOutCubic(p);
+    render(t);
+    if (p < 1) {
+      rafId = requestAnimationFrame(frame);
+    } else {
+      t = to;
+      render(t);
+      rafId = 0;
+      status(to >= 1 ? "happy" : "neutral");
+    }
+  }
+  function go(target, ms, token) {
+    if (token !== undefined && token !== chainToken) return; // stale chained call
+    from = t; to = target; durMs = ms; startMs = 0;
+    if (ms <= 0) {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      t = target; render(t);
+      status(target >= 1 ? "happy" : "neutral");
+      return;
+    }
+    status(target >= 1 ? "smiling…" : "relaxing…");
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(function kick(now) { startMs = now; frame(now); });
+  }
+  function neutral() { chainToken++; go(0, reduceMotion ? 0 : 420); }
+  function happy() { chainToken++; go(1, reduceMotion ? 0 : 460); }
+  function replay() {
+    chainToken++;
+    var my = chainToken;
+    if (reduceMotion) {
+      // instant but distinct states: pop to happy, hold briefly, return
+      go(1, 0);
+      setTimeout(function () { if (my === chainToken) go(0, 0); }, 900);
+      return;
+    }
+    go(1, 460, my);
+    setTimeout(function () { if (my === chainToken) go(0, 520, my); }, 460 + 700);
+  }
+
+  document.getElementById("btnNeutral").addEventListener("click", neutral);
+  document.getElementById("btnHappy").addEventListener("click", happy);
+  document.getElementById("btnReplay").addEventListener("click", replay);
+
+  render(0);
+})();
+</script>
+</body>
+</html>
