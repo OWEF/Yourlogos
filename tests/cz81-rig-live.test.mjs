@@ -104,6 +104,8 @@ test("integration is behind its own flag, no AI, persistence, or remote asset de
  assert.match(index,/href="\/lillogo-rig-review\.css\?cz81=1"/);
  const controller=readFileSync(new URL("../lillogo-rig-controller.js",import.meta.url),"utf8");
  assert.doesNotMatch(controller+css,/fetch\(|localStorage|sessionStorage|indexedDB|XMLHttpRequest|WebSocket|\/api\//);
+ assert.match(controller,/view\.addEventListener\("load",\(\)=>apply\(view\),\{once:true\}\)/);
+ assert.doesNotMatch(controller,/view\.addEventListener\("load"[^\n]+signal:abort\.signal/);
  assert.doesNotMatch(css,/html\s*\{|body\s*\{/);
 });
 
