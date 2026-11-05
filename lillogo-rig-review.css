@@ -25,6 +25,10 @@ html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-v3-rig {
   object-fit:contain;
   pointer-events:none;
   border:0;
+  /* Soften opaque corners of the original JPG when it sits on the sheet.
+     The character shape and layer geometry are not replaced. */
+  -webkit-mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
+  mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
 }
 html[data-cz81-preview="on"] .yl-logo-pet-layered :is(.yl-logo-pet-pose,.yl-logo-pet-hero) {
   display:none!important;
@@ -48,14 +52,16 @@ html[data-cz81-preview="on"] .discover-sheet .yl-living-companion{
   justify-content:center;
   align-items:center;
   margin:0 auto 8px;
-  width:100px;
-  height:94px;
+  width:124px;
+  height:112px;
   pointer-events:none;
 }
 html[data-cz81-preview="on"] .discover-sheet .yl-living-companion .yl-logo-v3-rig{
   display:block;
-  width:94px;
-  height:94px;
+  width:110px;
+  height:110px;
+  -webkit-mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
+  mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
   border:0;
   pointer-events:none;
 }
