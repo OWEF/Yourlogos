@@ -1,0 +1,46 @@
+/* CZ-80 — founder review only: enabled via ?cz80=preview.
+   No style affects the normal production Encounter when the flag is absent. */
+html[data-cz80-preview="on"] .discover-sheet :is(.yl-logo-choice,.yl-living-choice){
+  touch-action:manipulation;
+  transition:transform .12s ease,background-color .15s ease,box-shadow .16s ease,border-color .16s ease;
+}
+html[data-cz80-preview="on"] .discover-sheet :is(.yl-logo-choice,.yl-living-choice):is(:active,[aria-pressed="true"]){
+  transform:scale(.986);
+  border-color:rgba(233,194,138,.7);
+  background-color:rgba(231,188,117,.1);
+}
+html[data-cz80-preview="on"] .discover-sheet :is(.yl-logo-choice,.yl-living-choice):focus-visible{
+  outline:2px solid #e6c08a;
+  outline-offset:3px;
+}
+html[data-cz80-preview="on"] .discover-sheet[data-cz80-beat="choice"] :is(.yl-logo-interlude,.yl-living){
+  animation:cz80-soft-appear .24s ease both;
+}
+html[data-cz80-preview="on"] .discover-sheet[data-cz80-beat="insight"] :is(.yl-logo-final-insight,.yl-living-title,.yl-living-sub){
+  animation:cz80-soft-appear .32s ease both;
+}
+html[data-cz80-preview="on"] .discover-sheet[data-cz80-beat="finish"] :is(.yl-logo-finale,.yl-living-recap){
+  animation:cz80-quiet-finish .55s ease-out both;
+}
+@keyframes cz80-soft-appear{
+  from{opacity:.65;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes cz80-quiet-finish{
+  0%{filter:brightness(1);transform:translateY(3px)}
+  50%{filter:brightness(1.06)}
+  100%{filter:brightness(1);transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-cz80-preview="on"] .discover-sheet *,
+  html[data-cz80-preview="on"] .discover-sheet *::before,
+  html[data-cz80-preview="on"] .discover-sheet *::after{
+    animation:none!important;
+    transition:none!important;
+    scroll-behavior:auto!important;
+  }
+  html[data-cz80-preview="on"] .discover-sheet :is(.yl-logo-choice,.yl-living-choice):active{
+    transform:none;
+    border-color:#e6c08a;
+  }
+}
