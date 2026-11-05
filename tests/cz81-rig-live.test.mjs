@@ -33,17 +33,24 @@ test("original art and independent face components remain embedded, not regenera
   assert.match(svg,/CZ-81 B1c PROTOTYPE/);
 });
 
-test("AI-only portrait isolation leaves the local preview and original asset intact",()=>{
+test("AI-only silhouette matte preserves the original character and offline local rendering",()=>{
   const aiSelector='html[data-cz81-preview="on"] .yl-ai-experiment .yl-logo-pet-layered .yl-logo-v3-rig';
   const aiStart=css.indexOf(aiSelector);
-  assert.ok(aiStart>=0,"AI mask must be behind the explicit preview flag");
+  assert.ok(aiStart>=0,"AI matte must be behind the explicit preview flag");
   const aiRule=css.slice(aiStart,css.indexOf("}",aiStart));
-  assert.match(aiRule,/-webkit-mask-image:radial-gradient/);
-  assert.match(aiRule,/mask-image:radial-gradient/);
-  assert.match(aiRule,/mix-blend-mode:lighten/);
-  assert.equal((css.match(/mix-blend-mode:lighten/g)||[]).length,1,"do not bleed changes into local view");
+  assert.match(aiRule,/-webkit-mask-image:url\("\/assets\/lillogo-v3-ai-matte\.svg"\)/);
+  assert.match(aiRule,/mask-image:url\("\/assets\/lillogo-v3-ai-matte\.svg"\)/);
+  assert.match(aiRule,/-webkit-mask-size:100% 100%/);
+  assert.match(aiRule,/mask-size:100% 100%/);
+  assert.match(aiRule,/mix-blend-mode:normal/);
   assert.match(css,/\.yl-living-companion \.yl-logo-v3-rig/);
-  assert.doesNotMatch(aiRule,/url\(|fetch\(|filter:brightness/);
+  const matte=readFileSync(new URL("../assets/lillogo-v3-ai-matte.svg",import.meta.url),"utf8");
+  assert.match(matte,/viewBox="0 0 400 400"/);
+  assert.match(matte,/fill-rule="evenodd"/);
+  assert.match(matte,/feGaussianBlur stdDeviation="1\.7"/);
+  assert.doesNotMatch(matte,/data:image\/|https?:\/\/|<script|foreignObject/);
+  const sw=readFileSync(new URL("../sw.js",import.meta.url),"utf8");
+  assert.match(sw,/"\/assets\/lillogo-v3-ai-matte\.svg"/);
 });
 
 test("unverified finish is ignored, saved finish moves to a restrained state",()=>{
