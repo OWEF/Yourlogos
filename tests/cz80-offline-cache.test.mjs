@@ -90,8 +90,11 @@ test("offline navigation still falls back to cached home entrypoint",async()=>{
 test("the genuine layered SVG is available offline without a network fetch",async()=>{
  const worker=runRealServiceWorker();
  await worker.install();
- const response=await worker.request("/assets/lillogo-v3-layered-hybrid.svg","/assets/lillogo-v3-ai-matte.svg");
+ const response=await worker.request("/assets/lillogo-v3-layered-hybrid.svg");
  assert.equal(response.source,"precache");
- assert.equal(response.url,new URL("/assets/lillogo-v3-layered-hybrid.svg","/assets/lillogo-v3-ai-matte.svg",origin).href);
- assert.equal(worker.fetchCount,0,"art asset should be cached-first offline");
+ assert.equal(response.url,new URL("/assets/lillogo-v3-layered-hybrid.svg",origin).href);
+ const matte=await worker.request("/assets/lillogo-v3-ai-matte.svg");
+ assert.equal(matte.source,"precache");
+ assert.equal(matte.url,new URL("/assets/lillogo-v3-ai-matte.svg",origin).href);
+ assert.equal(worker.fetchCount,0,"art and silhouette matte must both be cached-first offline");
 });
