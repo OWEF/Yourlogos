@@ -33,8 +33,9 @@ html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-v3-rig {
 /* CZ-81 AI portrait isolation pass (review flag only).
    The original JPEG has a near-black square background. In the larger AI
    presentation that square is more apparent than in the compact local flow.
-   Blend only the dark source pixels into the AI panel and feather the outer
-   corners; the live animated SVG, face, hair and original bytes are unchanged.
+   A small, source-derived alpha matte removes the surrounding photograph
+   backdrop without recoloring the character; the animated SVG and its source
+   portrait bytes stay unchanged.
    Keep the compact local rendering untouched, since it is already accepted. */
 html[data-cz81-preview="on"] .yl-ai-experiment .yl-logo-pet-layered .yl-logo-v3-rig {
   /* Preserve all RGB/art layers; remove only the photographed backdrop
