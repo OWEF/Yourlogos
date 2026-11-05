@@ -22,6 +22,10 @@ html[data-cz80-preview="on"] .discover-sheet[data-cz80-beat="insight"] :is(.yl-l
 html[data-cz80-preview="on"] .discover-sheet[data-cz80-beat="finish"] :is(.yl-logo-finale,.yl-living-recap){
   animation:cz80-quiet-finish .55s ease-out both;
 }
+/* AI save returns to My World: make its actual destination feel complete. */
+html[data-cz80-preview="on"] .stage[data-cz80-beat="finish"]{
+  animation:cz80-soft-appear .42s ease-out both;
+}
 @keyframes cz80-soft-appear{
   from{opacity:.65;transform:translateY(4px)}
   to{opacity:1;transform:translateY(0)}
