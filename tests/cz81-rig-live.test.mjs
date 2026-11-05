@@ -48,7 +48,7 @@ test("AI-only silhouette matte preserves the original character and offline loca
   assert.match(matte,/viewBox="0 0 400 400"/);
   assert.match(matte,/fill-rule="evenodd"/);
   assert.match(matte,/feGaussianBlur stdDeviation="1\.7"/);
-  assert.doesNotMatch(matte,/data:image\/|https?:\/\/|<script|foreignObject/);
+  assert.doesNotMatch(matte,/data:image\/|<image\b|<script|foreignObject|xlink:href=/);
   const sw=readFileSync(new URL("../sw.js",import.meta.url),"utf8");
   assert.match(sw,/"\/assets\/lillogo-v3-ai-matte\.svg"/);
 });
