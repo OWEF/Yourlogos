@@ -16,6 +16,8 @@ test("preview flag is off on Node and normal app loads",()=>{
   assert.match(js,/new URLSearchParams\(window\.location\.search\)\.get\("cz80"\)==="preview"/);
   assert.match(html,/href="\/encounter-choreography\.css\?cz80=1"/);
   assert.match(css,/html\[data-cz80-preview="on"\]/);
+  assert.match(css,/html\[data-cz80-preview="on"\] \.discover-sheet\{\s*background:linear-gradient/);
+  assert.match(css,/-webkit-backdrop-filter:blur\(16px\)/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
   assert.doesNotMatch(css,/\bbody\s*\{|\bhtml\s*\{/);
 });
