@@ -1,5 +1,13 @@
 /* CZ-80 — founder review only: enabled via ?cz80=preview.
    No style affects the normal production Encounter when the flag is absent. */
+/* Mobile legibility: suppress the background quotation bleeding through the
+   bottom sheet. This is scoped to the explicit preview flag only. */
+html[data-cz80-preview="on"] .discover-sheet{
+  background:linear-gradient(180deg,rgba(21,23,30,.985),rgba(17,19,26,.998));
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+}
+
 html[data-cz80-preview="on"] .discover-sheet :is(.yl-logo-choice,.yl-living-choice){
   touch-action:manipulation;
   transition:transform .12s ease,background-color .15s ease,box-shadow .16s ease,border-color .16s ease;
