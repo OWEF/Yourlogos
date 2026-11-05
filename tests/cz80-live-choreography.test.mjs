@@ -63,6 +63,24 @@ test("enabled presenter emits ephemeral visual cues but never saves data",()=>{
   assert.equal("cz80Preview" in root.documentElement.dataset,false);
 });
 
+test("only a persisted finish can animate My World after the AI sheet closes",()=>{
+  const bus=createEncounterEventBus();
+  const stage={dataset:{}};
+  const root={
+    documentElement:{dataset:{}},
+    querySelector(q){return q===".stage"?stage:null;}
+  };
+  const c=createEncounterChoreography(bus,{enabled:true,root});
+  bus.publish("encounter.finish",{saved:false});
+  assert.deepEqual(stage.dataset,{});
+  bus.publish("insight.ready",{saved:false});
+  assert.deepEqual(stage.dataset,{});
+  bus.publish("encounter.finish",{saved:true});
+  assert.equal(stage.dataset.cz80Beat,"finish");
+  c.dispose();
+  assert.match(css,/\.stage\[data-cz80-beat="finish"\]/);
+});
+
 test("render-before-feedback ordering follows real authority for both local and AI",()=>{
   const local=source.indexOf("const liveEvents=livingTransitionEvents(current,next,action)");
   const saved=source.indexOf("if(next.phase===\"done\")data.livingThreads.history=archiveLiving",local);
