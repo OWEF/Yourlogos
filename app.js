@@ -4,6 +4,8 @@ import { availableThoughts, quoteAt, followingThought } from "./encounter-queue.
 import { SCHOOL_SCENES } from "./school-scenes.js";
 import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, worldFingerprintEvidence } from "./encounter-v31.js";
 import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } from "./encounter-feedback.js";
+import { createEncounterEventBus } from "./encounter-events.js";
+import { CZ80_PREVIEW_ENABLED, livingTransitionEvents, createEncounterChoreography } from "./encounter-choreography.js";
 import { thoughtThreadHtml, thoughtThreadDestination, getThoughtThread } from "./thought-threads.js";
 import { exploreFor } from "./explore-catalogue.js";
 import { personalizedExplore } from "./personalization.js";
@@ -128,6 +130,10 @@ Beauty:["Recall something that stopped you in your tracks.","Is beauty discovere
 Time:["Notice one moment without trying to preserve it.","Does attending to the present evade the past and future?"]
 };
 const KEY="yourlogos_web_v1";
+// Semantic notifications never own or mutate user records.
+const encounterEvents=createEncounterEventBus();
+createEncounterChoreography(encounterEvents,{enabled:CZ80_PREVIEW_ENABLED,root:document});
+const emitEncounter=(type,detail={})=>encounterEvents.publish(type,detail);
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
 let view="today",detailId=null,selectedTheme="All",mode=null,toastTimeout=null;
@@ -676,6 +682,17 @@ document.addEventListener("cancel",e=>{
 document.addEventListener("keydown",e=>{
  if(e.key==="Escape"&&settingsOpen){settingsOpen=false;render();document.querySelector('[data-action="settings-open"]')?.focus()}
 });
+// Immediate feedback only for a currently valid, visible choice.
+document.addEventListener("pointerdown",e=>{
+  if(!CZ80_PREVIEW_ENABLED||!discoverOpen||!(e.target instanceof Element))return;
+  const target=e.target.closest('[data-ai-choice],[data-ai="own-answer"],[data-living^="focus:"]');
+  if(!target||target.disabled||!target.closest(".discover-sheet"))return;
+  const id=visibleQuoteId();if(id===null)return;
+  const local=target.hasAttribute("data-living");
+  if(local){if(data.livingThreads.sessions[String(id)]?.phase!=="focus")return;}
+  else if(!aiDiscoverMode||!aiConversation?.consent||aiConversation.loading||aiConversation.complete)return;
+  emitEncounter("lens.press",{quoteId:id,source:local?"local":"ai"});
+},{passive:true});
 document.addEventListener("click",e=>{
  if(settingsOpen&&e.target instanceof Element&&e.target.matches("body > .settings-layer")){
   settingsOpen=false;render();document.querySelector('[data-action="settings-open"]')?.focus()
@@ -783,12 +800,13 @@ document.addEventListener("click",async e=>{
       "Visitor chose: "+m.text);
     const context=last?.followUp?"Question: "+last.followUp+" | My response: "+choice:choice;
     const current=aiConversation;
+    let insightSucceeded=false;
     current.petMood=["curious","reflective","surprised"][index]||"curious";
     current.interlude=true;current.interludeChoice=Math.max(0,index);current.interludePhase="reaction";
     current.loading=true;current.error="";
     const startOfPause=performance.now();
     const pauseMs=window.matchMedia("(prefers-reduced-motion: reduce)").matches?150:1350;
-    render();lilLogoFX("answer");haptic("impact");
+    render();emitEncounter("lens.choose",{quoteId:id,source:"ai",lensIndex:custom?null:index,saved:false});lilLogoFX("answer");haptic("impact");
     const thinkingTimer=window.setTimeout(()=>{
       if(aiConversation===current&&discoverOpen&&aiDiscoverMode&&current.interlude&&current.loading){
         current.interludePhase="thinking";render();
@@ -818,6 +836,7 @@ document.addEventListener("click",async e=>{
         choices:finishing?[]:next.choices.map(x=>cleanText(x,82)),complete:finishing});
       current.complete=finishing;
       current.messages=current.messages.slice(-12);
+      insightSucceeded=true;
       if(finishing){
         data.discoverJourneyEvents=[...data.discoverJourneyEvents,{
           type:"complete",quoteId:id,date:today(),
@@ -833,8 +852,10 @@ document.addEventListener("click",async e=>{
         if(rest)await new Promise(resolve=>setTimeout(resolve,rest));
         current.interlude=false;current.loading=false;
         current.petMood=current.complete?"delighted":"encourage";
-        render();lilLogoFX(current.complete?"complete":"round");
-        if(!current.complete)haptic("selection");
+        render();
+        emitEncounter(insightSucceeded?"insight.ready":"insight.error",{quoteId:id,source:"ai",complete:current.complete===true,saved:false});
+        if(insightSucceeded)lilLogoFX(current.complete?"complete":"round");
+        if(!current.complete&&insightSucceeded)haptic("selection");
       }
     }
     return;
@@ -877,12 +898,17 @@ document.addEventListener("click",async e=>{
     if(action==="save"){
       const summary=aiSummary(aiConversation,q,today());
       if(!summary){toast("Explore a little more before saving.");return}
+      // The existing consented save remains authoritative and idempotent.
+      if(aiConversation.saved){
+        if(aiConversation.complete){discoverOpen=false;aiDiscoverMode=false;aiConversation=null;view="profile";universePane="home";}
+        render();return;
+      }
       data.aiDiscoverThreads=[...data.aiDiscoverThreads.filter(x=>x.id!==summary.id),summary].slice(-30);
       aiConversation.saved=true;
       data.discoverJourneyEvents=[...data.discoverJourneyEvents,{type:"save",quoteId:id,date:today()}].slice(-150);
       persist();toast("Little Logo kept this in My World");
       if(aiConversation.complete){discoverOpen=false;aiDiscoverMode=false;aiConversation=null;view="profile";universePane="home";}
-      render();lilLogoFX("world");haptic("success");return;
+      render();emitEncounter("encounter.finish",{quoteId:id,source:"ai",saved:true});lilLogoFX("world");haptic("success");return;
     }
     if(action==="send"){
       if(aiConversation.loading)return;
@@ -892,6 +918,7 @@ document.addEventListener("click",async e=>{
         "Visitor chose: "+m.text);
       const memory=aiMemoryChoices(sharedWorldMemory());
       const currentConversation=aiConversation;
+      let openingSucceeded=false;
       currentConversation.loading=true;currentConversation.petMood="thinking";currentConversation.error="";render();
       try{
         const token=await getDiscoverAccessToken().catch(()=>null);
@@ -908,9 +935,10 @@ document.addEventListener("click",async e=>{
         currentConversation.messages.push({role:"assistant",text:cleanText(next.reply,850),followUp:cleanText(next.followUp,300),choices:next.choices.map(x=>cleanText(x,82))});
         currentConversation.messages=currentConversation.messages.slice(-12);
         currentConversation.draft="";
+        openingSucceeded=true;
       }catch(err){
         if(aiConversation===currentConversation)currentConversation.error=String(err.message||"Little Logo is unavailable");
-      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen){currentConversation.petMood="curious";render();if(!currentConversation.error)lilLogoFX("round")}}
+      }finally{currentConversation.loading=false;if(aiConversation===currentConversation&&discoverOpen){currentConversation.petMood="curious";render();emitEncounter(openingSucceeded?"insight.ready":"insight.error",{quoteId:id,source:"ai",opening:true,saved:false});if(openingSucceeded)lilLogoFX("round")}}
       return;
     }
     return;
@@ -930,7 +958,7 @@ document.addEventListener("click",async e=>{
     if(action==="close"){discoverOpen=false;render();return;}
     if(action==="restart"){
       current=beginLiving(q,id,today(),null);
-      data.livingThreads.sessions[key]=current;persist();render();haptic("selection");return;
+      data.livingThreads.sessions[key]=current;persist();render();emitEncounter("encounter.resume",{quoteId:id,source:"local"});haptic("selection");return;
     }
     // The note is the user's own explicit text; it is never interpreted as a belief.
     if(["carry","save"].includes(action)){
@@ -939,9 +967,12 @@ document.addEventListener("click",async e=>{
     }
     const next=transitionLiving(current,action,{quote:q,profile:data.personalization,history:data.livingThreads.history,memory:sharedWorldMemory()});
     if(!next)return;
+    const liveEvents=livingTransitionEvents(current,next,action);
     data.livingThreads.sessions[key]=next;
     if(next.phase==="done")data.livingThreads.history=archiveLiving(data.livingThreads.history,next,q,data.personalization);
-    persist();haptic("selection");playEncounterTone("choose");render();return;
+    persist();haptic("selection");playEncounterTone("choose");render();
+    for(const type of liveEvents)emitEncounter(type,{quoteId:id,source:"local",phase:next.phase,saved:next.phase==="done"&&next.carried===true});
+    return;
   }
   const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
   switch(a){
@@ -1063,6 +1094,7 @@ document.addEventListener("click",async e=>{
       aiPrivateForCurrentSheet=false;aiDiscoverMode=false;aiConversation=null;
       discoverOpen=true;haptic("impact");playEncounterTone("open");
       if(aiDiscoverEnabled)activateDiscoverAI();else render();
+      emitEncounter("encounter.enter",{quoteId:visibleQuoteId(),source:aiDiscoverMode?"ai":"local"});
       document.querySelector(".sheet-close")?.focus();return;
     case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
     case"close-discover":discoverOpen=false;discoverStep=0;aiDiscoverMode=false;aiConversation=null;render();document.querySelector('[data-action="discover"]')?.focus();return;
@@ -1076,7 +1108,9 @@ document.addEventListener("click",async e=>{
       const next=beginLiving(q,id,today(),existing);
       if(!next)return;
       data.livingThreads.sessions[String(id)]=next;
-      persist();playEncounterTone("choose");haptic("selection");render();return;
+      persist();playEncounterTone("choose");haptic("selection");render();
+      if(existing)emitEncounter("encounter.resume",{quoteId:id,source:"local"});
+      return;
     }
     case"thread-reflect":return; // Retired fixed-step Discover, retained as an inert legacy hook.
     case"thread-back":render();return;
