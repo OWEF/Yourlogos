@@ -9,6 +9,7 @@ on:
       - 'tests/cz-ai-library.test.mjs'
       - 'tests/cz-ai-context-selection.test.mjs'
       - '.github/scripts/select-cz-ai-context.mjs'
+      - '.github/actions/cz-ai-select-context/action.yml'
       - '.github/workflows/cz-ai-skills-validation.yml'
 permissions:
   contents: read
@@ -36,14 +37,21 @@ jobs:
         run: |
           node .github/scripts/validate-cz-ai-library.mjs
           node --test tests/cz-ai-library.test.mjs tests/cz-ai-context-selection.test.mjs
-      - name: Demonstrate task-scoped retrieval without Kimi or provider secrets
+      - name: Exercise reusable zero-model selector action
+        id: context
+        uses: ./.github/actions/cz-ai-select-context
+        with:
+          role: frontend-ux
+          task: LilLogo animation and blink regression
+          project: YourLogos
+          max-tokens: '2000'
+      - name: Check selected context and budget
+        shell: bash
+        env:
+          CONTEXT_PATH: ${{ steps.context.outputs.context-path }}
+          SUMMARY_PATH: ${{ steps.context.outputs.summary-path }}
         run: |
-          node .github/scripts/select-cz-ai-context.mjs \
-            --role frontend-ux --task 'LilLogo animation and blink regression' \
-            --project YourLogos --max-tokens 2000 \
-            --out "$RUNNER_TEMP/cz-ai-packet.md" \
-            --summary "$RUNNER_TEMP/cz-ai-selection.json"
-          test -s "$RUNNER_TEMP/cz-ai-packet.md"
-          node -e 'const x=require("node:fs").readFileSync(process.argv[1],"utf8"); if(!x.includes("animation-lifecycle")||x.includes("# Backend/API changes"))process.exit(1)' "$RUNNER_TEMP/cz-ai-packet.md"
-          node -e 'const x=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")); if(x.estimatedTokens>2000||x.skillIds.length>2||x.lessonIds.length>3)process.exit(1)' "$RUNNER_TEMP/cz-ai-selection.json"
-          echo 'Context selection completed without Kimi/API key, and no library content uploaded.' >> "$GITHUB_STEP_SUMMARY"
+          test -s "$CONTEXT_PATH" && test -s "$SUMMARY_PATH"
+          node -e 'const x=require("node:fs").readFileSync(process.argv[1],"utf8"); if(!x.includes("animation-lifecycle")||x.includes("# Backend/API changes"))process.exit(1)' "$CONTEXT_PATH"
+          node -e 'const x=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")); if(x.estimatedTokens>2000||x.skillIds.length>2||x.lessonIds.length>3)process.exit(1)' "$SUMMARY_PATH"
+          echo 'Bounded reusable action tested with no Kimi, no API key and no model usage.' >> "$GITHUB_STEP_SUMMARY"
