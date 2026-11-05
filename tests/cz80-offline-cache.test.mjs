@@ -61,7 +61,7 @@ test("CZ-80 and CZ-81 imported assets, layered SVG, and styles are all precached
   await worker.install();
   for(const p of ["/index.html","/app.js","/encounter-events.js",
     "/encounter-choreography.js","/encounter-choreography.css",
-    "/lillogo-rig-controller.js","/lillogo-rig-review.css","/assets/lillogo-v3-layered-hybrid.svg"]){
+    "/lillogo-rig-controller.js","/lillogo-rig-review.css","/assets/lillogo-v3-layered-hybrid.svg","/assets/lillogo-v3-ai-matte.svg"]){
     assert.ok(worker.stored.has(new URL(p,origin).href),"missing offline dependency: "+p);
   }
 });
@@ -90,8 +90,8 @@ test("offline navigation still falls back to cached home entrypoint",async()=>{
 test("the genuine layered SVG is available offline without a network fetch",async()=>{
  const worker=runRealServiceWorker();
  await worker.install();
- const response=await worker.request("/assets/lillogo-v3-layered-hybrid.svg");
+ const response=await worker.request("/assets/lillogo-v3-layered-hybrid.svg","/assets/lillogo-v3-ai-matte.svg");
  assert.equal(response.source,"precache");
- assert.equal(response.url,new URL("/assets/lillogo-v3-layered-hybrid.svg",origin).href);
+ assert.equal(response.url,new URL("/assets/lillogo-v3-layered-hybrid.svg","/assets/lillogo-v3-ai-matte.svg",origin).href);
  assert.equal(worker.fetchCount,0,"art asset should be cached-first offline");
 });
