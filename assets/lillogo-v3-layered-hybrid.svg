@@ -42,6 +42,15 @@
     #lillogoLayeredRig.state-curious #headRig{transform:rotate(2deg) translate(-1.5px,-2px)}
     #lillogoLayeredRig.state-curious #eyeRig{transform:translate(1.8px,-.6px)}
     #lillogoLayeredRig.state-curious #hairRig{transform:rotate(-1.35deg) translate(.6px,-1.2px)}
+    /* Quiet companion states; no exaggerated jumps or body-bouncing. */
+    #lillogoLayeredRig.state-reflective #headRig{transform:rotate(-.9deg) translateY(.5px)}
+    #lillogoLayeredRig.state-reflective #eyeRig{transform:translate(-.6px,.4px)}
+    #lillogoLayeredRig.state-restful #headRig{transform:rotate(-.5deg)}
+    #lillogoLayeredRig.state-restful #hairRig{transform:rotate(.4deg)}
+    #lillogoLayeredRig.state-quietly-delighted #headRig{transform:rotate(1.4deg) translateY(-1.1px)}
+    #lillogoLayeredRig.state-quietly-delighted #eyeRig{transform:translate(.2px,-.8px)}
+    #lillogoLayeredRig.state-quietly-delighted #hairRig{transform:rotate(-.75deg)}
+
     #eyelids{transform-origin:292px 167px;transform:scaleY(0)}
     #lillogoLayeredRig:not(.is-paused) #eyelids{animation:quietBlink 9s linear infinite}
     @keyframes quietBlink{0%,92%,95%,100%{transform:scaleY(0)}93.1%,94%{transform:scaleY(1)}}
