@@ -126,6 +126,10 @@ try{
  await until(()=>evalJS("Boolean(document.querySelector('.yl-logo-finale'))"),"mock completed AI insight");
  assert.equal(await evalJS("document.querySelector('.discover-sheet')?.dataset.cz80Beat"),"insight");
  await until(()=>evalJS("Boolean(document.querySelector('object.yl-logo-v3-rig')?.contentDocument?.documentElement?.classList.contains('state-reflective'))"),"AI insight triggered subtle rig pose");
+ // The AI panel specifically must use the review-only blend. Local flow
+ // retains its compact original masking and normal URLs remain unchanged.
+ assert.equal(await evalJS("getComputedStyle(document.querySelector('.yl-ai-experiment .yl-logo-pet-layered .yl-logo-v3-rig')).mixBlendMode"),"lighten","AI portrait isolation did not apply");
+ assert.notEqual(await evalJS("getComputedStyle(document.querySelector('.yl-ai-experiment .yl-logo-pet-layered .yl-logo-v3-rig')).maskImage"),"none","AI portrait feather mask is missing");
  // A completed insight is NOT automatically a saved My World record.
  assert.equal(await evalJS("JSON.parse(localStorage.getItem('yourlogos_web_v1')||'{}').aiDiscoverThreads?.length||0"),0);
  const screenshotAI=await send("Page.captureScreenshot",{format:"png",fromSurface:true,captureBeyondViewport:false});
