@@ -82,3 +82,11 @@ Before approving a new agent task, apply the project-aware smart allowance playb
 ## CZ-83 — precisely one normal-tier illustration pilot (no general tier unlock)
 
 A single fixed owner-approved B1b LilLogo task may use a **360-second model process limit / 18 steps per turn** behind the separately audited `.github/workflows/cz83-one-run-lillogo-b1b.yml` workflow and exact GitHub issue #125 title transition. This is an explicit **one-task exception**, not enabling legacy CZ75 normal/complex tiers or permission for future jobs. Keep one shared Kimi concurrency group, fail closed on timeout without retries, exact two-file candidate allowlist, no model GitHub write token, separate draft PR writer, no app/auth/My World edit, no auto release. Founder account-side Extra Usage OFF and sufficient allowance attestation remains required before execution. The prior B1 #119 failure is blocked and must not be retriggered. Founder art/phone review is mandatory.
+
+## CZ AI shared skills library (staged v1)
+
+For **newly reviewed tasks after library integration**, consult `docs/cz-ai-library/README.md`, `docs/cz-ai-library/manifest.json`, only the selected role's relevant `skills/*/SKILL.md`, and verified lessons listed in `lessons/INDEX.md`. Do not paste the whole catalog into model prompts. Record selected skill/lesson IDs in the approved, narrow task brief. `.github/kimi/profiles/` and the original runner permissions, owner approval, quota boundaries, exact file allowlist and release gates remain authoritative.
+
+Lessons are **proposed only after** real incident evidence, independently reproduced regression and code review; they are never automatically trusted, self-merged or used to trigger more model calls. The shared library in this public repository contains only sanitized, transferable methods. See `docs/cz-ai-library/GOVERNANCE.md` and `docs/cz-ai-library/ADOPTION.md`.
+
+This section does not retroactively modify old one-shot workflows, expose credentials, automatically load context in other repositories, or authorize release. Every consumer workflow must be explicitly reviewed and tested before it can claim to use the library.
