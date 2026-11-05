@@ -47,7 +47,9 @@ export function createLilLogoRigController(bus,{enabled=false,root=null,Observer
     for(const view of doc.querySelectorAll("object.yl-logo-v3-rig")){
       if(view.dataset.rigListener!=="yes"){
         view.dataset.rigListener="yes";
-        view.addEventListener("load",()=>apply(view),{signal:abort.signal});
+        // One-shot listener belongs to this object, not the long-lived controller.
+        // Detached renders are then collectible instead of held by AbortSignal.
+        view.addEventListener("load",()=>apply(view),{once:true});
       }
       apply(view);
     }
