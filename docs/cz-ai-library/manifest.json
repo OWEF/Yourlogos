@@ -1,0 +1,64 @@
+{
+  "schema": "cz-ai-skills-v1",
+  "version": "1.0.0",
+  "visibility": "public-sanitized",
+  "mode": "explicit-select-on-task",
+  "maxConcurrentKimiSessions": 1,
+  "automaticLearning": false,
+  "automaticDispatch": false,
+  "automaticMerge": false,
+  "roles": {
+    "frontend-ux": {
+      "agent": "A",
+      "profile": ".github/kimi/profiles/frontend-ux.md",
+      "skills": [
+        "mobile-ui-quality",
+        "animation-lifecycle",
+        "regression-design"
+      ],
+      "readOnly": false
+    },
+    "backend-apis": {
+      "agent": "B",
+      "profile": ".github/kimi/profiles/backend-apis.md",
+      "skills": [
+        "api-contracts",
+        "data-integrity",
+        "regression-design"
+      ],
+      "readOnly": false
+    },
+    "testing-qa": {
+      "agent": "C",
+      "profile": ".github/kimi/profiles/testing-qa.md",
+      "skills": [
+        "regression-design",
+        "release-evidence",
+        "mobile-ui-quality"
+      ],
+      "readOnly": false
+    },
+    "debugging": {
+      "agent": "D",
+      "profile": ".github/kimi/profiles/debugging.md",
+      "skills": [
+        "incident-triage",
+        "scheduler-safety",
+        "release-evidence"
+      ],
+      "readOnly": true
+    }
+  },
+  "skills": {
+    "mobile-ui-quality": "skills/mobile-ui-quality/SKILL.md",
+    "animation-lifecycle": "skills/animation-lifecycle/SKILL.md",
+    "api-contracts": "skills/api-contracts/SKILL.md",
+    "data-integrity": "skills/data-integrity/SKILL.md",
+    "regression-design": "skills/regression-design/SKILL.md",
+    "release-evidence": "skills/release-evidence/SKILL.md",
+    "incident-triage": "skills/incident-triage/SKILL.md",
+    "scheduler-safety": "skills/scheduler-safety/SKILL.md"
+  },
+  "lessonsIndex": "lessons/INDEX.md",
+  "governance": "GOVERNANCE.md"
+}
