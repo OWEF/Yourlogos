@@ -67,6 +67,8 @@ jobs:
         run: node --test tests/encounter-events.test.mjs tests/cz80-live-choreography.test.mjs
       - name: Verify CZ-81 original-art rig controller without model use
         run: node --test tests/cz81-rig-live.test.mjs
+      - name: Verify offline Encounter and LilLogo imports with real cached worker
+        run: node --test tests/cz80-offline-cache.test.mjs
       - name: Verify real mobile Encounter + LilLogo choreography (headless Chromium)
         env:
           CZ81_ARTIFACT_DIR: ${{ runner.temp }}/cz81-real-app-review
