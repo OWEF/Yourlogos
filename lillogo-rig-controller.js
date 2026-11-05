@@ -1,6 +1,7 @@
-// CZ-81 — visual-only, default-off LilLogo layered rig controller.
-// No user data, AI calls, consent changes, analytics, or state ownership.
-// The SVG is a hybrid image experiment; approval of final artwork is pending.
+// CZ-81 M4 — visual-only, default-off LilLogo layered rig controller.
+// Semantic motion state machine over the validated CZ-81 artwork: it maps
+// encounter event semantics to presentation moods only. No user data, AI calls,
+// consent changes, analytics, save logic, or application state ownership.
 export const CZ81_PREVIEW_ENABLED=
   typeof window!=="undefined" &&
   new URLSearchParams(window.location.search).get("cz81")==="preview";
@@ -17,9 +18,28 @@ const BEAT_TO_MOOD={
 };
 const svgStates=["state-idle","state-curious","state-reflective","state-restful","state-quietly-delighted"];
 
+// Natural mood transitions. Any attentive state may reach a saved finish
+// ("quietly-delighted"); delight itself then holds until a new encounter
+// (idle), an explicit resume, or renewed attention (curious) — stray late
+// insight events never pull it back into reflective or restful.
+const ALL_MOODS=["idle","curious","reflective","restful","quietly-delighted"];
+const TRANSITIONS={
+  "idle":ALL_MOODS,
+  "curious":ALL_MOODS,
+  "reflective":ALL_MOODS,
+  "restful":ALL_MOODS,
+  "quietly-delighted":["idle","curious"]
+};
+
 export function rigMoodForEvent(event){
   if(event?.type==="encounter.finish" && event?.payload?.saved!==true)return null;
   return BEAT_TO_MOOD[event?.type]||null;
+}
+
+export function canTransitionRig(from,to){
+  if(!VALID.has(to))return false;
+  if(!VALID.has(from)||from===to)return true;
+  return TRANSITIONS[from].includes(to);
 }
 
 export function createLilLogoRigController(bus,{enabled=false,root=null,Observer=null}={}){
@@ -31,6 +51,7 @@ export function createLilLogoRigController(bus,{enabled=false,root=null,Observer
   if(!Mutation)throw new TypeError("A DOM mutation observer is required");
   const abort=new AbortController();
   let current=null;
+  let disposed=false;
   if(doc.documentElement)doc.documentElement.dataset.cz81Preview="on";
 
   function apply(view){
@@ -56,11 +77,12 @@ export function createLilLogoRigController(bus,{enabled=false,root=null,Observer
   }
   const observer=new Mutation(doc=>{scan()});
   const app=doc.getElementById("app");
-  if(app)observer.observe(app,{subtree:true,childList:true});
+  const target=app??doc.documentElement;
+  if(target)observer.observe(target,{subtree:true,childList:true});
   const unsubs=Object.keys(BEAT_TO_MOOD).map(type=>
     bus.subscribe(type,event=>{
       const mood=rigMoodForEvent(event);
-      if(!mood)return;
+      if(!mood||!canTransitionRig(current,mood))return;
       current=mood;scan();
     }));
   const onVisibility=()=>scan();
@@ -69,6 +91,8 @@ export function createLilLogoRigController(bus,{enabled=false,root=null,Observer
   preference?.addEventListener?.("change",onVisibility,{signal:abort.signal});
   scan();
   return {dispose(){
+    if(disposed)return;
+    disposed=true;
     observer.disconnect();
     abort.abort();
     for(const unsubscribe of unsubs)unsubscribe();

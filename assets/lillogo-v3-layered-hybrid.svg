@@ -14,6 +14,12 @@
   </clipPath>
   <filter id="softUnderpaint" x="-5%" y="-5%" width="110%" height="110%">
     <feGaussianBlur stdDeviation="2.2"/>
+    <!-- CZ-81 M2: darken and desaturate the blurred copy so pixels revealed by a
+         1-3deg neck-pivot tilt read as soft ambient shadow at the contour, not as
+         a second face. LIMIT (flattened source): this cannot reproduce the true
+         occluded backdrop; the thin sliver exposed at the swept head edge shows
+         shadow tone instead of real background. No new face art is fabricated. -->
+    <feColorMatrix type="matrix" values="0.28 0.24 0.20 0 0 0.26 0.22 0.19 0 0 0.24 0.21 0.20 0 0 0 0 0 1 0"/>
   </filter>
   <clipPath id="eyeClip" clipPathUnits="userSpaceOnUse">
     <ellipse cx="253" cy="169" rx="15.2" ry="22.5"/>
@@ -35,25 +41,69 @@
     <stop offset="1" stop-color="#c8a082"/>
   </radialGradient>
   <style><![CDATA[
+    /* Gaze offsets live in registered custom properties so the micro-drift
+       animation and state transitions compose without fighting over one
+       transform declaration. Unregistered fallbacks degrade to static eyes. */
+    @property --gaze-x{syntax:"<length>";inherits:true;initial-value:0px}
+    @property --gaze-y{syntax:"<length>";inherits:true;initial-value:0px}
+    @property --micro-x{syntax:"<length>";inherits:false;initial-value:0px}
+    @property --micro-y{syntax:"<length>";inherits:false;initial-value:0px}
+    /* M3A: the pale forelock reuses the registered-property pattern so one
+       independent sway angle composes with the existing per-mood hairRig
+       transforms instead of fighting over the transform declaration. */
+    @property --hair-sway{syntax:"<angle>";inherits:false;initial-value:0deg}
+    @keyframes microGaze{
+      0%,100%{--micro-x:0px;--micro-y:0px}
+      27%{--micro-x:.42px;--micro-y:-.18px}
+      53%{--micro-x:-.34px;--micro-y:.22px}
+      79%{--micro-x:.18px;--micro-y:-.1px}
+    }
+    /* M3A: one subtle follow-through phrase, phase-lagged behind the head via
+       the negative delay on the animation plus the forelock's slower
+       transition-duration. Amplitude stays under .6deg so the hair drifts
+       after the head instead of leading it; no constant large motion. */
+    @keyframes forelockFollow{
+      0%,100%{--hair-sway:0deg}
+      24%{--hair-sway:-.48deg}
+      57%{--hair-sway:.3deg}
+      81%{--hair-sway:-.12deg}
+    }
     #headRig,#hairRig,#eyeRig,#eyelids{transform-box:view-box;transition:transform .48s cubic-bezier(.21,.75,.2,1)}
-    #headRig{transform-origin:265px 244px}
-    #hairRig{transform-origin:238px 107px;transition-duration:.72s}
-    #eyeRig{transform-origin:292px 168px;transition-duration:.36s}
+    /* CZ-81 M2: pivot at the chin/neck junction (head silhouette bottom ~y273)
+       so the jaw edge stays planted during 1-3deg tilts instead of the whole
+       face orbiting from inside the skull. */
+    #headRig{transform-origin:262px 261px}
+    #hairRig{transform-origin:238px 107px;transition-duration:.72s;transform:rotate(var(--hair-sway))}
+    #eyeRig{transform-origin:292px 168px;transition-duration:.36s;transform:translate(calc(var(--gaze-x) + var(--micro-x)),calc(var(--gaze-y) + var(--micro-y)))}
+    #lillogoLayeredRig.state-curious{--gaze-x:1.8px;--gaze-y:-.6px}
+    #lillogoLayeredRig.state-reflective{--gaze-x:-.6px;--gaze-y:.4px}
+    #lillogoLayeredRig.state-quietly-delighted{--gaze-x:.2px;--gaze-y:-.8px}
+    #lillogoLayeredRig:not(.is-paused) #eyeRig{animation:microGaze 12.7s ease-in-out infinite}
     #lillogoLayeredRig.state-curious #headRig{transform:rotate(2deg) translate(-1.5px,-2px)}
-    #lillogoLayeredRig.state-curious #eyeRig{transform:translate(1.8px,-.6px)}
-    #lillogoLayeredRig.state-curious #hairRig{transform:rotate(-1.35deg) translate(.6px,-1.2px)}
+    #lillogoLayeredRig.state-curious #hairRig{transform:rotate(var(--hair-sway)) rotate(-1.35deg) translate(.6px,-1.2px)}
     /* Quiet companion states; no exaggerated jumps or body-bouncing. */
-    #lillogoLayeredRig.state-reflective #headRig{transform:rotate(-.9deg) translateY(.5px)}
-    #lillogoLayeredRig.state-reflective #eyeRig{transform:translate(-.6px,.4px)}
-    #lillogoLayeredRig.state-restful #headRig{transform:rotate(-.5deg)}
-    #lillogoLayeredRig.state-restful #hairRig{transform:rotate(.4deg)}
+    #lillogoLayeredRig.state-reflective #headRig{transform:rotate(-1.1deg) translateY(.5px)}
+    #lillogoLayeredRig.state-restful #headRig{transform:rotate(-1deg)}
+    #lillogoLayeredRig.state-restful #hairRig{transform:rotate(var(--hair-sway)) rotate(.4deg)}
     #lillogoLayeredRig.state-quietly-delighted #headRig{transform:rotate(1.4deg) translateY(-1.1px)}
-    #lillogoLayeredRig.state-quietly-delighted #eyeRig{transform:translate(.2px,-.8px)}
-    #lillogoLayeredRig.state-quietly-delighted #hairRig{transform:rotate(-.75deg)}
+    #lillogoLayeredRig.state-quietly-delighted #hairRig{transform:rotate(var(--hair-sway)) rotate(-.75deg)}
+    /* M3A: delayed forelock follow-through only where the head turns on its
+       own — idle, curious, reflective. The negative delay lags the sway
+       behind the head's state tilt; is-paused stops the autonomous motion. */
+    #lillogoLayeredRig.state-idle:not(.is-paused) #hairRig,
+    #lillogoLayeredRig.state-curious:not(.is-paused) #hairRig,
+    #lillogoLayeredRig.state-reflective:not(.is-paused) #hairRig{animation:forelockFollow 15.4s ease-in-out -3.6s infinite}
 
     #eyelids{transform-origin:292px 167px;transform:scaleY(0)}
-    #lillogoLayeredRig:not(.is-paused) #eyelids{animation:quietBlink 9s linear infinite}
-    @keyframes quietBlink{0%,92%,95%,100%{transform:scaleY(0)}93.1%,94%{transform:scaleY(1)}}
+    /* One long, uneven cycle: blinks land at irregular gaps (~8.8s, then a
+       quick flutter, then ~10s) instead of a metronome beat every 9s. */
+    #lillogoLayeredRig:not(.is-paused) #eyelids{animation:quietBlink 23s linear infinite}
+    @keyframes quietBlink{
+      0%,37.4%,41%,41.9%,83.2%,86.6%,100%{transform:scaleY(0)}
+      38.4%,40%{transform:scaleY(1)}
+      41.3%{transform:scaleY(.72)}
+      84.2%,85.6%{transform:scaleY(1)}
+    }
     #lillogoLayeredRig.is-paused *{animation-play-state:paused!important}
     @media(prefers-reduced-motion:reduce){
       *,*::before,*::after{animation:none!important;transition:none!important}
@@ -69,9 +119,15 @@
 <!-- Editable layer 2: subdued underpainting for revealed pixels during head motion.
      IMPORTANT: occluded anatomy is approximated; human art review required. -->
 <g id="neckUnderpaint" data-editable-layer="occlusion-restoration-provisional" clip-path="url(#underpaintClip)">
-  <!-- The source-colour, blurred underpainting fills pixels exposed by tiny
-       head pivots. This avoids a solid DARK CIRCULAR SEAM at the face contour.
-       It is still provisional; edge/occlusion art requires human approval. -->
+  <!-- CZ-81 M2: the underpainting is the blurred portrait passed through a
+       darkening/desaturating matrix (see #softUnderpaint). Pixels exposed by
+       the 1-3deg neck-pivot tilt — mostly the revealed neck band under the
+       jaw — therefore read as soft ambient shadow rather than a duplicated
+       face or a solid dark seam. Coverage stays over the whole head+forelock
+       silhouette so no transparent hole opens behind the tilted head.
+       LIMIT: the flattened source cannot provide the true occluded backdrop,
+       so the thin sliver at the swept upper contour is shadow-toned
+       approximation, not real background art. Founder art review required. -->
   <use href="#originalPortrait" filter="url(#softUnderpaint)"/>
 </g>
 <!-- Editable layer 3: head/face from the SAME original image; rotates around neck. -->
