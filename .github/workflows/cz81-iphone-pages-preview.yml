@@ -84,6 +84,45 @@ jobs:
           NODE
           echo 'Static Pages review contains validated PR 134 original-art animation and state controller; not production.' >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Build isolated Happy-only face comparison using original approved portrait
+        shell: bash
+        env:
+          HAPPY_SOURCE_SHA: 7bcb1eb047aa7ef4e96d92418f1a55b403af062c
+          HAPPY_SOURCE_BRANCH: automation/cz81-e1-happy-art-review-42024798193
+        run: |
+          set -euo pipefail
+          test "$(git hash-object little-logo-hd-v2.jpg)" = e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111
+          test -s preview/happy-review.html
+          git fetch --no-tags --depth=1 origin "refs/heads/$HAPPY_SOURCE_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$HAPPY_SOURCE_SHA"
+          git show "$HAPPY_SOURCE_SHA:experiments/cz81-happy-expression-v1.svg" > "$RUNNER_TEMP/cz81-happy-source.svg"
+          mkdir -p _site/experiments
+          cp little-logo-hd-v2.jpg _site/little-logo-hd-v2.jpg
+          cp preview/happy-review.html _site/happy-review.html
+          python - <<'PY'
+          import base64,re
+          from pathlib import Path
+          source=Path(__import__('os').environ['RUNNER_TEMP'])/'cz81-happy-source.svg'
+          s=source.read_text()
+          expected='href="../little-logo-hd-v2.jpg"'
+          if s.count(expected)!=1:
+              raise SystemExit('Happy candidate source image reference changed; stop preview.')
+          forbidden=('<script','<foreignObject','@keyframes','<animate','onload=','onclick=')
+          if any(x.lower() in s.lower() for x in forbidden):
+              raise SystemExit('Unexpected executable/SVG animation content.')
+          if re.search(r'(?:src|href)=["\x27]https?://',s):
+              raise SystemExit('Unexpected remote asset.')
+          data=base64.b64encode(Path('little-logo-hd-v2.jpg').read_bytes()).decode('ascii')
+          s=s.replace(expected,'href="data:image/jpeg;base64,'+data+'"')
+          if s.count('data:image/jpeg;base64,')!=1:
+              raise SystemExit('Original artwork was not embedded exactly once.')
+          Path('_site/experiments/cz81-happy-expression-v1.svg').write_text(s)
+          PY
+          test -s _site/happy-review.html
+          test -s _site/experiments/cz81-happy-expression-v1.svg
+          test "$(find _site -type f | wc -l)" -eq 12
+          echo 'Happy-only mobile comparison assembled using approved JPEG and PR #136 candidate in static output only. Human aesthetic review is pending.' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Configure existing free GitHub Pages feature
         uses: actions/configure-pages@v5
       - name: Upload static review surface
