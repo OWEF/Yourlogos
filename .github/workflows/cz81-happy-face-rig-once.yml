@@ -1,0 +1,384 @@
+# Founder-authorized one-time LilLogo Happy facial rig E1.1 implementation.
+# Model invoked once; at most one 600s continuation on verified SVG file progress.
+# No main/production edits or merge. PR135 diagnostics pinned at immutable SHA.
+name: CZ-81 E2 Happy Facial Rig — Observed Kimi A
+on:
+  push:
+    branches: [automation/cz81-happy-face-rig-20261105]
+    paths: ['.github/workflows/cz81-happy-face-rig-once.yml']
+permissions: {}
+jobs:
+  happy:
+    name: Happy neutral-to-smile facial rig, guarded diagnostics
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/automation/cz81-happy-face-rig-20261105' &&
+      github.event.before == 'a56ce7832b3d0f0ddc80674947a92bbdcd30082d' &&
+      github.event.head_commit.message == 'dispatch(cz81-e2): founder-approved Happy facial rig only' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    outputs:
+      ready: ${{ steps.accept.outputs.ready }}
+    steps:
+      - name: Checkout pinned E0 diagnostics from review PR #135 (no secrets)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: a56ce7832b3d0f0ddc80674947a92bbdcd30082d
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Checkout unchanged original-art prototype in isolated candidate folder
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7bcb1eb047aa7ef4e96d92418f1a55b403af062c
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Use pinned Node 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Verify pinned original art and diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C candidate rev-parse HEAD)" = '7bcb1eb047aa7ef4e96d92418f1a55b403af062c'
+          test "$(git rev-parse HEAD)" = 'a56ce7832b3d0f0ddc80674947a92bbdcd30082d'
+          test -s .github/scripts/cz81-e0-observed-command.sh
+          test -s .github/scripts/cz81-e0-diagnostics.mjs
+          test -s candidate/little-logo-hd-v2.jpg
+          test "$(git -C candidate hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          test -s candidate/little-logo-poses-v5.webp
+          test -s candidate/experiments/cz81-happy-expression-v1.svg
+          test -s candidate/.github/kimi/profiles/frontend-ux.md
+          test ! -e candidate/experiments/cz81-happy-rig-v1.html
+          node --check .github/scripts/cz81-e0-diagnostics.mjs
+          bash -n .github/scripts/cz81-e0-observed-command.sh
+          node --test tests/cz81-e0-diagnostics.test.mjs
+          test "$(cd candidate && node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+      - name: Install pinned Kimi CLI before exposing model secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--agent-file'
+          kimi --help | grep -q -- '--output-format'
+      - name: Run one observed Kimi A Happy facial rig attempt, 600s cap
+        id: first
+        working-directory: candidate
+        shell: bash
+        timeout-minutes: 12
+        env:
+          OBS_REPORT_DIR: ${{ runner.temp }}/e1-happy-first-report
+          OBS_CANDIDATE: ${{ github.workspace }}/candidate/experiments/cz81-happy-rig-v1.html
+          OBS_TIMEOUT_SECONDS: '600'
+          OBS_SAMPLE_INTERVAL_SECONDS: '30'
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/e1-happy-kimi-home
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$KIMI_MODEL_API_KEY" || { echo "::error::Kimi membership key unavailable; no attempt"; exit 2; }
+          mkdir -p "$KIMI_CODE_HOME"
+          prompt=$(cat <<'TASK'
+          You are Kimi A (existing YourLogos Frontend/UX agent).
+          OWNER AUTHORIZATION: Phase A/B Happy facial rig ANIMATED FACIAL RIG feasibility.
+          Founder rejected the static Happy overlay from PR #136 as insufficiently
+          alive. Work from original LilLogo source JPEG and existing Happy SVG.
+          FIRST read AGENTS.md, the approved JPEG using ReadMediaFile,
+          and experiments/cz81-happy-expression-v1.svg. Then IMMEDIATELY
+          WRITE a valid working standalone HTML document at the allowed path:
+          experiments/cz81-happy-rig-v1.html
+          Write a simple functional draft EARLY before lengthy analysis;
+          improve progressively, never postpone file creation to last step.
+          ONLY EDIT THIS ONE NEW HTML FILE. No other files, tests, APIs, secrets.
+          GOAL: iPhone-sized original LilLogo character with a true articulated
+          HAPPY expression, gradually transitioning neutral -> happy -> neutral.
+          Original hair, glossy dark eyes, skin proportions, scarf and silhouette
+          remain unmistakably identical. Head remains COMPLETELY STATIC.
+          Embed an SVG facial rig over the EXISTING unchanged portrait, referenced
+          locally as ../little-logo-hd-v2.jpg. Transparent masks/patches may
+          cover original fixed neutral mouth/brows, but no pasted duplicated
+          eyes/brows/mouth or cartoon stickers. Keep shading natural; the
+          current static candidate's raised right eyelid and floating eyebrows
+          need correction, not replication. Art has priority over CSS motion.
+          Required editable SVG group IDs: faceRig, mouthRig, browRig,
+          eyelidRig, cheekRig. Each must be independently controllable.
+          Visible native controls with IDs btnNeutral, btnHappy, btnReplay.
+          Use small inline vanilla JS/CSS only; no npm/web APIs/remote URLs,
+          no injected HTML, no analytics, no network, no dependencies.
+          Smooth reversible mouth CURVE shape, eyes/lids, eyebrows and cheek
+          movements. You may use requestAnimationFrame and interpolate
+          SVG attributes/path points or geometric transforms of the FEATURES.
+          Do NOT rotate/translate/scale the whole head or source raster.
+          A mere opacity change between two full-face images is NOT sufficient.
+          Animations should be subtle, pleasant, non-creepy, 250-600ms,
+          returning to neutral on demand. Respect prefers-reduced-motion:
+          instant but still distinct states. Avoid perpetual animation.
+          At 194px face size, test that smile is actually identifiable.
+          Single self-contained HTML prototype with mobile viewport and large
+          preview, plus original-vs-active comparison if space allows.
+          Final note in page: human art/real Safari validation PENDING.
+          Do not falsely report actual iPhone verification or quality.
+          If flattened portrait prevents acceptable facial deformation,
+          give a clear visible limitation message instead of claiming solved.
+          Absolute non-goals: five emotions, full rig suite, animation engine,
+          Encounter production, auth, files outside allowed path, merges,
+          deploys, model tool calls, Bash, subagents, purchases.
+          TASK
+          )
+          bash ../.github/scripts/cz81-e0-observed-command.sh -- \
+            kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json
+      - name: Verify one source-only checkpoint and allow a single continuation
+        id: checkpoint
+        if: steps.first.outputs.model_exit_code == '124'
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              experiments/cz81-happy-rig-v1.html) ;;
+              *) echo "::error::Unapproved modified file, no retry: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test "$(git hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          if [[ -s 'experiments/cz81-happy-rig-v1.html' ]]; then
+            test "$(stat -c%s 'experiments/cz81-happy-rig-v1.html')" -le 400000
+            grep -qi '<html' 'experiments/cz81-happy-rig-v1.html'
+            grep -qi '<svg' 'experiments/cz81-happy-rig-v1.html'
+            if grep -Eqi '<iframe|<foreignObject|<script[^>]*src=|https?://[^[:space:]"'\''<>]+' 'experiments/cz81-happy-rig-v1.html'; then
+              echo '::error::Unsafe or remote content in checkpoint; no retry'; exit 1
+            fi
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo 'No saved source artwork. No retry permitted.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Continue once only when saved Happy source exists after timeout
+        id: second
+        if: steps.first.outputs.model_exit_code == '124' && steps.checkpoint.outputs.ready == 'true'
+        working-directory: candidate
+        shell: bash
+        timeout-minutes: 12
+        env:
+          OBS_REPORT_DIR: ${{ runner.temp }}/e1-happy-retry-report
+          OBS_CANDIDATE: ${{ github.workspace }}/candidate/experiments/cz81-happy-rig-v1.html
+          OBS_TIMEOUT_SECONDS: '600'
+          OBS_SAMPLE_INTERVAL_SECONDS: '30'
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/e1-happy-kimi-retry-home
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$KIMI_MODEL_API_KEY"
+          mkdir -p "$KIMI_CODE_HOME"
+          prompt='Continue ONLY the existing experiments/cz81-happy-rig-v1.html from the first timebox. DO NOT restart. Finish neutral to happy to neutral facial animation using independent faceRig/mouthRig/browRig/eyelidRig/cheekRig, original LilLogo art, static head, accessible Neutral/Happy/Replay controls, reduce-motion. Fix floating eyebrows and mismatched eyelid. DO NOT touch any other file, use agents, bash, network, or GitHub. Human Safari/art acceptance pending.'
+          bash ../.github/scripts/cz81-e0-observed-command.sh -- \
+            kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json
+      - name: Upload sanitized, numeric diagnostic reports regardless of model outcome
+        if: always() && (steps.first.outcome == 'success' || steps.second.outcome == 'success')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-happy-observed-safe-diagnostics
+          path: |
+            ${{ runner.temp }}/e1-happy-first-report/
+            ${{ runner.temp }}/e1-happy-retry-report/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Validate source allowlist and stage a quarantine candidate even on failed model run
+        id: preserve
+        if: always() && (steps.first.outcome == 'success' || steps.second.outcome == 'success')
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              experiments/cz81-happy-rig-v1.html) ;;
+              *) echo "::error::Unapproved changed file: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test "$(git hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          if [[ -s 'experiments/cz81-happy-rig-v1.html' ]]; then
+            test "$(stat -c%s 'experiments/cz81-happy-rig-v1.html')" -le 400000
+            mkdir -p "$RUNNER_TEMP/e1-happy-quarantine/experiments"
+            cp 'experiments/cz81-happy-rig-v1.html' "$RUNNER_TEMP/e1-happy-quarantine/experiments/"
+            echo 'saved=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'saved=false' >> "$GITHUB_OUTPUT"
+            echo 'No Happy source exists to quarantine. Underlying model exit is recorded in safe diagnostics.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Save quarantined Happy art if a real file was produced
+        if: steps.preserve.outputs.saved == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-happy-rig-quarantine
+          path: ${{ runner.temp }}/e1-happy-quarantine/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Independent source and regression checks (NOT visual acceptance)
+        id: accept
+        if: steps.first.outcome == 'success'
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          first='${{ steps.first.outputs.model_exit_code }}'
+          second='${{ steps.second.outputs.model_exit_code }}'
+          if [[ "$first" != '0' && ! ( "$first" == '124' && "$second" == '0' ) ]]; then
+            echo "::error::Happy model failed (first $first, retry $second); no PR"; exit 1
+          fi
+          test -s 'experiments/cz81-happy-rig-v1.html'
+          test "$(stat -c%s 'experiments/cz81-happy-rig-v1.html')" -le 400000
+          test "$(git hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              experiments/cz81-happy-rig-v1.html) ;;
+              *) echo "::error::Out-of-scope model file: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          python - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          import re
+          text=Path('experiments/cz81-happy-rig-v1.html').read_text(encoding='utf8')
+          class Audit(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.tags=[]
+                  self.ids=set()
+                  self.attr=[]
+                  self.inline_scripts=[]
+                  self.inscript=False
+              def handle_starttag(self,tag,attrs):
+                  self.tags.append(tag.lower())
+                  self.attr+=attrs
+                  for name,val in attrs:
+                      if name=='id': self.ids.add(val)
+                  if tag.lower()=='script': self.inscript=True
+              def handle_endtag(self,tag):
+                  if tag.lower()=='script': self.inscript=False
+              def handle_data(self,data):
+                  if self.inscript: self.inline_scripts.append(data)
+          parser=Audit()
+          parser.feed(text)
+          for t in ('html','svg','script','button'):
+              if t not in parser.tags: raise ValueError('Required interface/art missing: '+t)
+          if any(x in parser.tags for x in ('iframe','foreignobject','object')):
+              raise ValueError('Unsafe embedded element')
+          needed={'faceRig','mouthRig','browRig','eyelidRig','cheekRig','btnNeutral','btnHappy','btnReplay'}
+          if missing:=needed-parser.ids: raise ValueError('Missing editable rig/controls '+str(missing))
+          for k,v in parser.attr:
+              if k.lower().startswith('on') or k.lower() in ('srcdoc',):
+                  raise ValueError('Inline event handler forbidden')
+              if k.lower() in ('src','href','xlink:href') and v and (v.startswith(('http:','https:','//','data:','javascript:')) or v.startswith('/')):
+                  raise ValueError('External/embedded media forbidden')
+          js='\n'.join(parser.inline_scripts)
+          if not js.strip(): raise ValueError('Missing animation logic')
+          if any(re.search(x,js,re.I) for x in (r'\bfetch\s*\(',r'\bXMLHttpRequest\b',r'\bWebSocket\b',r'\bimport\s*\(')):
+              raise ValueError('Network or dynamic code forbidden')
+          if 'prefers-reduced-motion' not in text:
+              raise ValueError('Reduced-motion not supported')
+          if not ('requestAnimationFrame' in js or 'transition' in text):
+              raise ValueError('No visible motion implementation')
+          Path('/tmp/cz81-happy-script.mjs').write_text(js)
+          print('Scoped Happy face rig verified structurally; human visual recognition still pending.')
+          PY
+          node --check /tmp/cz81-happy-script.mjs        node --test tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node scripts/verify-v24.mjs
+          mkdir -p "$RUNNER_TEMP/e1-happy-reviewed/experiments"
+          cp 'experiments/cz81-happy-rig-v1.html' "$RUNNER_TEMP/e1-happy-reviewed/experiments/"
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Upload technically reviewed Happy facial rig source for draft PR
+        if: steps.accept.outputs.ready == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-happy-rig-reviewed
+          path: ${{ runner.temp }}/e1-happy-reviewed/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Fail workflow if no valid completed model source
+        if: steps.accept.outputs.ready != 'true'
+        shell: bash
+        run: |
+          echo "::error::Happy E2 facial rig not completed or checks failed. Stop; no next expression." >&2
+          exit 1
+  stage-review:
+    name: Staged DRAFT Happy animated rig only; no production action
+    needs: [happy]
+    if: needs.happy.result == 'success' && needs.happy.outputs.ready == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout pinned unchanged original-art source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7bcb1eb047aa7ef4e96d92418f1a55b403af062c
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Download exactly one reviewed Happy SVG
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-happy-rig-reviewed
+          path: ${{ runner.temp }}/happy
+      - name: Create isolated draft only, never merge or deploy
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_BRANCH: automation/cz81-e1-happy-art-review-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD)" = '7bcb1eb047aa7ef4e96d92418f1a55b403af062c'
+          test "$(find "$RUNNER_TEMP/happy" -type f | wc -l)" = '1'
+          test -s "$RUNNER_TEMP/happy/experiments/cz81-happy-rig-v1.html"
+          mkdir -p experiments
+          cp "$RUNNER_TEMP/happy/experiments/cz81-happy-rig-v1.html" 'experiments/cz81-happy-rig-v1.html'
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$REVIEW_BRANCH"
+          git add -- 'experiments/cz81-happy-rig-v1.html'
+          git commit -m 'feat(cz81-e2): isolated neutral to Happy facial animation study'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$REVIEW_BRANCH"
+          gh pr create --draft --base automation/cz81-e1-happy-art-review-42024798193 --head "$REVIEW_BRANCH" \
+            --title 'feat(cz81-e2): articulated Happy facial animation — founder visual review required' \
+            --body 'Isolated neutral to Happy to neutral animated facial rig; original LilLogo source preserved. Independent structural tests do NOT prove emotional clarity, facial fidelity or real iPhone Safari performance. Human founder review required before any merge/deployment or additional emotions. GitHub #128; Linear CZ-81.'
