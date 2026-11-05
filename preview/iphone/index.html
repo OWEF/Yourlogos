@@ -45,6 +45,8 @@ button.action:last-child{grid-column:span 2;background:#dbc198;color:#25221e;fon
 .result{border-top:1px solid #4c423e;padding-top:13px;margin-top:17px;min-height:45px;font-size:13px;color:#e0d4c5}
 .small{font-size:11px;color:#b1a49b;line-height:1.5}
 .status{margin-top:15px;padding:11px;border-radius:10px;background:#181a20;font-size:11px;color:#ccbfab}
+.motion-diagnostic{margin-top:10px;padding:12px;border:1px solid #67543d;border-radius:10px;background:#211d1c;color:#e2d0b3;font-size:12px;line-height:1.55}
+.motion-diagnostic strong{color:#f6d49a}
 footer{margin-top:22px;font-size:11px;color:#ada198;line-height:1.5}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
@@ -83,6 +85,7 @@ footer{margin-top:22px;font-size:11px;color:#ada198;line-height:1.5}
 <p class="small">Check the face and neck seam, the hair and scarf, whether there is a dark rectangular backdrop, and whether Reduce Motion is respected. Change iPhone Settings → Accessibility → Motion → Reduce Motion, then return here.</p>
 </section>
 <div class="status" id="status">Loading original source animation…</div>
+<div class="motion-diagnostic" id="motion-diagnostic" role="status" aria-live="polite">Checking iPhone animation settings…</div>
 <footer>This visual preview is a <strong>static test harness</strong>. Real My World saves, API failures, installed-PWA offline launch and production-release acceptance must be validated separately on a full isolated app build. No analytics, AI calls, cookies or persistence.</footer>
 </main>
 <script type="module">
@@ -102,12 +105,14 @@ function showMode(mode){
  $("context").textContent=mode==="ai"?"AI VIEW · PORTRAIT-DERIVED SILHOUETTE":"LOCAL VIEW · ORIGINAL RADIAL FRAMING";
  bus.publish("encounter.enter",{source:mode,saved:false});
  $("result").textContent=mode==="ai"?"Check the corrected AI cutout and the facial detail.":"Compare the smaller local presentation and its softer framing.";
+ updateMotionDiagnostic();
 }
 $("ai").addEventListener("click",()=>showMode("ai"));
 $("local").addEventListener("click",()=>showMode("local"));
 function feedback(type,explain,more={}){
  bus.publish(type,Object.assign({source:state.mode,saved:false},more));
  $("result").textContent=explain;
+ updateMotionDiagnostic();
 }
 $("curious").addEventListener("click",()=>feedback("lens.choose","Curious: independent head, eyes and hair should respond."));
 $("reflective").addEventListener("click",()=>feedback("insight.ready","Reflective: observe the subtle head and gaze pose."));
@@ -115,14 +120,40 @@ $("restful").addEventListener("click",()=>feedback("insight.error","Restful: the
 $("idle").addEventListener("click",()=>feedback("encounter.enter","Idle: the character settles again."));
 $("completed").addEventListener("click",()=>feedback("encounter.finish","Completion reaction only. Nothing was saved.",{saved:true}));
 const obj=document.querySelector("object.yl-logo-v3-rig");
+const motionPref=window.matchMedia("(prefers-reduced-motion: reduce)");
+function updateMotionDiagnostic(){
+ const panel=$("motion-diagnostic");
+ const reduced=motionPref.matches;
+ let mood="loading", eyelid="unknown", forelock="unknown", paused=false;
+ const svg=obj.contentDocument?.documentElement;
+ if(svg?.id==="lillogoLayeredRig"){
+  mood=[...svg.classList].find(c=>c.startsWith("state-"))?.slice(6)||"unknown";
+  paused=svg.classList.contains("is-paused");
+  const win=svg.ownerDocument.defaultView;
+  eyelid=win?.getComputedStyle(svg.querySelector("#eyelids"))?.animationName||"none";
+  forelock=win?.getComputedStyle(svg.querySelector("#hairRig"))?.animationName||"none";
+ }
+ if(reduced){
+  panel.innerHTML="<strong>Motion disabled by iPhone settings.</strong> Your device currently requests Reduce Motion. Switch OFF Settings → Accessibility → Motion → Reduce Motion, then return to Safari. Facial changes without transitions are expected in this mode.";
+ }else if(!svg){
+  panel.textContent="Reduce Motion is OFF. Waiting for the animation SVG to load.";
+ }else if(paused || (eyelid==="none" && forelock==="none")){
+  panel.textContent="Reduce Motion is OFF but the rig reports paused or missing CSS animations. State: "+mood+". This is a playback issue, not visual approval.";
+ }else{
+  panel.textContent="Motion is allowed. State: "+mood+"; blink CSS: "+eyelid+"; forelock CSS: "+forelock+". If it still appears static, the movements are too small and the character rig needs redesign.";
+ }
+}
+motionPref.addEventListener?.("change",updateMotionDiagnostic);
 obj.addEventListener("load",()=>{
  const root=obj.contentDocument?.documentElement;
  $("status").textContent=root?.id==="lillogoLayeredRig"?"Original-art rig loaded. On-device visual testing is ready.":"Animation SVG loaded, but expected rig ID was not detected.";
+ updateMotionDiagnostic();
 });
 obj.addEventListener("error",()=>{$("status").textContent="The art SVG failed to load. Do not approve this build.";});
 if(new URLSearchParams(location.search).get("cz81")!=="preview"||new URLSearchParams(location.search).get("cz80")!=="preview"){
  $("status").textContent="Open this page with both ?cz80=preview&cz81=preview flags to enable animation.";
 }else showMode("ai");
+updateMotionDiagnostic();
 // Retain the event controller when Safari restores this page from back/forward cache.
 // Document-owned observers are released naturally on full navigation/unload.
 </script>
