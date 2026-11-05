@@ -11,6 +11,11 @@ on:
       - '.github/scripts/select-cz-ai-context.mjs'
       - '.github/actions/cz-ai-select-context/action.yml'
       - '.github/workflows/cz-ai-skills-validation.yml'
+      - '.github/workflows/cz-ai-lesson-pipeline.yml'
+      - '.github/scripts/cz-ai-lesson-gate.mjs'
+      - '.github/scripts/cz-ai-lesson-artifact.mjs'
+      - 'tests/cz-ai-lesson-gate.test.mjs'
+      - 'tests/cz-ai-lesson-artifact.test.mjs'
 permissions:
   contents: read
 jobs:
@@ -32,11 +37,15 @@ jobs:
           node --check tests/cz-ai-library.test.mjs
           node --check .github/scripts/select-cz-ai-context.mjs
           node --check tests/cz-ai-context-selection.test.mjs
+          node --check .github/scripts/cz-ai-lesson-gate.mjs
+          node --check .github/scripts/cz-ai-lesson-artifact.mjs
+          node --check tests/cz-ai-lesson-gate.test.mjs
+          node --check tests/cz-ai-lesson-artifact.test.mjs
           node .github/scripts/cz69-role-router.mjs --check
       - name: Run model-free skills library contract tests
         run: |
           node .github/scripts/validate-cz-ai-library.mjs
-          node --test tests/cz-ai-library.test.mjs tests/cz-ai-context-selection.test.mjs
+          node --test tests/cz-ai-library.test.mjs tests/cz-ai-context-selection.test.mjs tests/cz-ai-lesson-gate.test.mjs tests/cz-ai-lesson-artifact.test.mjs
       - name: Exercise reusable zero-model selector action
         id: context
         uses: ./.github/actions/cz-ai-select-context
