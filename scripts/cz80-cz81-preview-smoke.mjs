@@ -70,6 +70,22 @@ try{
   return r.result.value;
  };
  await until(()=>evalJS('Boolean(document.querySelector(\'[data-action="discover"]\'))'),"landing Encounter button");
+ // First-run onboarding and the daily welcome overlay must be dismissed via
+ // their actual UI. Otherwise headless Chrome can click invisible app controls.
+ const introVisible=await evalJS("document.getElementById('yl-onboarding')?.hidden===false");
+ if(introVisible){
+  await evalJS("document.querySelector('[data-intro=back]').click();true");
+  await until(()=>evalJS("document.getElementById('yl-onboarding')?.hidden===true"),"onboarding dismissed");
+ }
+ const entranceVisible=await evalJS("document.getElementById('yl-entrance')?.hidden===false");
+ if(entranceVisible){
+  await until(()=>evalJS("document.getElementById('yl-enter')?.disabled===false"),"welcome slider ready");
+  await evalJS("document.getElementById('yl-enter').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));true");
+  await until(()=>evalJS("document.getElementById('yl-entrance')?.hidden===true"),"welcome slider completed");
+ }
+ assert.equal(await evalJS("document.getElementById('yl-onboarding')?.hidden"),true);
+ assert.equal(await evalJS("document.getElementById('yl-entrance')?.hidden"),true);
+
  assert.equal(await evalJS('document.documentElement.dataset.cz80Preview'),"on");
  assert.equal(await evalJS('document.documentElement.dataset.cz81Preview'),"on");
  await evalJS('document.querySelector(\'[data-action="discover"]\').click();true');
@@ -81,6 +97,7 @@ try{
  await until(()=>evalJS('document.querySelector(".discover-sheet")?.dataset.cz80Beat==="choice"'),"CZ80 genuine lens choice event");
  await until(()=>evalJS('document.querySelector(".yl-logo-v3-rig")?.contentDocument?.documentElement?.classList.contains("state-curious")'),"CZ81 rig consumes event");
  assert.equal(await evalJS('document.querySelector(".yl-living")?.dataset.livingPhase'),"mirror");
+ assert.equal(await evalJS("document.getElementById('yl-onboarding')?.hidden && document.getElementById('yl-entrance')?.hidden"),true,"no intro overlays may hide the real Encounter");
  const screenshot=await send("Page.captureScreenshot",{format:"png",fromSurface:true,captureBeyondViewport:false});
  const bytes=Buffer.from(screenshot.data,"base64");
  assert.ok(bytes.length>4000,"Screenshot unexpectedly small");
