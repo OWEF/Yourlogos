@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>LilLogo — Happy Expression Visual Review</title>
+<style>
+:root{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f0f3f8;background:#0b0f17}
+*{box-sizing:border-box}body{margin:0;padding:24px 15px 64px}
+main{margin:auto;max-width:780px}h1{font-size:26px;line-height:1.15;margin:0 0 10px}
+p{color:#b3bdce;line-height:1.5;font-size:14px}strong{color:#fff}
+small{color:#9ca8bd}a{color:#a9ccff}header{padding:8px 4px 24px}
+.card{border:1px solid #293446;background:#151c28;border-radius:18px;padding:16px;margin:0 0 15px}
+.card h2{font-size:16px;margin:0 0 5px}.faces{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.facebox{background:#08090d;border-radius:14px;display:flex;align-items:center;justify-content:center;min-height:190px;overflow:hidden}
+.facebox img{max-width:100%;width:194px;height:194px;object-fit:contain;display:block}
+.caption{margin:10px 0 0;font-size:13px;color:#a7b6c9}
+.hero{display:flex;flex-direction:column;align-items:center;background:#07090e;border-radius:14px;padding:12px;gap:10px}
+.hero img{display:block;width:min(100%,330px);height:auto;aspect-ratio:1/1}
+.controls{display:flex;gap:8px;margin:14px 0 0;flex-wrap:wrap}
+button{border:1px solid #3f526d;border-radius:12px;background:#222d3f;color:#fff;padding:12px 16px;font-size:14px;cursor:pointer}
+button[aria-pressed="true"]{background:#315e97;border-color:#73a8ef}
+.hint{font-size:13px;color:#aebccf;line-height:1.6}
+@media(max-width:360px){.facebox{min-height:160px}.card{padding:12px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <small>YourLogos / CZ-81 / E1.1 / DRAFT — NOT PRODUCTION</small>
+  <h1>LilLogo · Happy face review</h1>
+  <p>Compare the <strong>approved original</strong> against <strong>Agent A's Happy study</strong> with the original portrait visible. Does the smile look naturally happy and still unmistakably LilLogo?</p>
+</header>
+<div class="card">
+  <div class="faces">
+    <section><div class="facebox"><img src="./little-logo-hd-v2.jpg" alt="Approved original LilLogo portrait" width="194" height="194"></div><p class="caption">Original (baseline)</p></section>
+    <section><div class="facebox"><img src="./experiments/cz81-happy-expression-v1.svg" alt="LilLogo original portrait with Agent A Happy facial expression overlay" width="194" height="194"></div><p class="caption">Happy (candidate)</p></section>
+  </div>
+</div>
+<div class="card">
+  <h2>Closer inspection</h2>
+  <div class="hero">
+    <img id="focus" src="./experiments/cz81-happy-expression-v1.svg" alt="Magnified Happy candidate expression">
+  </div>
+  <div class="controls">
+    <button id="btnHappy" aria-pressed="true" type="button">Happy candidate</button>
+    <button id="btnOriginal" aria-pressed="false" type="button">Original portrait</button>
+  </div>
+  <p class="hint">Tap between images to check eye, brow, cheek and mouth changes. The head should not move. This preview embeds the approved JPEG into the candidate SVG strictly for display; the submitted PR artwork is unchanged.</p>
+</div>
+<div class="card"><h2>Founder visual checklist</h2>
+<p>1. The smile is unmistakable at 194 px. 2. Cheeks and brows feel natural, not pasted on. 3. Original pale hair, glossy eyes and dark scarf remain the same character. 4. No duplicated mouth/brows or skin-colored blotches. 5. This should look charming rather than uncanny.</p>
+<p><small>Technical regression passing does not constitute aesthetic approval. No runtime animation or production changes.</small></p>
+</div>
+</main>
+<script>
+(function(){
+  const focus=document.getElementById('focus');
+  const happy=document.getElementById('btnHappy');
+  const original=document.getElementById('btnOriginal');
+  function choose(on){focus.src=on?'./experiments/cz81-happy-expression-v1.svg':'./little-logo-hd-v2.jpg';happy.setAttribute('aria-pressed',String(on));original.setAttribute('aria-pressed',String(!on));focus.alt=on?'Happy candidate LilLogo portrait':'Original LilLogo portrait';}
+  happy.addEventListener('click',()=>choose(true));
+  original.addEventListener('click',()=>choose(false));
+})();
+</script>
+</body>
+</html>
