@@ -13,7 +13,7 @@ Versioned, reviewable operating knowledge for the existing four-role ChatGPT/Cod
 ## Before a specialist task (zero-model preflight)
 
 1. Obtain the founder-approved task ID, role, risk, exact allowed files, source SHA, tests, bounded runtime/allowance, and expected output.
-2. Read the relevant role profile, this README, `manifest.json`, and **only** the relevant `skills/*/SKILL.md`.
+2. Use the reusable `.github/actions/cz-ai-select-context` preflight or its `.github/scripts/select-cz-ai-context.mjs` implementation. It reads the catalog locally but forwards only the L0 role/task summary and at most two matching `skills/*/SKILL.md` files.
 3. Search `lessons/INDEX.md` for related confirmed issues. Read the cited lesson and verify its preconditions still match the current code.
 4. Include the selected skill IDs and lesson IDs **explicitly** in the bounded task brief. A run that lacks required context must stop or request a reviewed revised brief, not silently improvise.
 5. Run deterministic checks using the existing runner and receive independent QA/PR review; a model cannot self-approve. Human visual/mobile/production checks remain separate.
@@ -33,3 +33,21 @@ Creating these files or a draft PR does **not** alter running GitHub workflows, 
 ## Security
 
 All existing founder approval, usage gates, single active Kimi worker, separate draft PR writer, D's read-only tools, and independent release QA remain unchanged. Never allow a lesson to change a permissions policy, expand file allowlists, trigger an agent, use paid models, or deploy. Public library content must be generic and sanitized.
+
+## How to use the selective router in approved future workflows
+
+After trusted checkout and ordinary role-authorization checks, add the following **no-secret** step before the Kimi step:
+
+```yaml
+- uses: ./.github/actions/cz-ai-select-context
+  id: cz_context
+  with:
+    role: frontend-ux
+    task: 'LilLogo animation and blink regression'
+    project: YourLogos
+    max-tokens: '2500'
+```
+
+The separate, already approved Kimi step then reads `steps.cz_context.outputs.context-path` and appends its contents once to the fixed task prompt, retaining its original `--agent-file`, model timeout, authorizations, allowlist and review controls. **Do not feed untrusted issue or PR text into this trusted input.** CI tests the action without model credentials. The generated summary records selected IDs and estimated token count without publishing the prompt.
+
+Retrieval is **deterministic keyword matching**, not embeddings and not LLM search. Defaults: L0 role/task header, up to 2 skills, up to 3 lessons, ~2,500 estimated input tokens (characters divided by four); no request to a paid provider. This upper bound applies to **library material only**, not Kimi's source-code or output tokens. As the library grows, local index scanning may take more CPU time, but does not itself consume provider tokens.
