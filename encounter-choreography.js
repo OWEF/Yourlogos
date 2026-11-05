@@ -37,12 +37,16 @@ export function createEncounterChoreography(bus,{enabled=false,root=null}={}){
   const docElement=dom.documentElement;
   if(docElement)docElement.dataset.cz80Preview="on";
   const unsubscribers=Object.entries(BEATS).map(([type,beat])=>
-    bus.subscribe(type,()=>{
-      // Only the currently mounted sheet can receive a visual beat.
-      // No timer survives an app render and no visual event can save data.
+    bus.subscribe(type,event=>{
+      // A visual completion is not evidence of a save. Only authoritative,
+      // persisted completion may produce the final reward beat.
+      if(type==="encounter.finish"&&event?.payload?.saved!==true)return;
+      // AI save navigates immediately to My World. Give that new route a
+      // restrained arrival beat rather than animating a removed sheet.
       const sheet=dom.querySelector(".discover-sheet");
-      if(!sheet)return;
-      sheet.dataset.cz80Beat=beat;
+      const host=sheet||(type==="encounter.finish"?dom.querySelector(".stage"):null);
+      if(!host)return;
+      host.dataset.cz80Beat=beat;
     }));
   return {dispose(){
     unsubscribers.forEach(fn=>fn());
