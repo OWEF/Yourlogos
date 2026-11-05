@@ -1,0 +1,71 @@
+name: CZ81 iPhone visual review on free GitHub Pages
+on:
+  push:
+    branches: [preview/cz81-iphone-acceptance-8176585]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: cz81-iphone-pages-preview
+  cancel-in-progress: true
+
+jobs:
+  pages:
+    if: github.ref == 'refs/heads/preview/cz81-iphone-acceptance-8176585'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Check out isolated preview branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Verify original PR #132 code and art are pinned to reviewed SHA
+        shell: bash
+        env:
+          APPROVED_SHA: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+        run: |
+          set -euo pipefail
+          git cat-file -e "$APPROVED_SHA^{commit}"
+          for f in \
+            encounter-events.js encounter-choreography.js \
+            lillogo-rig-controller.js lillogo-rig-review.css \
+            encounter-choreography.css assets/lillogo-v3-layered-hybrid.svg \
+            assets/lillogo-v3-ai-matte.svg; do
+            test "$(git rev-parse HEAD:"$f")" = "$(git rev-parse "$APPROVED_SHA":"$f")"
+          done
+          node --check encounter-events.js
+          node --check encounter-choreography.js
+          node --check lillogo-rig-controller.js
+          echo "The original PR 132 code and artwork have identical blob SHAs."
+
+      - name: Assemble strictly limited static review artifacts (no server, credentials or user data)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site/assets
+          cp preview/iphone/index.html _site/index.html
+          cp encounter-events.js encounter-choreography.js lillogo-rig-controller.js _site/
+          cp encounter-choreography.css lillogo-rig-review.css _site/
+          cp assets/lillogo-v3-layered-hybrid.svg assets/lillogo-v3-ai-matte.svg _site/assets/
+          touch _site/.nojekyll
+          test -f _site/assets/lillogo-v3-ai-matte.svg
+          test -f _site/index.html
+          test "$(find _site -type f | wc -l)" -eq 9
+
+      - name: Configure existing free GitHub Pages feature
+        uses: actions/configure-pages@v5
+      - name: Upload static review surface
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy review site (not Railway production)
+        id: deploy
+        uses: actions/deploy-pages@v4
