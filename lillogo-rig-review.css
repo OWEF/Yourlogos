@@ -1,0 +1,43 @@
+/* CZ-81: layered original-art preview ONLY. Without ?cz81=preview the
+   production character stays exactly as before. */
+html[data-cz81-preview="on"] .yl-logo-pet-layered,
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-pet-figure,
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-pet-art,
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-pet-shadow {
+  transform:none!important;
+  translate:none!important;
+  animation:none!important;
+  transition:none!important;
+  filter:none!important;
+}
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-pet-figure {
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  opacity:1!important;
+}
+html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-v3-rig {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  border:0;
+}
+html[data-cz81-preview="on"] .yl-logo-pet-layered :is(.yl-logo-pet-pose,.yl-logo-pet-hero) {
+  display:none!important;
+}
+html[data-cz81-preview="on"] .yl-logo-pet-layered:focus-visible {
+  outline:2px solid #e3c291;
+  outline-offset:4px;
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-cz81-preview="on"] .yl-logo-pet-layered *,
+  html[data-cz81-preview="on"] .yl-logo-pet-layered *::before,
+  html[data-cz81-preview="on"] .yl-logo-pet-layered *::after{
+    animation:none!important;
+    transition:none!important;
+  }
+}
