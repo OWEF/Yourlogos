@@ -5,6 +5,7 @@ import { getThoughtThread } from "./thought-threads.js";
 import { personalizedExplore, CONCERNS } from "./personalization.js";
 import { exploreFor } from "./explore-catalogue.js";
 import { memoryForQuote, matchWorldMemory } from "./world-memory.js";
+import { CZ81_PREVIEW_ENABLED } from "./lillogo-rig-controller.js";
 
 export const LIVING_VERSION=1;
 const THEME_START={
@@ -132,7 +133,11 @@ export function livingHtml({quote,id,session,profile,history=[],memory=null}){
  const thread=getThoughtThread(quote,id);
  const recall=matchWorldMemory(memory,quote,id);
  const entry=memoryForQuote(memory,quote,id);
- const front='<div class="yl-thread yl-living" data-living-phase="'+esc(session?.phase||"entry")+'">';
+ // A small, non-interactive companion in the local/offline path. The
+ // authoritative thread state continues to come from transitionLiving().
+ const companion=CZ81_PREVIEW_ENABLED?
+   '<div class="yl-living-companion" aria-hidden="true"><object class="yl-logo-v3-rig" type="image/svg+xml" data="/assets/lillogo-v3-layered-hybrid.svg" tabindex="-1" data-rig-mood="idle"><img src="/little-logo-hd-v2.jpg" width="400" height="400" alt="" draggable="false"></object></div>':"";
+ const front='<div class="yl-thread yl-living" data-living-phase="'+esc(session?.phase||"entry")+'">'+companion;
  if(!session)return front+
    '<div class="yl-thread-progress">A QUESTION WORTH FOLLOWING</div>'+
    '<h2 class="yl-living-title">'+esc(recall?.question?
