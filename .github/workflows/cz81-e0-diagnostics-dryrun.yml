@@ -1,0 +1,87 @@
+# CZ-81 E0 observer TEST ONLY: no Kimi secret, no paid model execution.
+name: CZ-81 E0 Safe Runner Diagnostics — Zero-Model Dry Run
+on:
+  push:
+    branches: [automation/cz81-e0-diagnostics-20261105]
+    paths: ['.github/workflows/cz81-e0-diagnostics-dryrun.yml']
+permissions: {}
+jobs:
+  diagnostics:
+    name: Validate redaction, timeout and no-progress checkpoint semantics
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/automation/cz81-e0-diagnostics-20261105' &&
+      github.event.before == 'ad0db757dc166889d1caeda2471b9895d3dafe00' &&
+      github.event.head_commit.message == 'test(cz81-e0): run zero-model diagnostic failure simulations' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout isolated diagnostic source (no persistent credentials)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Use pinned Node 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Check observer and wrapper syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check .github/scripts/cz81-e0-diagnostics.mjs
+          bash -n .github/scripts/cz81-e0-observed-command.sh
+          node --check tests/cz81-e0-diagnostics.test.mjs
+      - name: Run synthetic tests with no model, provider token or outside services
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/cz81-e0-diagnostics.test.mjs
+      - name: Exercise actual runner with deliberate no-progress timeout
+        id: dry
+        shell: bash
+        env:
+          OBS_REPORT_DIR: ${{ runner.temp }}/cz81-e0-safe-report
+          OBS_CANDIDATE: ${{ runner.temp }}/intentionally-absent-happy.svg
+          OBS_TIMEOUT_SECONDS: '2'
+          OBS_SAMPLE_INTERVAL_SECONDS: '1'
+        run: |
+          set -euo pipefail
+          # This is an inert Node fixture, NOT Kimi. It deliberately writes no
+          # candidate to simulate the previously observed 600s timeout quickly.
+          bash .github/scripts/cz81-e0-observed-command.sh -- node -e 'setTimeout(()=>{},10000)'
+          test -s "$OBS_REPORT_DIR/summary.json"
+          test -s "$OBS_REPORT_DIR/timeline.ndjson"
+      - name: Validate timeout is explicit and cannot be mistaken for success
+        shell: bash
+        env:
+          OBS_REPORT_DIR: ${{ runner.temp }}/cz81-e0-safe-report
+          EXIT_CODE: ${{ steps.dry.outputs.model_exit_code }}
+        run: |
+          set -euo pipefail
+          test "$EXIT_CODE" = '124'
+          node -e '
+            const fs=require("node:fs");
+            const x=JSON.parse(fs.readFileSync(process.env.OBS_REPORT_DIR+"/summary.json","utf8"));
+            if(x.exitCode!==124||x.termination!=="hard_timeout"||
+               x.candidatePresent!==false||x.candidateBytes!==0||
+               x.noSavedArtifact!==true)process.exit(1);
+            if(x.timeline.samples<1)process.exit(2);
+            console.log("Expected no-progress timeout correctly diagnosed. No retry allowed.");
+          '
+      - name: Upload metadata-only diagnostic artifact after fixture validation
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-e0-safe-diagnostics-dryrun
+          path: ${{ runner.temp }}/cz81-e0-safe-report/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Summarize safe operator outcome
+        shell: bash
+        run: |
+          echo 'E0 observer dry run passed: safe metadata, synthetic success/error/timeout, and no-progress timeout gate. No Kimi run, no production touch, no automatic retry.' >> "$GITHUB_STEP_SUMMARY"
