@@ -45,6 +45,7 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check app.js
+          node --check encounter-choreography.js
           node --check sw.js
           node --check liquid-navbar.js
           node --check liquid-slider.js
@@ -61,3 +62,5 @@ jobs:
         run: node --test tests/liquid-navbar.test.mjs tests/liquid-slider.test.mjs
       - name: Run Discover regression
         run: node --test tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs tests/discover-drag.test.mjs tests/philosopher-gallery.test.mjs
+      - name: Verify CZ-80 real Encounter event choreography (no model)
+        run: node --test tests/encounter-events.test.mjs tests/cz80-live-choreography.test.mjs
