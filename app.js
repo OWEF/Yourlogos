@@ -6,6 +6,7 @@ import { encounterFor, encounterPanel, recordExploration, worldHomeEvidence, wor
 import { encounterSoundEnabled, setEncounterSoundEnabled, playEncounterTone } from "./encounter-feedback.js";
 import { createEncounterEventBus } from "./encounter-events.js";
 import { CZ80_PREVIEW_ENABLED, livingTransitionEvents, createEncounterChoreography } from "./encounter-choreography.js";
+import { CZ81_PREVIEW_ENABLED, createLilLogoRigController } from "./lillogo-rig-controller.js";
 import { thoughtThreadHtml, thoughtThreadDestination, getThoughtThread } from "./thought-threads.js";
 import { exploreFor } from "./explore-catalogue.js";
 import { personalizedExplore } from "./personalization.js";
@@ -133,6 +134,7 @@ const KEY="yourlogos_web_v1";
 // Semantic notifications never own or mutate user records.
 const encounterEvents=createEncounterEventBus();
 createEncounterChoreography(encounterEvents,{enabled:CZ80_PREVIEW_ENABLED,root:document});
+createLilLogoRigController(encounterEvents,{enabled:CZ81_PREVIEW_ENABLED,root:document});
 const emitEncounter=(type,detail={})=>encounterEvents.publish(type,detail);
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}};
 let data=load();if(!data.themes)data.themes=[];if(!data.saved)data.saved=[];if(!data.practice)data.practice={};
