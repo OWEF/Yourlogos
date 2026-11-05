@@ -14,8 +14,8 @@ Versioned, reviewable operating knowledge for the existing four-role ChatGPT/Cod
 
 1. Obtain the founder-approved task ID, role, risk, exact allowed files, source SHA, tests, bounded runtime/allowance, and expected output.
 2. Use the reusable `.github/actions/cz-ai-select-context` preflight or its `.github/scripts/select-cz-ai-context.mjs` implementation. It reads the catalog locally but forwards only the L0 role/task summary and at most two matching `skills/*/SKILL.md` files.
-3. Search `lessons/INDEX.md` for related confirmed issues. Read the cited lesson and verify its preconditions still match the current code.
-4. Include the selected skill IDs and lesson IDs **explicitly** in the bounded task brief. A run that lacks required context must stop or request a reviewed revised brief, not silently improvise.
+3. The selection step searches `lessons/INDEX.md` locally (without sending the index to Kimi), and includes at most three relevant verified lessons. The worker checks each selected lesson against the current code's preconditions.
+4. Append the generated capped context packet to the fixed, approved task prompt **once**. Its skill/lesson IDs are recorded in a safe local summary. A missing packet must stop the run, not cause the worker to open the entire library.
 5. Run deterministic checks using the existing runner and receive independent QA/PR review; a model cannot self-approve. Human visual/mobile/production checks remain separate.
 
 ## Learning cycle (no self-editing model memory)
@@ -28,7 +28,7 @@ A candidate must identify symptom, trigger, impact, root cause vs hypothesis, mi
 
 ## Activation status
 
-Creating these files or a draft PR does **not** alter running GitHub workflows, call Kimi, train model weights, install global skills, change GitHub secrets, start automations, merge code, or deploy. To make the library active for a task, the reviewed runner must check out the approved library revision and include its selected files in the agent's instructions. Root `AGENTS.md` and the four role profiles can point to it after this PR is reviewed and merged. Other repositories need their own explicit adoption, including a pinned revision and access check.
+Creating these files or a draft PR does **not** alter already-running/historical GitHub workflows, call Kimi, train model weights, install global skills, change GitHub secrets, start automations, merge code, or deploy. To make the library active for a task, the reviewed runner must check out the approved library revision and include its selected files in the agent's instructions. Root `AGENTS.md` and the four role profiles can point to it after this PR is reviewed and merged. Other repositories need their own explicit adoption, including a pinned revision and access check.
 
 ## Security
 
