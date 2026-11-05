@@ -1,0 +1,214 @@
+# CZ81 M5 read-only-then-draft workflow. NO KIMI INVOCATIONS.
+# Stage ONLY previously quarantined original-art candidate with one exact regex fix.
+# Source: PR #132 exact approved SHA, production/main never touched.
+name: CZ-81 M5 Zero-Model QA Recovery and Draft
+on:
+  push:
+    branches: [automation/cz81-m5-qa-fixture-recovery-20261105]
+    paths: ['.github/workflows/cz81-m5-artifact-qa-only-once.yml']
+permissions: {}
+jobs:
+  qa:
+    name: Review saved M5 candidate, correct test, full CI
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/automation/cz81-m5-qa-fixture-recovery-20261105' &&
+      github.event.before == '422f6bec2936cc2140c0045ef69ee3553834d80a' &&
+      github.event.head_commit.message == 'qa(cz81): verify saved M5 art and repair hyphenated state fixture' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout exact original review source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Download seven-file quarantined M5 artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-retry-m5-quarantine
+          run-id: 41983454402
+          repository: OWEF/Yourlogos
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/input
+      - name: Verify source invariants, repair one exact QA matcher, and run all tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          test "$(find "$RUNNER_TEMP/input" -type f | wc -l)" = '7'
+          test -s "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg"
+          test -s "$RUNNER_TEMP/input/tests/cz81-accessory-motion.test.mjs"
+          test -s "$RUNNER_TEMP/input/lillogo-rig-controller.js"
+          test -s "$RUNNER_TEMP/input/tests/cz81-animation-qa.test.mjs"
+          test -s "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs"
+          test -s "$RUNNER_TEMP/input/tests/cz81-head-neck.test.mjs"
+          test -s "$RUNNER_TEMP/input/tests/cz81-motion-state-machine.test.mjs"
+          mkdir -p "$(dirname "assets/lillogo-v3-layered-hybrid.svg")"
+          cp "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg" "assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$(dirname "tests/cz81-accessory-motion.test.mjs")"
+          cp "$RUNNER_TEMP/input/tests/cz81-accessory-motion.test.mjs" "tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "$(dirname "lillogo-rig-controller.js")"
+          cp "$RUNNER_TEMP/input/lillogo-rig-controller.js" "lillogo-rig-controller.js"
+          mkdir -p "$(dirname "tests/cz81-animation-qa.test.mjs")"
+          cp "$RUNNER_TEMP/input/tests/cz81-animation-qa.test.mjs" "tests/cz81-animation-qa.test.mjs"
+          mkdir -p "$(dirname "tests/cz81-eye-gaze.test.mjs")"
+          cp "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs" "tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$(dirname "tests/cz81-head-neck.test.mjs")"
+          cp "$RUNNER_TEMP/input/tests/cz81-head-neck.test.mjs" "tests/cz81-head-neck.test.mjs"
+          mkdir -p "$(dirname "tests/cz81-motion-state-machine.test.mjs")"
+          cp "$RUNNER_TEMP/input/tests/cz81-motion-state-machine.test.mjs" "tests/cz81-motion-state-machine.test.mjs"
+          node <<'NODE'
+          const fs=require('node:fs');
+          const p='tests/cz81-animation-qa.test.mjs';
+          const old=String.raw`state-\w+ #headRig\{`;
+          const replacement=String.raw`state-[\w-]+ #headRig\{`;
+          let test=fs.readFileSync(p,'utf8');
+          if(test.split(old).length!==2)throw Error('QA fixture drift; refuse patch');
+          test=test.replace(old,replacement);
+          fs.writeFileSync(p,test);
+          const svg=fs.readFileSync('assets/lillogo-v3-layered-hybrid.svg','utf8');
+          const data=[...svg.matchAll(/data:image\/jpeg;base64,([A-Za-z0-9+/=]+)/g)];
+          if(data.length!==1 || !Buffer.from(data[0][1],'base64').equals(fs.readFileSync('little-logo-hd-v2.jpg')))
+            throw Error('Original approved portrait not byte-identical');
+          const tilts=[...svg.matchAll(/state-[\w-]+ #headRig\{[^}]*rotate\((-?[\d.]+)deg/g)].map(m=>Math.abs(Number(m[1])));
+          if(tilts.length!==4 || !tilts.every(x=>x>=1&&x<=3))
+            throw Error('Actual head motion outside acceptance bounds');
+          for(const id of ['headRig','hairRig','eyeRig','eyelids','neckUnderpaint'])
+            if(!svg.includes('id="'+id+'"'))throw Error('Missing original layer '+id);
+          if(/<script|<foreignObject|@import|url\(https?:|onload=|onclick=/i.test(svg))
+            throw Error('Unexpected executable/external SVG');
+          for(const f of ['tests/cz81-animation-qa.test.mjs','tests/cz81-eye-gaze.test.mjs',
+            'tests/cz81-head-neck.test.mjs','tests/cz81-accessory-motion.test.mjs',
+            'tests/cz81-motion-state-machine.test.mjs','lillogo-rig-controller.js']){
+            const s=fs.readFileSync(f,'utf8');
+            if(/(?:from\s*['"]node:child_process|require\(['"](?:node:)?child_process|process\.env\.KIMI|eval\s*\()/i.test(s))
+              throw Error('Unexpected unsafe source operation: '+f);
+          }
+          NODE
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg) ;;
+              tests/cz81-accessory-motion.test.mjs) ;;
+              lillogo-rig-controller.js) ;;
+              tests/cz81-animation-qa.test.mjs) ;;
+              tests/cz81-eye-gaze.test.mjs) ;;
+              tests/cz81-head-neck.test.mjs) ;;
+              tests/cz81-motion-state-machine.test.mjs) ;;
+              *) echo "::error::Outside candidate allowlist: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          git diff --check
+          node --check lillogo-rig-controller.js
+          node --check tests/cz81-animation-qa.test.mjs
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-accessory-motion.test.mjs tests/cz81-motion-state-machine.test.mjs tests/cz81-animation-qa.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node scripts/verify-v24.mjs
+          mkdir -p "$RUNNER_TEMP/validated"
+          mkdir -p "$RUNNER_TEMP/validated/$(dirname "assets/lillogo-v3-layered-hybrid.svg")"
+          cp "assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/validated/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/validated/$(dirname "tests/cz81-accessory-motion.test.mjs")"
+          cp "tests/cz81-accessory-motion.test.mjs" "$RUNNER_TEMP/validated/tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "$RUNNER_TEMP/validated/$(dirname "lillogo-rig-controller.js")"
+          cp "lillogo-rig-controller.js" "$RUNNER_TEMP/validated/lillogo-rig-controller.js"
+          mkdir -p "$RUNNER_TEMP/validated/$(dirname "tests/cz81-animation-qa.test.mjs")"
+          cp "tests/cz81-animation-qa.test.mjs" "$RUNNER_TEMP/validated/tests/cz81-animation-qa.test.mjs"
+          mkdir -p "$RUNNER_TEMP/validated/$(dirname "tests/cz81-eye-gaze.test.mjs")"
+          cp "tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/validated/tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/validated/$(dirname "tests/cz81-head-neck.test.mjs")"
+          cp "tests/cz81-head-neck.test.mjs" "$RUNNER_TEMP/validated/tests/cz81-head-neck.test.mjs"
+          mkdir -p "$RUNNER_TEMP/validated/$(dirname "tests/cz81-motion-state-machine.test.mjs")"
+          cp "tests/cz81-motion-state-machine.test.mjs" "$RUNNER_TEMP/validated/tests/cz81-motion-state-machine.test.mjs"
+          (cd "$RUNNER_TEMP/validated" && sha256sum "assets/lillogo-v3-layered-hybrid.svg" "tests/cz81-accessory-motion.test.mjs" "lillogo-rig-controller.js" "tests/cz81-animation-qa.test.mjs" "tests/cz81-eye-gaze.test.mjs" "tests/cz81-head-neck.test.mjs" "tests/cz81-motion-state-machine.test.mjs" > SHA256SUMS)
+          echo 'M5 QA passed 68/68 plus V2.4; remaining requirement: human Safari visual review.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload allowlisted validated candidate only
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-m5-reviewed-candidate
+          path: ${{ runner.temp }}/validated/
+          if-no-files-found: error
+          retention-days: 7
+  draft:
+    name: Draft review PR only; no release or execution of candidate code
+    needs: [qa]
+    if: needs.qa.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout original review SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Download validated source (immutable same-run artifact)
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-m5-reviewed-candidate
+          path: ${{ runner.temp }}/validated
+      - name: Stage only the seven reviewed files as draft
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: automation/cz81-m5-qa-reviewed-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          (cd "$RUNNER_TEMP/validated" && sha256sum -c SHA256SUMS)
+          test "$(find "$RUNNER_TEMP/validated" -type f | wc -l)" = '8'
+          mkdir -p "$(dirname "assets/lillogo-v3-layered-hybrid.svg")"
+          cp "$RUNNER_TEMP/validated/assets/lillogo-v3-layered-hybrid.svg" "assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$(dirname "tests/cz81-accessory-motion.test.mjs")"
+          cp "$RUNNER_TEMP/validated/tests/cz81-accessory-motion.test.mjs" "tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "$(dirname "lillogo-rig-controller.js")"
+          cp "$RUNNER_TEMP/validated/lillogo-rig-controller.js" "lillogo-rig-controller.js"
+          mkdir -p "$(dirname "tests/cz81-animation-qa.test.mjs")"
+          cp "$RUNNER_TEMP/validated/tests/cz81-animation-qa.test.mjs" "tests/cz81-animation-qa.test.mjs"
+          mkdir -p "$(dirname "tests/cz81-eye-gaze.test.mjs")"
+          cp "$RUNNER_TEMP/validated/tests/cz81-eye-gaze.test.mjs" "tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$(dirname "tests/cz81-head-neck.test.mjs")"
+          cp "$RUNNER_TEMP/validated/tests/cz81-head-neck.test.mjs" "tests/cz81-head-neck.test.mjs"
+          mkdir -p "$(dirname "tests/cz81-motion-state-machine.test.mjs")"
+          cp "$RUNNER_TEMP/validated/tests/cz81-motion-state-machine.test.mjs" "tests/cz81-motion-state-machine.test.mjs"
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg) ;;
+              tests/cz81-accessory-motion.test.mjs) ;;
+              lillogo-rig-controller.js) ;;
+              tests/cz81-animation-qa.test.mjs) ;;
+              tests/cz81-eye-gaze.test.mjs) ;;
+              tests/cz81-head-neck.test.mjs) ;;
+              tests/cz81-motion-state-machine.test.mjs) ;;
+              *) echo "::error::Draft includes unexpected path: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add -- assets/lillogo-v3-layered-hybrid.svg tests/cz81-accessory-motion.test.mjs lillogo-rig-controller.js tests/cz81-animation-qa.test.mjs tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-motion-state-machine.test.mjs
+          git commit -m 'feat(cz81): preserve M1–M5 original-art animation candidate for review'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$BRANCH"
+          gh pr create --draft --base release/cz80-cz81-integrated-review --head "$BRANCH" \
+            --title 'feat(cz81): LilLogo original-art articulated candidate — visual review pending' \
+            --body 'Scoped M1–M5 Kimi A/C candidate saved from validated GitHub Actions artifact, with one corrected static QA fixture for hyphenated state class. All deterministic tests pass; actual iPhone Safari motion smoothness, source-identity look, neck seam and 60Hz performance require human observation. No new Kimi call, no production deploy, no merge. GitHub #128 and Linear CZ-81 tracking. **DO NOT MERGE OR DEPLOY WITHOUT FOUNDER SIGNOFF.**'
+          echo 'Draft PR created; require founder side-by-side iPhone visual acceptance.' >> "$GITHUB_STEP_SUMMARY"
