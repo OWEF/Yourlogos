@@ -30,6 +30,18 @@ html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-v3-rig {
   -webkit-mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
   mask-image:radial-gradient(ellipse 69% 67% at 50% 50%,#000 61%,transparent 95%);
 }
+/* CZ-81 AI portrait isolation pass (review flag only).
+   The original JPEG has a near-black square background. In the larger AI
+   presentation that square is more apparent than in the compact local flow.
+   Blend only the dark source pixels into the AI panel and feather the outer
+   corners; the live animated SVG, face, hair and original bytes are unchanged.
+   Keep the compact local rendering untouched, since it is already accepted. */
+html[data-cz81-preview="on"] .yl-ai-experiment .yl-logo-pet-layered .yl-logo-v3-rig {
+  -webkit-mask-image:radial-gradient(ellipse 68% 64% at 51% 49%,#000 46%,rgba(0,0,0,.98) 54%,rgba(0,0,0,.76) 69%,transparent 89%);
+  mask-image:radial-gradient(ellipse 68% 64% at 51% 49%,#000 46%,rgba(0,0,0,.98) 54%,rgba(0,0,0,.76) 69%,transparent 89%);
+  mix-blend-mode:lighten;
+}
+
 html[data-cz81-preview="on"] .yl-logo-pet-layered :is(.yl-logo-pet-pose,.yl-logo-pet-hero) {
   display:none!important;
 }
