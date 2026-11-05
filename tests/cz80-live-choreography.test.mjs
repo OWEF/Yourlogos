@@ -19,6 +19,8 @@ test("preview flag is off on Node and normal app loads",()=>{
   assert.match(css,/html\[data-cz80-preview="on"\] \.discover-sheet\{\s*background:linear-gradient/);
   assert.match(css,/-webkit-backdrop-filter:blur\(16px\)/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+  const reducedMotionCss=css.slice(css.indexOf("@media(prefers-reduced-motion:reduce)"));
+  assert.match(reducedMotionCss,/html\[data-cz80-preview="on"\] \.stage\[data-cz80-beat="finish"\]\{\s*animation:none!important;/);
   assert.doesNotMatch(css,/\bbody\s*\{|\bhtml\s*\{/);
 });
 
