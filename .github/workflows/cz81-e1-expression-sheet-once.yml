@@ -1,0 +1,364 @@
+# Founder-approved CZ-81 E1 only: identity-faithful expression sheet.
+# One source-art task, one possible verified-progress retry on timeout.
+# Never merge, deploy, release, purchase, or touch production.
+name: CZ-81 E1 Original LilLogo Five-Expression Sheet
+on:
+  push:
+    branches: [automation/cz81-e1-expression-sheet-20261105]
+    paths: ['.github/workflows/cz81-e1-expression-sheet-once.yml']
+permissions: {}
+jobs:
+  expressive-art:
+    name: E1 Kimi A original-art study and independent QA
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/automation/cz81-e1-expression-sheet-20261105' &&
+      github.event.before == '422f6bec2936cc2140c0045ef69ee3553834d80a' &&
+      github.event.head_commit.message == 'dispatch(cz81-e1): founder-approved expression-first art study' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    outputs:
+      validated: ${{ steps.validate.outputs.validated }}
+    steps:
+      - name: Checkout exact reviewed original-art candidate without persistent token
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 5d2beba8ddbdabb68c549be67a2d90dba39b099c
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Preflight immutable input, founder-approved one-shot and existing Kimi role
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTOR" = "OWEF"
+          test "$GITHUB_EVENT_NAME" = "push"
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          test "$GITHUB_REF" = "refs/heads/automation/cz81-e1-expression-sheet-20261105"
+          test "$(git rev-parse HEAD)" = '5d2beba8ddbdabb68c549be67a2d90dba39b099c'
+          test "$(git hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          test -s little-logo-poses-v5.webp
+          test -s assets/lillogo-v3-layered-hybrid.svg
+          test -s .github/kimi/profiles/frontend-ux.md
+          test "$(node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+          test ! -e experiments/cz81-expression-sheet-v1.svg
+          test ! -e tests/cz81-expression-sheet.test.mjs
+      - name: Install pinned Kimi CLI without model secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--agent-file'
+          kimi --help | grep -q -- '--output-format'
+      - name: Run Kimi A E1 (max 600s, no internal retries)
+        id: model
+        shell: bash
+        timeout-minutes: 11
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/kimi-e1
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$KIMI_MODEL_API_KEY"
+          mkdir -p "$KIMI_CODE_HOME"
+          prompt=$(cat <<'TASK'
+          You are Kimi A, the EXISTING YourLogos Frontend/UX character-art specialist.
+          Task GitHub #128 / Linear CZ-81, founder-authorized E1 ONLY: expressive face ART STUDY.
+          Read AGENTS.md and relevant baseline art first. Use ReadMediaFile on
+          little-logo-hd-v2.jpg and little-logo-poses-v5.webp as identity/style reference.
+          Current prototype PR #134 source is pinned to SHA 5d2beba8ddbdabb68c549be67a2d90dba39b099c.
+          The founder REJECTED its visual quality because the face is STATIC while
+          the entire head rotates. Fix the problem by designing actual distinct facial
+          feature shapes, not by rotating or translating the unchanged face.
+          
+          Create EXACTLY two new files:
+          experiments/cz81-expression-sheet-v1.svg
+          tests/cz81-expression-sheet.test.mjs
+          Do NOT edit or replace existing original photos, production app, rig controller
+          or .github workflows. E1 is a STATIC five-pose expression sheet, NOT a
+          runtime animation or complete face rig. You can use local references to the
+          approved original photo via a relative asset path, but no HTTP requests, new
+          binary images, embedded remotely sourced art, trackers or third-party libraries.
+          Please design one clear front-facing LilLogo head at the same scale in five
+          consistent side-by-side panels, each preserving hair, eyes, proportions, face
+          and the dark scarf from the source identity. Mask/repaint the ORIGINAL fixed
+          eyebrows and mouth before providing clean expressive alternatives: simply
+          placing cartoon mouth lines over the original mouth, recoloring the portrait,
+          rotating the unchanged face or pasting emoji is NOT sufficient.
+          Expressions:
+          curious: wider eyes, visibly lifted brows, attentive mouth
+          thinking: brows inward, eyes narrowed slightly, contemplative mouth
+          happy: smile with cheeks lifted, softly brightened eyes
+          surprised: eyes wide, eyebrows up, mouth open
+          reflective: soft lids, resting relaxed mouth, settled brows
+          Keep head angle, face silhouette, colors, hair/scarf proportions and scale
+          IDENTICAL across all five panels so expressions can be evaluated blindly.
+          Add each panel a clear machine-readable group id of expr-curious,
+          expr-thinking, expr-happy, expr-surprised, expr-reflective; visible tiny
+          labels may appear but a reviewer can cover/hide those for blind review.
+          SVG should be valid standalone static artwork and visually compare
+          against the original portrait. Prefer honest 'needs artist review' notes
+          if flattened source cannot be separated faithfully; do not fabricate a
+          generic replacement mascot. Avoid direct duplication of other brands' art.
+          All states should be recognizable at 194px mobile character size, not
+          micro-pixel head tilt. No animation CSS or fake 60 FPS claim in E1.
+          Deliver a small focused Node built-in node:test file verifying all five
+          state groups exist, no <script>/foreignObject/external HTTP, no animation,
+          consistent static head geometry and some actual distinct face-feature
+          geometry. This does NOT prove human recognition; leave founder approval
+          as a required gate. No tests that prove emotions by labels alone.
+          Source and generated files must be parseable and lightweight.
+          One 600-second bounded attempt, 24 model steps; only one checkpoint-
+          gated retry may occur automatically on timeout if verified file progress.
+          No terminal Bash, subagents, GitHub changes, subscriptions or API calls.
+          Do not modify experiments/cz81-expression-sheet-v1.svg to embed unaudited remote code.
+          Work only on these two files; preserve original data and production.
+          TASK
+          )
+          set +e
+          timeout --signal=TERM --kill-after=5s 600s kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json > "$RUNNER_TEMP/e1-stdout.jsonl" 2> "$RUNNER_TEMP/e1-stderr.log"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "E1 first attempt exit code $rc; model logs kept private."
+      - name: Validate timeout progress before a single continuation
+        id: checkpoint
+        if: steps.model.outputs.exit_code == '124'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              experiments/cz81-expression-sheet-v1.svg|tests/cz81-expression-sheet.test.mjs) ;;
+              *) echo "::error::Forbidden changed path: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test "$(git hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          if [[ -s 'experiments/cz81-expression-sheet-v1.svg' ]]; then
+            test "$(stat -c%s experiments/cz81-expression-sheet-v1.svg)" -le 400000
+            grep -q '<svg' 'experiments/cz81-expression-sheet-v1.svg'
+            if grep -Eqi '<script|<foreignObject|https?://' 'experiments/cz81-expression-sheet-v1.svg'; then
+              echo "::error::Unexpected active or remote art source"; exit 1
+            fi
+          fi
+          if [[ -s 'experiments/cz81-expression-sheet-v1.svg' || -s 'tests/cz81-expression-sheet.test.mjs' ]]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            mkdir -p "$RUNNER_TEMP/e1-checkpoint/experiments" "$RUNNER_TEMP/e1-checkpoint/tests"
+            test ! -s 'experiments/cz81-expression-sheet-v1.svg' || cp 'experiments/cz81-expression-sheet-v1.svg' "$RUNNER_TEMP/e1-checkpoint/experiments/"
+            test ! -s 'tests/cz81-expression-sheet.test.mjs' || cp 'tests/cz81-expression-sheet.test.mjs' "$RUNNER_TEMP/e1-checkpoint/tests/"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo 'No file-progress evidence: no automatic retry.'
+          fi
+      - name: Save E1 timeout checkpoint for review before retry
+        if: steps.checkpoint.outputs.ready == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-e1-timeout-checkpoint
+          path: ${{ runner.temp }}/e1-checkpoint/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Continue E1 artwork from saved working files exactly once
+        id: retry
+        if: steps.model.outputs.exit_code == '124' && steps.checkpoint.outputs.ready == 'true'
+        shell: bash
+        timeout-minutes: 11
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/kimi-e1-final
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$KIMI_MODEL_API_KEY"
+          mkdir -p "$KIMI_CODE_HOME"
+          prompt=$(cat <<'TASK'
+          Continue the E1 original-art five-expression sheet from the FILES
+          already modified in this exact working directory. The first
+          600-second timebox expired. Do NOT restart or rebuild the sheet.
+          Finish ONLY experiments/cz81-expression-sheet-v1.svg and tests/cz81-expression-sheet.test.mjs;
+          five CLEAR, distinct curious/thinking/happy/surprised/reflective
+          expressions with constant head position and original LilLogo
+          identity. Original face unchanged only by being translated is
+          a failure. No backend, no network, no GitHub, no Bash, no subagent.
+          Complete the existing source and small deterministic checks.
+          If fidelity cannot be maintained, state that limitation, not
+          a fabricated approved result. Final 600s cap, zero further retries.
+          TASK
+          )
+          set +e
+          timeout --signal=TERM --kill-after=5s 600s kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json > "$RUNNER_TEMP/e1-retry-stdout.jsonl" 2> "$RUNNER_TEMP/e1-retry-stderr.log"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "E1 final continuation exit code $rc"
+      - name: Preserve all allowlisted candidate files even on failure
+        if: always() && (steps.model.outputs.exit_code != '' || steps.retry.outputs.exit_code != '')
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              experiments/cz81-expression-sheet-v1.svg|tests/cz81-expression-sheet.test.mjs) ;;
+              *) echo "::error::Unapproved file: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test "$(git hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          mkdir -p "$RUNNER_TEMP/e1-quarantine/experiments" "$RUNNER_TEMP/e1-quarantine/tests"
+          if [[ -s 'experiments/cz81-expression-sheet-v1.svg' ]]; then
+            test "$(stat -c%s 'experiments/cz81-expression-sheet-v1.svg')" -le 400000
+            cp 'experiments/cz81-expression-sheet-v1.svg' "$RUNNER_TEMP/e1-quarantine/experiments/"
+          fi
+          if [[ -s 'tests/cz81-expression-sheet.test.mjs' ]]; then
+            test "$(stat -c%s 'tests/cz81-expression-sheet.test.mjs')" -le 50000
+            cp 'tests/cz81-expression-sheet.test.mjs' "$RUNNER_TEMP/e1-quarantine/tests/"
+          fi
+          test -n "$(find "$RUNNER_TEMP/e1-quarantine" -type f -print -quit)"
+      - name: Upload E1 quarantined source regardless of downstream QA
+        if: always() && (steps.model.outputs.exit_code != '' || steps.retry.outputs.exit_code != '')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-e1-expression-source-quarantine
+          path: ${{ runner.temp }}/e1-quarantine/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Independent E1 structural QA — human art approval still required
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          first="${{ steps.model.outputs.exit_code }}"
+          second="${{ steps.retry.outputs.exit_code }}"
+          if [[ "$first" != '0' && ! ( "$first" == '124' && "$second" == '0' ) ]]; then
+            echo "::error::E1 not completed: first=$first, retry=$second"; exit 1
+          fi
+          test -s 'experiments/cz81-expression-sheet-v1.svg'
+          test -s 'tests/cz81-expression-sheet.test.mjs'
+          test "$(stat -c%s 'experiments/cz81-expression-sheet-v1.svg')" -le 400000
+          test "$(stat -c%s 'tests/cz81-expression-sheet.test.mjs')" -le 50000
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              experiments/cz81-expression-sheet-v1.svg|tests/cz81-expression-sheet.test.mjs) ;;
+              *) echo "::error::Changed path not allowlisted: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          test "$(git hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          git diff --check
+          node --check 'tests/cz81-expression-sheet.test.mjs'
+          node --test 'tests/cz81-expression-sheet.test.mjs' tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node scripts/verify-v24.mjs
+          node <<'NODE'
+          const fs=require('node:fs');
+          const xml=fs.readFileSync('experiments/cz81-expression-sheet-v1.svg','utf8');
+          for(const state of ['curious','thinking','happy','surprised','reflective']){
+            if(!xml.includes('id="expr-'+state+'"'))
+              throw Error('Missing source-art pose '+state);
+          }
+          if(!xml.includes('<svg')||!xml.includes('</svg>'))
+            throw Error('Not a complete SVG sheet');
+          if(/<script|<foreignObject|(?:https?:\/\/)(?!www\.w3\.org)/i.test(xml))
+            throw Error('Executable or network source in E1 sheet');
+          if(/@keyframes|animation\s*:/i.test(xml))
+            throw Error('E1 should be static to judge face alone');
+          NODE
+          mkdir -p "$RUNNER_TEMP/reviewed/experiments" "$RUNNER_TEMP/reviewed/tests"
+          cp 'experiments/cz81-expression-sheet-v1.svg' "$RUNNER_TEMP/reviewed/experiments/"
+          cp 'tests/cz81-expression-sheet.test.mjs' "$RUNNER_TEMP/reviewed/tests/"
+          echo 'validated=true' >> "$GITHUB_OUTPUT"
+          echo 'E1 static code and structural checks passed. Human iPhone facial-expression acceptance is still PENDING.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload E1 technically checked source for draft (never release)
+        if: steps.validate.outputs.validated == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-e1-validated-expression-sheet
+          path: ${{ runner.temp }}/reviewed/
+          if-no-files-found: error
+          retention-days: 7
+  stage-draft:
+    name: Create E1 art-review DRAFT only, never merge or deploy
+    needs: [expressive-art]
+    if: needs.expressive-art.result == 'success' && needs.expressive-art.outputs.validated == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout exact existing reviewed art branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 5d2beba8ddbdabb68c549be67a2d90dba39b099c
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Download already validated two-file E1 artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-e1-validated-expression-sheet
+          path: ${{ runner.temp }}/e1-validated
+      - name: Final allowlist and draft PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          E1_BRANCH: automation/cz81-e1-expression-review-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD)" = '5d2beba8ddbdabb68c549be67a2d90dba39b099c'
+          test "$(find "$RUNNER_TEMP/e1-validated" -type f | wc -l)" = '2'
+          test -s "$RUNNER_TEMP/e1-validated/experiments/cz81-expression-sheet-v1.svg"
+          test -s "$RUNNER_TEMP/e1-validated/tests/cz81-expression-sheet.test.mjs"
+          mkdir -p experiments tests
+          cp "$RUNNER_TEMP/e1-validated/experiments/cz81-expression-sheet-v1.svg" 'experiments/cz81-expression-sheet-v1.svg'
+          cp "$RUNNER_TEMP/e1-validated/tests/cz81-expression-sheet.test.mjs" 'tests/cz81-expression-sheet.test.mjs'
+          git diff --check
+          node --check 'tests/cz81-expression-sheet.test.mjs'
+          node --test 'tests/cz81-expression-sheet.test.mjs'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$E1_BRANCH"
+          git add -- 'experiments/cz81-expression-sheet-v1.svg' 'tests/cz81-expression-sheet.test.mjs'
+          git commit -m 'feat(cz81-e1): five original-style static LilLogo expressions for founder review'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$E1_BRANCH"
+          gh pr create --draft --base automation/cz81-m5-qa-reviewed-41988167190 --head "$E1_BRANCH" \
+            --title 'feat(cz81-e1): five expression faces — founder art review required' \
+            --body 'E1 artist study only for founder-approved CZ-81 expression-first track. Five static emotion faces under locked head, grounded in original LilLogo identity. Independent structural tests passed; human visual recognition, artist likeness, mobile readability and uncanny-valley review are NOT verified. No E2–E5 calls, no deployment or production merge. **DO NOT MERGE BEFORE FOUNDER FACIAL READABILITY ACCEPTANCE.**'
+          echo 'E1 draft ready for visual review, human approval still required.' >> "$GITHUB_STEP_SUMMARY"
