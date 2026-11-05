@@ -1,0 +1,771 @@
+# CZ-81: Founder-approved isolated event-driven sequential milestone chain.
+# One-shot push EXACT origin, fixed task per stage, GitHub jobs.needs handoffs.
+# Source and output remain draft-only; no production changes or purchases.
+name: CZ-81 LilLogo Event-Driven M1-M5 Chain
+on:
+  push:
+    branches: [automation/cz81-event-driven-milestones-20261105]
+    paths: ['.github/workflows/cz81-event-driven-milestones-once.yml']
+permissions: {}
+jobs:
+  m1:
+    name: M1 — recover original Kimi art, fix QA fixture, validate
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/automation/cz81-event-driven-milestones-20261105' &&
+      github.event.before == '422f6bec2936cc2140c0045ef69ee3553834d80a' &&
+      github.event.head_commit.message == 'dispatch(cz81): event-driven sequential LilLogo milestone chain' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout original unmerged review SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Download preserved M1 Kimi candidate from failed QA run
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-m1-recovery-quarantined-source
+          repository: OWEF/Yourlogos
+          run-id: 41977110310
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/input
+      - name: Validate exact scope and fix known attribute-only M1 test assertion
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          test -s "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg"
+          test -s "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs"
+          test "$(stat -c%s "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg")" -lt 150000
+          test "$(stat -c%s "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs")" -lt 30000
+          test "$(find "$RUNNER_TEMP/input" -type f | wc -l)" = '2'
+          cp "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg" assets/
+          cp "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs" tests/
+          node <<'NODE'
+          const fs=require('fs');
+          const p='tests/cz81-eye-gaze.test.mjs';
+          const old='.map(m=>m[1].trim());';
+          let code=fs.readFileSync(p,'utf8');
+          if(code.split(old).length!==2)throw Error('Unexpected test source; refuse unsafe patch');
+          const replacement='.map(m=>m[1].trim().replace(/\\s+fill="#000"/g,""));';
+          code=code.replace(old,replacement);
+          fs.writeFileSync(p,code);
+          const xml=fs.readFileSync('assets/lillogo-v3-layered-hybrid.svg','utf8');
+          const matches=[...xml.matchAll(/data:image\/jpeg;base64,([A-Za-z0-9+/=]+)/g)];
+          if(matches.length!==1)throw Error('Expected exactly one original raster');
+          const orig=fs.readFileSync('little-logo-hd-v2.jpg');
+          if(!Buffer.from(matches[0][1],'base64').equals(orig))throw Error('Original art bytes differ');
+          for(const id of ['headRig','eyeRig','eyelids','hairRig','neckUnderpaint'])
+            if(!xml.includes('id="'+id+'"'))throw Error('Missing original layer: '+id);
+          if(/<script|<foreignObject|(?:https?:\/\/)(?!www\.w3\.org)/i.test(xml))
+            throw Error('Unexpected executable or external SVG resource');
+          NODE
+          git diff --check
+          node --check tests/cz81-eye-gaze.test.mjs
+          node --test tests/cz81-eye-gaze.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          mkdir -p "$RUNNER_TEMP/quarantine/assets" "$RUNNER_TEMP/quarantine/tests"
+          cp assets/lillogo-v3-layered-hybrid.svg "$RUNNER_TEMP/quarantine/assets/"
+          cp tests/cz81-eye-gaze.test.mjs "$RUNNER_TEMP/quarantine/tests/"
+      - name: Upload M1 source and corrected tests for immediate M2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-chain-m1-quarantine
+          path: ${{ runner.temp }}/quarantine/
+          if-no-files-found: error
+          retention-days: 7
+
+  m2:
+    name: M2 Kimi A — one bounded stage, then immediate QA
+    needs: [m1]
+    if: needs.m1.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout pinned approved source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node.js 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Download previous stage's verified quarantine
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-chain-m1-quarantine
+          path: ${{ runner.temp }}/input
+      - name: Overlay previous allowlisted code and preserve baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          mkdir -p "./assets"
+          cp "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg" "./assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs" "./tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before"
+          mkdir -p "$RUNNER_TEMP/before/assets"
+          cp "./assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/before/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/before/tests/cz81-eye-gaze.test.mjs"
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs
+      - name: Install pinned Kimi CLI with no model key
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--agent-file'
+          test "$(node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+      - name: Run Kimi A — 600s 24 steps and zero retries
+        id: model
+        shell: bash
+        timeout-minutes: 11
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/kimi-m2
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: exit
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$KIMI_MODEL_API_KEY"
+          mkdir -p "$KIMI_CODE_HOME"
+          prompt=$(cat <<'TASK'
+          You are Kimi A, YourLogos frontend animation specialist. Founder-approved M2 only, based on validated M1 original-art SVG and eye test. Improve ONLY the head/neck pivot and revealed neck pixels for subtle 1-3 degree head tilt with no ghost duplicate head, solid dark seam, or lost original proportion. Source original raster is immutable. Do not rework eyes/hair/scarf or the user experience. Write a small Node built-in deterministic test in tests/cz81-head-neck.test.mjs and modify only assets/lillogo-v3-layered-hybrid.svg for the exact head/neck components. Preserve all existing tests and M1 eye behavior. If faithful occlusion cannot be solved with the flattened image under this budget, do not fabricate a new face: make the smallest credible result and disclose limits in code comments. No backend, accounts, API, paid tools or new app page. One run, no retries, 600 seconds max, 24 steps.
+          Strict file allowlist: assets/lillogo-v3-layered-hybrid.svg and tests/cz81-head-neck.test.mjs. Do not alter any other file. No Bash, no model subagents, no GitHub writes or paid services. Keep original YourLogos LilLogo identity; this is a DRAFT art-review branch, no release authority.
+          TASK
+          )
+          set +e
+          timeout --signal=TERM --kill-after=5s 600s kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json > "$RUNNER_TEMP/m2-stdout.jsonl" 2> "$RUNNER_TEMP/m2-stderr.log"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "Model process finished with code $rc; no raw model logs published."
+      - name: Quarantine allowlisted candidate BEFORE tests
+        if: steps.model.outputs.exit_code == '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg) ;;
+              tests/cz81-eye-gaze.test.mjs) ;;
+              tests/cz81-head-neck.test.mjs) ;;
+              *) echo "::error::Unexpected changed path: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-eye-gaze.test.mjs" "tests/cz81-eye-gaze.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-eye-gaze.test.mjs"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/assets/lillogo-v3-layered-hybrid.svg" "assets/lillogo-v3-layered-hybrid.svg" && { echo "::error::Model did not update required source assets/lillogo-v3-layered-hybrid.svg"; exit 1; }
+          test -s tests/cz81-head-neck.test.mjs
+          mkdir -p "$RUNNER_TEMP/quarantine"
+          mkdir -p "$RUNNER_TEMP/quarantine/assets"
+          cp "./assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/quarantine/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-head-neck.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-head-neck.test.mjs"
+          echo "Candidate preserved; tests and visual review remain independent."
+      - name: Upload quarantined m2 artifact even if QA fails
+        if: steps.model.outputs.exit_code == '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-chain-m2-quarantine
+          path: ${{ runner.temp }}/quarantine/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Fail closed if model did not finish
+        if: steps.model.outputs.exit_code != '0'
+        shell: bash
+        run: |
+          echo "::error::m2 model did not finish; no downstream stage"
+          exit 1
+      - name: Independently run m2 regression and safety gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          node --check tests/cz81-head-neck.test.mjs
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          echo "m2 tests passed; next stage can begin immediately."
+
+  m3:
+    name: M3 Kimi A — one bounded stage, then immediate QA
+    needs: [m2]
+    if: needs.m2.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout pinned approved source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node.js 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Download previous stage's verified quarantine
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-chain-m2-quarantine
+          path: ${{ runner.temp }}/input
+      - name: Overlay previous allowlisted code and preserve baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          mkdir -p "./assets"
+          cp "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg" "./assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs" "./tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-head-neck.test.mjs" "./tests/cz81-head-neck.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before"
+          mkdir -p "$RUNNER_TEMP/before/assets"
+          cp "./assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/before/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/before/tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-head-neck.test.mjs" "$RUNNER_TEMP/before/tests/cz81-head-neck.test.mjs"
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs
+      - name: Install pinned Kimi CLI with no model key
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--agent-file'
+          test "$(node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+      - name: Run Kimi A — 600s 24 steps and zero retries
+        id: model
+        shell: bash
+        timeout-minutes: 11
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/kimi-m3
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: exit
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$KIMI_MODEL_API_KEY"
+          mkdir -p "$KIMI_CODE_HOME"
+          prompt=$(cat <<'TASK'
+          You are Kimi A, YourLogos frontend animation specialist. Founder-approved CZ81 M3 only. Reuse validated original artwork from earlier M1 and M2 as actual source. Add one faithful secondary-motion system using original forelock + dark scarf/cape, with subtle delayed follow-through in idle/curious/reflective state (and independent of eyes and head). If an independently animated hand/arm cannot be extracted faithfully without repainting occluded raster, do not invent generic arms; document the blocker for later artist review. Keep work small and source-art faithful; modify only assets/lillogo-v3-layered-hybrid.svg and add tests/cz81-accessory-motion.test.mjs focused on named independent motion layer, reduced motion, visibility pause and absence of new external files. No backend, account, My World, API, purchase, new character identity, or production integration. One run, no retries, 600s max, 24 steps.
+          Strict file allowlist: assets/lillogo-v3-layered-hybrid.svg and tests/cz81-accessory-motion.test.mjs. Do not alter any other file. No Bash, no model subagents, no GitHub writes or paid services. Keep original YourLogos LilLogo identity; this is a DRAFT art-review branch, no release authority.
+          TASK
+          )
+          set +e
+          timeout --signal=TERM --kill-after=5s 600s kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json > "$RUNNER_TEMP/m3-stdout.jsonl" 2> "$RUNNER_TEMP/m3-stderr.log"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "Model process finished with code $rc; no raw model logs published."
+      - name: Quarantine allowlisted candidate BEFORE tests
+        if: steps.model.outputs.exit_code == '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg) ;;
+              tests/cz81-eye-gaze.test.mjs) ;;
+              tests/cz81-head-neck.test.mjs) ;;
+              tests/cz81-accessory-motion.test.mjs) ;;
+              *) echo "::error::Unexpected changed path: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-eye-gaze.test.mjs" "tests/cz81-eye-gaze.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-eye-gaze.test.mjs"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-head-neck.test.mjs" "tests/cz81-head-neck.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-head-neck.test.mjs"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/assets/lillogo-v3-layered-hybrid.svg" "assets/lillogo-v3-layered-hybrid.svg" && { echo "::error::Model did not update required source assets/lillogo-v3-layered-hybrid.svg"; exit 1; }
+          test -s tests/cz81-accessory-motion.test.mjs
+          mkdir -p "$RUNNER_TEMP/quarantine"
+          mkdir -p "$RUNNER_TEMP/quarantine/assets"
+          cp "./assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/quarantine/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-head-neck.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-head-neck.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-accessory-motion.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-accessory-motion.test.mjs"
+          echo "Candidate preserved; tests and visual review remain independent."
+      - name: Upload quarantined m3 artifact even if QA fails
+        if: steps.model.outputs.exit_code == '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-chain-m3-quarantine
+          path: ${{ runner.temp }}/quarantine/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Fail closed if model did not finish
+        if: steps.model.outputs.exit_code != '0'
+        shell: bash
+        run: |
+          echo "::error::m3 model did not finish; no downstream stage"
+          exit 1
+      - name: Independently run m3 regression and safety gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          node --check tests/cz81-accessory-motion.test.mjs
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-accessory-motion.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          echo "m3 tests passed; next stage can begin immediately."
+
+  m4:
+    name: M4 Kimi A — one bounded stage, then immediate QA
+    needs: [m3]
+    if: needs.m3.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout pinned approved source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node.js 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Download previous stage's verified quarantine
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-chain-m3-quarantine
+          path: ${{ runner.temp }}/input
+      - name: Overlay previous allowlisted code and preserve baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          mkdir -p "./assets"
+          cp "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg" "./assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs" "./tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-head-neck.test.mjs" "./tests/cz81-head-neck.test.mjs"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-accessory-motion.test.mjs" "./tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before"
+          mkdir -p "$RUNNER_TEMP/before/assets"
+          cp "./assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/before/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/before/tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-head-neck.test.mjs" "$RUNNER_TEMP/before/tests/cz81-head-neck.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-accessory-motion.test.mjs" "$RUNNER_TEMP/before/tests/cz81-accessory-motion.test.mjs"
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-accessory-motion.test.mjs
+      - name: Install pinned Kimi CLI with no model key
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--agent-file'
+          test "$(node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+      - name: Run Kimi A — 600s 24 steps and zero retries
+        id: model
+        shell: bash
+        timeout-minutes: 11
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/kimi-m4
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: exit
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$KIMI_MODEL_API_KEY"
+          mkdir -p "$KIMI_CODE_HOME"
+          prompt=$(cat <<'TASK'
+          You are Kimi A, YourLogos frontend state-machine specialist. Founder-approved CZ81 M4 only. Animation artwork M1-M3 is already provided as a validated local source; DO NOT edit art or tests from earlier stages. Refine existing preview-only, default-OFF lillogo-rig-controller.js to support natural semantic-state transitions (idle, curious, reflective, restful, quietly-delighted), stable lifecycle/mount/unmount, visibility and reduced-motion behavior, no duplicate listeners, and REAL saved-only finish semantics from existing CZ80 event bus. Edit only lillogo-rig-controller.js and create tests/cz81-motion-state-machine.test.mjs with deterministic mocked events and lifecycle assertions. No app.js, no backend, no authentication, no save logic mutation, no API, no new runtime libs, no production deploy. One run, no retries, 600 seconds max, 24 steps.
+          Strict file allowlist: lillogo-rig-controller.js and tests/cz81-motion-state-machine.test.mjs. Do not alter any other file. No Bash, no model subagents, no GitHub writes or paid services. Keep original YourLogos LilLogo identity; this is a DRAFT art-review branch, no release authority.
+          TASK
+          )
+          set +e
+          timeout --signal=TERM --kill-after=5s 600s kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json > "$RUNNER_TEMP/m4-stdout.jsonl" 2> "$RUNNER_TEMP/m4-stderr.log"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "Model process finished with code $rc; no raw model logs published."
+      - name: Quarantine allowlisted candidate BEFORE tests
+        if: steps.model.outputs.exit_code == '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg) ;;
+              tests/cz81-eye-gaze.test.mjs) ;;
+              tests/cz81-head-neck.test.mjs) ;;
+              tests/cz81-accessory-motion.test.mjs) ;;
+              lillogo-rig-controller.js) ;;
+              tests/cz81-motion-state-machine.test.mjs) ;;
+              *) echo "::error::Unexpected changed path: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          cmp -s "$RUNNER_TEMP/before/assets/lillogo-v3-layered-hybrid.svg" "assets/lillogo-v3-layered-hybrid.svg" || { echo "::error::Prior stage changed: assets/lillogo-v3-layered-hybrid.svg"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-eye-gaze.test.mjs" "tests/cz81-eye-gaze.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-eye-gaze.test.mjs"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-head-neck.test.mjs" "tests/cz81-head-neck.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-head-neck.test.mjs"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-accessory-motion.test.mjs" "tests/cz81-accessory-motion.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-accessory-motion.test.mjs"; exit 1; }
+          true
+          test -s tests/cz81-motion-state-machine.test.mjs
+          mkdir -p "$RUNNER_TEMP/quarantine"
+          mkdir -p "$RUNNER_TEMP/quarantine/assets"
+          cp "./assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/quarantine/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-head-neck.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-head-neck.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-accessory-motion.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/"
+          cp "./lillogo-rig-controller.js" "$RUNNER_TEMP/quarantine/lillogo-rig-controller.js"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-motion-state-machine.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-motion-state-machine.test.mjs"
+          echo "Candidate preserved; tests and visual review remain independent."
+      - name: Upload quarantined m4 artifact even if QA fails
+        if: steps.model.outputs.exit_code == '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-chain-m4-quarantine
+          path: ${{ runner.temp }}/quarantine/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Fail closed if model did not finish
+        if: steps.model.outputs.exit_code != '0'
+        shell: bash
+        run: |
+          echo "::error::m4 model did not finish; no downstream stage"
+          exit 1
+      - name: Independently run m4 regression and safety gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          node --check tests/cz81-motion-state-machine.test.mjs
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-accessory-motion.test.mjs tests/cz81-motion-state-machine.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          echo "m4 tests passed; next stage can begin immediately."
+
+  m5:
+    name: M5 Kimi C — one bounded stage, then immediate QA
+    needs: [m4]
+    if: needs.m4.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout pinned approved source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node.js 24
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Download previous stage's verified quarantine
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-chain-m4-quarantine
+          path: ${{ runner.temp }}/input
+      - name: Overlay previous allowlisted code and preserve baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          mkdir -p "./assets"
+          cp "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg" "./assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs" "./tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-head-neck.test.mjs" "./tests/cz81-head-neck.test.mjs"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-accessory-motion.test.mjs" "./tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "./"
+          cp "$RUNNER_TEMP/input/lillogo-rig-controller.js" "./lillogo-rig-controller.js"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-motion-state-machine.test.mjs" "./tests/cz81-motion-state-machine.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before"
+          mkdir -p "$RUNNER_TEMP/before/assets"
+          cp "./assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/before/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/before/tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-head-neck.test.mjs" "$RUNNER_TEMP/before/tests/cz81-head-neck.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-accessory-motion.test.mjs" "$RUNNER_TEMP/before/tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "$RUNNER_TEMP/before/"
+          cp "./lillogo-rig-controller.js" "$RUNNER_TEMP/before/lillogo-rig-controller.js"
+          mkdir -p "$RUNNER_TEMP/before/tests"
+          cp "./tests/cz81-motion-state-machine.test.mjs" "$RUNNER_TEMP/before/tests/cz81-motion-state-machine.test.mjs"
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-accessory-motion.test.mjs tests/cz81-motion-state-machine.test.mjs
+      - name: Install pinned Kimi CLI with no model key
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--agent-file'
+          test "$(node .github/scripts/cz69-role-router.mjs testing-qa)" = '.github/kimi/profiles/testing-qa.md'
+      - name: Run Kimi C — 600s 24 steps and zero retries
+        id: model
+        shell: bash
+        timeout-minutes: 11
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/kimi-m5
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '24'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: exit
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$KIMI_MODEL_API_KEY"
+          mkdir -p "$KIMI_CODE_HOME"
+          prompt=$(cat <<'TASK'
+          You are Kimi C, independent QA specialist for founder-approved CZ81 M5. This job receives fully scoped M1-M4 animated original-art candidate, all prior tests, and CZ80 controller. READ prior implementation; do not edit any production or art source, JS controller, or earlier tests. Write ONLY tests/cz81-animation-qa.test.mjs. Validate original art presence and internal SVG refs, semantic saved-only completion, teardown/reduced motion/hidden-tab handling, event-state transition consistency and absence of unexpected fetch/network/third-party dependencies. Add bounded static performance guard assumptions but NEVER claim true iPhone Safari 60fps or author-approved character fidelity from regex tests. Important: if any original-art seam is visually uncertain or evidence is incomplete, report limitation in test output; do not pretend a visual pass. Keep tests deterministic, no third-party libraries, no shell. One 600s capped run, no retries, 24 steps.
+          Strict file allowlist: tests/cz81-animation-qa.test.mjs. Do not alter any other file. No Bash, no model subagents, no GitHub writes or paid services. Keep original YourLogos LilLogo identity; this is a DRAFT art-review branch, no release authority.
+          TASK
+          )
+          set +e
+          timeout --signal=TERM --kill-after=5s 600s kimi --agent-file .github/kimi/profiles/testing-qa.md -p "$prompt" --output-format stream-json > "$RUNNER_TEMP/m5-stdout.jsonl" 2> "$RUNNER_TEMP/m5-stderr.log"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "Model process finished with code $rc; no raw model logs published."
+      - name: Quarantine allowlisted candidate BEFORE tests
+        if: steps.model.outputs.exit_code == '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg) ;;
+              tests/cz81-eye-gaze.test.mjs) ;;
+              tests/cz81-head-neck.test.mjs) ;;
+              tests/cz81-accessory-motion.test.mjs) ;;
+              lillogo-rig-controller.js) ;;
+              tests/cz81-motion-state-machine.test.mjs) ;;
+              tests/cz81-animation-qa.test.mjs) ;;
+              *) echo "::error::Unexpected changed path: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          cmp -s "$RUNNER_TEMP/before/assets/lillogo-v3-layered-hybrid.svg" "assets/lillogo-v3-layered-hybrid.svg" || { echo "::error::Prior stage changed: assets/lillogo-v3-layered-hybrid.svg"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-eye-gaze.test.mjs" "tests/cz81-eye-gaze.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-eye-gaze.test.mjs"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-head-neck.test.mjs" "tests/cz81-head-neck.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-head-neck.test.mjs"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-accessory-motion.test.mjs" "tests/cz81-accessory-motion.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-accessory-motion.test.mjs"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/lillogo-rig-controller.js" "lillogo-rig-controller.js" || { echo "::error::Prior stage changed: lillogo-rig-controller.js"; exit 1; }
+          cmp -s "$RUNNER_TEMP/before/tests/cz81-motion-state-machine.test.mjs" "tests/cz81-motion-state-machine.test.mjs" || { echo "::error::Prior stage changed: tests/cz81-motion-state-machine.test.mjs"; exit 1; }
+          true
+          test -s tests/cz81-animation-qa.test.mjs
+          mkdir -p "$RUNNER_TEMP/quarantine"
+          mkdir -p "$RUNNER_TEMP/quarantine/assets"
+          cp "./assets/lillogo-v3-layered-hybrid.svg" "$RUNNER_TEMP/quarantine/assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-eye-gaze.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-head-neck.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-head-neck.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-accessory-motion.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/"
+          cp "./lillogo-rig-controller.js" "$RUNNER_TEMP/quarantine/lillogo-rig-controller.js"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-motion-state-machine.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-motion-state-machine.test.mjs"
+          mkdir -p "$RUNNER_TEMP/quarantine/tests"
+          cp "./tests/cz81-animation-qa.test.mjs" "$RUNNER_TEMP/quarantine/tests/cz81-animation-qa.test.mjs"
+          echo "Candidate preserved; tests and visual review remain independent."
+      - name: Upload quarantined m5 artifact even if QA fails
+        if: steps.model.outputs.exit_code == '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cz81-chain-m5-quarantine
+          path: ${{ runner.temp }}/quarantine/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Fail closed if model did not finish
+        if: steps.model.outputs.exit_code != '0'
+        shell: bash
+        run: |
+          echo "::error::m5 model did not finish; no downstream stage"
+          exit 1
+      - name: Independently run m5 regression and safety gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          node --check tests/cz81-animation-qa.test.mjs
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-accessory-motion.test.mjs tests/cz81-motion-state-machine.test.mjs tests/cz81-animation-qa.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          echo "m5 tests passed; next stage can begin immediately."
+
+  stage-draft:
+    name: Final technical QA → draft review PR; never merge/deploy
+    needs: [m5]
+    if: needs.m5.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout original preview SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version: '24'
+      - name: Download entire validated final art candidate
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cz81-chain-m5-quarantine
+          path: ${{ runner.temp }}/input
+      - name: Validate final scope, test and stage draft PR only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: automation/cz81-lillogo-chain-review-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          test "$(find "$RUNNER_TEMP/input" -type f | wc -l)" = '7'
+          mkdir -p "./assets"
+          cp "$RUNNER_TEMP/input/assets/lillogo-v3-layered-hybrid.svg" "./assets/lillogo-v3-layered-hybrid.svg"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-eye-gaze.test.mjs" "./tests/cz81-eye-gaze.test.mjs"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-head-neck.test.mjs" "./tests/cz81-head-neck.test.mjs"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-accessory-motion.test.mjs" "./tests/cz81-accessory-motion.test.mjs"
+          mkdir -p "./"
+          cp "$RUNNER_TEMP/input/lillogo-rig-controller.js" "./lillogo-rig-controller.js"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-motion-state-machine.test.mjs" "./tests/cz81-motion-state-machine.test.mjs"
+          mkdir -p "./tests"
+          cp "$RUNNER_TEMP/input/tests/cz81-animation-qa.test.mjs" "./tests/cz81-animation-qa.test.mjs"
+          changed="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            case "$f" in
+              assets/lillogo-v3-layered-hybrid.svg) ;;
+              tests/cz81-eye-gaze.test.mjs) ;;
+              tests/cz81-head-neck.test.mjs) ;;
+              tests/cz81-accessory-motion.test.mjs) ;;
+              lillogo-rig-controller.js) ;;
+              tests/cz81-motion-state-machine.test.mjs) ;;
+              tests/cz81-animation-qa.test.mjs) ;;
+              *) echo "::error::Unexpected final path: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          git diff --check
+          node --check lillogo-rig-controller.js
+          node --test tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-accessory-motion.test.mjs tests/cz81-motion-state-machine.test.mjs tests/cz81-animation-qa.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add -- assets/lillogo-v3-layered-hybrid.svg tests/cz81-eye-gaze.test.mjs tests/cz81-head-neck.test.mjs tests/cz81-accessory-motion.test.mjs lillogo-rig-controller.js tests/cz81-motion-state-machine.test.mjs tests/cz81-animation-qa.test.mjs
+          git commit -m 'feat(cz81): event-driven LilLogo M1-M5 articulated review candidate'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$BRANCH"
+          gh pr create --draft --base release/cz80-cz81-integrated-review --head "$BRANCH" \
+            --title 'feat(cz81): event-driven LilLogo art and state machine — founder visual review' \
+            --body 'M1-M5 isolated staged Kimi A/C chain, original approved portrait, microactions and state controller behind preview flag. All mechanical tests passed but physical iPhone Safari 60fps, visual identity and reduced-motion acceptance STILL require independent founder review. **DO NOT MERGE OR DEPLOY**. Source originally PR #132 SHA 8176585ada4b1edf68e90c00e1b6c0fe92138105. Review parent GitHub #128 and Linear CZ-81.'
+          echo 'Final draft PR available; no product merge, no Railway or GitHub Pages deployment.' >> "$GITHUB_STEP_SUMMARY"
