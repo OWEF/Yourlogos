@@ -164,7 +164,7 @@ jobs:
           t.feed(s)
           needed={'faceRig','mouthRig','browRig','eyelidRig','cheekRig','btnNeutral','btnHappy','btnReplay'}
           if not needed<=t.ids:raise ValueError('Incomplete Happy rig controls')
-          if t.media.count('../little-logo-hd-v2.jpg')!=1:raise ValueError('Original JPEG reference missing or duplicated')
+          if t.media.count('../little-logo-hd-v2.jpg')!=3:raise ValueError('Expected three approved original JPEG references in rig plus two comparisons')
           if any(u and (u.startswith(('http:','https:','//','data:','javascript:')) or u.startswith('/')) for u in t.media):
               raise ValueError('Unexpected external or unsafe asset')
           if not t.scripts:raise ValueError('No inline animation script')
