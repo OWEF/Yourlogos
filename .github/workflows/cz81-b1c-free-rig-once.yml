@@ -1,0 +1,333 @@
+# Founder-approved single-use Kimi A task, based on the proven CZ-81 guarded bridge.
+# Source is PR #132 exact SHA; no production code, secrets or settings are deployed.
+# Triggerable ONCE by the specific initial owner commit on the unique branch.
+name: CZ-81 B1c Single Kimi A Free Rig Pilot
+on:
+  push:
+    branches: [automation/cz81-b1c-free-rig-20261105]
+    paths: ['.github/workflows/cz81-b1c-free-rig-once.yml']
+permissions: {}
+jobs:
+  kimi-implementation:
+    if: >-
+      github.repository == 'OWEF/Yourlogos' &&
+      github.actor == 'OWEF' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/automation/cz81-b1c-free-rig-20261105' &&
+      github.event.before == '422f6bec2936cc2140c0045ef69ee3553834d80a' &&
+      github.event.head_commit.message == 'dispatch(cz81): approved free rig head and gaze pilot' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: cz-69-kimi-coding
+      cancel-in-progress: false
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.validate.outputs.changed }}
+    steps:
+      - name: Checkout trusted default branch without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+
+      - name: Verify original reviewed source and one-shot founder approval without using model
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTOR" = 'OWEF'
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$GITHUB_EVENT_NAME" = 'push'
+          test "$GITHUB_REF" = 'refs/heads/automation/cz81-b1c-free-rig-20261105'
+          test "$(git rev-parse HEAD)" = '8176585ada4b1edf68e90c00e1b6c0fe92138105'
+          test -f assets/lillogo-v3-layered-hybrid.svg
+          test -f little-logo-hd-v2.jpg
+          test -f little-logo-poses-v5.webp
+          test -f .github/kimi/profiles/frontend-ux.md
+          echo 'One-shot founder dispatch and pinned PR #132 source verified.'
+
+      - name: Install pinned Kimi CLI before exposing membership key
+        run: |
+          set -euo pipefail
+          npm install --global '@moonshot-ai/kimi-code@2.4.1'
+          kimi --version
+          # This check is offline and requires no membership key or model call.
+          # Prevent an unsupported CLI flag from consuming a coding attempt.
+          kimi --help | grep -q -- '--prompt'
+          kimi --help | grep -q -- '--output-format'
+          kimi --help | grep -q -- '--agent-file'
+          node .github/scripts/cz69-role-router.mjs --check
+          test "$(node .github/scripts/cz69-role-router.mjs frontend-ux)" = '.github/kimi/profiles/frontend-ux.md'
+          node --check .github/scripts/cz69-safe-report.mjs
+          node --test .github/scripts/cz69-safe-report.test.mjs
+          cp .github/scripts/cz69-safe-report.mjs "$RUNNER_TEMP/cz69-safe-report.mjs"
+
+      - name: Run exactly one bounded Kimi A free-rig prototype without GitHub write token
+        id: model
+        shell: bash
+        timeout-minutes: 8
+        env:
+          KIMI_MODEL_NAME: kimi-for-coding
+          KIMI_MODEL_PROVIDER_TYPE: kimi
+          KIMI_MODEL_API_KEY: ${{ secrets.KIMI_CODE_API_KEY }}
+          KIMI_MODEL_BASE_URL: https://api.kimi.ai/coding/v1
+          KIMI_CODE_HOME: ${{ runner.temp }}/cz69-kimi-home
+          KIMI_CODE_TRUST_WORKSPACE: 'true'
+          KIMI_LOOP_MAX_STEPS_PER_TURN: '18'
+          KIMI_LOOP_MAX_ATTEMPTS_PER_STEP: '1'
+          KIMI_CODE_INFINITE_RETRY: 'false'
+          KIMI_CODE_BACKGROUND_PRINT_BACKGROUND_MODE: 'exit'
+          KIMI_CODE_BACKGROUND_MAX_RUNNING_TASKS: '1'
+          KIMI_CODE_BACKGROUND_BASH_TASK_TIMEOUT_S: '45'
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          if [[ -z "${KIMI_MODEL_API_KEY:-}" ]]; then
+            echo "::error::Required KIMI_CODE_API_KEY secret is absent"
+            exit 1
+          fi
+          mkdir -p "$KIMI_CODE_HOME"
+          # Trusted, fixed task; issue title/body and PR content are NEVER injected.
+          # The selected role denies Bash/delegation, but profile controls alone
+          # are not OS sandboxing. This runner handles only a fixed owner task.
+          prompt=$(cat <<'TASK'
+          You are Kimi A, the existing YourLogos Frontend/UX animation specialist.
+          This is ONE bounded founder-approved task for Linear CZ-81 and GitHub #128:
+          make the first FREE, faithful, *genuinely articulated* LilLogo prototype.
+          Work only from the checked-out PR #132 source, pinned at 8176585.
+          This is NOT an instruction to build every animation in a single run.
+          Budget: 360s, 18 steps/turn, no retries. No production authority.
+
+          Read AGENTS.md and DESIGN.md. References are the authentic
+          little-logo-hd-v2.jpg, little-logo-poses-v5.webp and
+          assets/lillogo-v3-layered-hybrid.svg. Existing experimental face
+          or generic cream scarf mascot is NOT a brand-design reference.
+          Keep LilLogo's recognizable pale winding tuft, glossy dark eyes,
+          delicate cream body and dark scarf. The source raster is flattened.
+          Be transparent if occluded pixels prevent a full-faithful cutout.
+          NEVER claim a rotating JPEG or pose crossfade is independent rigging.
+
+          FREE-FIRST TOOL DECISION:
+          Rigby2D (MIT/Apache 2.0 beta with a JS runtime) is an optional
+          longer-term 2D skeletal editor; this headless Actions runner may
+          not have the interactive editor or project authoring available.
+          Don't download or install tools. If not already feasible offline,
+          use *native SVG layers and WAAPI*, zero dependencies, and explain
+          why. No paid Rive plan, libraries, external network or purchases.
+
+          WRITE EXACTLY THREE NEW FILES AND NO OTHER FILE:
+          1. assets/lillogo-b1c-free-rig.svg
+          2. experiments/cz81-b1c-articulation-preview.html
+          3. tests/cz81-b1c-articulation.test.mjs
+
+          SVG: editable layered head/face, eye/eyelids/gaze, and an
+          independently pivoted tuft or scarf if art permits. Use the
+          approved original art where reasonable, realistic occlusion/mask
+          layers where needed. No obvious square or ghost head. Each
+          animated component must have its own transform origin.
+          HTML: accessible, same-origin, offline-safe visual preview with
+          idle, curious, reflective buttons and clear source-fidelity caveat.
+          Animate real independent elements, rather than global SVG/jpg
+          transforms. Smooth easing and at least one non-repeating idle
+          glance/blink. Avoid constant motion, use prefers-reduced-motion,
+          pause when hidden, and clean listeners. Simple frame-pacing
+          diagnostics may be displayed, but DO NOT claim a verified 60fps
+          iPhone result or true artwork equivalence without human review.
+          Test: node:test and assert on file contents and intentional
+          behaviors, broken sources, reduced-motion/static fallback, no
+          third-party network/API/save paths. Do not assert screenshot QA
+          by regex alone. No app.js, quote/Encounter data, auth, API,
+          service worker, My World, backend or production modifications.
+
+          Deliver a small initial head/eye articulation improvement and
+          an honest comparison with the existing hybrid on PR #132.
+          If source-art fidelity cannot be achieved under this cap, produce
+          an explicitly incomplete, SAFE candidate and report the reason.
+          No Bash/commands, GitHub writes, environment variables, other
+          agents, network access, deployment, paid tools or retries.
+          The independent CI and human founder will review the output.
+          TASK
+          )
+          # CZ-81 normal tier: 18 agent steps per turn, 1 failed-step attempt,
+          # no automatic retries, 360-second hard process timeout.
+          # These are execution caps, not verified token or dollar ceilings.
+          start_seconds=$SECONDS
+          set +e
+          timeout --signal=TERM --kill-after=5s 360s \
+            kimi --agent-file .github/kimi/profiles/frontend-ux.md -p "$prompt" --output-format stream-json \
+            > "$RUNNER_TEMP/kimi-stdout.jsonl" 2> "$RUNNER_TEMP/kimi-stderr.txt"
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "elapsed_sec=$((SECONDS-start_seconds))" >> "$GITHUB_OUTPUT"
+          echo "Kimi process stopped; raw model output intentionally withheld."
+          # Never automatically retry after a failure or hard timeout.
+
+      - name: Generate bounded sanitized diagnostics, even on timeout
+        if: always()
+        shell: bash
+        env:
+          MODEL_RC: ${{ steps.model.outputs.exit_code || 'missing' }}
+          MODEL_SECONDS: ${{ steps.model.outputs.elapsed_sec || '0' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cz69-safe"
+          if [[ -f "$RUNNER_TEMP/cz69-safe-report.mjs" ]]; then
+            node "$RUNNER_TEMP/cz69-safe-report.mjs" \
+              "$RUNNER_TEMP/kimi-stdout.jsonl" "$RUNNER_TEMP/kimi-stderr.txt" \
+              "$MODEL_RC" "$MODEL_SECONDS" "$RUNNER_TEMP/cz69-safe/report.json"
+          else
+            printf '%s\n' '{"schema":"cz69-harness-diagnostics-v1","exitClass":"not_started","safeFieldsOnly":true,"usage":"not_verified"}' \
+              > "$RUNNER_TEMP/cz69-safe/report.json"
+          fi
+          node -e '
+            const r=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
+            if (r.safeFieldsOnly !== true) process.exit(1);
+            console.log("CZ-69 sanitized outcome: "+r.exitClass);
+            require("node:fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              "### CZ-69 sanitized model-run evidence\n" +
+              "- Exit class: "+r.exitClass+"\n" +
+              "- Duration: "+(r.elapsedSeconds ?? "not started")+" seconds\n" +
+              "- Model usage: not verified\n" +
+              "- No raw prompts, model replies, tools, paths or credentials published\n");
+          ' "$RUNNER_TEMP/cz69-safe/report.json"
+
+      - name: Upload safe timeout evidence (never raw agent logs)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz69-safe-diagnostics
+          path: ${{ runner.temp }}/cz69-safe/report.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Fail closed when Kimi did not complete
+        if: steps.model.outputs.exit_code != '0'
+        run: |
+          echo "::error::Kimi did not finish; no code validation or draft PR"
+          exit 1
+
+      - name: Validate scope and run tests with no Kimi credentials
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              experiments/cz81-b1c-articulation-preview.html|tests/cz81-b1c-articulation.test.mjs|assets/lillogo-b1c-free-rig.svg) ;;
+              *) echo "::error::Out-of-scope file changed: $file"; exit 1 ;;
+            esac
+          done < <(git status --porcelain | cut -c4-)
+          git diff --check
+          if [[ ! -s experiments/cz81-b1c-articulation-preview.html ]]; then
+            echo '::error::No faithful head/gaze LilLogo preview was produced'
+            exit 1
+          fi
+          if [[ ! -s assets/lillogo-b1c-free-rig.svg ]]; then
+            echo "::error::No real layered LilLogo SVG was produced"
+            exit 1
+          fi
+          if [[ ! -s tests/cz81-b1c-articulation.test.mjs ]]; then
+            echo "::error::Expected new LilLogo preview regression test was not created"
+            exit 1
+          fi
+          node --check tests/cz81-b1c-articulation.test.mjs
+          node --test tests/cz81-b1c-articulation.test.mjs tests/discover-encounter.test.mjs tests/discover-quote-schema.test.mjs
+          node scripts/verify-v24.mjs
+          mkdir -p "$RUNNER_TEMP/candidate/tests" "$RUNNER_TEMP/candidate/experiments" "$RUNNER_TEMP/candidate/assets"
+          cp tests/cz81-b1c-articulation.test.mjs "$RUNNER_TEMP/candidate/tests/"
+          cp experiments/cz81-b1c-articulation-preview.html "$RUNNER_TEMP/candidate/experiments/cz81-b1c-articulation-preview.html"
+          cp assets/lillogo-b1c-free-rig.svg "$RUNNER_TEMP/candidate/assets/lillogo-b1c-free-rig.svg"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            echo '### CZ-81 B1c Kimi A preview passed scoped validation' >> "$GITHUB_STEP_SUMMARY"
+            echo '- Allowed changes: standalone LilLogo preview and regression test' >> "$GITHUB_STEP_SUMMARY"
+            echo '- Regression and V2.4 tests passed, no production operation' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            echo 'No changes after Kimi analysis; do not create a PR.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload candidate for independent review (no credentials)
+        if: steps.validate.outputs.changed == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cz81-b1c-rig-candidate
+          path: ${{ runner.temp }}/candidate/
+          if-no-files-found: error
+          retention-days: 3
+
+  open-draft-pr:
+    name: Stage scoped patch as an unmerged draft PR
+    needs: kimi-implementation
+    if: needs.kimi-implementation.result == 'success' && needs.kimi-implementation.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout main, without saved credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: 8176585ada4b1edf68e90c00e1b6c0fe92138105
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Fetch only the candidate artifact from the preceding job
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: cz81-b1c-rig-candidate
+          path: ${{ runner.temp }}/cz81-b1c-rig-candidate/
+      - name: Check artifact paths and create isolated draft PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: automation/cz81-b1c-free-rig-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          test -f "$RUNNER_TEMP/cz81-b1c-rig-candidate/tests/cz81-b1c-articulation.test.mjs"
+          test -f "$RUNNER_TEMP/cz81-b1c-rig-candidate/experiments/cz81-b1c-articulation-preview.html"
+          test -f "$RUNNER_TEMP/cz81-b1c-rig-candidate/assets/lillogo-b1c-free-rig.svg"
+          cp "$RUNNER_TEMP/cz81-b1c-rig-candidate/tests/cz81-b1c-articulation.test.mjs" tests/
+          cp "$RUNNER_TEMP/cz81-b1c-rig-candidate/experiments/cz81-b1c-articulation-preview.html" experiments/cz81-b1c-articulation-preview.html
+          mkdir -p assets
+          cp "$RUNNER_TEMP/cz81-b1c-rig-candidate/assets/lillogo-b1c-free-rig.svg" assets/lillogo-b1c-free-rig.svg
+          git diff --check
+          if [[ ! -s experiments/cz81-b1c-articulation-preview.html ]]; then
+            echo '::error::Missing faithful LilLogo B1c preview in candidate artifact'
+            exit 1
+          fi
+          files="$(git status --porcelain | cut -c4-)"
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              experiments/cz81-b1c-articulation-preview.html|tests/cz81-b1c-articulation.test.mjs|assets/lillogo-b1c-free-rig.svg) ;;
+              *) echo "::error::Unexpected candidate path: $file"; exit 1 ;;
+            esac
+          done <<< "$files"
+          if [[ -z "$files" ]]; then
+            echo "::error::Candidate patch contained no changes"
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add -- experiments/cz81-b1c-articulation-preview.html tests/cz81-b1c-articulation.test.mjs assets/lillogo-b1c-free-rig.svg
+          git commit -m 'feat(cz-81-b1c): add faithful LilLogo head/gaze preview'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$BRANCH"
+          gh pr create --draft --base release/cz80-cz81-integrated-review --head "$BRANCH" \
+            --title 'feat(cz-81-b1c): free original-art layer rig feasibility prototype' \
+            --body 'Kimi A Frontend & UX candidate for [Linear CZ-81 B1c](https://linear.app/czd217/issue/CZ-81/lillogo-v3-articulated-character-rig-and-event-driven-animation) and [GitHub #128](https://github.com/OWEF/Yourlogos/issues/128). Scope: one standalone approved-look head/gaze preview and deterministic Node test, with no live app changes. Selected frontend-ux role, separate token-limited Kimi job, file allowlist and CI. Independent tech-lead review and founder approval required before merge; **DO NOT MERGE OR DEPLOY**. Fresh PR CI must be independently approved and checked.'
+          echo '### CZ-81 B1c frontend draft PR staged' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Await independent tech-lead code review and founder release approval' >> "$GITHUB_STEP_SUMMARY"
