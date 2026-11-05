@@ -133,6 +133,7 @@ try{
  await evalJS("document.querySelector('[data-ai=save]').click();true");
  await until(()=>evalJS("Boolean(JSON.parse(localStorage.getItem('yourlogos_web_v1')||'{}').aiDiscoverThreads?.length)"),"explicit My World AI save");
  assert.equal(await evalJS("Boolean(document.querySelector('.discover-sheet'))"),false,"saved journey leaves Encounter");
+ await until(()=>evalJS("document.querySelector('.stage')?.dataset.cz80Beat==='finish'"),"My World receives real saved-completion beat");
 
  process.stdout.write("CZ80/81 local flow + mocked consented AI completion and explicit save PASS; no provider AI usage\\n");
 }finally{
