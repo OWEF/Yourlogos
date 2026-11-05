@@ -83,7 +83,7 @@ footer{margin-top:22px;font-size:11px;color:#ada198;line-height:1.5}
 <p class="small">Check the face and neck seam, the hair and scarf, whether there is a dark rectangular backdrop, and whether Reduce Motion is respected. Change iPhone Settings → Accessibility → Motion → Reduce Motion, then return here.</p>
 </section>
 <div class="status" id="status">Loading original source animation…</div>
-<footer>This visual preview is a **static test harness**. Real My World saves, API failures, installed-PWA offline launch and production-release acceptance must be validated separately on a full isolated app build. No analytics, AI calls, cookies or persistence.</footer>
+<footer>This visual preview is a <strong>static test harness</strong>. Real My World saves, API failures, installed-PWA offline launch and production-release acceptance must be validated separately on a full isolated app build. No analytics, AI calls, cookies or persistence.</footer>
 </main>
 <script type="module">
 import {createEncounterEventBus} from "./encounter-events.js";
@@ -123,6 +123,7 @@ obj.addEventListener("error",()=>{$("status").textContent="The art SVG failed to
 if(new URLSearchParams(location.search).get("cz81")!=="preview"||new URLSearchParams(location.search).get("cz80")!=="preview"){
  $("status").textContent="Open this page with both ?cz80=preview&cz81=preview flags to enable animation.";
 }else showMode("ai");
-window.addEventListener("pagehide",()=>{rig.dispose();fx.dispose();},{once:true});
+// Retain the event controller when Safari restores this page from back/forward cache.
+// Document-owned observers are released naturally on full navigation/unload.
 </script>
 </body></html>
