@@ -123,6 +123,57 @@ jobs:
           test "$(find _site -type f | wc -l)" -eq 12
           echo 'Happy-only mobile comparison assembled using approved JPEG and PR #136 candidate in static output only. Human aesthetic review is pending.' >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Add isolated E2 Happy animated face rig from pinned reviewed draft PR
+        shell: bash
+        env:
+          RIG_SHA: 858af103dd1b02405e04b37c9742a3f8cef13a25
+          RIG_BRANCH: automation/cz81-e1-happy-art-review-42030682868
+        run: |
+          set -euo pipefail
+          test "$(git hash-object little-logo-hd-v2.jpg)" = 'e3cdd89b145c4b10a9c4bae11ddd32ea5c24e111'
+          test -s _site/little-logo-hd-v2.jpg
+          git fetch --no-tags --depth=1 origin "refs/heads/$RIG_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$RIG_SHA"
+          git show "$RIG_SHA:experiments/cz81-happy-rig-v1.html" > _site/experiments/cz81-happy-rig-v1.html
+          test -s _site/experiments/cz81-happy-rig-v1.html
+          python - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          p=Path('_site/experiments/cz81-happy-rig-v1.html')
+          s=p.read_text()
+          class T(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids=set()
+                  self.media=[]
+                  self.scripts=[]
+                  self.script=False
+              def handle_starttag(self,tag,attrs):
+                  for k,v in attrs:
+                      if k=='id':self.ids.add(v)
+                      if k in ('href','src','xlink:href'):self.media.append(v)
+                      if k.lower().startswith('on'):raise ValueError('Unexpected inline handler')
+                  if tag=='script':
+                      if any(k=='src' for k,v in attrs):raise ValueError('External JS forbidden')
+                      self.script=True
+              def handle_endtag(self,tag):
+                  if tag=='script':self.script=False
+              def handle_data(self,data):
+                  if self.script:self.scripts.append(data)
+          t=T()
+          t.feed(s)
+          needed={'faceRig','mouthRig','browRig','eyelidRig','cheekRig','btnNeutral','btnHappy','btnReplay'}
+          if not needed<=t.ids:raise ValueError('Incomplete Happy rig controls')
+          if t.media.count('../little-logo-hd-v2.jpg')!=1:raise ValueError('Original JPEG reference missing or duplicated')
+          if any(u and (u.startswith(('http:','https:','//','data:','javascript:')) or u.startswith('/')) for u in t.media):
+              raise ValueError('Unexpected external or unsafe asset')
+          if not t.scripts:raise ValueError('No inline animation script')
+          Path('/tmp/cz81-happy-pages-script.js').write_text('\n'.join(t.scripts))
+          PY
+          node --check /tmp/cz81-happy-pages-script.js
+          test "$(find _site -type f | wc -l)" -eq 13
+          echo 'E2 Happy original-portrait articulated facial rig staged for mobile founder visual review only; app production untouched.' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Configure existing free GitHub Pages feature
         uses: actions/configure-pages@v5
       - name: Upload static review surface
