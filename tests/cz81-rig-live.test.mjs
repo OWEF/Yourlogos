@@ -33,6 +33,19 @@ test("original art and independent face components remain embedded, not regenera
   assert.match(svg,/CZ-81 B1c PROTOTYPE/);
 });
 
+test("AI-only portrait isolation leaves the local preview and original asset intact",()=>{
+  const aiSelector='html[data-cz81-preview="on"] .yl-ai-experiment .yl-logo-pet-layered .yl-logo-v3-rig';
+  const aiStart=css.indexOf(aiSelector);
+  assert.ok(aiStart>=0,"AI mask must be behind the explicit preview flag");
+  const aiRule=css.slice(aiStart,css.indexOf("}",aiStart));
+  assert.match(aiRule,/-webkit-mask-image:radial-gradient/);
+  assert.match(aiRule,/mask-image:radial-gradient/);
+  assert.match(aiRule,/mix-blend-mode:lighten/);
+  assert.equal((css.match(/mix-blend-mode:lighten/g)||[]).length,1,"do not bleed changes into local view");
+  assert.match(css,/\.yl-living-companion \.yl-logo-v3-rig/);
+  assert.doesNotMatch(aiRule,/url\(|fetch\(|filter:brightness/);
+});
+
 test("unverified finish is ignored, saved finish moves to a restrained state",()=>{
   assert.equal(rigMoodForEvent({type:"encounter.finish",payload:{saved:false}}),null);
   assert.equal(rigMoodForEvent({type:"encounter.finish",payload:{}}),null);
