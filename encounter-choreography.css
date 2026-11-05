@@ -51,6 +51,10 @@ html[data-cz80-preview="on"] .stage[data-cz80-beat="finish"]{
     transition:none!important;
     scroll-behavior:auto!important;
   }
+  /* My World destination must also respect the system motion preference. */
+  html[data-cz80-preview="on"] .stage[data-cz80-beat="finish"]{
+    animation:none!important;
+  }
   html[data-cz80-preview="on"] .discover-sheet :is(.yl-logo-choice,.yl-living-choice):active{
     transform:none;
     border-color:#e6c08a;
