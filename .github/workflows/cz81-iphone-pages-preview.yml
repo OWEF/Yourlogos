@@ -60,6 +60,30 @@ jobs:
           test -f _site/index.html
           test "$(find _site -type f | wc -l)" -eq 9
 
+      - name: Overlay approved scoped M5 draft onto static preview only
+        shell: bash
+        env:
+          CANDIDATE_SHA: 5d2beba8ddbdabb68c549be67a2d90dba39b099c
+          CANDIDATE_BRANCH: automation/cz81-m5-qa-reviewed-41988167190
+        run: |
+          set -euo pipefail
+          # Do not modify the checked-out app/source; only the _site copy.
+          git fetch --no-tags --depth=1 origin "refs/heads/$CANDIDATE_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA"
+          git show "$CANDIDATE_SHA:assets/lillogo-v3-layered-hybrid.svg" > _site/assets/lillogo-v3-layered-hybrid.svg
+          git show "$CANDIDATE_SHA:lillogo-rig-controller.js" > _site/lillogo-rig-controller.js
+          node --check _site/lillogo-rig-controller.js
+          node <<'NODE'
+          const fs=require('node:fs');
+          const src=fs.readFileSync('_site/assets/lillogo-v3-layered-hybrid.svg','utf8');
+          const embedded=[...src.matchAll(/data:image\/jpeg;base64,([A-Za-z0-9+/=]+)/g)];
+          if(embedded.length!==1)throw Error('Unexpected source raster count');
+          if(!Buffer.from(embedded[0][1],'base64').equals(fs.readFileSync('little-logo-hd-v2.jpg')))throw Error('Approved portrait pixels changed');
+          for(const id of ['headRig','eyeRig','eyelids','hairRig','neckUnderpaint'])if(!src.includes('id="'+id+'"'))throw Error('Missing expected art layer '+id);
+          if(/<script|<foreignObject|(?:https?:\/\/)(?!www\.w3\.org)/i.test(src))throw Error('Unexpected external/active SVG reference');
+          NODE
+          echo 'Static Pages review contains validated PR 134 original-art animation and state controller; not production.' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Configure existing free GitHub Pages feature
         uses: actions/configure-pages@v5
       - name: Upload static review surface
