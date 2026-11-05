@@ -37,9 +37,18 @@ html[data-cz81-preview="on"] .yl-logo-pet-layered .yl-logo-v3-rig {
    corners; the live animated SVG, face, hair and original bytes are unchanged.
    Keep the compact local rendering untouched, since it is already accepted. */
 html[data-cz81-preview="on"] .yl-ai-experiment .yl-logo-pet-layered .yl-logo-v3-rig {
-  -webkit-mask-image:radial-gradient(ellipse 68% 64% at 51% 49%,#000 46%,rgba(0,0,0,.98) 54%,rgba(0,0,0,.76) 69%,transparent 89%);
-  mask-image:radial-gradient(ellipse 68% 64% at 51% 49%,#000 46%,rgba(0,0,0,.98) 54%,rgba(0,0,0,.76) 69%,transparent 89%);
-  mix-blend-mode:lighten;
+  /* Preserve all RGB/art layers; remove only the photographed backdrop
+     using a portrait-derived, blurred alpha silhouette mask. */
+  -webkit-mask-image:url("/assets/lillogo-v3-ai-matte.svg");
+  mask-image:url("/assets/lillogo-v3-ai-matte.svg");
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+  mask-position:center;
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  mix-blend-mode:normal;
+
 }
 
 html[data-cz81-preview="on"] .yl-logo-pet-layered :is(.yl-logo-pet-pose,.yl-logo-pet-hero) {
