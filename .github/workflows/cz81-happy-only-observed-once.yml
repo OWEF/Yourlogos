@@ -15,8 +15,8 @@ jobs:
       github.actor == 'OWEF' &&
       github.event_name == 'push' &&
       github.ref == 'refs/heads/automation/cz81-happy-only-observed-20261105' &&
-      github.event.before == 'a56ce7832b3d0f0ddc80674947a92bbdcd30082d' &&
-      github.event.head_commit.message == 'dispatch(cz81-e1-happy): founder-authorized single-expression observed run' &&
+      github.event.before == '9bfbcc81515dc658dac1beb4a61aa560c0f2b02f' &&
+      github.event.head_commit.message == 'dispatch(cz81-e1-happy): syntax-repaired owner one-shot' &&
       github.run_attempt == 1
     runs-on: ubuntu-24.04
     timeout-minutes: 29
@@ -45,7 +45,7 @@ jobs:
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version: '24'
-      - name: Preflight: original artwork, diagnostic proof and model role
+      - name: Verify pinned original art and diagnostics
         shell: bash
         run: |
           set -euo pipefail
