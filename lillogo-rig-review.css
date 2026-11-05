@@ -41,3 +41,21 @@ html[data-cz81-preview="on"] .yl-logo-pet-layered:focus-visible {
     transition:none!important;
   }
 }
+/* Local deterministic Encounter receives the same quietly observing character
+   without introducing a fake AI button or modifying conversation choices. */
+html[data-cz81-preview="on"] .discover-sheet .yl-living-companion{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:0 auto 8px;
+  width:100px;
+  height:94px;
+  pointer-events:none;
+}
+html[data-cz81-preview="on"] .discover-sheet .yl-living-companion .yl-logo-v3-rig{
+  display:block;
+  width:94px;
+  height:94px;
+  border:0;
+  pointer-events:none;
+}
