@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {evaluate,renderCandidate,section,getMergedPR,collectFiles} from './cz-ai-lesson-gate.mjs';
+import {evaluate,renderCandidate,section,getMergedPR,collectFiles} from '../.github/scripts/cz-ai-lesson-gate.mjs';
 const sha='b'.repeat(40);
 const pr={number:140,title:'fix(ui): restore LilLogo offline loading',body:'## Root cause\nOld cache key masked the new resource.\n## Tests\nnode --test tests/sw.test.mjs\n## Rollback\nRevert merge and restore cache version.',merged_at:'2026-11-05T23:00:00Z',state:'closed',base:{ref:'main'},head:{sha:'a'.repeat(40)},merge_commit_sha:sha};
 const files=[{filename:'sw.js'},{filename:'tests/sw.test.mjs'}];
