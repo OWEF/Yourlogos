@@ -84,3 +84,12 @@ dedicated Supabase project and its callback settings have been deployed and test
 - Replay is non-destructive: it does not update philosophical responses, existing encounter history or Supabase sessions.
 - A separate optional device-local developer preview preference skips the introduction on future visits. This is **not authentication or authorization** and grants no private account or administration access.
 - Existing visitors with saved progress do not repeat onboarding by default.
+
+## YourLogos onboarding — glass and thematic continuity (November 2026)
+- Preserve the charcoal / ivory / muted-brass aesthetic, expressive darkened paintings, Cormorant Garamond display and DM Sans supporting typography.
+- The first "Get started" cover remains a short invitation, not a repeat questionnaire.
+- Single topic-art registry drives the illustrated philosophical choice, subsequent reasoning-question hero, and result image. The caption must match the user's actual selection; never hard-code the Self & identity artwork after choosing another topic.
+- Curated work references: Caspar David Friedrich's *Wanderer above the Sea of Fog* (Self & identity); Jacques-Louis David's *The Death of Socrates* (Truth & knowledge); a full-view statue of Marcus Aurelius (Ethics & action). The Wikimedia Marcus photograph by MatthiasKabel is CC BY-SA 2.5 and should retain creator attribution when imagery is reused.
+- Use the existing Waterline liquid-glass visual language for onboarding cards, labels, CTA buttons, selection states, progress and result panels. Use CSS glass for onboarding, reusing color/blur/light cues of the existing slider/navbar; do not introduce a continuous WebGL render loop for static surfaces.
+- Keep the Little Logo Waterline swipe-to-enter after a new install's onboarding and on each fresh app launch for returning users, including signed-in and developer-preview sessions. The swipe does not force onboarding; preserve the one-arrival-per-day history invariant. Do not re-trigger the swipe on routine app visibility changes.
+- Settings → Onboarding & preview remains universally available. QA replay never overwrites saved answers or logs out.
