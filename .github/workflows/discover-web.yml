@@ -63,6 +63,8 @@ jobs:
           node --check discover-quote-drag.js
           node --check discover-quote-schema.js
           node --check little-logo-presence.js
+      - name: Verify onboarding state and replay behavior
+        run: node --test tests/onboarding-login.test.mjs
       - name: Run Waterline navigation regression
         run: node --test tests/liquid-navbar.test.mjs tests/liquid-slider.test.mjs
       - name: Run Discover regression
