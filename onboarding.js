@@ -1,7 +1,6 @@
 /* YourLogos — illustrated first visit, real email sign-in and non-destructive QA replay.
    First-visit data stays in this browser until users explicitly sync their account.
    QA replay neither edits the profile nor changes the authenticated session. */
-import { CONCERNS } from "./personalization.js";
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity } from "./auth-client.js";
 
 const STORAGE="yourlogos_web_v1", FLAG="yourlogos-introduction-v1";
@@ -23,7 +22,7 @@ const approaches={
  consequences:{label:"Consider the outcome",sub:"What might happen if I act?",approach:"act",insight:"Begin with possible consequences, then question whether outcomes are everything.",contrast:"A contrasting view asks whether some duties matter even when the result is uncertain."},
  people:{label:"Think of those affected",sub:"Who will this decision matter to?",approach:"talk",insight:"Begin with the people involved and the claims they have on you.",contrast:"A contrasting view asks how care for particular people relates to fairness for everyone."}
 };
-const painting="https://commons.wikimedia.org/wiki/Special:FilePath/%27A_Classical_Landscape%27_by_Claude_Lorrain%2C_17th_century%2C_Norton_Simon_Museum.JPG?width=1024";
+const painting="/api/school-art/onboarding";
 const hasRealHistory=s=>Boolean(s&&(s.personalization?.status==="completed"||s.personalization?.status==="skipped"||
  s.started||s.localName||(s.saved||[]).length||(s.arrivals||[]).length||
  (s.encounterEvents||[]).length||(s.thoughtThreadEvents||[]).length));
@@ -38,7 +37,7 @@ if(root){
  '<div class="yl-v2-bars" aria-label="Introduction progress">'+[0,1,2].map((n)=>'<i class="'+(n<=Math.min(page,2)?"on":"")+'"></i>').join("")+'</div>'+
  '<button class="yl-v2-quiet" type="button" data-step="skip">'+(replay?"Close":"Skip")+'</button></header>'}
  function action(label,enabled=true){return '<button type="button" class="yl-v2-action" data-step="next" '+(enabled?"":"disabled")+'>'+label+' <span aria-hidden="true">→</span></button>'}
- const picture=(alt,extra="")=>'<div class="yl-v2-picture '+extra+'"><img alt="'+safe(alt)+'" src="'+painting+'" loading="eager" referrerpolicy="no-referrer"/><div class="yl-v2-picture-caption">PHILOSOPHY IN EVERYDAY LIFE</div></div>';
+ const picture=(alt,extra="",src=painting)=>'<div class="yl-v2-picture '+extra+'"><img alt="'+safe(alt)+'" src="'+src+'" loading="eager" referrerpolicy="no-referrer"/><div class="yl-v2-picture-caption">PHILOSOPHY IN EVERYDAY LIFE</div></div>';
  function intro(){return picture("Classical landscape with ancient architecture and natural light","yl-v2-first-picture")+
  '<div class="yl-v2-kicker">WHY YOURLOGOS</div><h1 class="yl-v2-title">Discover the <em>PHILOSOPHER</em> in you.</h1>'+
  '<div class="yl-v2-invitation"><p class="yl-v2-wonder">Have you ever wondered—</p>'+
@@ -51,9 +50,9 @@ if(root){
  '<button type="button" data-step="signin" class="yl-v2-signin-link">Already have an account? <strong>Sign in</strong></button>'}
  function choice(){return '<div class="yl-v2-kicker">YOUR CURIOSITY</div><h1 class="yl-v2-title">What would you like to explore first?</h1>'+
  '<p class="yl-v2-lede">Choose the question that interests you most today.</p>'+
- '<div class="yl-v2-options">'+Object.entries(categories).map(([k,v])=>'<button type="button" class="yl-v2-choice '+(k===topic?"selected":"")+'" data-topic="'+k+'" aria-pressed="'+(k===topic)+'"><span class="yl-v2-symbol">◇</span><span><strong>'+v.label+'</strong><small>'+v.prompt+'</small></span><span class="yl-v2-check">'+(k===topic?"✓":"○")+'</span></button>').join("")+'</div>'+
+ '<div class="yl-v2-options">'+Object.entries(categories).map(([k,v])=>'<button type="button" class="yl-v2-choice '+(k===topic?"selected":"")+'" data-topic="'+k+'" aria-pressed="'+(k===topic)+'"><img class="yl-v2-thumb" alt="" src="/api/school-art/'+({identity:"existentialism",knowledge:"skepticism",ethics:"stoicism"}[k])+'" loading="lazy"/><span><strong>'+v.label+'</strong><small>'+v.prompt+'</small></span><span class="yl-v2-check">'+(k===topic?"✓":"○")+'</span></button>').join("")+'</div>'+
  '<p class="yl-v2-hint">You can explore every direction later.</p>'+action("Continue",Boolean(topic))}
- function instinct(){return picture("Painting of a classical landscape","yl-v2-small-picture")+
+ function instinct(){return picture("A contemplative figure in a mountainous landscape","yl-v2-small-picture","/api/school-art/existentialism")+
  '<div class="yl-v2-kicker">YOUR FIRST INSTINCT</div><h1 class="yl-v2-title">You have a difficult decision to make. What would you consider first?</h1>'+
  '<p class="yl-v2-lede">Choose the starting point that feels most natural.</p>'+
  '<div class="yl-v2-options yl-v2-reasons">'+Object.entries(approaches).map(([k,v])=>'<button type="button" class="yl-v2-choice '+(k===reason?"selected":"")+'" data-reason="'+k+'" aria-pressed="'+(k===reason)+'"><span><strong>'+v.label+'</strong><small>'+v.sub+'</small></span><span class="yl-v2-check">'+(k===reason?"✓":"○")+'</span></button>').join("")+'</div>'+action("See my starting point",Boolean(reason))}
@@ -87,6 +86,7 @@ if(root){
      window.dispatchEvent(new CustomEvent("yourlogos:onboarding-complete",{detail:{profile,previewQuote:skipped?null:{author:c.name,quote:c.quote,theme:c.theme}}}));
    }
    unlock();
+   if(!replay&&!skipped)window.dispatchEvent(new Event("yourlogos:skip-entrance"));
  }
  function open(isReplay=false){replay=isReplay;topic=null;reason=null;page=0;fromPage=0;loginNotice="";busy=false;lock();paint()}
  function goBack(){if(page==="login"){page=fromPage;loginNotice=""}else if(page>0)page--;paint()}
@@ -120,5 +120,5 @@ if(root){
  if(!seen)open(false);
  // A previously signed-in account on a new device bypasses first-time questions.
  // Never identify returning users by a guessed email or local "developer" flag.
- if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u&&opened&&!replay)unlock()}).catch(()=>{});
+ if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u&&!replay){if(opened)unlock();window.dispatchEvent(new Event("yourlogos:skip-entrance"));}}).catch(()=>{});
 }
