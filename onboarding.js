@@ -35,7 +35,7 @@ const hasRealHistory=s=>{
 };
 function readData(){try{return JSON.parse(localStorage.getItem(STORAGE)||"{}")||{}}catch{return {}}}
 if(root){
- let page=0,topic=null,reason=null,loginNotice="",busy=false,replay=false,opened=false,fromPage=0;
+ let page="cover",topic=null,reason=null,loginNotice="",busy=false,replay=false,opened=false,fromPage=0;
  function lock(){slider?.setAttribute("inert","");app?.setAttribute("inert","");root.hidden=false;opened=true;document.body.classList.add("yl-intro-active")}
  function unlock(){root.hidden=true;root.replaceChildren();slider?.removeAttribute("inert");app?.removeAttribute("inert");document.body.classList.remove("yl-intro-active");opened=false}
  // Ensure welcome.js has registered its entrance listener before the first auto-redirect.
@@ -46,11 +46,16 @@ if(root){
  }
  function currentCategory(){return categories[topic]||categories.identity}
  function currentApproach(){return approaches[reason]||approaches.facts}
- function header(){return '<header class="yl-v2-top"><button type="button" data-step="back" aria-label="Go back" class="yl-v2-back">'+(page===0?"":"‹")+'</button>'+
+ function header(){return '<header class="yl-v2-top"><button type="button" data-step="back" aria-label="Go back" class="yl-v2-back">'+(page==="login"&&fromPage==="cover"?"":"‹")+'</button>'+
  '<div class="yl-v2-bars" aria-label="Introduction progress">'+[0,1,2].map((n)=>'<i class="'+(n<=Math.min(page,2)?"on":"")+'"></i>').join("")+'</div>'+
  '<button class="yl-v2-quiet" type="button" data-step="skip">'+(replay?"Close":"Skip")+'</button></header>'}
  function action(label,enabled=true){return '<button type="button" class="yl-v2-action" data-step="next" '+(enabled?"":"disabled")+'>'+label+' <span aria-hidden="true">→</span></button>'}
  const picture=(alt,extra="",src=painting)=>'<div class="yl-v2-picture '+extra+'"><img alt="'+safe(alt)+'" src="'+src+'" loading="eager" onerror="this.style.opacity=0"/><div class="yl-v2-picture-caption">PHILOSOPHY IN EVERYDAY LIFE</div></div>';
+ function cover(){return '<div class="yl-v2-cover-media"><img src="/api/school-art/onboarding" alt="A sunlit classical landscape opening onto a world of ideas" loading="eager" onerror="this.style.opacity=0"/><span class="yl-v2-cover-brand"><img src="/icon.svg" alt="" width="28" height="28"/> YOURLOGOS</span><span class="yl-v2-cover-caption">AN INVITATION TO THINK</span></div>'+
+ '<div class="yl-v2-cover-copy"><div class="yl-v2-kicker">PHILOSOPHY, MADE PERSONAL</div><h1 class="yl-v2-cover-title">A world of ideas.<br><em>A place for yours.</em></h1>'+
+ '<p class="yl-v2-cover-lede">Explore the questions that matter to you, in conversation with the great thinkers.</p></div>'+
+ action("Get started")+
+ (replay?'':'<button type="button" data-step="signin" class="yl-v2-signin-link">Already have an account? <strong>Sign in</strong></button>')}
  function intro(){return picture("Classical landscape with ancient architecture and natural light","yl-v2-first-picture")+
  '<div class="yl-v2-kicker">WHY YOURLOGOS</div><h1 class="yl-v2-title">Discover the <em>PHILOSOPHER</em> in you.</h1>'+
  '<div class="yl-v2-invitation"><p class="yl-v2-wonder">Have you ever wondered—</p>'+
@@ -63,7 +68,7 @@ if(root){
  (replay?'':'<button type="button" data-step="signin" class="yl-v2-signin-link">Already have an account? <strong>Sign in</strong></button>')}
  function choice(){return '<div class="yl-v2-kicker">YOUR CURIOSITY</div><h1 class="yl-v2-title">What would you like to explore first?</h1>'+
  '<p class="yl-v2-lede">Choose the question that interests you most today.</p>'+
- '<div class="yl-v2-options">'+Object.entries(categories).map(([k,v])=>'<button type="button" class="yl-v2-choice '+(k===topic?"selected":"")+'" data-topic="'+k+'" aria-pressed="'+(k===topic)+'"><img class="yl-v2-thumb" alt="" src="/api/school-art/'+({identity:"existentialism",knowledge:"skepticism",ethics:"stoicism"}[k])+'" loading="lazy" onerror="this.style.opacity=0"/><span><strong>'+v.label+'</strong><small>'+v.prompt+'</small></span><span class="yl-v2-check">'+(k===topic?"✓":"○")+'</span></button>').join("")+'</div>'+
+ '<div class="yl-v2-options yl-v2-illustrated-options">'+Object.entries(categories).map(([k,v])=>'<button type="button" class="yl-v2-choice yl-v2-topic-card '+(k===topic?"selected":"")+'" data-topic="'+k+'" aria-pressed="'+(k===topic)+'"><img class="yl-v2-topic-art" alt="" src="/api/school-art/'+({identity:"existentialism",knowledge:"skepticism",ethics:"stoicism"}[k])+'" loading="lazy" onerror="this.style.opacity=0"/><span class="yl-v2-topic-overlay" aria-hidden="true"></span><span class="yl-v2-topic-content"><strong>'+v.label+'</strong><small>'+v.prompt+'</small></span><span class="yl-v2-topic-select" aria-hidden="true">'+(k===topic?"✓":"○")+'</span></button>').join("")+'</div>'+
  '<p class="yl-v2-hint">You can explore every direction later.</p>'+action("Continue",Boolean(topic))}
  function instinct(){return picture("A contemplative figure in a mountainous landscape","yl-v2-small-picture","/api/school-art/existentialism")+
  '<div class="yl-v2-kicker">YOUR FIRST INSTINCT</div><h1 class="yl-v2-title">You have a difficult decision to make. What would you consider first?</h1>'+
@@ -87,8 +92,8 @@ if(root){
  '<button class="yl-v2-login-guest" type="button" data-step="return">← Back to exploring</button>'}
  function paint(){
    if(!opened)return;
-   root.innerHTML='<div class="yl-v2-shell"><div class="yl-v2-panel">'+header()+
-    '<main class="yl-v2-main" id="yl-v2-main">'+(page==="login"?login():page===0?intro():page===1?choice():page===2?instinct():result())+'</main>'+
+   root.innerHTML='<div class="yl-v2-shell"><div class="yl-v2-panel">'+(page==="cover"?"":header())+
+    '<main class="yl-v2-main" id="yl-v2-main">'+(page==="cover"?cover():page==="login"?login():page===0?intro():page===1?choice():page===2?instinct():result())+'</main>'+
     '<p class="yl-v2-foot">'+(replay?"Preview mode · Your saved answers will not change.":"Your first questions are yours to explore.")+'</p></div></div>';
  }
  function finish(skipped=false){
@@ -103,8 +108,8 @@ if(root){
    unlock();
    if(!replay&&!skipped)goToDashboard();
  }
- function open(isReplay=false){replay=isReplay;topic=null;reason=null;page=0;fromPage=0;loginNotice="";busy=false;lock();paint()}
- function goBack(){if(page==="login"){page=fromPage;loginNotice=""}else if(page>0)page--;paint()}
+ function open(isReplay=false){replay=isReplay;topic=null;reason=null;page="cover";fromPage=0;loginNotice="";busy=false;lock();paint()}
+ function goBack(){if(page==="login"){page=fromPage;loginNotice=""}else if(page===0)page="cover";else if(page>0)page--;paint()}
  root.addEventListener("click",e=>{
    const el=e.target instanceof Element?e.target.closest("button"):null;if(!el)return;
    if(el.dataset.topic&&Object.hasOwn(categories,el.dataset.topic)){topic=el.dataset.topic;paint();return}
@@ -112,7 +117,7 @@ if(root){
    switch(el.dataset.step){
     case"back":goBack();break;
     case"skip":if(replay)unlock();else finish(true);break;
-    case"next":if(page===3){finish(false);break}if(page===1&&!topic||page===2&&!reason)return;page++;paint();break;
+    case"next":if(page==="cover"){page=0;paint();break}if(page===3){finish(false);break}if(page===1&&!topic||page===2&&!reason)return;page++;paint();break;
     case"signin":fromPage=page;page="login";paint();break;
     case"developer-preview":{
       try{
