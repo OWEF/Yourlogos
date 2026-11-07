@@ -20,10 +20,10 @@ function harness({saved={},signedIn=false}={}){
  const slider={inert:false,setAttribute(){this.inert=true},removeAttribute(){this.inert=false}};
  const app={inert:false,setAttribute(){this.inert=true},removeAttribute(){this.inert=false}};
  class Clickable{constructor(dataset){this.dataset=dataset}closest(selector){return selector==="button"?this:null}}
- const localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v))};
+ const localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)};
  const window={addEventListener:(name,fn)=>{handlers[name]=fn},dispatchEvent:event=>{calls.push(event);handlers[event.type]?.(event)}};
  const context={
-  document:{getElementById:id=>({"yl-onboarding":root,"yl-entrance":slider,app})[id]||null,
+  document:{readyState:"complete",getElementById:id=>({"yl-onboarding":root,"yl-entrance":slider,app})[id]||null,
     body:{classList:{add:c=>classNames.add(c),remove:c=>classNames.delete(c)}}},
   localStorage,window,Element:Clickable,location:{search:""},URLSearchParams,FormData,
   CustomEvent:class{constructor(type,{detail}={}){this.type=type;this.detail=detail}},
@@ -103,4 +103,39 @@ test("legacy daily arrival also counts as a returning guest",()=>{
  const h=harness({saved:{"yourlogos-daily-ritual-v1":"2026-11-06"}});
  assert.equal(h.root.hidden,true);
  assert.equal(h.events("yourlogos:onboarding-complete").length,0);
+});
+
+test("developer preview uses no credentials, persists, and offers non-destructive replay",()=>{
+ const first=harness();
+ first.click({step:"signin"});
+ assert.match(first.root.innerHTML,/Enter developer preview/);
+ first.click({step:"developer-preview"});
+ assert.equal(first.root.hidden,true);
+ assert.equal(first.storage.get("yourlogos-developer-preview-v1"),"on");
+ assert.equal(first.storage.get("yourlogos-introduction-v1"),"done");
+ assert.equal(first.events("yourlogos:skip-entrance").length,1);
+ // It must not manufacture a verified identity or a personalization report.
+ assert.equal(first.events("yourlogos:onboarding-complete").length,0);
+ const again=harness({saved:Object.fromEntries(first.storage)});
+ assert.equal(again.root.hidden,true);
+ assert.equal(again.events("yourlogos:skip-entrance").length,1);
+ const original=again.storage.get("yourlogos-introduction-v1");
+ again.replay();
+ assert.equal(again.root.hidden,false);
+ again.click({step:"skip"});
+ assert.equal(again.root.hidden,true);
+ assert.equal(again.storage.get("yourlogos-introduction-v1"),original);
+ assert.equal(again.storage.get("yourlogos-developer-preview-v1"),"on");
+});
+test("exit preview opens login without rewriting a saved guest profile",()=>{
+ const value=JSON.stringify({saved:[7],personalization:{status:"completed",answers:{concerns:["time"]}}});
+ const h=harness({saved:{"yourlogos_web_v1":value,"yourlogos-introduction-v1":"done"}});
+ h.handlers["yourlogos:developer-signin"]();
+ assert.equal(h.root.hidden,false);
+ assert.match(h.root.innerHTML,/Welcome back/);
+ assert.match(h.root.innerHTML,/Enter developer preview/);
+ assert.equal(h.storage.get("yourlogos_web_v1"),value);
+ h.click({step:"skip"});
+ assert.equal(h.root.hidden,true);
+ assert.equal(h.storage.get("yourlogos_web_v1"),value);
 });
