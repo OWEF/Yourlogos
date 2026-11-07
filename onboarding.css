@@ -81,3 +81,6 @@ body.yl-intro-active{overflow:hidden}
 @media(max-height:830px){.yl-v2-panel{padding-top:max(13px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}.yl-v2-top{margin-bottom:17px}.yl-v2-first-picture{height:135px;margin-bottom:12px}.yl-v2-title{font-size:clamp(32px,8vw,44px)}.yl-v2-invitation{margin-bottom:9px}.yl-v2-questions{font-size:24px}.yl-v2-begun{font-size:22px;margin-bottom:7px}.yl-v2-meaning{margin-bottom:10px}.yl-v2-journey-row{min-height:47px}.yl-v2-journey{gap:5px;margin-bottom:10px}}
 @media(max-width:360px){.yl-v2-panel{padding-left:18px;padding-right:18px}.yl-v2-title{font-size:35px}.yl-v2-picture{height:143px}.yl-v2-choice{min-height:73px}}
 @media(prefers-reduced-motion:reduce){.yl-v2-main,.yl-v2-action,.yl-v2-choice{animation:none!important;transition:none!important}}
+.yl-v2-thumb{width:55px;height:55px;flex-shrink:0;object-fit:cover;object-position:center;border:1px solid #6b5e4b;border-radius:11px;filter:saturate(.6) brightness(.85)}
+.yl-v2-choice:has(.yl-v2-thumb) .yl-v2-check{margin-left:auto}
+@media(max-width:360px){.yl-v2-thumb{width:47px;height:47px}}
