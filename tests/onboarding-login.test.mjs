@@ -203,10 +203,10 @@ test("selected topic artwork follows the choice into instinct and result",()=>{
   h.click({topic:row.topic});
   h.click({step:"next"});
   assert.match(h.root.innerHTML,new RegExp("/api/school-art/"+row.asset));
-  assert.ok(h.root.innerHTML.includes(row.label),"Instinct picture label "+row.topic);
+  assert.ok(h.root.innerHTML.includes(row.label.replace("&","&amp;")),"Instinct picture label "+row.topic);
   h.click({reason:"facts"});h.click({step:"next"});
   assert.match(h.root.innerHTML,new RegExp("/api/school-art/"+row.asset));
-  assert.ok(h.root.innerHTML.includes(row.label),"Result picture label "+row.topic);
+  assert.ok(h.root.innerHTML.includes(row.label.replace("&","&amp;")),"Result picture label "+row.topic);
  }
 });
 test("Waterline glass controls are present across onboarding screens",()=>{
