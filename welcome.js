@@ -166,6 +166,14 @@
     entered=true;ready=true;root.hidden=true;thumb.disabled=true;
     document.getElementById("app")?.removeAttribute("aria-hidden");
   });
+  // Persisted local QA preview bypasses the entrance before the first paint.
+  // It does not create or imply an authenticated user session.
+  try{
+    if(localStorage.getItem("yourlogos-developer-preview-v1")==="on"){
+      entered=true;ready=true;root.hidden=true;thumb.disabled=true;
+      document.getElementById("app")?.removeAttribute("aria-hidden");
+    }
+  }catch{}
   window.addEventListener("yourlogos:ready",markReady);
   document.addEventListener("visibilitychange",()=>{
     if(document.hidden){wasBackgrounded=true;return}
