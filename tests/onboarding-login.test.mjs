@@ -98,3 +98,9 @@ test("returning verified email identity can bypass the first visit",async()=>{
  assert.equal(h.events("yourlogos:skip-entrance").length,1);
  assert.equal(h.storage.get("yourlogos-introduction-v1"),undefined);
 });
+
+test("legacy daily arrival also counts as a returning guest",()=>{
+ const h=harness({saved:{"yourlogos-daily-ritual-v1":"2026-11-06"}});
+ assert.equal(h.root.hidden,true);
+ assert.equal(h.events("yourlogos:onboarding-complete").length,0);
+});
