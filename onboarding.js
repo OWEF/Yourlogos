@@ -135,7 +135,7 @@ if(root){
    catch(error){loginNotice=String(error?.message||"Sign-in link could not be sent. Please try again.")}
    finally{busy=false;paint()}
  });
- // Available from Settings in explicit QA mode (?qa=1), never from an admin identity guess.
+ // Replay is available from Settings to all visitors, without login or URL flags.
  window.addEventListener("yourlogos:onboarding-replay",()=>open(true));
  // Leaving local preview offers the sign-in screen, without deleting account or guest data.
  window.addEventListener("yourlogos:developer-signin",()=>{open(true);page="login";fromPage=0;paint()});
