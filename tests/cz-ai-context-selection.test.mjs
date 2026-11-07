@@ -43,3 +43,17 @@ test('Different library size has no effect on prompt without matching lesson',()
   assert(!x.context.includes('"schema": "cz-ai-skills-v1"'));
   assert(x.totalLibrarySkills>=8);
 });
+
+test('Verified onboarding replay lesson is retrieved only for relevant Agent A and C tasks',()=>{
+  const id='2026-11-07-settings-onboarding-replay-qa-gate';
+  for(const role of ['frontend-ux','testing-qa']){
+    const hit=run(role,'Settings onboarding replay hidden by QA flag for returning users');
+    assert(hit.lessonIds.includes(id),role+' should retrieve the accepted replay lesson');
+    assert(hit.estimatedTokens<=hit.maxTokens);
+    assert(hit.skillIds.length<=2 && hit.lessonIds.length<=3);
+  }
+  const irrelevant=run('frontend-ux','LilLogo animation blink easing with eye motion');
+  assert(!irrelevant.lessonIds.includes(id),'unrelated animation tasks must not receive replay lesson');
+  const wrongRole=run('debugging','Settings onboarding replay hidden by QA flag');
+  assert(!wrongRole.lessonIds.includes(id),'roles without approved application must not receive replay lesson');
+});
