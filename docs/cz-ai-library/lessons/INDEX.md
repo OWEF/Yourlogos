@@ -6,5 +6,7 @@ Search this short index first and load only lessons relevant to the exact incide
 | --- | --- | --- | --- | --- |
 | 2026-11-05-ci-timeout-diagnostics | ci-verified (instrumentation only; not production fix) | C, D | Model output missing after hard timeout | [lesson](2026-11-05-ci-timeout-diagnostics.md) |
 
+| 2026-11-07-settings-onboarding-replay-qa-gate | ci-verified (source contract; not device QA) | A, C | Settings onboarding replay hidden by QA flag or blocked by stale handler guard | [lesson](2026-11-07-settings-onboarding-replay-qa-gate.md) |
+
 ## New lesson admission
 Agent or orchestrator drafts from verified issue/PR → independent QA checks original reproduction, negative cases and privacy → review PR → authorized merge → versioned index update. No autonomous model-run, retraining, merge, deployment, quota change or production fix is implied.
