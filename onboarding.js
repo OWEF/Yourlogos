@@ -4,6 +4,7 @@
 import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity } from "./auth-client.js";
 
 const STORAGE="yourlogos_web_v1", FLAG="yourlogos-introduction-v1";
+const DEV_PREVIEW="yourlogos-developer-preview-v1";
 const root=document.getElementById("yl-onboarding");
 const slider=document.getElementById("yl-entrance");
 const app=document.getElementById("app");
@@ -37,6 +38,12 @@ if(root){
  let page=0,topic=null,reason=null,loginNotice="",busy=false,replay=false,opened=false,fromPage=0;
  function lock(){slider?.setAttribute("inert","");app?.setAttribute("inert","");root.hidden=false;opened=true;document.body.classList.add("yl-intro-active")}
  function unlock(){root.hidden=true;root.replaceChildren();slider?.removeAttribute("inert");app?.removeAttribute("inert");document.body.classList.remove("yl-intro-active");opened=false}
+ // Ensure welcome.js has registered its entrance listener before the first auto-redirect.
+ function goToDashboard(){
+   const send=()=>window.dispatchEvent(new Event("yourlogos:skip-entrance"));
+   if(document.readyState==="complete")send();
+   else window.addEventListener("load",send,{once:true});
+ }
  function currentCategory(){return categories[topic]||categories.identity}
  function currentApproach(){return approaches[reason]||approaches.facts}
  function header(){return '<header class="yl-v2-top"><button type="button" data-step="back" aria-label="Go back" class="yl-v2-back">'+(page===0?"":"‹")+'</button>'+
@@ -75,6 +82,8 @@ if(root){
  '<button type="submit" '+(busy||!AUTH_ENABLED?"disabled":"")+'>'+ (busy?"Sending…":"Send me a sign-in link")+' →</button></form>'+
  (!AUTH_ENABLED?'<p class="yl-v2-auth-msg" role="status">Account sign-in is not configured on this deployment yet. You can still explore without an account.</p>':"<p class='yl-v2-hint'>No password needed. We’ll email you a secure sign-in link.</p>")+
  (loginNotice?'<p class="yl-v2-auth-msg" role="status">'+safe(loginNotice)+'</p>':"")+
+ '<button class="yl-v2-developer-entry" type="button" data-step="developer-preview">Enter developer preview <span aria-hidden="true">→</span></button>'+
+ '<p class="yl-v2-developer-hint">No credentials needed. Opens a local preview on this device; it does not sign in to an account or unlock private data.</p>'+
  '<button class="yl-v2-login-guest" type="button" data-step="return">← Back to exploring</button>'}
  function paint(){
    if(!opened)return;
@@ -92,7 +101,7 @@ if(root){
      window.dispatchEvent(new CustomEvent("yourlogos:onboarding-complete",{detail:{profile,previewQuote:skipped?null:{author:c.name,quote:c.quote,theme:c.theme}}}));
    }
    unlock();
-   if(!replay&&!skipped)window.dispatchEvent(new Event("yourlogos:skip-entrance"));
+   if(!replay&&!skipped)goToDashboard();
  }
  function open(isReplay=false){replay=isReplay;topic=null;reason=null;page=0;fromPage=0;loginNotice="";busy=false;lock();paint()}
  function goBack(){if(page==="login"){page=fromPage;loginNotice=""}else if(page>0)page--;paint()}
@@ -105,6 +114,14 @@ if(root){
     case"skip":if(replay)unlock();else finish(true);break;
     case"next":if(page===3){finish(false);break}if(page===1&&!topic||page===2&&!reason)return;page++;paint();break;
     case"signin":fromPage=page;page="login";paint();break;
+    case"developer-preview":{
+      try{
+        localStorage.setItem(DEV_PREVIEW,"on");
+        // Browser preference only — not an identity or authorization token.
+        localStorage.setItem(FLAG,"done");
+      }catch{}
+      unlock();goToDashboard();break;
+    }
     case"return":page=fromPage;paint();break;
    }
  });
@@ -120,11 +137,14 @@ if(root){
  });
  // Available from Settings in explicit QA mode (?qa=1), never from an admin identity guess.
  window.addEventListener("yourlogos:onboarding-replay",()=>open(true));
+ // Leaving local preview offers the sign-in screen, without deleting account or guest data.
+ window.addEventListener("yourlogos:developer-signin",()=>{open(true);page="login";fromPage=0;paint()});
  // Prior visits bypass the new introduction; an existing five-step profile is not reset.
  const state=readData();
  const seen=!!(localStorage.getItem(FLAG)||hasRealHistory(state));
  if(!seen)open(false);
+ if(localStorage.getItem(DEV_PREVIEW)==="on")goToDashboard();
  // A previously signed-in account on a new device bypasses first-time questions.
  // Never identify returning users by a guessed email or local "developer" flag.
- if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u&&!replay){if(opened)unlock();window.dispatchEvent(new Event("yourlogos:skip-entrance"));}}).catch(()=>{});
+ if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u&&!replay){if(opened)unlock();goToDashboard();}}).catch(()=>{});
 }
