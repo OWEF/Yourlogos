@@ -65,7 +65,7 @@ test("new user sees approved invitation and can complete the two-signal flow",()
  assert.equal(h.storage.get("yourlogos-introduction-v1"),"done");
  assert.equal(h.root.hidden,true);
  assert.equal(h.events("yourlogos:onboarding-complete").length,1);
- assert.equal(h.events("yourlogos:skip-entrance").length,1);
+ assert.equal(h.events("yourlogos:skip-entrance").length,0);
 });
 
 test("returning guest skips introduction; QA replay is non-destructive",()=>{
@@ -103,7 +103,7 @@ test("returning verified email identity can bypass the first visit",async()=>{
  assert.equal(h.root.hidden,false);
  await Promise.resolve();await Promise.resolve();
  assert.equal(h.root.hidden,true);
- assert.equal(h.events("yourlogos:skip-entrance").length,1);
+ assert.equal(h.events("yourlogos:skip-entrance").length,0);
  assert.equal(h.storage.get("yourlogos-introduction-v1"),undefined);
 });
 
@@ -121,12 +121,12 @@ test("developer preview uses no credentials, persists, and offers non-destructiv
  assert.equal(first.root.hidden,true);
  assert.equal(first.storage.get("yourlogos-developer-preview-v1"),"on");
  assert.equal(first.storage.get("yourlogos-introduction-v1"),"done");
- assert.equal(first.events("yourlogos:skip-entrance").length,1);
+ assert.equal(first.events("yourlogos:skip-entrance").length,0);
  // It must not manufacture a verified identity or a personalization report.
  assert.equal(first.events("yourlogos:onboarding-complete").length,0);
  const again=harness({saved:Object.fromEntries(first.storage)});
  assert.equal(again.root.hidden,true);
- assert.equal(again.events("yourlogos:skip-entrance").length,1);
+ assert.equal(again.events("yourlogos:skip-entrance").length,0);
  const original=again.storage.get("yourlogos-introduction-v1");
  again.replay();
  assert.equal(again.root.hidden,false);
@@ -187,4 +187,50 @@ test("illustration dominates selections and the decision screen",()=>{
  h.click({topic:"identity"});
  h.click({step:"next"});
  assert.match(h.root.innerHTML,/yl-v2-small-picture/);
+ assert.match(h.root.innerHTML,/\/api\/school-art\/existentialism/);
+});
+
+test("selected topic artwork follows the choice into instinct and result",()=>{
+ const cases=[
+  {topic:"identity",asset:"existentialism",label:"SELF & IDENTITY"},
+  {topic:"knowledge",asset:"socrates",label:"TRUTH & KNOWLEDGE"},
+  {topic:"ethics",asset:"marcus_full",label:"ETHICS & ACTION"}
+ ];
+ for(const row of cases){
+  const h=harness();
+  h.click({step:"next"});h.click({step:"next"});
+  assert.match(h.root.innerHTML,new RegExp("/api/school-art/"+row.asset));
+  h.click({topic:row.topic});
+  h.click({step:"next"});
+  assert.match(h.root.innerHTML,new RegExp("/api/school-art/"+row.asset));
+  assert.ok(h.root.innerHTML.includes(row.label),"Instinct picture label "+row.topic);
+  h.click({reason:"facts"});h.click({step:"next"});
+  assert.match(h.root.innerHTML,new RegExp("/api/school-art/"+row.asset));
+  assert.ok(h.root.innerHTML.includes(row.label),"Result picture label "+row.topic);
+ }
+});
+test("Waterline glass controls are present across onboarding screens",()=>{
+ const css=readFileSync(new URL("../onboarding.css",import.meta.url),"utf8");
+ assert.match(css,/\.yl-v2-action::before/);
+ assert.match(css,/\.yl-v2-glass-panel/);
+ assert.match(css,/\.yl-v2-topic-card\.selected/);
+ assert.match(css,/backdrop-filter:blur/);
+ const h=harness();
+ assert.match(h.root.innerHTML,/yl-v2-liquid-glass/);
+ h.click({step:"next"});assert.match(h.root.innerHTML,/yl-v2-glass-panel/);
+ h.click({step:"next"});assert.match(h.root.innerHTML,/yl-v2-glass-panel/);
+ h.click({topic:"knowledge"});h.click({step:"next"});
+ assert.match(h.root.innerHTML,/yl-v2-liquid-glass/);
+});
+test("each launch retains the original entrance slider for returning users",()=>{
+ const welcome=readFileSync(new URL("../welcome.js",import.meta.url),"utf8");
+ assert.doesNotMatch(welcome,/getItem\(completedKey\)===dailyDate/);
+ assert.doesNotMatch(welcome,/getItem\("yourlogos-developer-preview-v1"\)/);
+ assert.match(welcome,/if\(firstArrivalToday\)window\.dispatchEvent/);
+ const user=harness({saved:{"yourlogos-introduction-v1":"done"}});
+ assert.equal(user.root.hidden,true);
+ assert.equal(user.events("yourlogos:skip-entrance").length,0);
+ const dev=harness({saved:{"yourlogos-developer-preview-v1":"on","yourlogos-introduction-v1":"done"}});
+ assert.equal(dev.root.hidden,true);
+ assert.equal(dev.events("yourlogos:skip-entrance").length,0);
 });
