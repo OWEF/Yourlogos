@@ -159,6 +159,13 @@
   // Pointer interactions do not allow a one-tap bypass.
   thumb.addEventListener("click",e=>{e.preventDefault();if(failed)location.reload()});
   retry?.addEventListener("click",()=>location.reload());
+  // Return from onboarding or verified email login without repeating the swipe ritual.
+  // This does not mark a daily arrival: a ritual only counts when actually performed.
+  window.addEventListener("yourlogos:skip-entrance",()=>{
+    if(entered||transitioning)return;
+    entered=true;ready=true;root.hidden=true;thumb.disabled=true;
+    document.getElementById("app")?.removeAttribute("aria-hidden");
+  });
   window.addEventListener("yourlogos:ready",markReady);
   document.addEventListener("visibilitychange",()=>{
     if(document.hidden){wasBackgrounded=true;return}
