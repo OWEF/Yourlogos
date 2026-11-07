@@ -37,7 +37,7 @@ if(root){
  '<div class="yl-v2-bars" aria-label="Introduction progress">'+[0,1,2].map((n)=>'<i class="'+(n<=Math.min(page,2)?"on":"")+'"></i>').join("")+'</div>'+
  '<button class="yl-v2-quiet" type="button" data-step="skip">'+(replay?"Close":"Skip")+'</button></header>'}
  function action(label,enabled=true){return '<button type="button" class="yl-v2-action" data-step="next" '+(enabled?"":"disabled")+'>'+label+' <span aria-hidden="true">→</span></button>'}
- const picture=(alt,extra="",src=painting)=>'<div class="yl-v2-picture '+extra+'"><img alt="'+safe(alt)+'" src="'+src+'" loading="eager" referrerpolicy="no-referrer"/><div class="yl-v2-picture-caption">PHILOSOPHY IN EVERYDAY LIFE</div></div>';
+ const picture=(alt,extra="",src=painting)=>'<div class="yl-v2-picture '+extra+'"><img alt="'+safe(alt)+'" src="'+src+'" loading="eager" onerror="this.style.opacity=0"/><div class="yl-v2-picture-caption">PHILOSOPHY IN EVERYDAY LIFE</div></div>';
  function intro(){return picture("Classical landscape with ancient architecture and natural light","yl-v2-first-picture")+
  '<div class="yl-v2-kicker">WHY YOURLOGOS</div><h1 class="yl-v2-title">Discover the <em>PHILOSOPHER</em> in you.</h1>'+
  '<div class="yl-v2-invitation"><p class="yl-v2-wonder">Have you ever wondered—</p>'+
@@ -47,10 +47,10 @@ if(root){
  '<div class="yl-v2-journey">'+[['◇','Discover','Find a question that matters to you.'],['✧','Encounter','See how a philosopher approaches it.'],['↗','Deepening','Develop your own point of view.']].map(v=>
  '<div class="yl-v2-journey-row"><span>'+v[0]+'</span><div><strong>'+v[1]+'</strong><small>'+v[2]+'</small></div></div>').join("")+'</div>'+
  action("Choose a question")+
- '<button type="button" data-step="signin" class="yl-v2-signin-link">Already have an account? <strong>Sign in</strong></button>'}
+ (replay?'':'<button type="button" data-step="signin" class="yl-v2-signin-link">Already have an account? <strong>Sign in</strong></button>')}
  function choice(){return '<div class="yl-v2-kicker">YOUR CURIOSITY</div><h1 class="yl-v2-title">What would you like to explore first?</h1>'+
  '<p class="yl-v2-lede">Choose the question that interests you most today.</p>'+
- '<div class="yl-v2-options">'+Object.entries(categories).map(([k,v])=>'<button type="button" class="yl-v2-choice '+(k===topic?"selected":"")+'" data-topic="'+k+'" aria-pressed="'+(k===topic)+'"><img class="yl-v2-thumb" alt="" src="/api/school-art/'+({identity:"existentialism",knowledge:"skepticism",ethics:"stoicism"}[k])+'" loading="lazy"/><span><strong>'+v.label+'</strong><small>'+v.prompt+'</small></span><span class="yl-v2-check">'+(k===topic?"✓":"○")+'</span></button>').join("")+'</div>'+
+ '<div class="yl-v2-options">'+Object.entries(categories).map(([k,v])=>'<button type="button" class="yl-v2-choice '+(k===topic?"selected":"")+'" data-topic="'+k+'" aria-pressed="'+(k===topic)+'"><img class="yl-v2-thumb" alt="" src="/api/school-art/'+({identity:"existentialism",knowledge:"skepticism",ethics:"stoicism"}[k])+'" loading="lazy" onerror="this.style.opacity=0"/><span><strong>'+v.label+'</strong><small>'+v.prompt+'</small></span><span class="yl-v2-check">'+(k===topic?"✓":"○")+'</span></button>').join("")+'</div>'+
  '<p class="yl-v2-hint">You can explore every direction later.</p>'+action("Continue",Boolean(topic))}
  function instinct(){return picture("A contemplative figure in a mountainous landscape","yl-v2-small-picture","/api/school-art/existentialism")+
  '<div class="yl-v2-kicker">YOUR FIRST INSTINCT</div><h1 class="yl-v2-title">You have a difficult decision to make. What would you consider first?</h1>'+
@@ -61,7 +61,7 @@ if(root){
  '<blockquote class="yl-v2-quote"><p>“'+safe(c.quote)+'”</p><footer>'+safe(c.source)+'</footer></blockquote>'+
  '<div class="yl-v2-result-note"><strong>Why this thought?</strong><p>'+safe(a.insight)+'</p><p class="yl-v2-counter">'+safe(a.contrast)+'</p></div>'+
  action(replay?"Return to YourLogos":"Begin my first Encounter")+
- '<button type="button" class="yl-v2-signin-link" data-step="signin">Save my journey with email</button>'}
+ (replay?'':'<p class="yl-v2-hint">You can save your journey later from Settings.</p>')}
  function login(){return '<div class="yl-v2-login-mark">λ</div><div class="yl-v2-kicker">YOUR SPACE, READY WHEN YOU ARE</div>'+
  '<h1 class="yl-v2-title">Welcome back.</h1><p class="yl-v2-lede">Return to your questions and the ideas you’ve been exploring.</p>'+
  '<form class="yl-v2-login-form" id="yl-v2-login-form">'+
