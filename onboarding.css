@@ -84,3 +84,10 @@ body.yl-intro-active{overflow:hidden}
 .yl-v2-thumb{width:55px;height:55px;flex-shrink:0;object-fit:cover;object-position:center;border:1px solid #6b5e4b;border-radius:11px;filter:saturate(.6) brightness(.85)}
 .yl-v2-choice:has(.yl-v2-thumb) .yl-v2-check{margin-left:auto}
 @media(max-width:360px){.yl-v2-thumb{width:47px;height:47px}}
+
+/* Local preview is intentionally a different action from verified email sign-in. */
+.yl-v2-developer-entry{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;margin:13px 0 0;padding:13px 17px;border:1px solid #a88d69;border-radius:13px;background:#b2986c17;color:#e9d6b7;font:600 12px 'DM Sans',system-ui,sans-serif;text-align:left;cursor:pointer}
+.yl-v2-developer-entry span{font-size:18px}
+.yl-v2-developer-entry:hover{background:#b2986c27}
+.yl-v2-developer-hint{color:#8e887e;font:400 10px/1.6 'DM Sans',system-ui,sans-serif;margin:8px 3px 4px}
+#yl-onboarding button:focus-visible{outline:2px solid #efd9b9;outline-offset:3px}
