@@ -78,3 +78,9 @@ Review JavaScript syntax, quote IDs and rotation, RLS policy SQL, navigation,
 Discover, Sky, Saved, Library, Mirror, Settings, iPhone touch/scroll/safe-area
 and returning after the date changes. Never claim verified email sync until a
 dedicated Supabase project and its callback settings have been deployed and tested.
+
+## Onboarding replay and local preview (2026-11)
+- Settings always exposes **Replay onboarding** to any visitor, including returning guests. No query-string or authentication prerequisite.
+- Replay is non-destructive: it does not update philosophical responses, existing encounter history or Supabase sessions.
+- A separate optional device-local developer preview preference skips the introduction on future visits. This is **not authentication or authorization** and grants no private account or administration access.
+- Existing visitors with saved progress do not repeat onboarding by default.

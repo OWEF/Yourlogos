@@ -41,10 +41,15 @@ function harness({saved={},signedIn=false}={}){
 test("new user sees approved invitation and can complete the two-signal flow",()=>{
  const h=harness();
  assert.equal(h.root.hidden,false);
- assert.match(h.root.innerHTML,/PHILOSOPHER/);
+ assert.match(h.root.innerHTML,/A world of ideas/);
+ assert.match(h.root.innerHTML,/Get started/);
  assert.match(h.root.innerHTML,/Already have an account/);
+ assert.match(h.root.innerHTML,/yl-v2-cover-media/);
+ h.click({step:"next"});
+ assert.match(h.root.innerHTML,/PHILOSOPHER/);
  h.click({step:"next"});
  assert.match(h.root.innerHTML,/Truth & knowledge/);
+ assert.match(h.root.innerHTML,/yl-v2-topic-art/);
  h.click({topic:"knowledge"});
  h.click({step:"next"});
  assert.match(h.root.innerHTML,/What would you consider first/);
@@ -70,6 +75,9 @@ test("returning guest skips introduction; QA replay is non-destructive",()=>{
  assert.equal(h.root.hidden,true);
  h.replay();
  assert.equal(h.root.hidden,false);
+ assert.match(h.root.innerHTML,/Get started/);
+ h.click({step:"next"});
+ assert.match(h.root.innerHTML,/PHILOSOPHER/);
  h.click({step:"next"});
  h.click({topic:"ethics"});
  h.click({step:"next"});
@@ -138,4 +146,45 @@ test("exit preview opens login without rewriting a saved guest profile",()=>{
  h.click({step:"skip"});
  assert.equal(h.root.hidden,true);
  assert.equal(h.storage.get("yourlogos_web_v1"),value);
+});
+
+test("Settings always exposes onboarding replay without query flags or developer state",()=>{
+ const app=readFileSync(new URL("../app.js",import.meta.url),"utf8");
+ const start=app.indexOf("function settingsHtml()");
+ const end=app.indexOf("function worldBack()",start);
+ const settings=app.slice(start,end);
+ assert.ok(start>0 && end>start);
+ assert.match(settings,/Onboarding & preview/);
+ assert.match(settings,/data-action="qa-replay-onboarding"/);
+ assert.match(settings,/data-action="developer-preview-enable"/);
+ assert.match(settings,/data-action="developer-preview-exit"/);
+ assert.doesNotMatch(settings,/\?qa=1/);
+ const switchCase=app.slice(app.indexOf('case"qa-replay-onboarding":'),app.indexOf('case"developer-preview-enable":'));
+ assert.match(switchCase,/yourlogos:onboarding-replay/);
+ assert.doesNotMatch(switchCase,/if\(/);
+});
+
+test("new cover leads back to itself and is non-destructive in replay",()=>{
+ const value=JSON.stringify({saved:[9],personalization:{status:"completed",answers:{concerns:["direction"]}}});
+ const h=harness({saved:{"yourlogos_web_v1":value}});
+ h.replay();
+ assert.match(h.root.innerHTML,/Get started/);
+ h.click({step:"next"});
+ assert.match(h.root.innerHTML,/PHILOSOPHER/);
+ h.click({step:"back"});
+ assert.match(h.root.innerHTML,/A world of ideas/);
+ h.click({step:"skip"});
+ assert.equal(h.root.hidden,true);
+ assert.equal(h.storage.get("yourlogos_web_v1"),value);
+});
+test("illustration dominates selections and the decision screen",()=>{
+ const h=harness();
+ h.click({step:"next"});
+ assert.match(h.root.innerHTML,/yl-v2-first-picture/);
+ h.click({step:"next"});
+ assert.match(h.root.innerHTML,/yl-v2-illustrated-options/);
+ assert.match(h.root.innerHTML,/yl-v2-topic-art/);
+ h.click({topic:"identity"});
+ h.click({step:"next"});
+ assert.match(h.root.innerHTML,/yl-v2-small-picture/);
 });
