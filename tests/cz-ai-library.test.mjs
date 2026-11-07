@@ -6,7 +6,10 @@ import { readFileSync } from 'node:fs';
 const orig=JSON.parse(readFileSync('docs/cz-ai-library/manifest.json','utf8'));
 const clone=(x)=>JSON.parse(JSON.stringify(x));
 test('exactly 4 role bindings, 8 scoped skills and at least 1 indexed verified lesson',()=>{
-  const v=validateLibrary();assert.deepEqual(v,{roles:4,skills:8,lessons:1});
+  const v=validateLibrary();
+  assert.equal(v.roles,4);
+  assert.equal(v.skills,8);
+  assert.ok(v.lessons>=1,'accepted verified lesson index must not be empty');
 });
 test('deny implicit automated learning or dispatch',()=>{
   for(const k of ['automaticLearning','automaticDispatch','automaticMerge']){
