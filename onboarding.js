@@ -23,9 +23,15 @@ const approaches={
  people:{label:"Think of those affected",sub:"Who will this decision matter to?",approach:"talk",insight:"Begin with the people involved and the claims they have on you.",contrast:"A contrasting view asks how care for particular people relates to fairness for everyone."}
 };
 const painting="/api/school-art/onboarding";
-const hasRealHistory=s=>Boolean(s&&(s.personalization?.status==="completed"||s.personalization?.status==="skipped"||
- s.started||s.localName||(s.saved||[]).length||(s.arrivals||[]).length||
- (s.encounterEvents||[]).length||(s.thoughtThreadEvents||[]).length));
+const hasRealHistory=s=>{
+ const d=new Date(),today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+ const oldPractice=s?.practice&&typeof s.practice==="object"?s.practice:{};
+ const earlierPractice=Object.keys(oldPractice).some(day=>day!==today);
+ return Boolean(s&&(s.personalization?.status==="completed"||s.personalization?.status==="skipped"||
+   localStorage.getItem("yourlogos-daily-ritual-v1")||earlierPractice||
+   s.started||s.localName||(s.saved||[]).length||(s.arrivals||[]).length||
+   (s.encounterEvents||[]).length||(s.thoughtThreadEvents||[]).length));
+};
 function readData(){try{return JSON.parse(localStorage.getItem(STORAGE)||"{}")||{}}catch{return {}}}
 if(root){
  let page=0,topic=null,reason=null,loginNotice="",busy=false,replay=false,opened=false,fromPage=0;
