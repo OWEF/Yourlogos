@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - "app.js"
+      - "onboarding.js"
+      - "onboarding.css"
+      - "auth-client.js"
+      - "welcome.js"
       - "discover-ai-client.js"
       - "sw.js"
       - "discover-ai-server.mjs"
@@ -45,6 +49,8 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check app.js
+          node --check onboarding.js
+          node --check auth-client.js
           node --check sw.js
           node --check liquid-navbar.js
           node --check liquid-slider.js
