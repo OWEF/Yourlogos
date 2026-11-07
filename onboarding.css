@@ -147,3 +147,124 @@ body.yl-intro-active{overflow:hidden}
   .yl-v2-topic-content{padding:16px}
 }
 @media(prefers-reduced-motion:reduce){.yl-v2-topic-art{transition:none}}
+
+
+/* Waterline Liquid Glass on every onboarding screen.
+   Same brass/pearl refraction palette as liquid-slider.css and liquid-navbar.css.
+   CSS-only enhancement: no extra WebGL contexts, no change to touch targets. */
+#yl-onboarding{
+  --yl-glass-edge:rgba(250,231,197,.43);
+  --yl-glass-edge-strong:rgba(255,240,209,.76);
+  --yl-glass-blur:blur(17px) saturate(1.3);
+  --yl-glass-surface:linear-gradient(153deg,rgba(246,233,211,.105),rgba(53,47,43,.42) 38%,rgba(15,16,18,.72));
+}
+#yl-onboarding .yl-v2-glass-panel{
+  border:1px solid var(--yl-glass-edge);
+  background-image:linear-gradient(135deg,rgba(254,247,231,.09),transparent 36%,rgba(249,214,167,.045));
+  box-shadow:inset 0 1px 1px rgba(255,251,241,.17),inset 0 -2px 8px rgba(0,0,0,.31),0 11px 27px rgba(0,0,0,.22);
+  -webkit-backdrop-filter:var(--yl-glass-blur);
+  backdrop-filter:var(--yl-glass-blur);
+}
+#yl-onboarding .yl-v2-journey-row,
+#yl-onboarding .yl-v2-reasons .yl-v2-choice,
+#yl-onboarding .yl-v2-result-note,
+#yl-onboarding .yl-v2-developer-entry{
+  background:var(--yl-glass-surface);
+}
+#yl-onboarding .yl-v2-reasons .yl-v2-choice.selected{
+  border-color:rgba(252,227,178,.89);
+  background:linear-gradient(137deg,rgba(223,188,133,.23),rgba(85,67,48,.33),rgba(14,16,17,.74));
+  box-shadow:inset 0 1px 1px rgba(255,246,231,.35),0 0 17px rgba(234,196,142,.13);
+}
+#yl-onboarding .yl-v2-result-note{border-radius:16px;padding:14px 16px 17px;margin-bottom:19px}
+#yl-onboarding .yl-v2-topic-card.yl-v2-glass-panel{
+  background:linear-gradient(160deg,#3e3932,#141517);
+  border-color:rgba(251,227,194,.39);
+  box-shadow:inset 0 1px 1px rgba(255,248,232,.28),0 9px 23px rgba(0,0,0,.33);
+  -webkit-backdrop-filter:blur(11px) saturate(1.2);
+  backdrop-filter:blur(11px) saturate(1.2);
+}
+#yl-onboarding .yl-v2-topic-card.selected{
+  border-color:var(--yl-glass-edge-strong);
+  box-shadow:inset 0 1px 2px rgba(255,254,240,.43),0 0 0 1px rgba(246,222,186,.29),0 0 23px rgba(244,203,144,.15);
+}
+#yl-onboarding .yl-v2-topic-overlay{
+  background:linear-gradient(90deg,rgba(6,7,9,.57),rgba(6,7,9,.13) 70%),
+  linear-gradient(180deg,transparent 25%,rgba(5,6,8,.90) 100%);
+}
+#yl-onboarding .yl-v2-topic-content strong{font-size:clamp(27px,7vw,34px);line-height:1.02}
+#yl-onboarding .yl-v2-topic-content small{font-size:clamp(11px,3vw,13px)}
+/* Full-width Marcus Aurelius photo: show the entire statue at both sizes;
+   don't crop into a horse or partial legs. */
+#yl-onboarding .yl-v2-topic-card[data-topic="ethics"]{
+  background:radial-gradient(ellipse at 72% 47%,#6c6964,#2d2c2a 51%,#171818);
+}
+#yl-onboarding .yl-v2-topic-card[data-topic="ethics"] .yl-v2-topic-art{
+  left:auto;right:0;width:74%;object-fit:contain;object-position:center;
+  filter:brightness(.80) saturate(.65);
+}
+#yl-onboarding .yl-v2-picture[data-topic="ethics"]{
+  background:radial-gradient(ellipse at 50% 50%,#585653,#1b1b1d 72%);
+}
+#yl-onboarding .yl-v2-picture[data-topic="ethics"] img{object-fit:contain;object-position:center;filter:brightness(.9) saturate(.7)}
+#yl-onboarding .yl-v2-picture[data-topic="knowledge"] img{object-position:center 45%;filter:brightness(.80) saturate(.85)}
+#yl-onboarding .yl-v2-cover-media:after{background:linear-gradient(180deg,rgba(0,0,0,.24),transparent 30%,rgba(6,7,9,.69) 100%)}
+#yl-onboarding .yl-v2-action,
+#yl-onboarding .yl-v2-login-form button{
+  position:relative;isolation:isolate;overflow:hidden;
+  border-radius:999px;
+  border:1px solid rgba(255,247,226,.85);
+  color:#221e1a;
+  background:linear-gradient(150deg,#ffead0 0%,#efd5b0 25%,#d6b58c 54%,#f5ddba 77%,#bd9472 100%);
+  box-shadow:inset 0 2px 1px rgba(255,255,255,.89),inset 0 -2px 7px rgba(110,76,46,.25),
+    0 0 22px rgba(239,193,128,.28),0 9px 25px rgba(0,0,0,.36);
+  -webkit-backdrop-filter:blur(15px) saturate(1.5);
+  backdrop-filter:blur(15px) saturate(1.5);
+  text-shadow:0 1px 1px rgba(255,244,221,.35);
+  font-size:15px;min-height:58px;
+  transition:box-shadow .25s ease,transform .2s ease,filter .2s ease;
+}
+#yl-onboarding .yl-v2-action::before,
+#yl-onboarding .yl-v2-login-form button::before{
+  content:"";position:absolute;inset:1px 1px 46% 1px;border-radius:inherit;z-index:-1;
+  background:linear-gradient(180deg,rgba(255,255,255,.64),rgba(255,255,255,.08));
+  transform:rotate(-1.4deg) scale(1.04);pointer-events:none;
+}
+#yl-onboarding .yl-v2-action::after,
+#yl-onboarding .yl-v2-login-form button::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+  background:linear-gradient(115deg,transparent 26%,rgba(255,255,255,.26) 49%,transparent 69%);
+  transform:translateX(-125%);
+  transition:transform .7s cubic-bezier(.2,.7,.2,1);
+}
+#yl-onboarding .yl-v2-action:hover:not(:disabled),
+#yl-onboarding .yl-v2-login-form button:hover:not(:disabled){
+  box-shadow:inset 0 2px 1px rgba(255,255,255,.95),0 0 33px rgba(237,194,129,.43),0 13px 30px rgba(0,0,0,.37);
+}
+#yl-onboarding .yl-v2-action:hover:not(:disabled)::after{transform:translateX(120%)}
+#yl-onboarding .yl-v2-action:active:not(:disabled){transform:scale(.985);filter:brightness(1.04)}
+#yl-onboarding .yl-v2-action:disabled,
+#yl-onboarding .yl-v2-login-form button:disabled{
+  background:linear-gradient(160deg,#72675c,#5d554d);border-color:rgba(242,228,211,.24);
+  box-shadow:none;color:#322b24;opacity:.7;cursor:not-allowed;
+}
+#yl-onboarding .yl-v2-action:disabled::before,
+#yl-onboarding .yl-v2-action:disabled::after{display:none}
+#yl-onboarding .yl-v2-action-label{position:relative;font-weight:700}
+#yl-onboarding .yl-v2-action-arrow{font-size:24px;line-height:1;position:relative;transition:transform .22s ease}
+#yl-onboarding .yl-v2-action:hover:not(:disabled) .yl-v2-action-arrow{transform:translateX(5px)}
+#yl-onboarding .yl-v2-bars{gap:8px}
+#yl-onboarding .yl-v2-bars i{
+  height:4px;border-radius:99px;background:rgba(216,209,198,.25);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.14);transition:background .23s,box-shadow .23s;
+}
+#yl-onboarding .yl-v2-bars i.on{background:linear-gradient(90deg,#e6c49a,#ffe7bd);box-shadow:0 0 11px rgba(244,207,151,.4)}
+#yl-onboarding .yl-v2-quiet,
+#yl-onboarding .yl-v2-back,
+#yl-onboarding .yl-v2-signin-link{border-radius:14px;background:rgba(26,25,24,.15);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+@media(prefers-reduced-motion:reduce){
+  #yl-onboarding .yl-v2-action::after{display:none}
+  #yl-onboarding .yl-v2-action,
+  #yl-onboarding .yl-v2-login-form button,
+  #yl-onboarding .yl-v2-action-arrow{transition:none!important}
+}
