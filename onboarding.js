@@ -1,97 +1,124 @@
-/* YourLogos first-visit introduction: a short, one-time conversation before
-   the existing entrance slider. No login or AI API required.
-   Onboarding data stays local until the user explicitly chooses account sync. */
-import { CONCERNS, APPROACHES, TENSIONS, STYLES } from "./personalization.js";
-const STORAGE="yourlogos_web_v1",FLAG="yourlogos-introduction-v1";
+/* YourLogos — illustrated first visit, real email sign-in and non-destructive QA replay.
+   First-visit data stays in this browser until users explicitly sync their account.
+   QA replay neither edits the profile nor changes the authenticated session. */
+import { CONCERNS } from "./personalization.js";
+import { AUTH_ENABLED, requestMagicLink, getVerifiedIdentity } from "./auth-client.js";
+
+const STORAGE="yourlogos_web_v1", FLAG="yourlogos-introduction-v1";
 const root=document.getElementById("yl-onboarding");
 const slider=document.getElementById("yl-entrance");
 const app=document.getElementById("app");
+const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const categories={
+ identity:{label:"Self & identity",prompt:"Who am I becoming?",sub:"Identity, freedom, and the person I am becoming.",concern:"identity",name:"Socrates",theme:"Meaning",
+ quote:"The unexamined life is not worth living.",source:"Plato, Apology",explanation:"Socrates invites us to examine the assumptions behind the way we live."},
+ knowledge:{label:"Truth & knowledge",prompt:"What can I really know?",sub:"Evidence, certainty, and what makes a belief trustworthy.",concern:"uncertainty",name:"René Descartes",theme:"Doubt",
+ quote:"I think, therefore I am.",source:"Discourse on Method, Part IV",explanation:"Descartes begins by questioning what he can know for certain."},
+ ethics:{label:"Ethics & action",prompt:"How should I live?",sub:"Values, choices, and what we owe to others.",concern:"fairness",name:"Marcus Aurelius",theme:"Action",
+ quote:"Waste no more time arguing about what a good man should be. Be one.",source:"Meditations, 10.16",explanation:"Marcus Aurelius asks what it means to turn a principle into action."}
+};
+const approaches={
+ facts:{label:"Look for the facts",sub:"What do I know, and what am I assuming?",approach:"facts",insight:"Start with the evidence, then consider what evidence alone cannot decide.",contrast:"A contrasting view asks whether some choices require principles beyond the facts."},
+ principles:{label:"Ask what is right",sub:"Which principle should guide my choice?",approach:"reflect",insight:"Start with the principle that matters, then examine its limits.",contrast:"A contrasting view asks what happens when principles meet real consequences."},
+ consequences:{label:"Consider the outcome",sub:"What might happen if I act?",approach:"act",insight:"Begin with possible consequences, then question whether outcomes are everything.",contrast:"A contrasting view asks whether some duties matter even when the result is uncertain."},
+ people:{label:"Think of those affected",sub:"Who will this decision matter to?",approach:"talk",insight:"Begin with the people involved and the claims they have on you.",contrast:"A contrasting view asks how care for particular people relates to fairness for everyone."}
+};
+const painting="https://commons.wikimedia.org/wiki/Special:FilePath/%27A_Classical_Landscape%27_by_Claude_Lorrain%2C_17th_century%2C_Norton_Simon_Museum.JPG?width=1024";
+const hasRealHistory=s=>Boolean(s&&(s.personalization?.status==="completed"||s.personalization?.status==="skipped"||
+ s.started||s.localName||(s.saved||[]).length||(s.arrivals||[]).length||
+ (s.encounterEvents||[]).length||(s.thoughtThreadEvents||[]).length));
+function readData(){try{return JSON.parse(localStorage.getItem(STORAGE)||"{}")||{}}catch{return {}}}
 if(root){
-  const stored=(()=>{try{return JSON.parse(localStorage.getItem(STORAGE)||"null")}catch{return null}})();
-  const today=(()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")})();
-  // The main app creates today's quote in local state on boot: that is NOT
-  // proof that a person has visited. Record actual past entry or activity.
-  const practice=stored?.practice&&typeof stored.practice==="object"?stored.practice:{};
-  const earlierVisit=Object.keys(practice).some(day=>day!==today);
-  const hasHistory=Boolean(stored&&typeof stored==="object"&&(
-    stored.personalization?.status==="completed"||stored.personalization?.status==="skipped"||
-    localStorage.getItem("yourlogos-daily-ritual-v1")||
-    stored.started||stored.localName||earlierVisit||
-    (stored.saved||[]).length||(stored.arrivals||[]).length||
-    (stored.thoughtThreadEvents||[]).length||(stored.encounterEvents||[]).length
-  ));
-  const demo=new URLSearchParams(location.search).get("intro")==="1";
-  const shouldShow=demo||(!localStorage.getItem(FLAG)&&!hasHistory);
-  if(shouldShow){
-    slider?.setAttribute("inert","");
-    app?.setAttribute("inert","");
-    root.hidden=false;
-    let step=0,concerns=[],name="",approach="unsure",tension="unsure",style="surprise";
-    const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-    const stepData=[
-      {eyebrow:"HELLO",headline:"What should we call you?",sub:"Philosophy begins with a person, not a theory."},
-      {eyebrow:"YOUR WORLD",headline:"What's been on your mind lately?",sub:"Choose up to three. There isn't a wrong answer."},
-      {eyebrow:"YOUR INSTINCTS",headline:"When something troubles you, what do you usually do first?",sub:"All of these are human ways to begin."},
-      {eyebrow:"THE TENSIONS",headline:"Sometimes two good things pull us in different directions.",sub:"Which tension has felt familiar lately?"},
-      {eyebrow:"YOUR CURIOSITY",headline:"What kind of question would you welcome?",sub:"This helps us choose how to invite you into a thought."}
-    ];
-    const optionButton=(key,label,selected,multiple=false)=>'<button type="button" class="yl-intro-option'+(selected?" is-selected":"")+'" data-select="'+esc(key)+'" aria-pressed="'+Boolean(selected)+'">'+
-      '<span>'+esc(label)+'</span><span class="yl-intro-option-check" aria-hidden="true">'+(selected?"✦":multiple?"＋":"○")+'</span></button>';
-    const choices=(object,value)=>'<div class="yl-intro-options" role="group">'+Object.entries(object).map(([key,label])=>optionButton(key,typeof label==="string"?label:label.label,key===value)).join("")+'</div>';
-    const pages=()=>{
-      if(step===0)return '<label class="yl-intro-label" for="yl-intro-name">YOUR NAME OR NICKNAME</label><input id="yl-intro-name" class="yl-intro-input" maxlength="32" autocomplete="nickname" placeholder="Whatever feels like you" value="'+esc(name)+'"/><p class="yl-intro-minor">You can change this later.</p>';
-      if(step===1)return '<div class="yl-intro-options yl-intro-options-grid" role="group" aria-label="Topics on your mind">'+Object.entries(CONCERNS).map(([key,value])=>optionButton(key,value.label,concerns.includes(key),true)).join("")+'</div><p class="yl-intro-minor">'+concerns.length+' of 3 selected · You can change these later.</p>';
-      if(step===2)return choices(APPROACHES,approach);
-      if(step===3)return choices(Object.fromEntries(Object.entries(TENSIONS).map(([key,value])=>[key,value.label])),tension);
-      return choices(STYLES,style);
-    };
-    function paint(){
-      const cfg=stepData[step];
-      root.innerHTML='<div class="yl-intro-atmosphere" aria-hidden="true"></div>'+
-       '<div class="yl-intro-layout"><header class="yl-intro-header"><span class="yl-intro-brand">✦ YOURLOGOS</span><span class="yl-intro-count">'+String(step+1).padStart(2,"0")+' / 05</span></header>'+
-       '<div class="yl-intro-progress" aria-hidden="true">'+stepData.map((_,i)=>'<i class="'+(i<=step?"on":"")+'"></i>').join("")+'</div>'+
-       '<main class="yl-intro-main"><p class="yl-intro-kicker">'+cfg.eyebrow+'</p><h1>'+cfg.headline+'</h1><p class="yl-intro-sub">'+cfg.sub+'</p>'+pages()+'</main>'+
-       '<footer class="yl-intro-footer"><div class="yl-intro-footer-actions">'+
-        '<button type="button" class="yl-intro-back" data-intro="back">'+(step===0?"Skip introduction":"← Back")+'</button>'+
-        '<button type="button" class="yl-intro-next" data-intro="next">'+(step===4?"Meet your first thought ✦":"Continue →")+'</button>'+
-       '</div><p class="yl-intro-privacy">Your answers stay on this device unless you choose to sync them. No personality labels.</p></footer></div>';
-      if(step===0){const input=root.querySelector("#yl-intro-name");if(input)input.addEventListener("input",e=>name=e.target.value.slice(0,32))}
-    }
-    function finish(skip=false){
-      const answers={concerns:[...concerns],approach,tension,style};
-      const safeName=name.trim().replace(/\s+/g," ").slice(0,32);
-      const profile={version:1,status:skip?"skipped":"completed",answers,completedAt:new Date().toISOString()};
-      // Merge latest state: app startup can write daily practice in parallel.
-      try{
-        const current=JSON.parse(localStorage.getItem(STORAGE)||"{}");
-        const updated={...(current&&typeof current==="object"?current:{}),personalization:profile};
-        if(safeName)updated.localName=safeName;
-        localStorage.setItem(STORAGE,JSON.stringify(updated));
-        localStorage.setItem(FLAG,"done");
-      }catch{ /* Continue without storing when private browsing blocks storage. */ }
-      window.dispatchEvent(new CustomEvent("yourlogos:onboarding-complete",{detail:{profile,name:safeName}}));
-      slider?.removeAttribute("inert");
-      app?.removeAttribute("inert");
-      root.hidden=true;
-      root.replaceChildren();
-      // The existing slider and its welcome animation are not modified.
-    }
-    root.addEventListener("click",e=>{
-      const choice=e.target.closest("[data-select]");
-      if(choice){
-        const key=choice.dataset.select;
-        if(step===1&&Object.hasOwn(CONCERNS,key)){
-          concerns=concerns.includes(key)?concerns.filter(x=>x!==key):concerns.length<3?[...concerns,key]:concerns;
-        }else if(step===2&&Object.hasOwn(APPROACHES,key))approach=key;
-        else if(step===3&&Object.hasOwn(TENSIONS,key))tension=key;
-        else if(step===4&&Object.hasOwn(STYLES,key))style=key;
-        paint();return;
-      }
-      const button=e.target.closest("[data-intro]");if(!button)return;
-      if(button.dataset.intro==="back"){if(step===0)finish(true);else{step--;paint()}}
-      if(button.dataset.intro==="next"){if(step===4)finish();else{step++;paint()}}
-    });
-    root.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="yl-intro-name"){e.preventDefault();step=1;paint()}});
-    paint();
-  }
+ let page=0,topic=null,reason=null,loginNotice="",busy=false,replay=false,opened=false,fromPage=0;
+ function lock(){slider?.setAttribute("inert","");app?.setAttribute("inert","");root.hidden=false;opened=true;document.body.classList.add("yl-intro-active")}
+ function unlock(){root.hidden=true;root.replaceChildren();slider?.removeAttribute("inert");app?.removeAttribute("inert");document.body.classList.remove("yl-intro-active");opened=false}
+ function currentCategory(){return categories[topic]||categories.identity}
+ function currentApproach(){return approaches[reason]||approaches.facts}
+ function header(){return '<header class="yl-v2-top"><button type="button" data-step="back" aria-label="Go back" class="yl-v2-back">'+(page===0?"":"‹")+'</button>'+
+ '<div class="yl-v2-bars" aria-label="Introduction progress">'+[0,1,2].map((n)=>'<i class="'+(n<=Math.min(page,2)?"on":"")+'"></i>').join("")+'</div>'+
+ '<button class="yl-v2-quiet" type="button" data-step="skip">'+(replay?"Close":"Skip")+'</button></header>'}
+ function action(label,enabled=true){return '<button type="button" class="yl-v2-action" data-step="next" '+(enabled?"":"disabled")+'>'+label+' <span aria-hidden="true">→</span></button>'}
+ const picture=(alt,extra="")=>'<div class="yl-v2-picture '+extra+'"><img alt="'+safe(alt)+'" src="'+painting+'" loading="eager" referrerpolicy="no-referrer"/><div class="yl-v2-picture-caption">PHILOSOPHY IN EVERYDAY LIFE</div></div>';
+ function intro(){return picture("Classical landscape with ancient architecture and natural light","yl-v2-first-picture")+
+ '<div class="yl-v2-kicker">WHY YOURLOGOS</div><h1 class="yl-v2-title">Discover the <em>PHILOSOPHER</em> in you.</h1>'+
+ '<div class="yl-v2-invitation"><p class="yl-v2-wonder">Have you ever wondered—</p>'+
+ '<p class="yl-v2-questions">Who am I?<br>What can I know?<br>What makes a good life?</p>'+
+ '<p class="yl-v2-begun">Then you’ve already begun.</p>'+
+ '<p class="yl-v2-meaning">YourLogos connects your questions with thinkers who explored them—and helps you develop a perspective of your own.</p></div>'+
+ '<div class="yl-v2-journey">'+[['◇','Discover','Find a question that matters to you.'],['✧','Encounter','See how a philosopher approaches it.'],['↗','Deepening','Develop your own point of view.']].map(v=>
+ '<div class="yl-v2-journey-row"><span>'+v[0]+'</span><div><strong>'+v[1]+'</strong><small>'+v[2]+'</small></div></div>').join("")+'</div>'+
+ action("Choose a question")+
+ '<button type="button" data-step="signin" class="yl-v2-signin-link">Already have an account? <strong>Sign in</strong></button>'}
+ function choice(){return '<div class="yl-v2-kicker">YOUR CURIOSITY</div><h1 class="yl-v2-title">What would you like to explore first?</h1>'+
+ '<p class="yl-v2-lede">Choose the question that interests you most today.</p>'+
+ '<div class="yl-v2-options">'+Object.entries(categories).map(([k,v])=>'<button type="button" class="yl-v2-choice '+(k===topic?"selected":"")+'" data-topic="'+k+'" aria-pressed="'+(k===topic)+'"><span class="yl-v2-symbol">◇</span><span><strong>'+v.label+'</strong><small>'+v.prompt+'</small></span><span class="yl-v2-check">'+(k===topic?"✓":"○")+'</span></button>').join("")+'</div>'+
+ '<p class="yl-v2-hint">You can explore every direction later.</p>'+action("Continue",Boolean(topic))}
+ function instinct(){return picture("Painting of a classical landscape","yl-v2-small-picture")+
+ '<div class="yl-v2-kicker">YOUR FIRST INSTINCT</div><h1 class="yl-v2-title">You have a difficult decision to make. What would you consider first?</h1>'+
+ '<p class="yl-v2-lede">Choose the starting point that feels most natural.</p>'+
+ '<div class="yl-v2-options yl-v2-reasons">'+Object.entries(approaches).map(([k,v])=>'<button type="button" class="yl-v2-choice '+(k===reason?"selected":"")+'" data-reason="'+k+'" aria-pressed="'+(k===reason)+'"><span><strong>'+v.label+'</strong><small>'+v.sub+'</small></span><span class="yl-v2-check">'+(k===reason?"✓":"○")+'</span></button>').join("")+'</div>'+action("See my starting point",Boolean(reason))}
+ function result(){const c=currentCategory(),a=currentApproach();return '<div class="yl-v2-result-art">'+picture("A classical painting suggesting a journey of inquiry","yl-v2-result-picture")+'<img class="yl-v2-result-pet" src="/little-logo-hd-v2.jpg" alt="Little Logo, your companion"/></div>'+
+ '<div class="yl-v2-kicker">A THOUGHT TO BEGIN WITH</div><h1 class="yl-v2-title">Meet '+safe(c.name)+'.</h1><p class="yl-v2-lede">'+safe(c.explanation)+'</p>'+
+ '<blockquote class="yl-v2-quote"><p>“'+safe(c.quote)+'”</p><footer>'+safe(c.source)+'</footer></blockquote>'+
+ '<div class="yl-v2-result-note"><strong>Why this thought?</strong><p>'+safe(a.insight)+'</p><p class="yl-v2-counter">'+safe(a.contrast)+'</p></div>'+
+ action(replay?"Return to YourLogos":"Begin my first Encounter")+
+ '<button type="button" class="yl-v2-signin-link" data-step="signin">Save my journey with email</button>'}
+ function login(){return '<div class="yl-v2-login-mark">λ</div><div class="yl-v2-kicker">YOUR SPACE, READY WHEN YOU ARE</div>'+
+ '<h1 class="yl-v2-title">Welcome back.</h1><p class="yl-v2-lede">Return to your questions and the ideas you’ve been exploring.</p>'+
+ '<form class="yl-v2-login-form" id="yl-v2-login-form">'+
+ '<label for="yl-v2-email">EMAIL ADDRESS</label><input name="email" id="yl-v2-email" type="email" autocomplete="email" required placeholder="you@example.com" '+(busy?"disabled":"")+'/>'+
+ '<button type="submit" '+(busy||!AUTH_ENABLED?"disabled":"")+'>'+ (busy?"Sending…":"Send me a sign-in link")+' →</button></form>'+
+ (!AUTH_ENABLED?'<p class="yl-v2-auth-msg" role="status">Account sign-in is not configured on this deployment yet. You can still explore without an account.</p>':"<p class='yl-v2-hint'>No password needed. We’ll email you a secure sign-in link.</p>")+
+ (loginNotice?'<p class="yl-v2-auth-msg" role="status">'+safe(loginNotice)+'</p>':"")+
+ '<button class="yl-v2-login-guest" type="button" data-step="return">← Back to exploring</button>'}
+ function paint(){
+   if(!opened)return;
+   root.innerHTML='<div class="yl-v2-shell"><div class="yl-v2-panel">'+header()+
+    '<main class="yl-v2-main" id="yl-v2-main">'+(page==="login"?login():page===0?intro():page===1?choice():page===2?instinct():result())+'</main>'+
+    '<p class="yl-v2-foot">'+(replay?"Preview mode · Your saved answers will not change.":"Your first questions are yours to explore.")+'</p></div></div>';
+ }
+ function finish(skipped=false){
+   if(!replay){
+     const c=currentCategory(),a=currentApproach();
+     const profile={version:2,status:skipped?"skipped":"completed",completedAt:new Date().toISOString(),
+       answers:{concerns:skipped?[]:[c.concern],approach:skipped?"unsure":a.approach,tension:"unsure",style:"surprise"},
+       startingPoint:skipped?null:{topic,reason,theme:c.theme,author:c.name,quote:c.quote}};
+     try{const current=readData();localStorage.setItem(STORAGE,JSON.stringify({...current,personalization:profile}));localStorage.setItem(FLAG,"done")}catch{}
+     window.dispatchEvent(new CustomEvent("yourlogos:onboarding-complete",{detail:{profile,previewQuote:skipped?null:{author:c.name,quote:c.quote,theme:c.theme}}}));
+   }
+   unlock();
+ }
+ function open(isReplay=false){replay=isReplay;topic=null;reason=null;page=0;fromPage=0;loginNotice="";busy=false;lock();paint()}
+ function goBack(){if(page==="login"){page=fromPage;loginNotice=""}else if(page>0)page--;paint()}
+ root.addEventListener("click",e=>{
+   const el=e.target instanceof Element?e.target.closest("button"):null;if(!el)return;
+   if(el.dataset.topic&&Object.hasOwn(categories,el.dataset.topic)){topic=el.dataset.topic;paint();return}
+   if(el.dataset.reason&&Object.hasOwn(approaches,el.dataset.reason)){reason=el.dataset.reason;paint();return}
+   switch(el.dataset.step){
+    case"back":goBack();break;
+    case"skip":if(replay)unlock();else finish(true);break;
+    case"next":if(page===3){finish(false);break}if(page===1&&!topic||page===2&&!reason)return;page++;paint();break;
+    case"signin":fromPage=page;page="login";paint();break;
+    case"return":page=fromPage;paint();break;
+   }
+ });
+ root.addEventListener("submit",async e=>{
+   if(e.target?.id!=="yl-v2-login-form")return;e.preventDefault();
+   if(!AUTH_ENABLED)return;
+   const email=String(new FormData(e.target).get("email")||"").trim();
+   if(!email)return;
+   busy=true;loginNotice="";paint();
+   try{await requestMagicLink(email,"");loginNotice="Check your inbox for your secure sign-in link. Once verified, you can return directly to YourLogos."}
+   catch(error){loginNotice=String(error?.message||"Sign-in link could not be sent. Please try again.")}
+   finally{busy=false;paint()}
+ });
+ // Available from Settings in explicit QA mode (?qa=1), never from an admin identity guess.
+ window.addEventListener("yourlogos:onboarding-replay",()=>open(true));
+ // Prior visits bypass the new introduction; an existing five-step profile is not reset.
+ const state=readData();
+ const seen=!!(localStorage.getItem(FLAG)||hasRealHistory(state));
+ if(!seen)open(false);
+ // A previously signed-in account on a new device bypasses first-time questions.
+ // Never identify returning users by a guessed email or local "developer" flag.
+ if(AUTH_ENABLED)getVerifiedIdentity().then(u=>{if(u&&opened&&!replay)unlock()}).catch(()=>{});
 }
