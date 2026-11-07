@@ -37,10 +37,8 @@
     dailyId=detail?.quoteId??null;
     if(thought)thought.textContent=shortThought(detail?.quote);
     if(source)source.textContent="A glimpse of today's Encounter";
-    if(!TEST_ENTRANCE_ON_EVERY_REENTRY&&localStorage.getItem(completedKey)===dailyDate){
-      entered=true;root.hidden=true;
-      document.getElementById("app")?.removeAttribute("aria-hidden");
-    }
+    // Every fresh app launch keeps the familiar Waterline entrance. A prior
+    // arrival only prevents duplicate daily history; it never hides the slider.
   }
   function updateReveal(){daily?.style.setProperty("--reveal",String(Math.max(.08,progress)));}
 
@@ -120,8 +118,10 @@
     if(!ready&&!appReady()){location.reload();return}
     ready=true;transitioning=true;entered=true;
     slider.classList.remove("is-grabbing","is-resetting");setProgress(1,true);slider.classList.add("is-complete");haptic(1,true);burst();
-    localStorage.setItem(completedKey,dailyDate||localDay());
-    window.dispatchEvent(new CustomEvent("yourlogos:daily-arrived",{detail:{date:dailyDate||localDay(),quoteId:dailyId}}));
+    const day=dailyDate||localDay();
+    const firstArrivalToday=localStorage.getItem(completedKey)!==day;
+    localStorage.setItem(completedKey,day);
+    if(firstArrivalToday)window.dispatchEvent(new CustomEvent("yourlogos:daily-arrived",{detail:{date:day,quoteId:dailyId}}));
     root.classList.add("is-departing");
     thumb.disabled=true;
     if(reduced())finish();else setTimeout(finish,640);
@@ -166,14 +166,8 @@
     entered=true;ready=true;root.hidden=true;thumb.disabled=true;
     document.getElementById("app")?.removeAttribute("aria-hidden");
   });
-  // Persisted local QA preview bypasses the entrance before the first paint.
-  // It does not create or imply an authenticated user session.
-  try{
-    if(localStorage.getItem("yourlogos-developer-preview-v1")==="on"){
-      entered=true;ready=true;root.hidden=true;thumb.disabled=true;
-      document.getElementById("app")?.removeAttribute("aria-hidden");
-    }
-  }catch{}
+  // QA preview and verified identities skip onboarding only; this slider
+  // remains the daily entrance for all visitors on a fresh app launch.
   window.addEventListener("yourlogos:ready",markReady);
   document.addEventListener("visibilitychange",()=>{
     if(document.hidden){wasBackgrounded=true;return}

@@ -12,6 +12,8 @@ const blocked=(name)=>name.startsWith(".")||name.includes("secret")||name.includ
 // These historical references are editorial, never user-supplied URLs.
 const ART_FILES={
  onboarding:"'A Classical Landscape' by Claude Lorrain, 17th century, Norton Simon Museum.JPG",
+ socrates:"David - The Death of Socrates.jpg",
+ marcus_full:"Equestrian statue of Marcus Aurelius full view front right.jpg",
  stoicism:"Marcus.aurelius.horse.statue.rome.arp.jpg",
  existentialism:"Caspar David Friedrich - Wanderer above the Sea of Fog.jpeg",
  nihilism:"The Abbey in the Oakwood.jpg",
