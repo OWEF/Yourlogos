@@ -12,8 +12,8 @@
   const thought=document.getElementById("yl-daily-thought");
   const source=document.getElementById("yl-daily-source");
   const completedKey="yourlogos-daily-ritual-v1";
-  // Temporary QA switch. Flip to false for the once-per-day release.
-  const TEST_ENTRANCE_ON_EVERY_REENTRY=true;
+  // QA replay is now explicit; normal users never repeat the entrance on every app resume.
+  const TEST_ENTRANCE_ON_EVERY_REENTRY=false;
   let lastReadyDetail=null,wasBackgrounded=false;
   let dailyDate="", dailyId=null;
   if(!root||!slider||!track||!thumb)return;
