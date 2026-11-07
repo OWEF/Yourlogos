@@ -1,13 +1,13 @@
 import {AUTH_URL, AUTH_PUBLISHABLE_KEY} from "./auth-config.js";
 export const AUTH_ENABLED=Boolean(/^https:\/\/[a-z0-9.-]+\.supabase\.co\/?$/.test(AUTH_URL)&&/^(sb_publishable_|eyJ)/.test(AUTH_PUBLISHABLE_KEY));
-let authClient=null;
+// Share one client even when onboarding and the app request identity concurrently.
+let authClientPromise=null;
 async function client(){
  if(!AUTH_ENABLED)throw new Error("Email enrollment is not yet enabled. A dedicated YourLogos Auth project is needed.");
- if(!authClient){
-  const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2.57.0");
-  authClient=createClient(AUTH_URL,AUTH_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"implicit"}});
- }
- return authClient;
+ if(!authClientPromise)authClientPromise=import("https://esm.sh/@supabase/supabase-js@2.57.0")
+  .then(({createClient})=>createClient(AUTH_URL,AUTH_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"implicit"}}))
+  .catch(error=>{authClientPromise=null;throw error});
+ return authClientPromise;
 }
 export async function requestMagicLink(email,displayName){
  const c=await client();
