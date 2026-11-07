@@ -454,6 +454,7 @@ function settingsHtml(){
     '<div class="v22-settings-block"><h2>Your data</h2><p>Your quotes, reflections and universe history currently stay on this browser. No account sync yet.</p><button type="button" data-action="export" class="v22-setting-row"><span><strong>Export everything</strong><small>Saved thoughts, Discover choices and universe history</small></span><b>↗</b></button><button type="button" data-action="edit-themes" class="v22-setting-row"><span><strong>Change interests</strong><small>Adjust the questions you chose when starting</small></span><b>↗</b></button></div>'+
     '<div class="v22-settings-block"><h2>Exploration history</h2><p>'+responses+' exploration choice'+(responses===1?"":"s")+' recorded. Choices are provisional evidence of exploration, not a personality classification.</p>'+
     (settingsConfirm?'<div class="v22-confirm"><p>Clear all Encounter and Library exploration choices from this browser? Your saved quotes and sky readings will remain.</p><button type="button" data-action="confirm-clear-discovery">Yes, clear responses</button><button type="button" data-action="cancel-clear-discovery">Cancel</button></div>':'<button type="button" data-action="clear-discovery" class="v22-setting-row"><span><strong>Clear my exploration choices</strong><small>This does not delete saved quotes</small></span><b>↗</b></button>')+'</div>'+
+    (new URLSearchParams(location.search).get("qa")==="1"?'<div class="v22-settings-block"><h2>Onboarding QA</h2><p>Preview the complete introduction without logging out or changing your saved responses.</p><button type="button" data-action="qa-replay-onboarding" class="v22-setting-row"><span><strong>Replay onboarding</strong><small>Preview only · your account and progress remain unchanged</small></span><b>↗</b></button></div>':"")+
     '<div class="v22-settings-block"><h2>About YourLogos</h2><p>A space to encounter ideas, leave traces of questions, and discover where thought leads. There are no scores for being philosophical.</p></div></section>';
 }
 function worldBack(){return '<button type="button" data-world-pane="home" class="world-back">← My World</button>'}
@@ -956,7 +957,8 @@ document.addEventListener("click",async e=>{
       document.querySelector(opening?".settings-route-back":'body > .settings-launch')?.focus({preventScroll:true});
       return;
     }
-    case"settings-close":settingsOpen=false;authNotice="";render();haptic();window.scrollTo({top:settingsReturnScrollY,behavior:"instant"});document.querySelector('body > .settings-launch')?.focus({preventScroll:true});return;
+    case"qa-replay-onboarding":if(new URLSearchParams(location.search).get("qa")!=="1")return;settingsOpen=false;render();window.dispatchEvent(new Event("yourlogos:onboarding-replay"));return;
+ case"settings-close":settingsOpen=false;authNotice="";render();haptic();window.scrollTo({top:settingsReturnScrollY,behavior:"instant"});document.querySelector('body > .settings-launch')?.focus({preventScroll:true});return;
     case"email-signout":{try{await signOutEmail();verifiedIdentity=null;syncConfirm="";cloudStateInfo="";authNotice="Signed out from email on this device.";render()}catch(err){authNotice=String(err.message||err);render()}return}
     case"cloud-save":if(!verifiedIdentity)return;syncConfirm="save";render();return;
     case"cloud-restore":if(!verifiedIdentity)return;syncConfirm="restore";render();return;
@@ -1201,6 +1203,11 @@ window.addEventListener("yourlogos:onboarding-complete",event=>{
   const incoming=event.detail?.profile;
   if(!incoming||!["completed","skipped"].includes(incoming.status))return;
   data.personalization=incoming;
+  const preview=event.detail?.previewQuote;
+  if(preview&&incoming.status==="completed"){
+    const target=discoveryQueue().findIndex(id=>QUOTES[id]?.[0]===preview.quote&&QUOTES[id]?.[1]===preview.author);
+    if(target>=0)quoteCursor=target;
+  }
   const nickname=String(event.detail?.name||"").trim().slice(0,32);
   if(nickname)data.localName=nickname;
   persist();render();
