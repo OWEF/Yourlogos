@@ -46,7 +46,7 @@ if(root){
  }
  function currentCategory(){return categories[topic]||categories.identity}
  function currentApproach(){return approaches[reason]||approaches.facts}
- function header(){return '<header class="yl-v2-top"><button type="button" data-step="back" aria-label="Go back" class="yl-v2-back">'+(page==="login"&&fromPage==="cover"?"":"‹")+'</button>'+
+ function header(){return '<header class="yl-v2-top"><button type="button" data-step="back" aria-label="Go back" class="yl-v2-back">'+"‹"+'</button>'+
  '<div class="yl-v2-bars" aria-label="Introduction progress">'+[0,1,2].map((n)=>'<i class="'+(n<=Math.min(page,2)?"on":"")+'"></i>').join("")+'</div>'+
  '<button class="yl-v2-quiet" type="button" data-step="skip">'+(replay?"Close":"Skip")+'</button></header>'}
  function action(label,enabled=true){return '<button type="button" class="yl-v2-action" data-step="next" '+(enabled?"":"disabled")+'>'+label+' <span aria-hidden="true">→</span></button>'}
