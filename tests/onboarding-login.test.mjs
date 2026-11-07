@@ -139,3 +139,19 @@ test("exit preview opens login without rewriting a saved guest profile",()=>{
  assert.equal(h.root.hidden,true);
  assert.equal(h.storage.get("yourlogos_web_v1"),value);
 });
+
+test("Settings always exposes onboarding replay without query flags or developer state",()=>{
+ const app=readFileSync(new URL("../app.js",import.meta.url),"utf8");
+ const start=app.indexOf("function settingsHtml()");
+ const end=app.indexOf("function worldBack()",start);
+ const settings=app.slice(start,end);
+ assert.ok(start>0 && end>start);
+ assert.match(settings,/Onboarding & preview/);
+ assert.match(settings,/data-action="qa-replay-onboarding"/);
+ assert.match(settings,/data-action="developer-preview-enable"/);
+ assert.match(settings,/data-action="developer-preview-exit"/);
+ assert.doesNotMatch(settings,/\?qa=1/);
+ const switchCase=app.slice(app.indexOf('case"qa-replay-onboarding":'),app.indexOf('case"developer-preview-enable":'));
+ assert.match(switchCase,/yourlogos:onboarding-replay/);
+ assert.doesNotMatch(switchCase,/if\(/);
+});
