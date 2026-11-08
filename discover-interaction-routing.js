@@ -1,12 +1,12 @@
 // CZ-103: versioned classification contract. Not yet integrated with the live Discover UI.
 export const INTERACTION_ROUTE_VERSION = 1;
 export const INTERACTION_TYPES = Object.freeze([
-  'tradeoff_slider', 'decision_map', 'concept_builder', 'thought_experiment',
+  'tradeoff_slider', 'decision_map', 'concept_builder', 'evidence_lens',
   'counterexample', 'perspective_switch', 'reflection_only'
 ]);
 export const INTELLECTUAL_OPERATIONS = Object.freeze([
   'allocate', 'choose_and_trace', 'construct_argument',
-  'vary_assumptions', 'test_universal_claim', 'reinterpret', 'reflect'
+  'weigh_evidence', 'test_universal_claim', 'reinterpret', 'reflect'
 ]);
 const routeTypes = new Set(INTERACTION_TYPES);
 const routeOperations = new Set(INTELLECTUAL_OPERATIONS);
