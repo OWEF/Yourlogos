@@ -5,10 +5,10 @@ CREATE TABLE IF NOT EXISTS public.quote_interaction_routes (
   quote_id integer PRIMARY KEY REFERENCES public.quotes(legacy_id) ON DELETE CASCADE,
   route_version integer NOT NULL DEFAULT 1 CHECK (route_version = 1),
   interaction_type text NOT NULL CHECK (interaction_type IN (
-    'tradeoff_slider', 'decision_map', 'concept_builder', 'thought_experiment',
+    'tradeoff_slider', 'decision_map', 'concept_builder', 'evidence_lens',
     'counterexample', 'perspective_switch', 'reflection_only')),
   intellectual_operation text NOT NULL CHECK (intellectual_operation IN (
-    'allocate', 'choose_and_trace', 'construct_argument', 'vary_assumptions',
+    'allocate', 'choose_and_trace', 'construct_argument', 'weigh_evidence',
     'test_universal_claim', 'reinterpret', 'reflect')),
   rationale text NOT NULL CHECK (length(btrim(rationale)) BETWEEN 1 AND 900),
   proposal_source text NOT NULL DEFAULT 'editorial' CHECK (
@@ -53,17 +53,17 @@ VALUES
 (49, 'tradeoff_slider', 'allocate',
  'Seneca raises the question of using finite time well. A connected allocation slider can represent a genuinely bounded day, with trade-offs made explicit rather than moralized.',
  'ai_proposal'),
-(31, 'concept_builder', 'construct_argument',
- 'Hegel''s proposition that truth is the whole invites reconstructing the relation between an isolated part, its mediation and the wider process. An argument builder is provisional pending scholarly context review.',
- 'ai_proposal'),
-(71, 'decision_map', 'choose_and_trace',
- 'Kant''s categorical imperative can be examined through a maxim and a universalization test, not by simulating only consequences of an isolated act.',
- 'ai_proposal'),
-(66, 'thought_experiment', 'vary_assumptions',
- 'Camus'' Sisyphus can support varying the interpretation of an unchanged repetitive task; animation is optional and must not substitute for the philosophical point.',
+(71, 'concept_builder', 'construct_argument',
+ 'Kant''s universalization test invites a single drag-to-connect relation between the chosen maxim and what would happen if that maxim were generally adopted. The philosophical context and wording require editorial review.',
  'ai_proposal'),
 (21, 'perspective_switch', 'reinterpret',
- 'Mill argues that understanding an argument requires exposure to serious objections. A viewpoint exchange is a tentative lower-priority candidate.',
+ 'Mill argues that understanding an argument requires exposure to serious objections. A brief claim/challenge/reply interaction can rehearse this idea without equating accusations with objections.',
+ 'ai_proposal'),
+(10, 'counterexample', 'test_universal_claim',
+ 'A sweeping aphorism can be pressed with one independent example. A visual claim-breaker lets users distinguish literal universality from the broader philosophical insight.',
+ 'ai_proposal'),
+(56, 'evidence_lens', 'weigh_evidence',
+ 'Hume connects degree of belief to evidential support; selecting among a repost, dated photo, and verified current test can expose why sources differ in reliability. Any meter is illustrative, never a numerical probability.',
  'ai_proposal')
 ON CONFLICT (quote_id) DO NOTHING;
 COMMIT;
