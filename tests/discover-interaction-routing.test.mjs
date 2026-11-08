@@ -8,8 +8,10 @@ const route = {
   proposal_source: 'founder_proposal', review_status: 'proposed',
   source_context_verified: false, config: {}
 };
-test('all seven mechanics have distinct identifiers', () => {
+test('six active mechanics plus a reflection fallback, with no animated experiment', () => {
   assert.equal(new Set(INTERACTION_TYPES).size, 7);
+  assert.ok(INTERACTION_TYPES.includes('evidence_lens'));
+  assert.ok(!INTERACTION_TYPES.includes('thought_experiment'));
 });
 test('an unreviewed route can be proposed but never selected', () => {
   assert.deepEqual(validateInteractionRoute(route), []);
@@ -29,4 +31,11 @@ test('reviewed route can be selected only for its exact quote', () => {
 });
 test('unsupported type, array config and missing rationale are rejected', () => {
   assert.equal(validateInteractionRoute({...route, interaction_type:'word_scramble', config:[], rationale:''}).length, 3);
+});
+test('evidence lens can be proposed but not automatically published', () => {
+ const candidate = {...route, quote_id: 56, interaction_type:'evidence_lens',
+   intellectual_operation:'weigh_evidence', proposal_source:'ai_proposal',
+   rationale:'The reliability of a claim depends on what evidence supports it.'};
+ assert.deepEqual(validateInteractionRoute(candidate), []);
+ assert.equal(selectApprovedInteraction(56, candidate), null);
 });
