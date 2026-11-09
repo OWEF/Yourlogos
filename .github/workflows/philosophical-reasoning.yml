@@ -55,6 +55,12 @@ jobs:
         run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
       - name: Test REAL offline lab in mobile Chromium at 320 / 390 / 768px
         run: node tests/cz105-lab-browser.mjs
+      - name: Check commit-pinned external phone preview (best effort)
+        continue-on-error: true
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          curl -fsSL --max-time 25 "https://raw.githack.com/OWEF/Yourlogos/${PR_HEAD_SHA}/experiments/cz105-reasoning-lab-standalone.html" | grep -q "CZ-105 Reasoning Laboratory"
       - name: Attach mobile QA screenshots
         if: always()
         uses: actions/upload-artifact@v4
