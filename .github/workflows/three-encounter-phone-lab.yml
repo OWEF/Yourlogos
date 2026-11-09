@@ -19,6 +19,15 @@ jobs:
           node-version: '22'
       - name: Browser test script syntax
         run: node --check tests/three-encounter-lab-browser.mjs
+      - name: Check actual inline JavaScript for parse errors
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path("experiments/three-encounter-lab-v01.html").read_text()
+          assert html.count("<script>")==1 and html.count("</script>")==1
+          Path("/tmp/three-encounter-inline.js").write_text(html.split("<script>",1)[1].split("</script>",1)[0])
+          PY
+          node --check /tmp/three-encounter-inline.js
       - name: Install lightweight browser automation
         run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
       - name: Verify isolated, standalone HTML at 320, 390 and 768px
