@@ -59,6 +59,8 @@ const item = (id, text, author, source, school, x) => ({
     fitnessReason: x.fitness,
     blocker: x.blocker,
     approval: "not_approved",
+    mechanismProof: x.guard || null,
+    contraindicatedScenarioIds: x.rejectScenarios || [],
   },
   review: { status: "draft", scholarlyReviewed: false, publisherApproved: false, modelVersion: 1 },
 });
@@ -204,6 +206,7 @@ export const ATLAS_PILOT_V01 = Object.freeze([
     limits:"Do not cast domination and autonomy as equal competing goods.",
     operation:"trace_conditions",operationTask:"Examine how education and institutions shape opportunities for independence.",operationTarget:"institutional_dependency",
     mechanic:"decision_map",scenario:"Compare access to education/support and consequent feasible choices, with historical constraints visible.",
+    guard:{kind:"branch_dependency",ground:"Education and social institutions can affect paths to independent agency.",requires:"Do not model access as a guarantee of independent outcomes."},
     fitness:"A contingent chain from social arrangements through agency can be represented without presuming guaranteed outcomes.",
     blocker:"Branch dependencies and historically appropriate choices require editorial verification."
   }),
@@ -222,6 +225,7 @@ export const ATLAS_PILOT_V01 = Object.freeze([
     limits:"Do not imply that lacking a room proves someone cannot write; do not detach the argument from gendered institutional history.",
     operation:"trace_enabling_conditions",operationTask:"Explore how conditions alter feasible opportunities, without guaranteeing creative success.",operationTarget:"enabling_dependencies",
     mechanic:"decision_map",scenario:"Change access to material resources and social permission, tracking plausible—not certain—opportunities.",
+    guard:{kind:"branch_dependency",ground:"Money, private space and social exclusion constrain writing opportunities.",requires:"Retain gendered history and distinguish opportunity from achievement."},
     fitness:"Supported relation of enabling conditions to opportunity is compatible with branching alternatives.",
     blocker:"Source-specific constraints and branches need editorial review before production."
   }),
@@ -268,6 +272,7 @@ export const ATLAS_PILOT_V01 = Object.freeze([
     limits:"No fixed branching consequence follows solely from this maxim.",
     operation:"trace_temporal_asymmetry",operationTask:"Contrast hindsight with decision under incomplete information.",operationTarget:"time_and_knowledge",
     mechanic:"decision_map",scenario:"Show branching possibilities without revealing future results in advance; permit later reflection on the path taken.",
+    guard:{kind:"branch_dependency",ground:"Hindsight and prospective action have asymmetric information.",requires:"Resolve attribution and passage wording before interpreting branch consequences."},
     fitness:"A sequence may illuminate temporal asymmetry if the original wording is verified.",
     blocker:"Citation/wording not yet source-verified; approval must remain conditional."
   }),
@@ -284,6 +289,7 @@ export const ATLAS_PILOT_V01 = Object.freeze([
     limits:"Counterexamples need an explicit definition of 'by nature'; a single uninterested moment is not automatically decisive.",
     operation:"test_scope",operationTask:"Explore whether a concrete case truly falsifies the qualified generalization.",operationTarget:"universal_vs_dispositional",
     mechanic:"counterexample",scenario:"Test scope and antecedent: nature/disposition versus any particular observed act.",
+    guard:{kind:"generalization_scope",ground:"The opening all-claim asserts a natural human disposition toward knowledge.",requires:"Preserve the dispositional qualifier; reject trivially unrelated examples."},
     fitness:"A claimed universal invites scope testing, provided the natural-disposition qualifier is preserved.",
     blocker:"The scope of 'by nature' and the Greek text require review."
   }),
@@ -302,6 +308,8 @@ export const ATLAS_PILOT_V01 = Object.freeze([
     limits:"No numeric balance or extreme allocation determines meaningful living. An arbitrary 8-hour exercise is not the historical argument.",
     operation:"examine_cost",operationTask:"Identify what activity crowds out under a genuinely stated constraint, then examine whether that cost serves a deliberate end.",operationTarget:"finite_attention_and_opportunity",
     mechanic:"tradeoff",scenario:"A genuinely constrained choice between competing commitments with the constraint stated; no invented general ideal of an eight-hour day.",
+    guard:{kind:"source_grounded_constraint",ground:"Finite life and ways it is consumed provide a concern with deliberate use.",requires:"An explicit, plausible constraint and competing ends must be shown to exist in the scenario."},
+    rejectScenarios:["eight-hour-thought-exercise"],
     fitness:"Scarcity of time and unexamined busyness can support a qualified trade-off when a real source-appropriate constraint exists.",
     blocker:"Current CZ-105 'divide 8 hours freely' lab lacks a source-grounded constraint and cannot be approved as faithful Senecan interaction."
   }),
