@@ -23,7 +23,7 @@ const item = (id, text, author, source, school, x) => ({
     contextStatus: x.refs?.length ? "passage_linked_editorial_summary" : "editorial_hypothesis_not_source_verified",
   },
   authorPosition: {
-    tradition: school,
+    tradition: Array.isArray(school) ? school : [school],
     stance: x.stance || "editorial_reconstruction",
     periodOrWork: x.period || source,
     scopedSummary: x.position,
