@@ -1,0 +1,39 @@
+name: CZ-110 Three Encounters Phone Lab
+on:
+  pull_request:
+    paths:
+      - 'experiments/three-encounter-lab-v01.html'
+      - 'tests/three-encounter-lab-browser.mjs'
+      - '.github/workflows/three-encounter-phone-lab.yml'
+  workflow_dispatch:
+jobs:
+  mobile-lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Browser test script syntax
+        run: node --check tests/three-encounter-lab-browser.mjs
+      - name: Install lightweight browser automation
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: Verify isolated, standalone HTML at 320, 390 and 768px
+        run: node tests/three-encounter-lab-browser.mjs
+      - name: Check iPhone HTTPS preview availability
+        continue-on-error: true
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          curl -fsSL --max-time 30 "https://raw.githack.com/OWEF/Yourlogos/${PR_HEAD_SHA}/experiments/three-encounter-lab-v01.html" | grep -q "Three Encounters"
+      - name: Attach screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: three-encounter-mobile-test-shots
+          path: test-results/three-encounter/*.png
+          if-no-files-found: ignore
+          retention-days: 3
