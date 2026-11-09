@@ -59,7 +59,7 @@ test("trade-off candidate demands an explicit source-related constraint and bloc
   assert.equal(g.interactiveRealization.proof.kind,"source_grounded_constraint");
   assert.equal(g.interactiveRealization.eligibility,"candidate_editorial_review_required");
   assert.ok(g.interactiveRealization.scenarioExclusions.includes("eight-hour-thought-exercise"));
-  assert.match(g.interactiveRealization.risks,/8-hour/);
+  assert.match(g.interactiveRealization.risks,/8[- ]hours/);
 });
 test("decision-map cases preserve distinct enabling, institutional, and temporal dependencies",()=>{
   for (const id of [23,28,34]){
