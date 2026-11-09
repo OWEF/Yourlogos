@@ -26,5 +26,12 @@ jobs:
         run: node --check philosophy-engine/models/seneca-time-v1.js
       - name: Check reasoner syntax
         run: node --check philosophy-engine/tradeoff-reasoner.js
+      - name: Check founder inspection harness syntax
+        run: node --check scripts/try-philosophical-reasoner.mjs
       - name: Run deterministic reasoning tests
         run: node --test tests/philosophical-reasoning.test.mjs
+      - name: Smoke-test founder example scenarios
+        run: |
+          node scripts/try-philosophical-reasoner.mjs all-rest > /dev/null
+          node scripts/try-philosophical-reasoner.mjs 5,2,1 one_off > /dev/null
+          node scripts/try-philosophical-reasoner.mjs all-reflection recurring > /dev/null
