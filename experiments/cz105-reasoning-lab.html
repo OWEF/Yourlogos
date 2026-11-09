@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10130f">
+<meta name="color-scheme" content="dark">
+<title>YourLogos · CZ-105 Reasoning Laboratory</title>
+<style>
+:root{color-scheme:dark;--bg:#10130f;--panel:#191d18;--panel2:#20251d;--border:#3a4134;--ink:#f4eedf;--muted:#b3b5a8;--dim:#858d80;--gold:#d7ba82;--sage:#9fb69c;--rose:#c7a399;--shadow:0 14px 40px rgba(0,0,0,.2)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(ellipse 80% 50% at 15% -12%,#2a2a1c 0,transparent 70%),var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-wrap:break-word}
+button,input,select{font:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:var(--gold)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+main{max-width:1120px;margin:auto;padding:clamp(18px,3vw,38px) max(18px,env(safe-area-inset-right)) 100px}
+.topline{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.brand{font-family:Georgia,serif;font-size:21px;letter-spacing:-.5px}
+.micro,.eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-weight:750}
+.test-tag{border:1px solid var(--border);border-radius:50px;padding:7px 10px;color:var(--muted);font-size:11px;letter-spacing:.03em}
+.hero{padding:0 0 23px;border-bottom:1px solid var(--border)}
+h1{font-family:Georgia,serif;font-size:clamp(32px,5.3vw,51px);line-height:1.1;letter-spacing:-.02em;font-weight:normal;margin:9px 0 13px;max-width:670px}
+.intro{max-width:660px;color:var(--muted);margin:0}
+.quote{font-family:Georgia,serif;font-size:21px;line-height:1.35;color:var(--ink);margin:17px 0 6px}
+.attribution,.note,.hint{font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(290px,375px) minmax(0,1fr);gap:18px;margin-top:20px;align-items:start}
+.panel,.result-card,.snapshot{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+.controls{padding:20px}
+.controls h2,.results h2{font-family:Georgia,serif;font-size:24px;font-weight:normal;margin:5px 0 9px}
+.panel-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin:17px 0}
+.preset{border:1px solid #59604d;border-radius:30px;background:#252b22;color:var(--ink);padding:9px 11px;font-size:12px;min-height:38px}
+.preset[aria-pressed="true"]{border-color:var(--gold);background:#393725;color:var(--gold)}
+.item{margin:15px 0 20px}
+.item-label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:9px}
+.item-label label{font-size:14px;font-weight:650}
+.val{font-variant-numeric:tabular-nums;font-size:23px;color:var(--ink);font-family:Georgia,serif}
+input[type=range]{display:block;width:100%;height:31px;margin:0;accent-color:var(--gold);touch-action:pan-y}
+input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
+.track{display:flex;gap:3px;height:10px;overflow:hidden;border-radius:30px;background:#383d31;margin:5px 0 10px}
+.track span{display:block;transition:width .12s ease}
+.legend{display:flex;gap:8px;justify-content:space-between;color:var(--muted);font-size:11px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:8px;height:8px;border-radius:50%}
+.divider{height:1px;background:var(--border);margin:21px 0}
+.field-label{font-size:13px;font-weight:650;margin:15px 0 8px;display:block}
+.radio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.radio label{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--border);background:#22271f;border-radius:10px;min-height:46px;padding:8px 5px;font-size:12px;cursor:pointer}
+.radio label:has(input:checked){border-color:var(--gold);color:var(--gold);background:#353222}
+.radio input{position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;margin:0;cursor:pointer}
+.radio label:has(input:focus-visible){outline:2px solid var(--gold);outline-offset:2px}
+select{display:block;width:100%;border:1px solid #58604d;background:#24291f;color:var(--ink);border-radius:11px;min-height:46px;padding:10px}
+.primary{display:flex;width:100%;align-items:center;justify-content:center;border:1px solid var(--gold);border-radius:12px;background:var(--gold);color:#1b1b15;font-weight:750;min-height:49px;margin:20px 0 10px}
+.primary:active,.secondary:active,.preset:active{transform:scale(.985)}
+.secondary{display:inline-flex;align-items:center;justify-content:center;padding:10px 13px;border:1px solid var(--border);border-radius:11px;background:#252b23;color:var(--ink);font-size:12px;min-height:41px}
+.secondary:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.status{font-size:12px;color:var(--sage);margin:8px 0;min-height:18px}
+.results{min-width:0}
+.result-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.result-header h2{margin:3px 0}
+.cards{display:grid;grid-template-columns:1fr;gap:12px}
+.result-card{padding:17px 18px}
+.result-card h3{font:normal 23px Georgia,serif;line-height:1.2;margin:5px 0 12px}
+.sequence{font-variant-numeric:tabular-nums;font-size:11px;letter-spacing:.16em;color:var(--gold)}
+.result-card p{margin:9px 0;line-height:1.55}
+.result-card ul{padding-left:19px;margin:11px 0 0}
+.result-card li{margin-bottom:11px}
+.result-card li:last-child{margin-bottom:0}
+.smalltitle{font-size:10px;letter-spacing:.12em;color:var(--sage);text-transform:uppercase;font-weight:800;margin:15px 0 7px}
+.smalltitle.warning{color:var(--rose)}
+.plain{color:var(--muted)}
+.pillrow{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.pill{border:1px solid #555d4c;border-radius:8px;padding:5px 8px;font-size:11px;color:var(--sage);background:#272d24}
+.notice{border-left:2px solid var(--gold);padding:9px 11px;background:#28291e;font-size:13px;color:#e6dcc4;margin-top:14px}
+.boxed{border:1px solid var(--border);border-radius:11px;padding:12px;margin:10px 0}
+.boxed p{margin:5px 0}
+.trace{border-top:1px solid var(--border);padding:12px 0}
+.trace:first-of-type{border-top:none}
+.trace .meta{color:var(--sage);font-size:11px}
+.trace p{font-size:12px;color:var(--muted);margin:4px 0}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--gold);padding:11px 0;font-size:13px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#131611;border:1px solid var(--border);padding:12px;border-radius:10px;color:var(--muted);font-size:11px;max-height:350px;overflow:auto}
+.footer{margin-top:23px;padding:17px 0;border-top:1px solid var(--border);color:var(--dim);font-size:12px}
+.snapshot-section{margin-top:21px}
+.snapshot-section h3{font-family:Georgia,serif;font-weight:normal;font-size:24px;margin:7px 0 11px}
+.snapshot-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.snapshot{padding:13px;background:#20251d;box-shadow:none}
+.snapshot strong{color:var(--gold)}
+.snapshot p{margin:8px 0;font-size:12px;color:var(--muted)}
+.mini{font-size:11px;color:var(--sage)}
+.compare-placeholder{color:var(--dim);font-style:italic}
+.hidden{display:none!important}
+@media (max-width:740px){main{padding:17px 16px calc(70px + env(safe-area-inset-bottom))}.layout{grid-template-columns:minmax(0,1fr);gap:19px}.controls{padding:17px}.result-card{padding:16px}.hero{padding-bottom:19px}.topline{margin-bottom:14px}.snapshot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:360px){.actions{grid-template-columns:1fr}.radio label{font-size:11px}.snapshot-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+  <header class="topline"><div class="brand">YourLogos <span style="color:var(--gold)">/</span> Laboratory</div><span class="test-tag">CZ-105 · ISOLATED RESEARCH</span></header>
+  <section class="hero">
+    <div class="eyebrow">Philosophical reasoning engine · Trade-Off</div>
+    <h1>What do your choices actually imply?</h1>
+    <p class="intro">Change an eight-hour thought experiment, then inspect the <b>actual CZ-105 reasoning engine</b>. No personality scores, no generated jokes—just facts, consequences, uncertainty and an audit trail.</p>
+    <div class="quote" id="source-quote"></div>
+    <div class="attribution" id="source-attribution"></div>
+  </section>
+
+  <div class="layout">
+    <section class="panel controls" aria-labelledby="controls-heading">
+      <div class="panel-label">01 / Experiment</div>
+      <h2 id="controls-heading">Divide eight hours</h2>
+      <p class="note">A fictional block of mutually exclusive activities, not your complete day or a medical sleep recommendation. Changing a slider automatically redistributes the other hours.</p>
+      <div class="presets" aria-label="Example allocations">
+        <button type="button" class="preset" data-preset="balanced">3 / 3 / 2</button>
+        <button type="button" class="preset" data-preset="rest">All rest</button>
+        <button type="button" class="preset" data-preset="obligations">All duties</button>
+        <button type="button" class="preset" data-preset="reflection">All reflection</button>
+        <button type="button" class="preset" data-preset="majority">5 / 2 / 1</button>
+      </div>
+
+      <div class="item"><div class="item-label"><label for="slider-rest">Rest</label><output class="val" id="value-rest" for="slider-rest">3h</output></div><input id="slider-rest" type="range" min="0" max="16" step="1" value="6" data-index="0" aria-label="Rest hours"></div>
+      <div class="item"><div class="item-label"><label for="slider-obligations">Obligations</label><output class="val" id="value-obligations" for="slider-obligations">3h</output></div><input id="slider-obligations" type="range" min="0" max="16" step="1" value="6" data-index="1" aria-label="Obligations hours"></div>
+      <div class="item"><div class="item-label"><label for="slider-reflection">Reflection</label><output class="val" id="value-reflection" for="slider-reflection">2h</output></div><input id="slider-reflection" type="range" min="0" max="16" step="1" value="4" data-index="2" aria-label="Reflection hours"></div>
+
+      <div class="track" aria-label="Zero-sum hours distribution">
+        <span id="bar-rest" style="background:var(--sage)"></span>
+        <span id="bar-obligations" style="background:var(--gold)"></span>
+        <span id="bar-reflection" style="background:var(--rose)"></span>
+      </div>
+      <div class="legend"><span><i class="dot" style="background:var(--sage)"></i>Rest</span><span><i class="dot" style="background:var(--gold)"></i>Duties</span><span><i class="dot" style="background:var(--rose)"></i>Reflection</span></div>
+      <div class="divider"></div>
+
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="field-label">Does this happen once or repeatedly?</legend>
+        <div class="radio" id="cadence-group">
+          <label><input type="radio" name="cadence" value="unknown" checked> Unknown</label>
+          <label><input type="radio" name="cadence" value="one_off"> One-off</label>
+          <label><input type="radio" name="cadence" value="recurring"> Recurring</label>
+        </div>
+      </fieldset>
+      <label class="field-label" for="priority">Which would you say is your priority?</label>
+      <select id="priority">
+        <option value="">No stated priority</option>
+        <option value="rest">Rest</option>
+        <option value="obligations">Obligations</option>
+        <option value="reflection">Reflection</option>
+      </select>
+      <p class="hint">Try saying one thing is important, then allocating more time to another. The engine should spot the tension without accusing you of hypocrisy.</p>
+
+      <button type="button" class="primary" id="analyze">Run philosophical reasoning</button>
+      <div class="status" id="run-status" role="status" aria-live="polite"></div>
+      <div class="actions">
+        <button type="button" class="secondary" id="save-a">Save result A</button>
+        <button type="button" class="secondary" id="save-b">Save result B</button>
+        <button type="button" class="secondary" id="copy-report">Copy full report</button>
+        <button type="button" class="secondary" id="reset">Reset choices</button>
+      </div>
+    </section>
+
+    <section class="results" aria-labelledby="output-heading">
+      <div class="result-header"><div><div class="panel-label">02 / Interpretation</div><h2 id="output-heading">What the engine found</h2></div><span class="test-tag" id="evaluated-at">Not evaluated</span></div>
+      <div id="engine-error" class="notice hidden" role="alert"></div>
+      <div class="cards">
+        <article class="result-card" aria-labelledby="h-happened"><div class="sequence">01 / OBSERVATION</div><h3 id="h-happened">What happened?</h3><div id="out-happened"></div></article>
+        <article class="result-card" aria-labelledby="h-follows"><div class="sequence">02 / INFERENCE</div><h3 id="h-follows">What follows?</h3><div id="out-follows"></div></article>
+        <article class="result-card" aria-labelledby="h-uncertain"><div class="sequence">03 / HUMILITY</div><h3 id="h-uncertain">What remains uncertain?</h3><div id="out-uncertain"></div></article>
+        <article class="result-card" aria-labelledby="h-why"><div class="sequence">04 / TRACEABILITY</div><h3 id="h-why">Why this?</h3><div id="out-why"></div></article>
+      </div>
+
+      <section class="snapshot-section" aria-labelledby="comparison-heading">
+        <div class="panel-label">03 / Comparison</div><h3 id="comparison-heading">Try two different paths</h3>
+        <p class="note">Save A, change the allocation or context, run the engine again, and save B. Compare what changed—not just which category was largest.</p>
+        <div class="snapshot-grid"><div class="snapshot" id="snapshot-a"><strong>Result A</strong><p class="compare-placeholder">Not saved yet</p></div><div class="snapshot" id="snapshot-b"><strong>Result B</strong><p class="compare-placeholder">Not saved yet</p></div></div>
+      </section>
+    </section>
+  </div>
+  <footer class="footer">This laboratory imports <code>analyzeTradeoff()</code> from the actual CZ-105 source file. It does not call an LLM, store personal data, or write to YourLogos production. The Seneca interpretation is provisional and not yet scholarly approved. <a href="https://github.com/OWEF/Yourlogos/pull/147">Review PR #147</a>.</footer>
+</main>
+
+<script type="module">
+import { analyzeTradeoff } from "../philosophy-engine/tradeoff-reasoner.js";
+import { SENECA_TIME_TRADEOFF_V1 } from "../philosophy-engine/models/seneca-time-v1.js";
+import { CATEGORY_IDS, INITIAL_TICKS, PRESETS, TOTAL_TICKS, reallocate, toAllocation } from "./cz105-lab-controls.js";
+
+const $ = id => document.getElementById(id);
+const element = (tag, className, text) => {
+  const e = document.createElement(tag);
+  if (className) e.className = className;
+  if (text !== undefined) e.textContent = String(text);
+  return e;
+};
+const put = (parent, tag, className, content) => {
+  const e = element(tag, className, content);
+  parent.append(e);
+  return e;
+};
+const clear = el => { el.replaceChildren(); return el; };
+const fmt = n => (Number.isInteger(n) ? String(n) : String(n)) + "h";
+let ticks = [...INITIAL_TICKS];
+let report = null;
+let evaluatedInput = null;
+let dirty = true;
+const snapshots = { a: null, b: null };
+
+$("source-quote").textContent = "\u201C" + SENECA_TIME_TRADEOFF_V1.quote.text + "\u201D";
+$("source-attribution").textContent = "Seneca · " + SENECA_TIME_TRADEOFF_V1.quote.work + " · Translation varies · Editorial review pending";
+
+function selectedCadence() {
+  return document.querySelector('input[name="cadence"]:checked').value;
+}
+function currentInput() {
+  return {
+    allocation: toAllocation(ticks),
+    context: {
+      cadence: selectedCadence(),
+      statedPriority: $("priority").value || null,
+    },
+  };
+}
+function renderControls() {
+  const allocation = toAllocation(ticks);
+  CATEGORY_IDS.forEach((id, index) => {
+    const hours = allocation[id];
+    const slider = $("slider-" + id);
+    slider.value = String(ticks[index]);
+    slider.setAttribute("aria-valuetext", fmt(hours) + " out of 8 hours");
+    $("value-" + id).textContent = fmt(hours);
+    $("bar-" + id).style.width = String((ticks[index] / TOTAL_TICKS) * 100) + "%";
+  });
+  document.querySelectorAll("[data-preset]").forEach(b => {
+    b.setAttribute("aria-pressed", JSON.stringify(PRESETS[b.dataset.preset] === undefined ? false :
+      PRESETS[b.dataset.preset].every((n, i) => n === ticks[i])));
+  });
+}
+function markDirty() {
+  dirty = true;
+  $("run-status").textContent = "Choices changed. Run the engine to refresh the four findings.";
+  $("evaluated-at").textContent = "Needs new analysis";
+}
+for (const id of CATEGORY_IDS) {
+  $("slider-" + id).addEventListener("input", event => {
+    ticks = reallocate(ticks, Number(event.target.dataset.index), Number(event.target.value));
+    renderControls();
+    markDirty();
+  });
+}
+for (const b of document.querySelectorAll("[data-preset]")) {
+  b.addEventListener("click", () => {
+    ticks = [...PRESETS[b.dataset.preset]];
+    renderControls();
+    markDirty();
+  });
+}
+document.querySelectorAll('input[name="cadence"]').forEach(el => el.addEventListener("change", markDirty));
+$("priority").addEventListener("change", markDirty);
+
+function renderHappened(r) {
+  const root = clear($("out-happened"));
+  put(root, "p", "", r.what_happened.summary);
+  const s = r.what_happened.signals;
+  put(root, "div", "smalltitle", "Observed patterns");
+  const pills = put(root, "div", "pillrow");
+  r.what_happened.patterns.forEach(p => put(pills, "span", "pill", p.label));
+  put(root, "div", "boxed");
+  const box = root.lastChild;
+  put(box, "p", "", "Largest share: " + s.magnitude.maxSharePercent + "% · Gap: " + s.balance.maxMinGapHours + "h");
+  put(box, "p", "plain", "Balance index: " + s.balance.index + " (descriptive, not a score of wisdom)");
+  if (s.contradictions.apparentStatedPriorityMismatch)
+    put(root, "div", "notice", "Your stated priority receives less time than another activity. The engine flags a possible intention–allocation tension, not a formal contradiction.");
+}
+function renderFindings(root, rows, className) {
+  if (!rows.length) { put(root, "p", "plain", "No finding of this type."); return; }
+  const ul = put(root, "ul", className);
+  rows.forEach(x => {
+    const li = put(ul, "li");
+    put(li, "div", "", x.statement);
+    put(li, "div", "mini", x.id);
+  });
+}
+function renderFollows(r) {
+  const root = clear($("out-follows"));
+  put(root, "div", "smalltitle", "Necessary within this thought experiment");
+  renderFindings(root, r.what_follows.necessary);
+  put(root, "div", "smalltitle warning", "Possible interpretations · not proven facts");
+  renderFindings(root, r.what_follows.possible);
+  if (r.what_follows.tensions.length) {
+    put(root, "div", "smalltitle", "Potential philosophical tensions");
+    renderFindings(root, r.what_follows.tensions);
+  }
+  put(root, "div", "notice", r.what_follows.philosophical_connection.proposition);
+}
+function renderUncertain(r) {
+  const root = clear($("out-uncertain"));
+  const ul = put(root, "ul");
+  r.what_remains_uncertain.forEach(x => {
+    const li = put(ul, "li");
+    put(li, "strong", "", x.question);
+    put(li, "div", "plain", x.reason);
+  });
+  put(root, "div", "notice", "Uncertainty is a result. The engine will not invent a motive, lifestyle or moral judgment.");
+}
+function renderWhy(r) {
+  const root = clear($("out-why"));
+  put(root, "p", "", "Model: " + r.why_this.modelId);
+  put(root, "p", "plain", "Editorial status: " + r.why_this.editorialStatus +
+    " · Source translation: " + r.why_this.sourceStatus);
+  put(root, "div", "smalltitle", "Rule trace · " + r.why_this.rule_trace.length + " steps");
+  const details = put(root, "details");
+  put(details, "summary", "", "Open the exact inference trail");
+  r.why_this.rule_trace.forEach(item => {
+    const block = put(details, "div", "trace");
+    put(block, "strong", "", item.ruleId);
+    put(block, "p", "", "If: " + item.condition);
+    put(block, "div", "meta", "→ " + item.findingIds.join(", "));
+    put(block, "div", "meta", item.epistemicStatus + " · " + item.relationIds.join(", "));
+  });
+  put(root, "div", "smalltitle", "Limits we refuse to cross");
+  const ul = put(root, "ul", "plain");
+  r.why_this.interpretive_boundaries.forEach(x => put(ul, "li", "", x));
+  const jsonDetails = put(root, "details");
+  put(jsonDetails, "summary", "", "Show complete engine JSON");
+  put(jsonDetails, "pre", "", JSON.stringify(r, null, 2));
+}
+function runEngine() {
+  try {
+    const input = currentInput();
+    const result = analyzeTradeoff(input);
+    report = result;
+    evaluatedInput = input;
+    dirty = false;
+    $("engine-error").classList.add("hidden");
+    renderHappened(result);
+    renderFollows(result);
+    renderUncertain(result);
+    renderWhy(result);
+    $("run-status").textContent = "Analyzed with actual CZ-105 engine. No network or AI call.";
+    $("evaluated-at").textContent = "Analysis current";
+    return result;
+  } catch (error) {
+    $("engine-error").textContent = "The engine rejected this input: " + error.message;
+    $("engine-error").classList.remove("hidden");
+    $("run-status").textContent = "No result was produced.";
+    return null;
+  }
+}
+$("analyze").addEventListener("click", () => {runEngine();$("out-happened").scrollIntoView({behavior:"auto",block:"nearest"});});
+
+function copyReport() {
+  const r = dirty ? runEngine() : report;
+  if (!r) return;
+  const txt = JSON.stringify(r, null, 2);
+  const finished = () => { $("run-status").textContent = "Engine report copied to clipboard."; };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(txt).then(finished, () => fallbackCopy(txt));
+  } else fallbackCopy(txt);
+}
+function fallbackCopy(text) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.style.position = "fixed"; area.style.top = "0"; area.style.left = "-9999px";
+  document.body.append(area); area.select();
+  try { if (document.execCommand("copy")) $("run-status").textContent = "Engine report copied."; else throw Error("Clipboard unavailable"); }
+  catch { $("run-status").textContent = "Copy unavailable in this browser; open ‘Show complete engine JSON’ to inspect it."; }
+  area.remove();
+}
+$("copy-report").addEventListener("click", copyReport);
+function saveSnapshot(which) {
+  const r = dirty || !report ? runEngine() : report;
+  if (!r) return;
+  snapshots[which] = { input: structuredClone(evaluatedInput), result: structuredClone(r) };
+  renderSnapshot(which);
+  $("run-status").textContent = "Result " + which.toUpperCase() + " saved for this session. Change the input to compare.";
+}
+function renderSnapshot(which) {
+  const parent = clear($("snapshot-" + which)), snapshot = snapshots[which];
+  put(parent, "strong", "", "Result " + which.toUpperCase());
+  if (!snapshot) return void put(parent, "p", "compare-placeholder", "Not saved yet");
+  put(parent, "p", "", snapshot.result.what_happened.summary);
+  put(parent, "div", "mini", snapshot.result.what_happened.signals.combinations.dominance.replace(/_/g," "));
+  const candidate = snapshot.result.what_follows.possible[0];
+  if (candidate) put(parent, "p", "", candidate.statement);
+  put(parent, "div", "mini", snapshot.result.what_remains_uncertain.length + " unresolved questions · " +
+    snapshot.result.why_this.rule_trace.length + " traced steps");
+  const restore = put(parent, "button", "secondary", "Load this scenario");
+  restore.type = "button";
+  restore.addEventListener("click", () => {
+    const i = snapshot.input;
+    ticks = CATEGORY_IDS.map(id => Math.round(i.allocation[id] * 2));
+    document.querySelector('input[name="cadence"][value="' + i.context.cadence + '"]').checked = true;
+    $("priority").value = i.context.statedPriority || "";
+    renderControls();
+    runEngine();
+  });
+}
+$("save-a").addEventListener("click", () => saveSnapshot("a"));
+$("save-b").addEventListener("click", () => saveSnapshot("b"));
+$("reset").addEventListener("click", () => {
+  ticks = [...INITIAL_TICKS];
+  document.querySelector('input[name="cadence"][value="unknown"]').checked = true;
+  $("priority").value = "";
+  renderControls();
+  runEngine();
+});
+renderControls();
+runEngine();
+</script>
+</body>
+</html>
