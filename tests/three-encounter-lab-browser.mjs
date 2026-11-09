@@ -20,7 +20,7 @@ try{
   page.on("request",r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
   await page.goto(url,{waitUntil:"load"});
   await page.getByRole("tab",{name:/Trade-Off/}).waitFor();
-  assert.match(await page.locator("#quote").innerText(),/Seneca/);
+  assert.match(await page.locator("#quote").innerText(),/Seneca/,"Page errors: "+JSON.stringify(jsErrors));
   assert.equal(await page.locator(".field .number").count(),3);
   let input=await page.locator("#interactive").innerText();
   assert.match(input,/three genuinely free hours tonight/);
