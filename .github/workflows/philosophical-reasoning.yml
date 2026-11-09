@@ -3,13 +3,12 @@ on:
   pull_request:
     paths:
       - 'philosophy-engine/**'
+      - 'experiments/cz105-*'
+      - 'scripts/build-cz105-lab-standalone.mjs'
+      - 'scripts/try-philosophical-reasoner.mjs'
       - 'tests/philosophical-reasoning.test.mjs'
+      - 'tests/cz105-*'
       - '.github/workflows/philosophical-reasoning.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'philosophy-engine/**'
-      - 'tests/philosophical-reasoning.test.mjs'
   workflow_dispatch:
 jobs:
   reasoning-contract:
@@ -21,17 +20,46 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Check model syntax
-        run: node --check philosophy-engine/models/seneca-time-v1.js
-      - name: Check reasoner syntax
-        run: node --check philosophy-engine/tradeoff-reasoner.js
-      - name: Check founder inspection harness syntax
-        run: node --check scripts/try-philosophical-reasoner.mjs
-      - name: Run deterministic reasoning tests
-        run: node --test tests/philosophical-reasoning.test.mjs
-      - name: Smoke-test founder example scenarios
+          node-version: '22'
+      - name: Check reasoning and lab syntax
+        run: |
+          node --check philosophy-engine/models/seneca-time-v1.js
+          node --check philosophy-engine/tradeoff-reasoner.js
+          node --check experiments/cz105-lab-controls.js
+          node --check scripts/try-philosophical-reasoner.mjs
+          node --check scripts/build-cz105-lab-standalone.mjs
+          node --check tests/cz105-lab-browser.mjs
+      - name: Verify offline lab matches ACTUAL model and reasoning source
+        run: node scripts/build-cz105-lab-standalone.mjs --check
+      - name: Run philosophical reasoning contract and lab slider tests
+        run: node --test tests/philosophical-reasoning.test.mjs tests/cz105-mobile-lab.test.mjs
+      - name: Smoke-test original founder CLI
         run: |
           node scripts/try-philosophical-reasoner.mjs all-rest > /dev/null
           node scripts/try-philosophical-reasoner.mjs 5,2,1 one_off > /dev/null
           node scripts/try-philosophical-reasoner.mjs all-reflection recurring > /dev/null
+  mobile-browser:
+    needs: reasoning-contract
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Ensure system Chrome is available
+        run: google-chrome --version
+      - name: Install lightweight Chromium automation bindings
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: Test REAL offline lab in mobile Chromium at 320 / 390 / 768px
+        run: node tests/cz105-lab-browser.mjs
+      - name: Attach mobile QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz105-mobile-lab-screenshots
+          path: test-results/cz105/*.png
+          if-no-files-found: ignore
+          retention-days: 3
