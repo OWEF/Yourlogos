@@ -20,7 +20,7 @@ try{
   page.on("request",r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
   await page.goto(url,{waitUntil:"load"});
   await page.getByRole("tab",{name:/Trade-Off/}).waitFor();
-  assert.match(await page.locator("#quote").innerText(),/Seneca/,"Page errors: "+JSON.stringify(jsErrors));
+  assert.match(await page.locator("#quote").innerText(),/Seneca/i,"Page errors: "+JSON.stringify(jsErrors));
   assert.equal(await page.locator(".field .number").count(),3);
   let input=await page.locator("#interactive").innerText();
   assert.match(input,/three genuinely free hours tonight/);
@@ -52,7 +52,7 @@ try{
   assert.match(await page.locator("#result pre").innerText(),/quoteId/);
   // Woolf: same barrier as improved resource tests partial, not magical fix.
   await page.getByRole("tab",{name:/Decision Map/}).click();
-  assert.match(await page.locator("#quote").innerText(),/Virginia Woolf/);
+  assert.match(await page.locator("#quote").innerText(),/Virginia Woolf/i);
   await page.getByRole("button",{name:/A room of her own/}).click();
   await page.getByRole("button",{name:/Interruptions and shared space/}).click();
   await page.getByRole("button",{name:/Challenge a structural barrier/}).click();
@@ -64,7 +64,7 @@ try{
   assert.match(packet.philosophicalJustification,/Woolf/);
   // Aristotle: scope changes the inference with the SAME case.
   await page.getByRole("tab",{name:/Counterexample/}).click();
-  assert.match(await page.locator("#quote").innerText(),/Aristotle/);
+  assert.match(await page.locator("#quote").innerText(),/Aristotle/i);
   await page.getByRole("button",{name:/Every person, at every moment/}).click();
   await page.getByRole("button",{name:/Someone loses interest in a lesson/}).click();
   await page.getByRole("button",{name:"Reveal my discovery"}).click();
