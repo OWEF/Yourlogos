@@ -39,15 +39,19 @@ export function buildStandalone() {
     sanitizeSource(file(path), name)).join("\n");
   return html.replace(imports, "/* Offline edition — generated from real CZ-105 source. Do not manually edit this bundle. */\n" + bundled);
 }
-const check = process.argv.includes("--check");
-const expected = buildStandalone();
-if (check) {
-  if (file(outputPath) !== expected) {
-    process.stderr.write("Standalone lab differs from source modules. Run build script.\n");
-    process.exit(1);
+const launchedDirectly = process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (launchedDirectly) {
+  const check = process.argv.includes("--check");
+  const expected = buildStandalone();
+  if (check) {
+    if (file(outputPath) !== expected) {
+      process.stderr.write("Standalone lab differs from source modules. Run build script.\n");
+      process.exit(1);
+    }
+    process.stdout.write("CZ-105 offline bundle matches original model, engine, controls and lab UI.\n");
+  } else {
+    writeFileSync(resolve(root, outputPath), expected, "utf8");
+    process.stdout.write("Wrote " + outputPath + " (" + expected.length + " chars)\n");
   }
-  process.stdout.write("CZ-105 offline bundle matches original model, engine, controls and lab UI.\n");
-} else {
-  writeFileSync(resolve(root, outputPath), expected, "utf8");
-  process.stdout.write("Wrote " + outputPath + " (" + expected.length + " chars)\n");
 }
