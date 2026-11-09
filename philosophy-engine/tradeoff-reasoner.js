@@ -135,15 +135,21 @@ export function analyzeTradeoff(input, model = SENECA_TIME_TRADEOFF_V1) {
       isLogicalContradiction: false });
   } else {
     const leadersLabel = leaders.map(k => labels[k]).join(" and ");
-    add(necessary, "priority-distribution", leadersLabel + " takes " + formatHours(max) +
-      " while " + labels[second] + " receives " + formatHours(allocation[second]) +
-      "; the relative amounts constrain what can be done within this block.",
+    const nextAfterLeaders = ordered.find(k => !leaders.includes(k));
+    const distributionSentence = leaders.length > 1
+      ? leaders.map(k => labels[k]).join(" and ") + " each receive " + formatHours(max) +
+        (nextAfterLeaders ? "; " + labels[nextAfterLeaders] + " receives " + formatHours(allocation[nextAfterLeaders]) : "") +
+        ". This is shared leadership, not a single winner."
+      : leadersLabel + " receives " + formatHours(max) +
+        " while " + labels[second] + " receives " + formatHours(allocation[second]) +
+        "; the relative amounts constrain what can be done within this block.";
+    add(necessary, "priority-distribution", distributionSentence,
       ["rel-finite-budget"], "scenario_necessity");
-    trace("relative-allocation", dominance + "; leader=" + leader + "; runner_up=" + second,
+    trace("relative-allocation", dominance + "; leaders=" + leaders.join(",") + "; runner_up=" + (leaders.length > 1 ? nextAfterLeaders : second),
       ["priority-distribution"], ["rel-finite-budget"], "scenario_necessity");
-    const secondNonLeader = ordered.find(k => k !== leader && allocation[k] > 0);
-    const secondaryText = secondNonLeader
-      ? " The next-largest allocation is " + labels[secondNonLeader] + " (" + formatHours(allocation[secondNonLeader]) + ")."
+    const secondNonLeader = leaders.length > 1 ? nextAfterLeaders : ordered.find(k => k !== leader && allocation[k] > 0);
+    const secondaryText = secondNonLeader && allocation[secondNonLeader] > 0
+      ? " The next distinct priority is " + labels[secondNonLeader] + " (" + formatHours(allocation[secondNonLeader]) + ")."
       : "";
     add(possible, "relative-priorities", (leaders.length > 1
       ? "Sharing the largest allocation could reflect competing priorities rather than indifference."
