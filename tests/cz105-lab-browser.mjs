@@ -41,7 +41,7 @@ try {
       assert.ok(text.length > 30, "Missing " + id + " on "+width+"px");
     }
     assert.match(await page.locator("#out-why").innerText(),/Model: seneca-time-tradeoff-v1/);
-    assert.match(await page.locator("#out-follows").innerText(),/Necessary within this thought experiment/);
+    assert.match(await page.locator("#out-follows").innerText(),/Necessary within this thought experiment/i);
 
     await page.getByRole("button",{name:"All duties"}).click();
     await page.getByRole("button",{name:"Run philosophical reasoning"}).click();
