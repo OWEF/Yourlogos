@@ -1,0 +1,30 @@
+name: CZ-110 Philosophical Context Atlas Pilot
+on:
+  pull_request:
+    paths:
+      - 'philosophy-engine/context-atlas/**'
+      - 'tests/context-atlas-pilot.test.mjs'
+      - 'scripts/audit-context-atlas.mjs'
+      - '.github/workflows/context-atlas-pilot.yml'
+  workflow_dispatch:
+jobs:
+  audit-15-contexts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check all atlas and report syntax
+        run: |
+          node --check philosophy-engine/context-atlas/pilot-records-v01.js
+          node --check philosophy-engine/context-atlas/grammar-v01.js
+          node --check scripts/audit-context-atlas.mjs
+          node --check tests/context-atlas-pilot.test.mjs
+      - name: Test 15 contexts, abstention, and live reasoner compatibility
+        run: node --test tests/context-atlas-pilot.test.mjs
+      - name: Print research pilot findings
+        run: node scripts/audit-context-atlas.mjs
