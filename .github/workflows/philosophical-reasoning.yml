@@ -1,0 +1,30 @@
+name: CZ-105 Philosophical Reasoning Engine
+on:
+  pull_request:
+    paths:
+      - 'philosophy-engine/**'
+      - 'tests/philosophical-reasoning.test.mjs'
+      - '.github/workflows/philosophical-reasoning.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'philosophy-engine/**'
+      - 'tests/philosophical-reasoning.test.mjs'
+  workflow_dispatch:
+jobs:
+  reasoning-contract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check model syntax
+        run: node --check philosophy-engine/models/seneca-time-v1.js
+      - name: Check reasoner syntax
+        run: node --check philosophy-engine/tradeoff-reasoner.js
+      - name: Run deterministic reasoning tests
+        run: node --test tests/philosophical-reasoning.test.mjs
