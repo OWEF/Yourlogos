@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101310"><meta name="color-scheme" content="dark">
+<title>YourLogos · Three Encounters</title>
+<style>
+:root{color-scheme:dark;--bg:#101310;--card:#191e18;--card2:#22291f;--line:#3c4438;--ink:#f4efe2;--muted:#b3b7aa;--soft:#899385;--sage:#a5bea2;--gold:#d7bd8b;--rose:#cba7a0}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}body{margin:0;min-width:280px;background:radial-gradient(ellipse 68% 350px at 15% 0,#292b1d 0,transparent 100%),var(--bg);color:var(--ink);font:15px/1.58 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:660px;margin:0 auto;padding:22px 17px calc(72px + env(safe-area-inset-bottom))}
+button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+small,.small{color:var(--muted);font-size:12px}
+.brand{font-family:Georgia,serif;font-size:22px;letter-spacing:-.5px}.head{display:flex;align-items:center;justify-content:space-between;gap:10px}.test{color:var(--sage);font-size:10px;border:1px solid #566351;border-radius:30px;padding:7px 10px;letter-spacing:.04em;white-space:nowrap}
+.eyebrow{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.16em;font-weight:800}
+.intro{margin:25px 0 20px}.intro h1{font:normal clamp(30px,7vw,42px)/1.14 Georgia,serif;letter-spacing:-.025em;margin:9px 0 12px}.intro p{color:var(--muted);margin:0}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 0 24px}
+.tab{background:#20261e;border:1px solid var(--line);border-radius:13px;padding:12px 6px;min-height:71px;text-align:left;color:var(--muted)}
+.tab strong{display:block;font-size:13px;color:var(--ink)}.tab span{display:block;font-size:11px}
+.tab[aria-selected=true]{background:#363528;border-color:var(--gold)}.tab[aria-selected=true] strong{color:var(--gold)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px;margin-bottom:14px}
+.quotation{font:normal 26px/1.25 Georgia,serif;margin:11px 0 13px}.attribution{font-size:12px;color:var(--muted)}
+.source{margin-top:16px;border-top:1px solid var(--line);padding-top:3px}
+summary{cursor:pointer;padding:12px 0;color:var(--gold);font-size:12px}
+.source p{color:var(--muted);font-size:13px;margin:7px 0}
+.flow{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px;margin:4px 0 18px}.step{flex:1;border-top:2px solid var(--line);padding-top:6px}
+.step.active{border-color:var(--gold);color:var(--gold)}
+h2{font:normal 25px/1.2 Georgia,serif;margin:7px 0 12px}h3{font:normal 20px/1.3 Georgia,serif;margin:8px 0 11px}
+.story{color:var(--muted);line-height:1.6;font-size:14px;margin:0 0 16px}
+.question{font-size:15px;font-weight:620;margin:17px 0 9px}
+.choices{display:grid;gap:8px}.choice{display:flex;align-items:flex-start;text-align:left;gap:12px;padding:14px;border:1px solid #50584c;border-radius:12px;background:#222920;color:var(--ink);min-height:64px;width:100%}
+.choice .symbol{height:27px;width:27px;flex:0 0 27px;display:grid;place-items:center;border:1px solid #71816f;border-radius:8px;color:var(--gold);font-size:14px}
+.choice strong{display:block;font-weight:650;font-size:14px}.choice em{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.choice.active{border-color:var(--gold);background:#353326}.choice.active .symbol{background:#776d48;color:#fff3d2}
+.field{margin:17px 0}.fieldbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.fieldbar label{font-weight:600;font-size:14px}.number{font:normal 25px Georgia,serif;font-variant-numeric:tabular-nums}
+input[type=range]{display:block;width:100%;height:34px;accent-color:var(--gold);touch-action:pan-y}
+.stack{height:12px;display:flex;overflow:hidden;gap:3px;background:#384035;border-radius:10px;margin:9px 0 5px}.stack>span{height:100%;transition:width .12s}
+.legend{display:flex;flex-wrap:wrap;gap:9px 14px;font-size:11px;color:var(--muted);margin-bottom:12px}.swatch{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+.primary,.secondary{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:12px;padding:12px 18px;width:100%;font-weight:750}
+.primary{background:var(--gold);color:#1a1a14;border:1px solid var(--gold);margin-top:18px}
+.secondary{background:var(--card2);color:var(--ink);border:1px solid #65705e;margin:10px 0 0}
+.primary:active,.secondary:active,.choice:active{transform:scale(.99)}
+.ending{border-color:#827756;background:radial-gradient(ellipse 70% 180px at 100% 0,#353426 0,transparent 100%),#1c211c;scroll-margin-top:12px}
+.ending .headline{font:normal 30px/1.16 Georgia,serif;margin:9px 0 16px}
+.ending .lead{font-size:16px;line-height:1.6}
+.rule{border-top:1px solid #4e5243;margin:17px 0}.explain{font-size:14px;color:#e2dfd1;line-height:1.62}.open-question{border-left:2px solid var(--gold);padding:9px 14px;color:#f0e6cd;background:#292a21;font:italic 18px/1.45 Georgia,serif;margin:16px 0}
+.verdict{display:inline-block;border:1px solid var(--sage);border-radius:30px;padding:5px 10px;color:var(--sage);font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.graph{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:13px 0}.node{padding:12px 4px;border:1px solid var(--line);border-radius:10px;text-align:center;font-size:11px;color:var(--muted);background:#222720}.node strong{display:block;color:var(--ink);font-size:12px;margin-top:4px}.node.on{border-color:var(--gold);background:#332e25}.node.issue{border-color:var(--rose)}
+.statement{font:normal 24px/1.23 Georgia,serif;padding:17px;border:1px solid #5c654f;border-radius:12px;background:#252d23;text-align:center;color:var(--gold);margin:12px 0}
+.visualrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:7px;margin:13px 0}
+.tile{padding:15px 8px;text-align:center;border-radius:10px;background:#263027;border:1px solid #56604d;font-size:12px}
+.tile b{display:block;font:normal 21px Georgia,serif;color:var(--gold)}
+.arrow{color:var(--sage);font-size:20px}
+.inspect{border-top:1px solid var(--line);padding:5px 0 0}
+.inspect pre{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:#121712;border-radius:9px;border:1px solid var(--line);padding:12px;max-height:370px;overflow:auto}
+.foot{margin:22px 0;color:var(--soft);font-size:12px;line-height:1.6}.foot a{color:var(--gold)}
+.status{font-size:12px;color:var(--sage);min-height:16px;margin-top:8px}
+@media(max-width:340px){main{padding-left:12px;padding-right:12px}.card{padding:16px 13px}.tab{padding:9px 5px}.tab strong{font-size:12px}.quotation{font-size:23px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header class="head"><div class="brand">YourLogos <span style="color:var(--gold)">/</span> Encounter Lab</div><div class="test">RESEARCH · V0.1</div></header>
+<section class="intro"><div class="eyebrow">Three philosophical experiments</div><h1>Choose. Discover. Reconsider.</h1><p>Try three different ways of thinking. Every path leads to a complete insight; no login or AI calls. These are <b>provisional research exercises</b>, not published philosophical interpretations.</p></section>
+<nav class="tabs" role="tablist" aria-label="Choose philosophical encounter">
+<button id="tab-seneca" role="tab" aria-selected="true" class="tab" type="button" data-route="seneca"><strong>Trade-Off</strong><span>Seneca · Time</span></button>
+<button id="tab-woolf" role="tab" aria-selected="false" class="tab" type="button" data-route="woolf"><strong>Decision Map</strong><span>Woolf · Freedom</span></button>
+<button id="tab-aristotle" role="tab" aria-selected="false" class="tab" type="button" data-route="aristotle"><strong>Counterexample</strong><span>Aristotle · Knowing</span></button>
+</nav>
+<div class="card" id="quote" aria-live="polite"></div>
+<div class="flow" id="progress" aria-label="Encounter progress"></div>
+<section class="card" id="interactive" aria-live="polite"></section>
+<section id="result" class="card ending" aria-live="polite" hidden></section>
+<footer class="foot">Research pilot based on draft Context Atlas CZ-110 and the three proposed mechanics. The original source of each quotation matters; an interactive scenario is a teaching reconstruction, not the philosopher's definitive meaning. Nothing here determines your character, beliefs or moral correctness. <a href="https://github.com/OWEF/Yourlogos/pull/148" target="_blank" rel="noopener noreferrer">Context Atlas research</a>.</footer>
+</main>
+<script>
+"use strict";
+// Context Atlas pilot IDs 49, 28, 42. These context interpretations are *drafts*.
+const models={
+ seneca:{id:49,name:"Seneca",quote:"Life is long if you know how to use it.",source:"On the Shortness of Life (translation varies)",context:"Seneca questions ways life is consumed by ambition, busyness and unexamined obligations. He is not prescribing an ideal daily schedule.",claim:"Meaningful living depends on how we direct time, not merely how much we possess.",relation:"Finite discretionary time → competing requests → a question of deliberate use.",limits:"A hypothetical evening cannot prove how someone lives, and meaningful duty is not necessarily wasted time."},
+ woolf:{id:28,name:"Virginia Woolf",quote:"A woman must have money and a room of her own if she is to write fiction.",source:"A Room of One’s Own, Chapter I",context:"Woolf is discussing material and institutional barriers historically faced by women writers. Money and privacy can enable writing without guaranteeing success.",claim:"Creative independence requires attention to material and social enabling conditions.",relation:"Resources and institutions → feasible opportunity → no guaranteed achievement.",limits:"Do not mistake a fictional path for an assessment of individual talent or erase the historical gendered constraints."},
+ aristotle:{id:42,name:"Aristotle",quote:"All men by nature desire to know.",source:"Metaphysics I.1 (translation varies)",context:"Aristotle introduces human inquiry through our delight in sense perception; 'by nature' may point to a general disposition rather than conscious curiosity every moment.",claim:"Human beings have a natural orientation toward understanding.",relation:"Quantifier and qualifier → candidate example → what is actually challenged.",limits:"A person's temporary disinterest is not proof against a natural disposition; a hypothetical case isn't empirical proof."}
+};
+const $=id=>document.getElementById(id);
+const state={
+ route:"seneca",revealed:false,
+ seneca:{ticks:[2,2,2],motivation:"chosen"},
+ woolf:{resource:"income",barrier:"space",action:"write"},
+ aristotle:{scope:"nature",example:"avoid"}
+};
+const names=["extra work","meeting a friend","quiet reflection"];
+const labels=["Optional work","Friend","Reflection"];
+const colors=["var(--gold)","var(--sage)","var(--rose)"];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sum=a=>a.reduce((x,y)=>x+y,0);
+const fmt=t=>String(t/2).replace(/\.0$/,"")+"h";
+const selected=(key,value)=>state[state.route][key]===value?" active":"";
+function choice(group,value,title,description,symbol){
+ return '<button type="button" class="choice'+selected(group,value)+'" data-set="'+esc(group)+'" data-value="'+esc(value)+'" aria-pressed="'+(state[state.route][group]===value)+'"><span class="symbol">'+esc(symbol)+'</span><span><strong>'+esc(title)+'</strong><em>'+esc(description)+'</em></span></button>';
+}
+function reallocate(original,idx,target){
+ const current=[...original], other=[0,1,2].filter(i=>i!==idx),remaining=6-target,old=original[other[0]]+original[other[1]];
+ const first=old===0?Math.round(remaining/2):Math.round(remaining*original[other[0]]/old);
+ current[idx]=target;current[other[0]]=first;current[other[1]]=remaining-first;
+ if(sum(current)!==6||current.some(x=>x<0||x>6))throw Error("Invalid time allocation");
+ return current;
+}
+function setRoute(route){
+ if(!models[route])return;
+ state.route=route;state.revealed=false;render();window.scrollTo({top:0,behavior:"auto"});
+}
+function renderQuote(){
+ const m=models[state.route];
+ $("quote").innerHTML='<div class="eyebrow">Quote '+m.id+' · '+esc(m.name)+'</div><div class="quotation">“'+esc(m.quote)+'”</div><div class="attribution">'+esc(m.source)+'</div><details class="source"><summary>Why this quote matters in its original context</summary><p>'+esc(m.context)+'</p><p><strong>Working argument:</strong> '+esc(m.claim)+'</p><p><strong>Interpretive limit:</strong> '+esc(m.limits)+'</p></details>';
+}
+function renderProgress(){
+ $("progress").innerHTML=['Question','Your action','Discovery'].map((s,i)=>'<div class="step'+(i===2&&!state.revealed?'':" active")+'">'+(i+1)+' · '+s+'</div>').join("");
+}
+function renderTradeoff(){
+ const s=state.seneca;
+ return '<div class="eyebrow">01 / Trade-Off · Seneca</div><h2>Who gets your evening?</h2><p class="story">After your essential commitments, you have <b>three genuinely free hours tonight</b>. An optional work request arrives, a friend asks to see you, and you hoped for quiet reflection. You cannot do all three at once. How will you use these particular hours?</p>'+
+ '<div class="question">Share these three hours</div>'+
+ labels.map((label,i)=>'<div class="field"><div class="fieldbar"><label for="range-'+i+'">'+esc(label)+'</label><span class="number" id="time-'+i+'">'+fmt(s.ticks[i])+'</span></div><input id="range-'+i+'" type="range" min="0" max="6" step="1" value="'+s.ticks[i]+'" data-range="'+i+'" aria-label="'+esc(label)+' hours" aria-valuetext="'+fmt(s.ticks[i])+' of 3 discretionary hours"></div>').join("")+
+ '<div class="stack" aria-label="Time allocation">'+s.ticks.map((n,i)=>'<span style="width:'+(n/6*100)+'%;background:'+colors[i]+'"></span>').join("")+'</div><div class="legend">'+labels.map((x,i)=>'<span><i class="swatch" style="background:'+colors[i]+'"></i>'+esc(x)+'</span>').join("")+'</div>'+
+ '<div class="question">What most influenced your choice?</div><div class="choices">'+
+ choice("motivation","chosen","I genuinely want this","A priority I can recognize as my own","✦")+
+ choice("motivation","expected","Someone expects it of me","I feel an external pull on these hours","↗")+
+ choice("motivation","necessary","I believe it's necessary","The situation seems to leave little room","◈")+'</div>';
+}
+function renderWoolf(){
+ const s=state.woolf;
+ const resources=[
+ ["income","Independent income","Less financial precarity","£"],
+ ["space","A room of her own","Some protected working space","⌂"],
+ ["access","Institutional access","Better access to education and publishers","◇"]];
+ const barriers=[
+ ["income","Financial insecurity","A small improvement is still not security","£"],
+ ["space","Interruptions and shared space","Privacy remains fragile","⌂"],
+ ["access","Exclusion and gatekeeping","The institution controls whose voice is heard","◇"]];
+ const actions=[
+ ["write","Begin writing anyway","Use what opportunity is available","✎"],
+ ["protect","Negotiate sustained time","Try to make the improvement last","◷"],
+ ["challenge","Challenge a structural barrier","Seek a change beyond one person","↗"]];
+ return '<div class="eyebrow">02 / Decision Map · Virginia Woolf</div><h2>What makes freedom possible?</h2>'+
+ '<p class="story">Imagine a woman trying to write fiction in a historically restrictive setting. Her ability isn't the question. <b>The conditions of her opportunity are.</b> Choose a change, then confront what it leaves unresolved.</p>'+
+ '<div class="question">First, which condition improves?</div><div class="choices">'+resources.map(x=>choice("resource",...x)).join("")+'</div>'+
+ '<div class="question">But which obstacle still matters?</div><div class="choices">'+barriers.map(x=>choice("barrier",...x)).join("")+'</div>'+
+ '<div class="question">What would you try next?</div><div class="choices">'+actions.map(x=>choice("action",...x)).join("")+'</div>';
+}
+function renderAristotle(){
+ const scope=[
+ ["always","Every person, at every moment","A deliberately stronger literal version","ALL"],
+ ["usually","Most people, most of the time","A frequency claim, not Aristotle's exact text","MOST"],
+ ["nature","By nature, humans tend to seek knowledge","Closer to Aristotle's qualified thesis","φ"]];
+ const examples=[
+ ["avoid","Someone avoids upsetting news","One person avoids one possible discovery","–"],
+ ["bored","Someone loses interest in a lesson","A momentary refusal to investigate","?"],
+ ["never","Imagine someone who never seeks knowledge at any point","A hypothetical life-long absence of inquiry","∅"],
+ ["child","A child eagerly explores why shadows move","A supporting instance of curiosity","+"]];
+ return '<div class="eyebrow">03 / Counterexample · Aristotle</div><h2>Does one exception change everything?</h2>'+
+ '<p class="story">A counterexample only refutes what a claim <b>actually asserts</b>. Test how a change in wording changes the logic—without mistaking a simplified version for Aristotle’s own argument.</p>'+
+ '<div class="question">Which claim are we testing?</div><div class="choices">'+scope.map(x=>choice("scope",...x)).join("")+'</div>'+
+ '<div class="question">Now bring a case against it</div><div class="choices">'+examples.map(x=>choice("example",...x)).join("")+'</div>';
+}
+function deriveTradeoff(){
+ const s=state.seneca, x=s.ticks,max=Math.max(...x),leaders=x.map((v,i)=>v===max?i:-1).filter(i=>i>=0);
+ const remainder=[...x].map((v,i)=>({v,i})).filter(o=>o.i!==leaders[0]).sort((a,b)=>b.v-a.v);
+ const zero=x.map((v,i)=>v===0?i:-1).filter(i=>i>=0);
+ const lead=leaders.length>1?"several activities":names[leaders[0]];
+ let title, insight;
+ if(max===6){title=leaders[0]===0?"Your evening went to work. But was it yours to give?":leaders[0]===1?"You protected the relationship. What did you set aside?":"You kept the evening for thought. What will it make possible?";
+   insight="You devoted the entire discretionary block to "+names[leaders[0]]+". This protects one purpose fully but closes off two other possibilities tonight.";
+ }else if(leaders.length>1){title="A shared evening isn't automatically a whole one.";
+   insight="No single activity wins outright. Dividing scarce time can acknowledge several commitments—but it may leave none completely uninterrupted.";
+ }else if(max>=4){title="One choice shapes the whole evening.";
+   insight="You gave "+fmt(max)+" to "+lead+", while the next largest share went to "+names[remainder[0].i]+". The second choice changes what your main priority actually costs.";
+ }else{title="You chose to leave more than one door open.";
+   insight="Several commitments remain present, but there is still an opportunity cost: every half-hour belongs to only one of them here.";
+ }
+ let motive;
+ if(s.motivation==="expected")motive="You describe the pressure as external. That doesn't make the commitment worthless—but it makes the question of who directs your time especially relevant.";
+ else if(s.motivation==="necessary")motive="You describe the choice as necessary. Seneca's invitation to examine time should not be confused with pretending every duty can simply be refused.";
+ else motive="You describe this as a genuine preference. A chosen commitment can be meaningful even when it looks like work to someone else.";
+ let surprise="";
+ if(x[0]===6&&s.motivation==="expected")surprise="All your discretionary time went to an optional request you felt was expected. That's a strong signal of pressure, not proof you made the wrong choice.";
+ else if(x[2]===6)surprise="Three hours of reflection can be a rich retreat. It only becomes questionable if thinking endlessly substitutes for the living it hopes to illuminate.";
+ else if(x[1]===0&&x[0]>=4)surprise="Your friend gets none of these three hours—not evidence you don't care, just the immediate cost of this particular decision.";
+ else if(max===2)surprise="Perfect symmetry is mathematically tidy. Life rarely asks whether the pie chart looks fair.";
+ const fact=labels.map((z,i)=>z+" "+fmt(x[i])).join(" · ");
+ const why="The evening is explicitly bounded. More time for one request necessarily leaves less for the others. Seneca's question is whether our use of time is examined and owned—not whether an arithmetic distribution is morally correct.";
+ const uncertainty="We don't know what you owe others outside these hours, how meaningful each activity is, or whether your choice is freely made.";
+ const question=s.motivation==="expected"?"What would you protect if nobody were watching your choice?":s.motivation==="necessary"?"Which part is truly unavoidable—and which part might still be yours to choose?":"What would make this particular choice feel worth the time you gave it?";
+ return {title,fact,insight:insight+" "+motive,why,uncertainty,question,surprise,tension:zero.length?"Zero time remains here for "+zero.map(i=>names[i]).join(" and ")+".":"Multiple priorities compete for the same bounded hours.",classification:max===6?"exclusive":leaders.length>1?"shared":"weighted",steps:["Fixed evening: 3 discretionary hours","Allocation: "+fact,"Declared motivation: "+s.motivation]};
+}
+function deriveWoolf(){
+ const s=state.woolf;
+ const res={income:"financial security",space:"private working space",access:"institutional access"};
+ const barriers={income:"financial insecurity",space:"interruptions and lack of privacy",access:"exclusion by institutions"};
+ const acts={write:"writing now",protect:"protecting ongoing time to write",challenge:"challenging a structural restriction"};
+ const same=s.resource===s.barrier;
+ let title=same?"One improvement isn't the same as removing a barrier.":"A door opened. The whole building didn't.";
+ let insight="You strengthened "+res[s.resource]+", yet "+barriers[s.barrier]+" still matters. ";
+ insight+=same?"The continuing obstacle suggests your improvement may be partial or fragile—not that your first choice was useless.":"You have shown why one enabling condition cannot stand in for every other condition.";
+ if(s.action==="write")insight+=" Choosing to begin writing preserves agency without pretending circumstances are fair.";
+ if(s.action==="protect")insight+=" Trying to sustain the improvement recognizes that opportunity must last longer than a single moment.";
+ if(s.action==="challenge")insight+=" Challenging the barrier shifts attention from individual effort toward the institutions distributing opportunity.";
+ const why="Woolf's argument concerns the material and institutional conditions under which women can create. Money and private space may enable an opportunity; neither mechanically produces talent, a published book, or freedom from exclusion.";
+ const uncertainty="We cannot predict whether a fictional writer will publish. Historical, economic and institutional conditions interact, and our simplified choices leave some of them outside the frame.";
+ const question=same?"How much improvement would make this resource reliably available, rather than briefly present?":s.action==="challenge"?"Who benefits when a barrier is described as a personal failure?":"What would still constrain her if this single obstacle disappeared tomorrow?";
+ return {title,fact:"Improved: "+res[s.resource]+" · Remaining: "+barriers[s.barrier]+" · Next move: "+acts[s.action],insight,why,uncertainty,question,surprise:same?"You fixed a condition—and still named it as the obstacle. That is a clue about fragility, not a contradiction.":"",tension:"A necessary condition may be insufficient to secure the overall opportunity.",classification:same?"partial-improvement":"enabling-condition",steps:["Improvement: "+res[s.resource],"Remaining obstacle: "+barriers[s.barrier],"Response: "+acts[s.action]]};
+}
+function deriveAristotle(){
+ const s=state.aristotle;
+ const negative=s.example!=="child";
+ let kind,title,insight;
+ const scopeName={always:"Every person always seeks to know",usually:"Most people usually seek to know",nature:"Humans by nature desire to know"};
+ const exampleText={avoid:"Someone avoids upsetting news",bored:"Someone is bored in class",never:"A person never pursues any understanding",child:"A child eagerly investigates shadows"};
+ if(s.example==="child"){kind="support-not-proof";title="An example supports. It doesn't prove.";
+    insight="A curious child fits the claim, but one favorable example cannot establish that a claim holds for all people, most people, or humanity by nature.";
+ }else if(s.scope==="always"){kind="conditional-refutation";title="One exception can matter—when the claim says ALWAYS.";
+    insight="A genuine instance of not wanting to know at a particular moment would defeat the artificially strengthened claim that every person always desires knowledge. It would not settle Aristotle's more qualified view.";
+ }else if(s.scope==="usually"){kind="insufficient-frequency-evidence";title="One case cannot tell us what MOST people do.";
+    insight="Even if this case is genuine, a single case does not establish the frequency of curiosity across people and occasions. You would need relevant evidence about the wider population.";
+ }else if(s.example==="never"){kind="possible-dispositional-challenge";title="This could challenge a disposition—if established.";
+    insight="A person genuinely lacking any orientation toward knowledge might challenge a natural-disposition claim. But a stipulated fictional life is not evidence that such a person exists or that Aristotle's 'by nature' is unqualified.";
+ }else{kind="not-a-dispositional-refutation";title="Not wanting to know now isn't the same as lacking curiosity by nature.";
+    insight="Avoiding one piece of information or losing interest in one lesson does not remove a general human capacity or disposition toward knowing. The scope of the original claim matters.";
+ }
+ const why="Aristotle opens the Metaphysics with a claim about humans' natural orientation toward knowledge, illustrated by enjoyment of perception. A proposition about a general disposition is weaker than the artificial claim that everyone always wants every fact.";
+ const uncertainty="The meaning of 'by nature' requires interpretation, and hypothetical cases cannot establish empirical frequencies or a person's entire intellectual disposition.";
+ const question=s.scope==="always"?"Did we challenge Aristotle—or only a stronger statement we substituted for his?":s.scope==="usually"?"What evidence would justify the word 'most' rather than merely 'some'?":"What would count as a genuine challenge to a natural disposition?";
+ return {title,fact:"Claim tested: "+scopeName[s.scope]+" · Case: "+exampleText[s.example],insight,why,uncertainty,question,surprise:kind==="conditional-refutation"?"The logical victory is real against your stronger sentence—yet Aristotle may have escaped the fight entirely.":"",tension:"The meaning and strength of the quantifier govern what a counterexample can establish.",classification:kind,steps:["Claim: "+scopeName[s.scope],"Example: "+exampleText[s.example],"Logical result: "+kind]};
+}
+function derive(){
+ if(state.route==="seneca")return deriveTradeoff();
+ if(state.route==="woolf")return deriveWoolf();
+ return deriveAristotle();
+}
+function renderResult(){
+ const result=$("result");
+ if(!state.revealed){result.hidden=true;result.innerHTML="";return;}
+ const m=models[state.route],d=derive();
+ let graphic="";
+ if(state.route==="seneca"){
+  graphic='<div class="stack" style="height:16px;margin:18px 0">'+state.seneca.ticks.map((n,i)=>'<span style="width:'+(n/6*100)+'%;background:'+colors[i]+'"></span>').join("")+'</div>';
+ }else if(state.route==="woolf"){
+  const x=state.woolf;
+  graphic='<div class="graph"><div class="node on">Improved<strong>'+esc({income:"Income",space:"Private space",access:"Access"}[x.resource])+'</strong></div><div class="node issue">Still limited<strong>'+esc({income:"Finances",space:"Privacy",access:"Gatekeepers"}[x.barrier])+'</strong></div><div class="node">Possibility<strong>Not guaranteed</strong></div></div>';
+ }else{
+  graphic='<div class="visualrow"><div class="tile"><b>'+esc({always:"ALL",usually:"MOST",nature:"BY NATURE"}[state.aristotle.scope])+'</b>Claim</div><span class="arrow">→</span><div class="tile"><b>'+esc(d.classification.replace(/-/g," ").slice(0,25))+'</b>Consequence</div></div>';
+ }
+ const packet={quoteId:m.id,mechanic:state.route,editorialStatus:"draft",epistemicStatus:"interpretive_hypothesis",philosophicalClaim:m.claim,conceptualRelation:m.relation,observedDecision:d.fact,centralDiscovery:d.insight,philosophicalJustification:d.why,uncertaintyLimit:d.uncertainty,unresolvedTension:d.tension,reflectionQuestion:d.question,derivedCategory:d.classification,ruleTrace:d.steps,expressionEligible:"prototype_only",notTruthScore:true};
+ result.hidden=false;
+ result.innerHTML='<div class="eyebrow">03 / Encounter complete</div><h2 class="headline">'+esc(d.title)+'</h2><div class="verdict">Your choice → A discovery</div>'+graphic+
+ '<p class="lead">'+esc(d.insight)+'</p>'+
+ (d.surprise?'<p class="notice" style="color:var(--gold);font-size:13px">'+esc(d.surprise)+'</p>':"")+
+ '<div class="rule"></div><div class="eyebrow">The philosophical connection</div><p class="explain">'+esc(d.why)+'</p>'+
+ '<div class="open-question">'+esc(d.question)+'</div>'+
+ '<details class="inspect"><summary>For testing · Why the engine reached this insight</summary><p class="small"><b>Observed:</b> '+esc(d.fact)+'</p><p class="small"><b>Uncertain:</b> '+esc(d.uncertainty)+'</p><p class="small"><b>Conceptual relation:</b> '+esc(m.relation)+'</p><p class="small">This is a draft insight packet from three constrained, quote-specific prototype rules—not a validated general-purpose philosophical model.</p><pre>'+esc(JSON.stringify(packet,null,2))+'</pre></details>'+
+ '<button class="secondary" type="button" id="again">Try another path</button><div class="status" id="result-status"></div>';
+ $("again").addEventListener("click",()=>{state.revealed=false;render();$("interactive").scrollIntoView({block:"start",behavior:"auto"});});
+ window.__lastInsightPacket=packet;
+}
+function render(){
+ for(const tab of document.querySelectorAll(".tab"))tab.setAttribute("aria-selected",String(tab.dataset.route===state.route));
+ renderQuote();renderProgress();
+ $("interactive").innerHTML=(state.route==="seneca"?renderTradeoff():state.route==="woolf"?renderWoolf():renderAristotle())+
+ '<button type="button" class="primary" id="reveal">Reveal my discovery</button>';
+ $("interactive").querySelectorAll("[data-set]").forEach(el=>{
+  el.addEventListener("click",()=>{state[state.route][el.dataset.set]=el.dataset.value;state.revealed=false;render();});
+ });
+ $("interactive").querySelectorAll("[data-range]").forEach(el=>{
+  el.addEventListener("input",()=>{
+   const idx=Number(el.dataset.range),target=Number(el.value);
+   state.seneca.ticks=reallocate(state.seneca.ticks,idx,target);
+   state.revealed=false;
+   render();
+   const focused=$("range-"+idx);
+   if(focused)focused.focus({preventScroll:true});
+  });
+ });
+ $("reveal").addEventListener("click",()=>{
+  state.revealed=true;renderProgress();renderResult();
+  $("result").scrollIntoView({block:"start",behavior:"auto"});
+ });
+ renderResult();
+}
+for(const el of document.querySelectorAll(".tab"))el.addEventListener("click",()=>setRoute(el.dataset.route));
+render();
+</script>
+</body></html>
