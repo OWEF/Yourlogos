@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10130f">
+<meta name="color-scheme" content="dark">
+<title>YourLogos · CZ-105 Reasoning Laboratory</title>
+<style>
+:root{color-scheme:dark;--bg:#10130f;--panel:#191d18;--panel2:#20251d;--border:#3a4134;--ink:#f4eedf;--muted:#b3b5a8;--dim:#858d80;--gold:#d7ba82;--sage:#9fb69c;--rose:#c7a399;--shadow:0 14px 40px rgba(0,0,0,.2)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(ellipse 80% 50% at 15% -12%,#2a2a1c 0,transparent 70%),var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-wrap:break-word}
+button,input,select{font:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:var(--gold)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+main{max-width:1120px;margin:auto;padding:clamp(18px,3vw,38px) max(18px,env(safe-area-inset-right)) 100px}
+.topline{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.brand{font-family:Georgia,serif;font-size:21px;letter-spacing:-.5px}
+.micro,.eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-weight:750}
+.test-tag{border:1px solid var(--border);border-radius:50px;padding:7px 10px;color:var(--muted);font-size:11px;letter-spacing:.03em}
+.hero{padding:0 0 23px;border-bottom:1px solid var(--border)}
+h1{font-family:Georgia,serif;font-size:clamp(32px,5.3vw,51px);line-height:1.1;letter-spacing:-.02em;font-weight:normal;margin:9px 0 13px;max-width:670px}
+.intro{max-width:660px;color:var(--muted);margin:0}
+.quote{font-family:Georgia,serif;font-size:21px;line-height:1.35;color:var(--ink);margin:17px 0 6px}
+.attribution,.note,.hint{font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(290px,375px) minmax(0,1fr);gap:18px;margin-top:20px;align-items:start}
+.panel,.result-card,.snapshot{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+.controls{padding:20px}
+.controls h2,.results h2{font-family:Georgia,serif;font-size:24px;font-weight:normal;margin:5px 0 9px}
+.panel-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin:17px 0}
+.preset{border:1px solid #59604d;border-radius:30px;background:#252b22;color:var(--ink);padding:9px 11px;font-size:12px;min-height:38px}
+.preset[aria-pressed="true"]{border-color:var(--gold);background:#393725;color:var(--gold)}
+.item{margin:15px 0 20px}
+.item-label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:9px}
+.item-label label{font-size:14px;font-weight:650}
+.val{font-variant-numeric:tabular-nums;font-size:23px;color:var(--ink);font-family:Georgia,serif}
+input[type=range]{display:block;width:100%;height:31px;margin:0;accent-color:var(--gold);touch-action:pan-y}
+input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
+.track{display:flex;gap:3px;height:10px;overflow:hidden;border-radius:30px;background:#383d31;margin:5px 0 10px}
+.track span{display:block;transition:width .12s ease}
+.legend{display:flex;gap:8px;justify-content:space-between;color:var(--muted);font-size:11px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:8px;height:8px;border-radius:50%}
+.divider{height:1px;background:var(--border);margin:21px 0}
+.field-label{font-size:13px;font-weight:650;margin:15px 0 8px;display:block}
+.radio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.radio label{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--border);background:#22271f;border-radius:10px;min-height:46px;padding:8px 5px;font-size:12px;cursor:pointer}
+.radio label:has(input:checked){border-color:var(--gold);color:var(--gold);background:#353222}
+.radio input{position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;margin:0;cursor:pointer}
+.radio label:has(input:focus-visible){outline:2px solid var(--gold);outline-offset:2px}
+select{display:block;width:100%;border:1px solid #58604d;background:#24291f;color:var(--ink);border-radius:11px;min-height:46px;padding:10px}
+.primary{display:flex;width:100%;align-items:center;justify-content:center;border:1px solid var(--gold);border-radius:12px;background:var(--gold);color:#1b1b15;font-weight:750;min-height:49px;margin:20px 0 10px}
+.primary:active,.secondary:active,.preset:active{transform:scale(.985)}
+.secondary{display:inline-flex;align-items:center;justify-content:center;padding:10px 13px;border:1px solid var(--border);border-radius:11px;background:#252b23;color:var(--ink);font-size:12px;min-height:41px}
+.secondary:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.status{font-size:12px;color:var(--sage);margin:8px 0;min-height:18px}
+.results{min-width:0}
+.result-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.result-header h2{margin:3px 0}
+.cards{display:grid;grid-template-columns:1fr;gap:12px}
+.result-card{padding:17px 18px}
+.result-card h3{font:normal 23px Georgia,serif;line-height:1.2;margin:5px 0 12px}
+.sequence{font-variant-numeric:tabular-nums;font-size:11px;letter-spacing:.16em;color:var(--gold)}
+.result-card p{margin:9px 0;line-height:1.55}
+.result-card ul{padding-left:19px;margin:11px 0 0}
+.result-card li{margin-bottom:11px}
+.result-card li:last-child{margin-bottom:0}
+.smalltitle{font-size:10px;letter-spacing:.12em;color:var(--sage);text-transform:uppercase;font-weight:800;margin:15px 0 7px}
+.smalltitle.warning{color:var(--rose)}
+.plain{color:var(--muted)}
+.pillrow{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.pill{border:1px solid #555d4c;border-radius:8px;padding:5px 8px;font-size:11px;color:var(--sage);background:#272d24}
+.notice{border-left:2px solid var(--gold);padding:9px 11px;background:#28291e;font-size:13px;color:#e6dcc4;margin-top:14px}
+.boxed{border:1px solid var(--border);border-radius:11px;padding:12px;margin:10px 0}
+.boxed p{margin:5px 0}
+.trace{border-top:1px solid var(--border);padding:12px 0}
+.trace:first-of-type{border-top:none}
+.trace .meta{color:var(--sage);font-size:11px}
+.trace p{font-size:12px;color:var(--muted);margin:4px 0}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--gold);padding:11px 0;font-size:13px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#131611;border:1px solid var(--border);padding:12px;border-radius:10px;color:var(--muted);font-size:11px;max-height:350px;overflow:auto}
+.footer{margin-top:23px;padding:17px 0;border-top:1px solid var(--border);color:var(--dim);font-size:12px}
+.snapshot-section{margin-top:21px}
+.snapshot-section h3{font-family:Georgia,serif;font-weight:normal;font-size:24px;margin:7px 0 11px}
+.snapshot-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.snapshot{padding:13px;background:#20251d;box-shadow:none}
+.snapshot strong{color:var(--gold)}
+.snapshot p{margin:8px 0;font-size:12px;color:var(--muted)}
+.mini{font-size:11px;color:var(--sage)}
+.compare-placeholder{color:var(--dim);font-style:italic}
+.hidden{display:none!important}
+@media (max-width:740px){main{padding:17px 16px calc(70px + env(safe-area-inset-bottom))}.layout{grid-template-columns:minmax(0,1fr);gap:19px}.controls{padding:17px}.result-card{padding:16px}.hero{padding-bottom:19px}.topline{margin-bottom:14px}.snapshot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:360px){.actions{grid-template-columns:1fr}.radio label{font-size:11px}.snapshot-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+  <header class="topline"><div class="brand">YourLogos <span style="color:var(--gold)">/</span> Laboratory</div><span class="test-tag">CZ-105 · ISOLATED RESEARCH</span></header>
+  <section class="hero">
+    <div class="eyebrow">Philosophical reasoning engine · Trade-Off</div>
+    <h1>What do your choices actually imply?</h1>
+    <p class="intro">Change an eight-hour thought experiment, then inspect the <b>actual CZ-105 reasoning engine</b>. No personality scores, no generated jokes—just facts, consequences, uncertainty and an audit trail.</p>
+    <div class="quote" id="source-quote"></div>
+    <div class="attribution" id="source-attribution"></div>
+  </section>
+
+  <div class="layout">
+    <section class="panel controls" aria-labelledby="controls-heading">
+      <div class="panel-label">01 / Experiment</div>
+      <h2 id="controls-heading">Divide eight hours</h2>
+      <p class="note">A fictional block of mutually exclusive activities, not your complete day or a medical sleep recommendation. Changing a slider automatically redistributes the other hours.</p>
+      <div class="presets" aria-label="Example allocations">
+        <button type="button" class="preset" data-preset="balanced">3 / 3 / 2</button>
+        <button type="button" class="preset" data-preset="rest">All rest</button>
+        <button type="button" class="preset" data-preset="obligations">All duties</button>
+        <button type="button" class="preset" data-preset="reflection">All reflection</button>
+        <button type="button" class="preset" data-preset="majority">5 / 2 / 1</button>
+      </div>
+
+      <div class="item"><div class="item-label"><label for="slider-rest">Rest</label><output class="val" id="value-rest" for="slider-rest">3h</output></div><input id="slider-rest" type="range" min="0" max="16" step="1" value="6" data-index="0" aria-label="Rest hours"></div>
+      <div class="item"><div class="item-label"><label for="slider-obligations">Obligations</label><output class="val" id="value-obligations" for="slider-obligations">3h</output></div><input id="slider-obligations" type="range" min="0" max="16" step="1" value="6" data-index="1" aria-label="Obligations hours"></div>
+      <div class="item"><div class="item-label"><label for="slider-reflection">Reflection</label><output class="val" id="value-reflection" for="slider-reflection">2h</output></div><input id="slider-reflection" type="range" min="0" max="16" step="1" value="4" data-index="2" aria-label="Reflection hours"></div>
+
+      <div class="track" aria-label="Zero-sum hours distribution">
+        <span id="bar-rest" style="background:var(--sage)"></span>
+        <span id="bar-obligations" style="background:var(--gold)"></span>
+        <span id="bar-reflection" style="background:var(--rose)"></span>
+      </div>
+      <div class="legend"><span><i class="dot" style="background:var(--sage)"></i>Rest</span><span><i class="dot" style="background:var(--gold)"></i>Duties</span><span><i class="dot" style="background:var(--rose)"></i>Reflection</span></div>
+      <div class="divider"></div>
+
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="field-label">Does this happen once or repeatedly?</legend>
+        <div class="radio" id="cadence-group">
+          <label><input type="radio" name="cadence" value="unknown" checked> Unknown</label>
+          <label><input type="radio" name="cadence" value="one_off"> One-off</label>
+          <label><input type="radio" name="cadence" value="recurring"> Recurring</label>
+        </div>
+      </fieldset>
+      <label class="field-label" for="priority">Which would you say is your priority?</label>
+      <select id="priority">
+        <option value="">No stated priority</option>
+        <option value="rest">Rest</option>
+        <option value="obligations">Obligations</option>
+        <option value="reflection">Reflection</option>
+      </select>
+      <p class="hint">Try saying one thing is important, then allocating more time to another. The engine should spot the tension without accusing you of hypocrisy.</p>
+
+      <button type="button" class="primary" id="analyze">Run philosophical reasoning</button>
+      <div class="status" id="run-status" role="status" aria-live="polite"></div>
+      <div class="actions">
+        <button type="button" class="secondary" id="save-a">Save result A</button>
+        <button type="button" class="secondary" id="save-b">Save result B</button>
+        <button type="button" class="secondary" id="copy-report">Copy full report</button>
+        <button type="button" class="secondary" id="reset">Reset choices</button>
+      </div>
+    </section>
+
+    <section class="results" aria-labelledby="output-heading">
+      <div class="result-header"><div><div class="panel-label">02 / Interpretation</div><h2 id="output-heading">What the engine found</h2></div><span class="test-tag" id="evaluated-at">Not evaluated</span></div>
+      <div id="engine-error" class="notice hidden" role="alert"></div>
+      <div class="cards">
+        <article class="result-card" aria-labelledby="h-happened"><div class="sequence">01 / OBSERVATION</div><h3 id="h-happened">What happened?</h3><div id="out-happened"></div></article>
+        <article class="result-card" aria-labelledby="h-follows"><div class="sequence">02 / INFERENCE</div><h3 id="h-follows">What follows?</h3><div id="out-follows"></div></article>
+        <article class="result-card" aria-labelledby="h-uncertain"><div class="sequence">03 / HUMILITY</div><h3 id="h-uncertain">What remains uncertain?</h3><div id="out-uncertain"></div></article>
+        <article class="result-card" aria-labelledby="h-why"><div class="sequence">04 / TRACEABILITY</div><h3 id="h-why">Why this?</h3><div id="out-why"></div></article>
+      </div>
+
+      <section class="snapshot-section" aria-labelledby="comparison-heading">
+        <div class="panel-label">03 / Comparison</div><h3 id="comparison-heading">Try two different paths</h3>
+        <p class="note">Save A, change the allocation or context, run the engine again, and save B. Compare what changed—not just which category was largest.</p>
+        <div class="snapshot-grid"><div class="snapshot" id="snapshot-a"><strong>Result A</strong><p class="compare-placeholder">Not saved yet</p></div><div class="snapshot" id="snapshot-b"><strong>Result B</strong><p class="compare-placeholder">Not saved yet</p></div></div>
+      </section>
+    </section>
+  </div>
+  <footer class="footer">This laboratory imports <code>analyzeTradeoff()</code> from the actual CZ-105 source file. It does not call an LLM, store personal data, or write to YourLogos production. The Seneca interpretation is provisional and not yet scholarly approved. <a href="https://github.com/OWEF/Yourlogos/pull/147">Review PR #147</a>.</footer>
+</main>
+
+<script type="module">
+/* Offline edition — generated from real CZ-105 source. Do not manually edit this bundle. */
+
+/* CZ-105 source: philosophy-engine/models/seneca-time-v1.js */
+/**
+ * CZ-105 — philosophical model v1.
+ * This is a provisional educational reconstruction, not an authenticated
+ * scholarly edition or a production-approved interpretation of Seneca.
+ */
+const PHILOSOPHICAL_MODEL_SCHEMA_VERSION = 1;
+
+const SENECA_TIME_TRADEOFF_V1 = Object.freeze({
+  schemaVersion: PHILOSOPHICAL_MODEL_SCHEMA_VERSION,
+  id: "seneca-time-tradeoff-v1",
+  mechanism: "tradeoff",
+  editorial: {
+    reviewStatus: "proposed",
+    productionEligible: false,
+    sourceContextVerified: false,
+    interpretationKind: "educational_reconstruction",
+    existingCatalogue: "tension-catalogue-d.js quote 49",
+  },
+  quote: {
+    legacyId: 49,
+    author: "Seneca",
+    text: "Life is long if you know how to use it.",
+    work: "On the Shortness of Life",
+    wordingStatus: "bundled_translation_varies",
+  },
+  claim: {
+    id: "seneca-time-use",
+    text: "The quality of a life depends partly on how time is attended to and used, not merely its duration.",
+    status: "interpretive_reconstruction",
+    scope: "time_and_deliberate_living",
+  },
+  premises: [
+    { id: "p-finite", text: "Time available for any particular activity is finite." },
+    { id: "p-attention", text: "Attention to one's use of time matters to the appraisal of a life." },
+  ],
+  concepts: [
+    { id: "finite_time", label: "Finite time" },
+    { id: "allocation", label: "Allocation of time" },
+    { id: "opportunity_cost", label: "Excluded alternatives" },
+    { id: "deliberate_attention", label: "Deliberate attention" },
+    { id: "meaningful_use", label: "Meaningful use of time" },
+    { id: "rest", label: "Rest" },
+    { id: "obligations", label: "Obligations" },
+    { id: "reflection", label: "Reflection" },
+  ],
+  relations: [
+    {
+      id: "rel-finite-budget",
+      type: "constrains",
+      from: "finite_time",
+      to: "allocation",
+      warrant: "Within a fixed block, increasing one activity reduces the time available to others.",
+      epistemicStatus: "scenario_necessity",
+    },
+    {
+      id: "rel-forgone-alternatives",
+      type: "entails",
+      from: "allocation",
+      to: "opportunity_cost",
+      warrant: "A fixed allocation leaves mutually exclusive alternatives unchosen during that same block.",
+      epistemicStatus: "scenario_necessity",
+    },
+    {
+      id: "rel-deliberateness",
+      type: "may_support",
+      from: "deliberate_attention",
+      to: "meaningful_use",
+      warrant: "Purposeful reflection about how time is lived can illuminate the value of its use.",
+      epistemicStatus: "interpretive_possibility",
+    },
+  ],
+  scenario: {
+    id: "eight-hour-thought-exercise",
+    kind: "fixed_resource",
+    budget: 8,
+    unit: "hours",
+    categories: [
+      { id: "rest", label: "Rest" },
+      { id: "obligations", label: "Obligations" },
+      { id: "reflection", label: "Reflection" },
+    ],
+    description: "A hypothetical eight-hour block of mutually exclusive activities, not an entire daily schedule.",
+    status: "invented_educational_scenario",
+  },
+  strainConditions: [
+    { id: "exclusive", description: "One activity occupies the entire hypothetical block; others get no time in it." },
+    { id: "neglected", description: "An activity gets no time inside this block, potentially raising a question about other commitments." },
+    { id: "repeated", description: "Repeated choices may have different consequences from a one-off retreat." },
+  ],
+  interpretiveBoundaries: [
+    "No allocation ratio is endorsed by Seneca as objectively optimal.",
+    "Allocation alone cannot establish whether the user's life is meaningful or whether the allocation is deliberate.",
+    "Zero rest inside this block does not mean the user gets zero sleep in an entire day.",
+    "An extreme allocation is not proof of bad judgment, psychological condition, or personal beliefs.",
+    "The educational scenario is not a historical statement or quotation from Seneca.",
+    "Possible consequences must not be described as logically necessary outcomes.",
+  ],
+});
+
+const nonEmpty = s => typeof s === "string" && s.trim().length > 0;
+const isObject = o => o !== null && typeof o === "object" && !Array.isArray(o);
+
+function validatePhilosophicalModel(model) {
+  const errors = [];
+  if (!isObject(model)) return ["Model must be a non-null object"];
+  if (model.schemaVersion !== PHILOSOPHICAL_MODEL_SCHEMA_VERSION)
+    errors.push("Unsupported philosophical model schema");
+  if (!nonEmpty(model.id) || model.mechanism !== "tradeoff")
+    errors.push("Model ID and supported mechanism required");
+  if (!nonEmpty(model.claim?.id) || !nonEmpty(model.claim?.text))
+    errors.push("A source-aware philosophical claim is required");
+  if (!Number.isInteger(model.quote?.legacyId) || !nonEmpty(model.quote?.text) ||
+      !nonEmpty(model.quote?.author) || !nonEmpty(model.quote?.work))
+    errors.push("Quote identity and work required");
+  if (!isObject(model.editorial) || !["proposed", "approved", "rejected"].includes(model.editorial.reviewStatus))
+    errors.push("Editorial review state required");
+  if (model.editorial?.productionEligible &&
+      (model.editorial.reviewStatus !== "approved" || model.editorial.sourceContextVerified !== true))
+    errors.push("Unverified model cannot be production eligible");
+  for (const [key, required] of [["premises", 1], ["concepts", 2], ["relations", 1],
+                                  ["strainConditions", 1], ["interpretiveBoundaries", 1]]) {
+    if (!Array.isArray(model[key]) || model[key].length < required)
+      errors.push("Missing model " + key);
+  }
+  const ids = new Set();
+  for (const c of model.concepts || []) {
+    if (!nonEmpty(c.id) || !nonEmpty(c.label) || ids.has(c.id))
+      errors.push("Invalid/duplicate concept");
+    ids.add(c.id);
+  }
+  for (const p of model.premises || [])
+    if (!nonEmpty(p.id) || !nonEmpty(p.text)) errors.push("Invalid premise");
+  for (const r of model.relations || [])
+    if (!nonEmpty(r.id) || !nonEmpty(r.type) || !nonEmpty(r.warrant) ||
+        !ids.has(r.from) || !ids.has(r.to) ||
+        !["scenario_necessity", "interpretive_possibility"].includes(r.epistemicStatus))
+      errors.push("Invalid philosophical relation");
+  const s = model.scenario;
+  if (!isObject(s) || s.kind !== "fixed_resource" || !Number.isFinite(s.budget) || s.budget <= 0 ||
+      !Array.isArray(s.categories) || s.categories.length < 2 ||
+      s.categories.some(c => !nonEmpty(c.id) || !ids.has(c.id)) ||
+      new Set(s.categories.map(c => c.id)).size !== s.categories.length)
+    errors.push("Invalid finite-allocation scenario");
+  if ((model.interpretiveBoundaries || []).some(x => !nonEmpty(x)))
+    errors.push("Blank interpretive boundary");
+  return errors;
+}
+
+
+/* CZ-105 source: philosophy-engine/tradeoff-reasoner.js */
+/**
+ * CZ-105 — Trade-Off Reasoning Engine v1
+ * Pure deterministic analysis. No UI, LLM, persistence, scoring of people,
+ * expression generation, or automatically initiated second interaction.
+ */
+const REASONING_RESULT_SCHEMA_VERSION = 1;
+const CADENCES = ["unknown", "one_off", "recurring"];
+const nonNullObject = o => o !== null && typeof o === "object" && !Array.isArray(o);
+const rounded = n => Number(n.toFixed(8));
+const formatHours = n => (Number.isInteger(n) ? String(n) : String(rounded(n))) + "h";
+const formatPercent = p => String(rounded(p * 100)) + "%";
+
+function validateTradeoffInput(input, model = SENECA_TIME_TRADEOFF_V1) {
+  const errors = validatePhilosophicalModel(model);
+  if (errors.length) return errors.map(e => "Model: " + e);
+  if (!nonNullObject(input) || !nonNullObject(input.allocation)) return ["Structured allocation required"];
+  const allowed = model.scenario.categories.map(c => c.id);
+  const keys = Object.keys(input.allocation);
+  if (keys.length !== allowed.length || keys.some(k => !allowed.includes(k)) ||
+      allowed.some(k => !Object.hasOwn(input.allocation, k)))
+    errors.push("Allocation must contain exactly " + allowed.join(", "));
+  const vals = allowed.map(k => input.allocation[k]);
+  if (vals.some(n => typeof n !== "number" || !Number.isFinite(n) || n < 0 ||
+                      n > model.scenario.budget))
+    errors.push("Each allocation must be a finite nonnegative number within the budget");
+  if (vals.every(n => typeof n === "number" && Number.isFinite(n)) &&
+      Math.abs(vals.reduce((a, b) => a + b, 0) - model.scenario.budget) > 1e-7)
+    errors.push("Allocation must sum to the exact scenario budget");
+  if (input.context !== undefined) {
+    if (!nonNullObject(input.context)) errors.push("Context must be an object");
+    else {
+      if (input.context.cadence !== undefined && !CADENCES.includes(input.context.cadence))
+        errors.push("Cadence must be unknown, one_off or recurring");
+      if (input.context.statedPriority !== undefined &&
+          input.context.statedPriority !== null &&
+          !allowed.includes(input.context.statedPriority))
+        errors.push("Stated priority must refer to a scenario category or be null");
+      if (Object.keys(input.context).some(k => !["cadence", "statedPriority"].includes(k)))
+        errors.push("Unsupported context field");
+    }
+  }
+  if (Object.keys(input).some(k => !["allocation", "context"].includes(k)))
+    errors.push("Unsupported input field");
+  return errors;
+}
+
+function analyzeTradeoff(input, model = SENECA_TIME_TRADEOFF_V1) {
+  const errors = validateTradeoffInput(input, model);
+  if (errors.length) throw new TypeError(errors.join("; "));
+
+  const { budget, categories } = model.scenario;
+  const allocation = Object.fromEntries(categories.map(c => [c.id, input.allocation[c.id]]));
+  const percentages = Object.fromEntries(categories.map(c => [c.id, rounded(allocation[c.id] / budget * 100)]));
+  const labels = Object.fromEntries(categories.map(c => [c.id, c.label]));
+  const ordered = categories.map(c => c.id)
+    .sort((a, b) => allocation[b] - allocation[a] || categories.findIndex(c => c.id === a) - categories.findIndex(c => c.id === b));
+  const leader = ordered[0], second = ordered[1];
+  const max = allocation[leader], min = allocation[ordered[ordered.length - 1]];
+  const eps = 1e-9;
+  const leaders = ordered.filter(k => Math.abs(allocation[k] - max) < eps);
+  const excluded = ordered.filter(k => allocation[k] === 0);
+  const positive = ordered.filter(k => allocation[k] > 0);
+  const maxShare = max / budget;
+  const dominance =
+    maxShare === 1 ? "exclusive" :
+    maxShare >= 0.75 ? "strong_dominance" :
+    maxShare > 0.5 ? "majority" :
+    Math.abs(maxShare - 0.5) < eps ? "half" : "distributed";
+  const hhi = categories.reduce((s, c) => s + (allocation[c.id] / budget) ** 2, 0);
+  // Balance index describes dispersion only; it is NOT a rating of good decisions.
+  const balanceIndex = rounded((1 - hhi) / (1 - 1 / categories.length));
+  const cadence = input.context?.cadence ?? "unknown";
+  const statedPriority = input.context?.statedPriority ?? null;
+  const mismatch = statedPriority !== null && allocation[statedPriority] < max - eps;
+  const patterns = [];
+  const necessary = [], possible = [], tensions = [], uncertainties = [], ruleTrace = [];
+  const add = (collection, id, statement, refs, epistemicStatus) => {
+    collection.push({ id, statement, relationIds: refs, epistemicStatus });
+  };
+  const trace = (ruleId, condition, findingIds, relationIds, epistemicStatus) => {
+    ruleTrace.push({ ruleId, condition, findingIds, relationIds, epistemicStatus });
+  };
+
+  patterns.push({
+    id: "allocation-" + dominance,
+    label: dominance.replace(/_/g, " "),
+    description: dominance === "exclusive" ? labels[leader] + " occupies all available time" :
+      dominance === "distributed" ? "No activity holds an absolute majority" :
+      labels[leader] + " receives " + formatPercent(maxShare) + " of this block",
+  });
+  if (leaders.length > 1)
+    patterns.push({ id: "tied-leaders", label: "shared priority", description: leaders.map(k => labels[k]).join(" and ") + " tie for the largest allocation" });
+  if (excluded.length)
+    patterns.push({ id: "excluded-activities", label: "omissions", description: excluded.map(k => labels[k]).join(" and ") + " receive no time in this block" });
+  if (max - min <= budget / 8 + eps)
+    patterns.push({ id: "nearly-even", label: "near balance", description: "The gap between the largest and smallest allocations is at most one hour" });
+  if (mismatch)
+    patterns.push({ id: "stated-priority-mismatch", label: "intention-allocation tension", description: labels[statedPriority] + " was stated as the priority but another activity receives more time" });
+
+  const allocationSummary = categories.map(c => c.label + " " + formatHours(allocation[c.id]) +
+    " (" + formatPercent(allocation[c.id] / budget) + ")").join(", ");
+  add(necessary, "finite-budget", "The " + formatHours(budget) +
+    " hypothetical block is fully allocated; time assigned to one activity is unavailable to the others within this same block.",
+    ["rel-finite-budget"], "scenario_necessity");
+  trace("budget-invariant", "All amounts sum to " + budget, ["finite-budget"], ["rel-finite-budget"], "scenario_necessity");
+
+  for (const id of excluded) {
+    const resultId = "no-time-" + id;
+    add(necessary, resultId, labels[id] +
+      " receives no time inside this specific block; this does not establish that it is absent from the user's day or life.",
+      ["rel-forgone-alternatives"], "scenario_necessity");
+    trace("zero-allocation-" + id, id + " === 0", [resultId], ["rel-forgone-alternatives"], "scenario_necessity");
+  }
+
+  if (dominance === "exclusive") {
+    const line = labels[leader] + " uses the whole block; the thought exercise therefore excludes every other activity for these eight hours.";
+    add(necessary, "exclusive-choice", line, ["rel-finite-budget", "rel-forgone-alternatives"], "scenario_necessity");
+    trace("exclusive-allocation", leader + " share === 100%", ["exclusive-choice"], ["rel-forgone-alternatives"], "scenario_necessity");
+    const alternatives = {
+      rest: "A period devoted entirely to rest might be recovery, or it might postpone activities the person also values.",
+      obligations: "A block devoted entirely to obligations might express purposeful commitment, or it might crowd out care and reflection.",
+      reflection: "A block devoted entirely to reflection might be a worthwhile retreat, or it might postpone putting ideas into practice.",
+    };
+    add(possible, "exclusive-interpretation-" + leader, alternatives[leader],
+      ["rel-deliberateness"], "interpretive_possibility");
+    trace("exclusive-philosophical-tension-" + leader, "Exclusive " + leader + " allocation", ["exclusive-interpretation-" + leader],
+      ["rel-deliberateness"], "interpretive_possibility");
+    tensions.push({ id: "exclusive-purpose", kind: "possible_tradeoff", statement:
+      "Complete focus on " + labels[leader] + " raises a question about what happens to the excluded activities, not whether the focus is morally wrong.",
+      isLogicalContradiction: false });
+  } else {
+    const leadersLabel = leaders.map(k => labels[k]).join(" and ");
+    const nextAfterLeaders = ordered.find(k => !leaders.includes(k));
+    const distributionSentence = leaders.length > 1
+      ? leaders.map(k => labels[k]).join(" and ") + " each receive " + formatHours(max) +
+        (nextAfterLeaders ? "; " + labels[nextAfterLeaders] + " receives " + formatHours(allocation[nextAfterLeaders]) : "") +
+        ". This is shared leadership, not a single winner."
+      : leadersLabel + " receives " + formatHours(max) +
+        " while " + labels[second] + " receives " + formatHours(allocation[second]) +
+        "; the relative amounts constrain what can be done within this block.";
+    add(necessary, "priority-distribution", distributionSentence,
+      ["rel-finite-budget"], "scenario_necessity");
+    trace("relative-allocation", dominance + "; leaders=" + leaders.join(",") + "; runner_up=" + (leaders.length > 1 ? nextAfterLeaders : second),
+      ["priority-distribution"], ["rel-finite-budget"], "scenario_necessity");
+    const secondNonLeader = leaders.length > 1 ? nextAfterLeaders : ordered.find(k => k !== leader && allocation[k] > 0);
+    const secondaryText = secondNonLeader && allocation[secondNonLeader] > 0
+      ? " The next distinct priority is " + labels[secondNonLeader] + " (" + formatHours(allocation[secondNonLeader]) + ")."
+      : "";
+    add(possible, "relative-priorities", (leaders.length > 1
+      ? "Sharing the largest allocation could reflect competing priorities rather than indifference."
+      : "Giving more time to " + labels[leader] + " could express a temporary or sustained priority.") +
+      secondaryText + " The value of that distribution cannot be inferred from its proportions alone.",
+      ["rel-deliberateness"], "interpretive_possibility");
+    trace("proportional-interpretation", dominance + "; top=" + formatPercent(maxShare),
+      ["relative-priorities"], ["rel-deliberateness"], "interpretive_possibility");
+    if (excluded.length)
+      tensions.push({ id: "omitted-value", kind: "possible_tradeoff", statement:
+        "The omitted activities may matter even when one visible priority dominates; the block alone cannot tell us their actual importance.",
+        isLogicalContradiction: false });
+  }
+
+  if (mismatch) {
+    const statement = "The stated priority (" + labels[statedPriority] + ") receives " +
+      formatHours(allocation[statedPriority]) + ", below " + labels[leader] +
+      " at " + formatHours(max) + ". That is an apparent mismatch between the declared objective and this allocation, not proof of hypocrisy.";
+    tensions.push({ id: "goal-action-mismatch", kind: "stated_goal_tension",
+      statement, isLogicalContradiction: false });
+    trace("declared-priority-check", statedPriority + "=" + allocation[statedPriority] + " < " + leader + "=" + max,
+      ["goal-action-mismatch"], ["rel-finite-budget"], "interpretive_possibility");
+    uncertainties.push({ id: "priority-mismatch-context",
+      question: "Is the discrepancy a compromise forced by circumstances, or a deliberate change of priority?",
+      reason: "A selected allocation does not reveal external constraints." });
+  }
+
+  if (cadence === "recurring") {
+    add(possible, "repetition", "If this allocation is repeated regularly, its omissions and priorities may become a persistent pattern; the actual effects still depend on the rest of the day and the person's circumstances.",
+      ["rel-deliberateness"], "interpretive_possibility");
+    trace("recurring-context", "cadence === recurring", ["repetition"], ["rel-deliberateness"], "interpretive_possibility");
+  } else if (cadence === "one_off") {
+    add(possible, "temporary-context", "A one-off allocation could serve a special purpose and cannot by itself establish a long-term way of living.",
+      ["rel-deliberateness"], "interpretive_possibility");
+    trace("one-off-context", "cadence === one_off", ["temporary-context"], ["rel-deliberateness"], "interpretive_possibility");
+  } else {
+    uncertainties.push({ id: "cadence-unknown", question: "Is this a one-off choice or a recurring routine?",
+      reason: "The significance of a single unusual allocation changes with its duration and purpose." });
+  }
+
+  uncertainties.push({ id: "purpose-unknown",
+    question: "What purpose and outside constraints led to this choice?",
+    reason: "Numerical allocations alone cannot establish intention or moral worth." });
+  uncertainties.push({ id: "full-day-unknown",
+    question: "How is the rest of the day spent?",
+    reason: "The thought experiment only covers one hypothetical " + formatHours(budget) + " block." });
+
+  const philosophicalLink = {
+    claimId: model.claim.id,
+    proposition: "This allocation makes finite time and foregone alternatives visible. Seneca's reconstructed question concerns the meaningful use of time, which cannot be deduced from a ratio.",
+    interpretationStrength: "illustration_not_proof",
+    relationIds: ["rel-finite-budget", "rel-forgone-alternatives", "rel-deliberateness"],
+  };
+  trace("philosophical-bridge", "Finite allocation illustrates the reconstructed Senecan concern with use, rather than amount, of time",
+    ["philosophical-link"], philosophicalLink.relationIds, "interpretive_possibility");
+
+  const findings = [...necessary, ...possible].map(x => x.id);
+  return {
+    schemaVersion: REASONING_RESULT_SCHEMA_VERSION,
+    mechanism: "tradeoff",
+    model: { id: model.id, quoteId: model.quote.legacyId,
+      reviewStatus: model.editorial.reviewStatus,
+      sourceContextVerified: model.editorial.sourceContextVerified,
+      productionEligible: model.editorial.productionEligible },
+    what_happened: {
+      summary: "Within this hypothetical " + formatHours(budget) + " block: " + allocationSummary + ".",
+      allocation, percentages,
+      signals: {
+        magnitude: { maxHours: max, maxSharePercent: rounded(maxShare * 100), leaderIds: leaders },
+        balance: { index: balanceIndex, maxMinGapHours: rounded(max - min),
+          description: "0 = entirely concentrated; 1 = evenly distributed. This is descriptive, not a goodness score." },
+        extremes: { exclusive: dominance === "exclusive", excludedCategoryIds: excluded },
+        combinations: { rankedCategoryIds: ordered, activeCategoryIds: positive, dominance },
+        contradictions: { apparentStatedPriorityMismatch: mismatch, isFormalLogicalContradiction: false },
+        context: { cadence, statedPriority },
+      },
+      patterns,
+    },
+    what_follows: {
+      necessary,
+      possible,
+      tensions,
+      philosophical_connection: philosophicalLink,
+    },
+    what_remains_uncertain: uncertainties,
+    why_this: {
+      modelId: model.id,
+      sourceStatus: model.quote.wordingStatus,
+      editorialStatus: model.editorial.reviewStatus,
+      rule_trace: ruleTrace,
+      interpretive_boundaries: model.interpretiveBoundaries,
+    },
+    expression_handoff: {
+      status: "placeholder_only",
+      findingIds: findings,
+      permittedStyleCandidates: ["reflective", "surprising", "playful", "challenging"],
+      instruction: "Never change the epistemic status of a finding or invent consequences.",
+    },
+    tension_gate_handoff: {
+      status: "placeholder_only",
+      optionalSecondRoundCandidate: cadence === "unknown" ? "Is this a one-off arrangement or a recurring one?" :
+        "Which of the excluded or smaller priorities matters most beyond this block?",
+      firstRoundComplete: true,
+      triggered: false,
+    },
+  };
+}
+
+
+/* CZ-105 source: experiments/cz105-lab-controls.js */
+/**
+ * CZ-105 founder lab: discrete, zero-sum UI controls.
+ * UI mathematics only. Philosophical conclusions come from the real
+ * philosophy-engine/tradeoff-reasoner.js module.
+ */
+const TICKS_PER_HOUR = 2;
+const TOTAL_TICKS = 16;
+const CATEGORY_IDS = Object.freeze(["rest", "obligations", "reflection"]);
+const INITIAL_TICKS = Object.freeze([6, 6, 4]);
+
+function validateTicks(ticks) {
+  return Array.isArray(ticks) && ticks.length === CATEGORY_IDS.length &&
+    ticks.every(n => Number.isInteger(n) && n >= 0 && n <= TOTAL_TICKS) &&
+    ticks.reduce((sum, n) => sum + n, 0) === TOTAL_TICKS;
+}
+
+function toAllocation(ticks) {
+  if (!validateTicks(ticks)) throw new TypeError("Invalid zero-sum allocation");
+  return Object.fromEntries(CATEGORY_IDS.map((id, i) => [id, ticks[i] / TICKS_PER_HOUR]));
+}
+
+function reallocate(ticks, selectedIndex, desiredTicks) {
+  if (!validateTicks(ticks)) throw new TypeError("Invalid original allocation");
+  if (!Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= ticks.length)
+    throw new RangeError("Invalid selected category");
+  if (!Number.isInteger(desiredTicks) || desiredTicks < 0 || desiredTicks > TOTAL_TICKS)
+    throw new RangeError("Invalid requested allocation");
+  if (ticks[selectedIndex] === desiredTicks) return [...ticks];
+
+  const others = CATEGORY_IDS.map((_, i) => i).filter(i => i !== selectedIndex);
+  const remaining = TOTAL_TICKS - desiredTicks;
+  const previousTotal = others.reduce((sum, i) => sum + ticks[i], 0);
+  const firstRatio = previousTotal > 0 ? ticks[others[0]] / previousTotal : 0.5;
+  const firstTicks = Math.round(firstRatio * remaining);
+  const result = [0, 0, 0];
+  result[selectedIndex] = desiredTicks;
+  result[others[0]] = firstTicks;
+  result[others[1]] = remaining - firstTicks;
+  if (!validateTicks(result)) throw new Error("Zero-sum allocation invariant violated");
+  return result;
+}
+
+const PRESETS = Object.freeze({
+  balanced: [6, 6, 4],
+  rest: [16, 0, 0],
+  obligations: [0, 16, 0],
+  reflection: [0, 0, 16],
+  majority: [10, 4, 2],
+  mixed: [8, 4, 4],
+});
+
+
+const $ = id => document.getElementById(id);
+const element = (tag, className, text) => {
+  const e = document.createElement(tag);
+  if (className) e.className = className;
+  if (text !== undefined) e.textContent = String(text);
+  return e;
+};
+const put = (parent, tag, className, content) => {
+  const e = element(tag, className, content);
+  parent.append(e);
+  return e;
+};
+const clear = el => { el.replaceChildren(); return el; };
+const fmt = n => (Number.isInteger(n) ? String(n) : String(n)) + "h";
+let ticks = [...INITIAL_TICKS];
+let report = null;
+let evaluatedInput = null;
+let dirty = true;
+const snapshots = { a: null, b: null };
+
+$("source-quote").textContent = "\u201C" + SENECA_TIME_TRADEOFF_V1.quote.text + "\u201D";
+$("source-attribution").textContent = "Seneca · " + SENECA_TIME_TRADEOFF_V1.quote.work + " · Translation varies · Editorial review pending";
+
+function selectedCadence() {
+  return document.querySelector('input[name="cadence"]:checked').value;
+}
+function currentInput() {
+  return {
+    allocation: toAllocation(ticks),
+    context: {
+      cadence: selectedCadence(),
+      statedPriority: $("priority").value || null,
+    },
+  };
+}
+function renderControls() {
+  const allocation = toAllocation(ticks);
+  CATEGORY_IDS.forEach((id, index) => {
+    const hours = allocation[id];
+    const slider = $("slider-" + id);
+    slider.value = String(ticks[index]);
+    slider.setAttribute("aria-valuetext", fmt(hours) + " out of 8 hours");
+    $("value-" + id).textContent = fmt(hours);
+    $("bar-" + id).style.width = String((ticks[index] / TOTAL_TICKS) * 100) + "%";
+  });
+  document.querySelectorAll("[data-preset]").forEach(b => {
+    b.setAttribute("aria-pressed", JSON.stringify(PRESETS[b.dataset.preset] === undefined ? false :
+      PRESETS[b.dataset.preset].every((n, i) => n === ticks[i])));
+  });
+}
+function markDirty() {
+  dirty = true;
+  $("run-status").textContent = "Choices changed. Run the engine to refresh the four findings.";
+  $("evaluated-at").textContent = "Needs new analysis";
+}
+for (const id of CATEGORY_IDS) {
+  $("slider-" + id).addEventListener("input", event => {
+    ticks = reallocate(ticks, Number(event.target.dataset.index), Number(event.target.value));
+    renderControls();
+    markDirty();
+  });
+}
+for (const b of document.querySelectorAll("[data-preset]")) {
+  b.addEventListener("click", () => {
+    ticks = [...PRESETS[b.dataset.preset]];
+    renderControls();
+    markDirty();
+  });
+}
+document.querySelectorAll('input[name="cadence"]').forEach(el => el.addEventListener("change", markDirty));
+$("priority").addEventListener("change", markDirty);
+
+function renderHappened(r) {
+  const root = clear($("out-happened"));
+  put(root, "p", "", r.what_happened.summary);
+  const s = r.what_happened.signals;
+  put(root, "div", "smalltitle", "Observed patterns");
+  const pills = put(root, "div", "pillrow");
+  r.what_happened.patterns.forEach(p => put(pills, "span", "pill", p.label));
+  put(root, "div", "boxed");
+  const box = root.lastChild;
+  put(box, "p", "", "Largest share: " + s.magnitude.maxSharePercent + "% · Gap: " + s.balance.maxMinGapHours + "h");
+  put(box, "p", "plain", "Balance index: " + s.balance.index + " (descriptive, not a score of wisdom)");
+  if (s.contradictions.apparentStatedPriorityMismatch)
+    put(root, "div", "notice", "Your stated priority receives less time than another activity. The engine flags a possible intention–allocation tension, not a formal contradiction.");
+}
+function renderFindings(root, rows, className) {
+  if (!rows.length) { put(root, "p", "plain", "No finding of this type."); return; }
+  const ul = put(root, "ul", className);
+  rows.forEach(x => {
+    const li = put(ul, "li");
+    put(li, "div", "", x.statement);
+    put(li, "div", "mini", x.id);
+  });
+}
+function renderFollows(r) {
+  const root = clear($("out-follows"));
+  put(root, "div", "smalltitle", "Necessary within this thought experiment");
+  renderFindings(root, r.what_follows.necessary);
+  put(root, "div", "smalltitle warning", "Possible interpretations · not proven facts");
+  renderFindings(root, r.what_follows.possible);
+  if (r.what_follows.tensions.length) {
+    put(root, "div", "smalltitle", "Potential philosophical tensions");
+    renderFindings(root, r.what_follows.tensions);
+  }
+  put(root, "div", "notice", r.what_follows.philosophical_connection.proposition);
+}
+function renderUncertain(r) {
+  const root = clear($("out-uncertain"));
+  const ul = put(root, "ul");
+  r.what_remains_uncertain.forEach(x => {
+    const li = put(ul, "li");
+    put(li, "strong", "", x.question);
+    put(li, "div", "plain", x.reason);
+  });
+  put(root, "div", "notice", "Uncertainty is a result. The engine will not invent a motive, lifestyle or moral judgment.");
+}
+function renderWhy(r) {
+  const root = clear($("out-why"));
+  put(root, "p", "", "Model: " + r.why_this.modelId);
+  put(root, "p", "plain", "Editorial status: " + r.why_this.editorialStatus +
+    " · Source translation: " + r.why_this.sourceStatus);
+  put(root, "div", "smalltitle", "Rule trace · " + r.why_this.rule_trace.length + " steps");
+  const details = put(root, "details");
+  put(details, "summary", "", "Open the exact inference trail");
+  r.why_this.rule_trace.forEach(item => {
+    const block = put(details, "div", "trace");
+    put(block, "strong", "", item.ruleId);
+    put(block, "p", "", "If: " + item.condition);
+    put(block, "div", "meta", "→ " + item.findingIds.join(", "));
+    put(block, "div", "meta", item.epistemicStatus + " · " + item.relationIds.join(", "));
+  });
+  put(root, "div", "smalltitle", "Limits we refuse to cross");
+  const ul = put(root, "ul", "plain");
+  r.why_this.interpretive_boundaries.forEach(x => put(ul, "li", "", x));
+  const jsonDetails = put(root, "details");
+  put(jsonDetails, "summary", "", "Show complete engine JSON");
+  put(jsonDetails, "pre", "", JSON.stringify(r, null, 2));
+}
+function runEngine() {
+  try {
+    const input = currentInput();
+    const result = analyzeTradeoff(input);
+    report = result;
+    evaluatedInput = input;
+    dirty = false;
+    $("engine-error").classList.add("hidden");
+    renderHappened(result);
+    renderFollows(result);
+    renderUncertain(result);
+    renderWhy(result);
+    $("run-status").textContent = "Analyzed with actual CZ-105 engine. No network or AI call.";
+    $("evaluated-at").textContent = "Analysis current";
+    return result;
+  } catch (error) {
+    $("engine-error").textContent = "The engine rejected this input: " + error.message;
+    $("engine-error").classList.remove("hidden");
+    $("run-status").textContent = "No result was produced.";
+    return null;
+  }
+}
+$("analyze").addEventListener("click", () => {runEngine();$("out-happened").scrollIntoView({behavior:"auto",block:"nearest"});});
+
+function copyReport() {
+  const r = dirty ? runEngine() : report;
+  if (!r) return;
+  const txt = JSON.stringify(r, null, 2);
+  const finished = () => { $("run-status").textContent = "Engine report copied to clipboard."; };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(txt).then(finished, () => fallbackCopy(txt));
+  } else fallbackCopy(txt);
+}
+function fallbackCopy(text) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.style.position = "fixed"; area.style.top = "0"; area.style.left = "-9999px";
+  document.body.append(area); area.select();
+  try { if (document.execCommand("copy")) $("run-status").textContent = "Engine report copied."; else throw Error("Clipboard unavailable"); }
+  catch { $("run-status").textContent = "Copy unavailable in this browser; open ‘Show complete engine JSON’ to inspect it."; }
+  area.remove();
+}
+$("copy-report").addEventListener("click", copyReport);
+function saveSnapshot(which) {
+  const r = dirty || !report ? runEngine() : report;
+  if (!r) return;
+  snapshots[which] = { input: structuredClone(evaluatedInput), result: structuredClone(r) };
+  renderSnapshot(which);
+  $("run-status").textContent = "Result " + which.toUpperCase() + " saved for this session. Change the input to compare.";
+}
+function renderSnapshot(which) {
+  const parent = clear($("snapshot-" + which)), snapshot = snapshots[which];
+  put(parent, "strong", "", "Result " + which.toUpperCase());
+  if (!snapshot) return void put(parent, "p", "compare-placeholder", "Not saved yet");
+  put(parent, "p", "", snapshot.result.what_happened.summary);
+  put(parent, "div", "mini", snapshot.result.what_happened.signals.combinations.dominance.replace(/_/g," "));
+  const candidate = snapshot.result.what_follows.possible[0];
+  if (candidate) put(parent, "p", "", candidate.statement);
+  put(parent, "div", "mini", snapshot.result.what_remains_uncertain.length + " unresolved questions · " +
+    snapshot.result.why_this.rule_trace.length + " traced steps");
+  const restore = put(parent, "button", "secondary", "Load this scenario");
+  restore.type = "button";
+  restore.addEventListener("click", () => {
+    const i = snapshot.input;
+    ticks = CATEGORY_IDS.map(id => Math.round(i.allocation[id] * 2));
+    document.querySelector('input[name="cadence"][value="' + i.context.cadence + '"]').checked = true;
+    $("priority").value = i.context.statedPriority || "";
+    renderControls();
+    runEngine();
+  });
+}
+$("save-a").addEventListener("click", () => saveSnapshot("a"));
+$("save-b").addEventListener("click", () => saveSnapshot("b"));
+$("reset").addEventListener("click", () => {
+  ticks = [...INITIAL_TICKS];
+  document.querySelector('input[name="cadence"][value="unknown"]').checked = true;
+  $("priority").value = "";
+  renderControls();
+  runEngine();
+});
+renderControls();
+runEngine();
+</script>
+</body>
+</html>
