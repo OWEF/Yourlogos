@@ -85,6 +85,16 @@ test("near-balanced 3/3/2 is not treated as strict equality or a moral ideal", (
   assert.match(r.what_happened.signals.balance.description, /not a goodness score/);
 });
 
+test("tied leaders are treated as shared priorities, never a false winner and runner-up", () => {
+  const r = make(3, 3, 2);
+  const necessary = r.what_follows.necessary.find(x => x.id === "priority-distribution");
+  const possible = r.what_follows.possible.find(x => x.id === "relative-priorities");
+  assert.match(necessary.statement, /Rest and Obligations each receive 3h/);
+  assert.match(necessary.statement, /shared leadership/);
+  assert.doesNotMatch(necessary.statement, /Rest and Obligations takes/);
+  assert.match(possible.statement, /next distinct priority is Reflection \(2h\)/);
+});
+
 test("the runner-up influences the result even if the same choice dominates", () => {
   const a = make(5, 2, 1);
   const b = make(5, 1, 2);
