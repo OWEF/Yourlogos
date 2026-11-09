@@ -274,9 +274,18 @@ function render(){
    const idx=Number(el.dataset.range),target=Number(el.value);
    state.seneca.ticks=reallocate(state.seneca.ticks,idx,target);
    state.revealed=false;
-   render();
-   const focused=$("range-"+idx);
-   if(focused)focused.focus({preventScroll:true});
+   // Keep the original DOM range element mounted: rebuilding it mid-gesture
+   // interrupts drag/touch interaction on iPhone Safari.
+   state.seneca.ticks.forEach((value,i)=>{
+     const control=$("range-"+i);
+     control.value=String(value);
+     control.setAttribute("aria-valuetext",fmt(value)+" of 3 discretionary hours");
+     $("time-"+i).textContent=fmt(value);
+   });
+   const bars=$("interactive").querySelectorAll(".stack>span");
+   bars.forEach((bar,i)=>bar.style.width=(state.seneca.ticks[i]/6*100)+"%");
+   renderProgress();
+   renderResult();
   });
  });
  $("reveal").addEventListener("click",()=>{
