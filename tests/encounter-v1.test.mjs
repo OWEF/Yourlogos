@@ -18,7 +18,7 @@ test("all 84 evenings keep conditional evidence and support the displayed readin
       rules.add(packet.rule);
     }
   }
-  assert.equal(rules.size,9);
+  assert.equal(rules.size,14);
 });
 test("matching allocations change meaning when the stated influence changes",()=>{
   const read=motivation=>encounterConsequence("dillard",{ticks:[0,4,2],motivation});
@@ -72,7 +72,7 @@ test("rest, priority and joint feasibility require distinct positive evidence",(
   assert.equal(evening([1,1,4],"planned").rule,"chosen-rest");
   assert.equal(evening([4,1,1],"planned").rule,"writing-sets-budget");
   assert.equal(evening([2,2,2],"planned").rule,"room-for-both");
-  assert.equal(evening([1,1,4],"obligations").rule,"recurring-foothold");
+  assert.equal(evening([1,1,4],"obligations").rule,"obligations-visible-rest");
   assert.doesNotMatch(evening([1,1,4],"planned").discovery,/makes you more productive|you were exhausted/i);
 });
 
@@ -203,8 +203,8 @@ test("match archived volunteered words through the real World adapter, never sys
   assert.equal(connection.recordId,record.id);
   assert.equal(connection.date,record.date);
   assert.equal(connection.fixture,false);
-  assert.match(connection.text,/earlier reflection/);
-  assert.match(read({...memory,fixture:true}).text,/Sample reflection/);
+  assert.match(connection.text,/previously wrote/);
+  assert.match(read({...memory,fixture:true}).text,/sample reflection/);
   for(const note of ["Uncertainty about my holiday budget.","I do not wonder whether careful reasoning can eliminate uncertainty.","My friend asked: "+words,""]){
     assert.equal(read(buildWorldMemory({livingThreads:{history:[{...record,question:words,note}]}},catalogue)),null);
   }
@@ -215,4 +215,49 @@ test("match archived volunteered words through the real World adapter, never sys
   // The curated grammar accepts can/do + my/our + habits/routines.
   assert.equal(dillard.optionalWorldConnection.field,"opening");
   assert.equal(read(buildWorldMemory({livingThreads:{history:[prior]}},catalogue)),null);
+});
+
+
+test("Dillard's former generic fallback now distinguishes materially different paths",()=>{
+  const examples=[
+    [[1,4,1],"planned","planned-replies-majority"],
+    [[1,4,1],"obligations","obligations-visible-replies"],
+    [[1,1,4],"obligations","obligations-visible-rest"],
+    [[4,1,1],"obligations","obligations-visible-writing"],
+    [[2,0,4],"interrupted","interrupted-without-replies"]
+  ];
+  for(const [ticks,motive,kind] of examples){
+    const packet=evening(ticks,motive);
+    assert.equal(packet.hiddenRelationship.kind,kind);
+    assert.ok(packet.visualDistinction?.items?.length===2);
+    assert.ok(packet.proactiveQuestion.includes("?"));
+  }
+  const all=[];
+  for(let w=0;w<=6;w++)for(let m=0;m+w<=6;m++)
+    for(const motivation of ["planned","interrupted","obligations"])
+      all.push(evening([w,m,6-w-m],motivation));
+  assert.ok(all.filter(p=>p.hiddenRelationship.kind==="recurring-foothold").length<=14);
+});
+
+test("historical matching accepts varied volunteered inquiries but rejects secondhand or topical fragments",()=>{
+  const input={resource:"change",barrier:"surprise",action:"continue"};
+  const memory=note=>({threads:[{type:"thread",id:"refl-1",quoteId:0,field:"note",note,date:"2026-10-21"}]});
+  for(const note of [
+    "Can careful reasoning ever eliminate all uncertainty before I act?",
+    "I'm scared of regretting my decisions before I make them.",
+    "How can I tell whether to keep going when the future is uncertain?"
+  ]){
+    const result=encounterConsequence("kierkegaard",input,memory(note));
+    assert.equal(result.optionalWorldConnection?.excerpt,note);
+    assert.equal(result.optionalWorldConnection.source,"livingThreads.history");
+  }
+  for(const note of [
+    "My friend asked: Can careful reasoning ever eliminate all uncertainty before I act?",
+    "Uncertainty about my holiday budget.",
+    "I do not wonder whether careful reasoning can eliminate uncertainty before I decide."
+  ]) assert.equal(encounterConsequence("kierkegaard",input,memory(note)).optionalWorldConnection,null);
+  for(const note of [
+    "I keep postponing writing because I end up answering messages.",
+    "It feels like I can never make enough time to write."
+  ]) assert.equal(encounterConsequence("dillard",{ticks:[1,4,1],motivation:"interrupted"},memory(note)).optionalWorldConnection?.excerpt,note);
 });

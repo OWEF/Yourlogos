@@ -10,6 +10,11 @@ try {
     page.on("request",r=>{if (/^https?:/.test(r.url())) network.push(r.url());});
     await page.goto(url);
     const run=page.locator("[data-run]");
+    assert.equal(await run.count(),0);
+    await page.locator('[data-like="dillard"]').click();
+    assert.equal(await page.locator('[data-like="dillard"]').getAttribute("aria-pressed"),"true");
+    assert.equal(await run.count(),0);
+    await page.locator('[data-discover="dillard"]').click();
     assert.equal(await run.isDisabled(),true);
     await page.locator("[data-range]").first().focus();
     await page.keyboard.press("Home");
@@ -36,8 +41,9 @@ try {
       assert.deepEqual(await result.locator(".section-label").allTextContents(),[
         "Your Encounter with "+await page.locator(".case-top h2").innerText(),"Return to the quotation","A question to carry forward"]);
       assert.equal(await result.locator("blockquote").innerText(),(await page.locator(".case-top .quote").innerText()).slice(1,-1));
-      assert.equal(await result.locator("details").getAttribute("open"),null);
-      assert.equal(await result.locator(".world-note").count(),0);
+      assert.equal(await result.locator("details").count(),0);
+      assert.equal(await result.locator(".memory-reference").count(),0);
+      assert.equal(await result.locator(":scope > :last-child").getAttribute("class"),"reflection");
       assert.equal(await result.evaluate(el=>el===document.activeElement),true);
       const contrast=result.getByRole("definition");
       assert.equal(await contrast.count(),2);
@@ -49,6 +55,8 @@ try {
     }
     await verifyEnding();
     await page.locator('[data-mode="kierkegaard"]').click();
+    assert.equal(await page.locator("[data-start]").count(),0);
+    await page.locator('[data-discover="kierkegaard"]').click();
     await page.locator("[data-start]").click();
     const pick=async(stage,value)=>page.locator(`[data-fork-choice="${stage}"][data-value="${value}"]`).click();
     for(const [first,word] of [["change",/friends/],["stay",/familiar job/]]){
@@ -60,18 +68,22 @@ try {
       await run.click();
       assert.match(await page.locator(".result h3").innerText(),word);
       await verifyEnding();
-      await page.locator("summary").click();
-      assert.equal(JSON.parse(await page.locator("pre").innerText()).rule,first+"/surprise/adapt");
+      assert.equal(await page.locator("details").count(),0);
+      // Evidence exists in the packet and is inspected in independent Node tests.
+      // The consumer experience must end at its reflective question.
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     }
     await page.locator("[data-reset]").click();
     assert.equal(await page.locator(".result, [data-fork-choice]").count(),0);
     await page.goto(url.split("#")[0]+"#qa-reflection");
     await page.locator('[data-mode="dillard"]').click();
+    await page.locator('[data-discover="dillard"]').click();
     await page.locator('[data-motive][data-value="planned"]').click();
     await run.click();
-    assert.match(await page.locator(".result").innerText(),/My World · QA fixture/i);
-    assert.equal(await page.locator(".world-note").count(),1);
+    assert.match(await page.locator(".result").innerText(),/sample reflection/i);
+    assert.equal(await page.locator(".memory-reference").count(),1);
+    assert.equal(await page.locator(".section-label").count(),3);
+    assert.equal(await page.locator(".result details").count(),1);
     assert.ok((await page.locator(".result").boundingBox()).height<=844);
     assert.deepEqual(errors,[]);
     if(url.startsWith("file:")) assert.deepEqual(network,[]);
