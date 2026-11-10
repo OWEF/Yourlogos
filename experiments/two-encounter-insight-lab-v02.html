@@ -81,7 +81,7 @@ const contexts={seneca:ATLAS_PILOT_V01.find(r=>r.id===49),woolf:ATLAS_PILOT_V01.
 const state={route:"seneca",revealed:false,seneca:{ticks:[2,2,2],motivation:"chosen"},woolf:{resource:"income",barrier:"space",action:"write"}};
 const color=["var(--gold)","var(--sage)","var(--rose)"];
 const category=["Optional work","A friend","Quiet reflection"];
-const h=n=>String(n)+"h";
+const hourText=n=>String(n)+"h";
 const field=(key,items)=>{
   const current=state[state.route][key];
   return '<div class="choices">'+items.map(([value,title,description,symbol])=>
@@ -108,8 +108,8 @@ function renderSeneca(){
   '<h2>Who gets your evening?</h2>'+
   '<p class="story">After your essential commitments, you have <b>three genuinely free hours tonight</b>. An optional work request arrives, a friend asks to see you, and you hoped for some quiet reflection. You can’t do all three at once.</p>'+
   '<p class="question">How would you spend these hours?</p>'+
-  category.map((name,i)=>'<div class="field"><div class="fieldbar"><label for="range-'+i+'">'+esc(name)+'</label><span class="number" id="time-'+i+'">'+h(t[i]/2)+'</span></div>'+
-    '<input type="range" id="range-'+i+'" min="0" max="6" step="1" value="'+t[i]+'" data-range="'+i+'" aria-label="'+esc(name)+' hours" aria-valuetext="'+h(t[i]/2)+' out of 3 hours"></div>').join("")+
+  category.map((name,i)=>'<div class="field"><div class="fieldbar"><label for="range-'+i+'">'+esc(name)+'</label><span class="number" id="time-'+i+'">'+hourText(t[i]/2)+'</span></div>'+
+    '<input type="range" id="range-'+i+'" min="0" max="6" step="1" value="'+t[i]+'" data-range="'+i+'" aria-label="'+esc(name)+' hours" aria-valuetext="'+hourText(t[i]/2)+' out of 3 hours"></div>').join("")+
   '<div class="stack" aria-label="Three-hour distribution">'+t.map((value,i)=>'<span style="width:'+(value/6*100)+'%;background:'+color[i]+'"></span>').join("")+'</div>'+
   '<div class="legend">'+category.map((x,i)=>'<span><i class="swatch" style="background:'+color[i]+'"></i>'+esc(x)+'</span>').join("")+'</div>'+
   '<p class="question">What most influenced that choice?</p>'+
@@ -156,8 +156,8 @@ function renderControls(){
      // Keep the dragged input mounted to preserve continuous touch gestures.
      state.seneca.ticks.forEach((value,j)=>{
        const el=$("range-"+j);el.value=String(value);
-       el.setAttribute("aria-valuetext",h(value/2)+" out of 3 hours");
-       $("time-"+j).textContent=h(value/2);
+       el.setAttribute("aria-valuetext",hourText(value/2)+" out of 3 hours");
+       $("time-"+j).textContent=hourText(value/2);
      });
      $("interactive").querySelectorAll(".stack>span").forEach((bar,j)=>bar.style.width=(state.seneca.ticks[j]/6*100)+"%");
      renderProgress();renderResult();
@@ -187,7 +187,7 @@ function visualHtml(v){
   const total=v.values.reduce((a,b)=>a+b,0);
   return '<div class="stack" style="height:17px" aria-label="Distribution of three hours">'+
    v.values.map((n,i)=>'<span style="width:'+(n/total*100)+'%;background:'+color[i]+'"></span>').join("")+'</div>'+
-   '<div class="legend">'+v.labels.map((lab,i)=>'<span><i class="swatch" style="background:'+color[i]+'"></i>'+esc(lab)+' '+h(v.values[i])+'</span>').join("")+'</div>';
+   '<div class="legend">'+v.labels.map((lab,i)=>'<span><i class="swatch" style="background:'+color[i]+'"></i>'+esc(lab)+' '+hourText(v.values[i])+'</span>').join("")+'</div>';
  }
  if(v.type==="path")return '<div class="graph" aria-label="Conditions, remaining obstacle, and chosen response">'+
    v.nodes.map((n,i)=>'<div class="node '+(i===0?"on":i===1?"issue":"")+'">'+
