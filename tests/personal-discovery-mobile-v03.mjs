@@ -1,0 +1,85 @@
+import {chromium} from "playwright-core";
+import assert from "node:assert/strict";
+import {resolve,dirname} from "node:path";
+import {fileURLToPath,pathToFileURL} from "node:url";
+import {mkdir} from "node:fs/promises";
+const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
+const file=resolve(root,"experiments/two-encounter-discovery-lab-v03-standalone.html");
+const url=pathToFileURL(file).href;
+const screenshots=resolve(root,"test-results/cz112-discovery");
+await mkdir(screenshots,{recursive:true});
+const browser=await chromium.launch({channel:"chrome",headless:true,args:["--no-sandbox","--allow-file-access-from-files"]});
+try{
+ for(const width of [320,390,768]){
+  const ctx=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:width<741?2:1,isMobile:width<741,hasTouch:width<741});
+  const page=await ctx.newPage(),errors=[],requests=[];
+  page.on("pageerror",e=>errors.push(e.message));
+  page.on("request",r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
+  await page.goto(url,{waitUntil:"load"});
+  await page.getByRole("tab",{name:/Trade-Off/}).waitFor();
+  assert.match(await page.locator("#quote").innerText(),/Seneca/i);
+  assert.equal(await page.getByRole("tab").count(),2);
+  assert.equal(await page.locator("[data-stance]").count(),3);
+  const slider=page.locator("#range-0");
+  await slider.evaluate(el=>{el.value="6";el.dispatchEvent(new Event("input",{bubbles:true}));});
+  assert.equal(await slider.evaluate(el=>el.isConnected),true);
+  assert.equal(await page.locator("#time-0").innerText(),"3h");
+  await page.getByRole("button",{name:/I considered it necessary/}).click();
+  await page.getByRole("button",{name:"Mixed feelings"}).click();
+  await page.getByRole("button",{name:"See what your choice raises"}).click();
+  let d=await page.evaluate(()=>window.__encounterDebug);
+  assert.equal(d.packet.quote.id,49);
+  assert.match(d.expression.title,/When did optional become necessary/);
+  assert.match(d.expression.question,/What made saying no difficult/);
+  assert.equal(d.expression.complete,false);
+  assert.equal(await page.locator("#result .open-question").count(),1);
+  assert.equal(await page.locator("#result .stack").count(),1);
+  assert.equal(await page.locator("#result details[open]").count(),0);
+  await page.screenshot({path:resolve(screenshots,"seneca-question-"+width+".png"),fullPage:true});
+  await page.getByRole("button",{name:"Try another path"}).click();
+  await page.getByRole("button",{name:/I genuinely wanted this/}).click();
+  await page.getByRole("button",{name:"Mixed feelings"}).click(); // deselect to unstated
+  await page.getByRole("button",{name:"Feels right"}).click();
+  await page.getByRole("button",{name:"See what your choice raises"}).click();
+  d=await page.evaluate(()=>window.__encounterDebug);
+  assert.equal(d.expression.complete,true);
+  assert.equal(d.expression.question,null);
+  assert.equal(await page.locator("#result .open-question").count(),0);
+  assert.match(await page.locator("#result").innerText(),/You can leave it here/);
+  // Woolf: clear everyday choice titles, now rendered as branching relationships.
+  await page.getByRole("tab",{name:/Decision Map/}).click();
+  assert.match(await page.locator("#interactive").innerText(),/She earns her own money/);
+  assert.match(await page.locator("#interactive").innerText(),/Nobody will give her a chance/);
+  assert.doesNotMatch(await page.locator("#interactive").innerText(),/Institutional exclusion/);
+  await page.getByRole("button",{name:/She gets a quiet room/}).click();
+  await page.getByRole("button",{name:/She keeps getting interrupted/}).click();
+  await page.getByRole("button",{name:/She pushes for change/}).click();
+  await page.getByRole("button",{name:"Not sure"}).click();
+  await page.getByRole("button",{name:"See what your choice raises"}).click();
+  d=await page.evaluate(()=>window.__encounterDebug);
+  assert.equal(d.packet.quote.id,28);
+  assert.equal(d.expression.mechanism,"decision_map");
+  assert.match(d.expression.question,/what would make it last/);
+  assert.equal(await page.locator("#result .mindmap").count(),1);
+  assert.ok(await page.locator("#result .map-wires path").count()>=5);
+  assert.equal(await page.locator("#result .map-node").count(),5);
+  assert.equal(await page.locator("#result .map-node.editable").count(),3);
+  assert.equal(await page.locator("#result .open-question").count(),1);
+  await page.screenshot({path:resolve(screenshots,"woolf-mindmap-"+width+".png"),fullPage:true});
+  const before=d.packet.insight.ruleId;
+  // The map itself is navigable: tapping a branch returns to that input.
+  await page.locator('.map-node[data-map-target="barrier"]').click();
+  assert.equal(await page.locator("#result").isVisible(),false);
+  await page.getByRole("button",{name:/Nobody will give her a chance/}).click();
+  await page.getByRole("button",{name:"See what your choice raises"}).click();
+  const after=await page.evaluate(()=>window.__encounterDebug);
+  assert.notEqual(after.packet.insight.ruleId,before);
+  assert.equal(await page.locator("#result .mindmap").count(),1);
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);
+  assert.equal(overflow,false,"Horizontal overflow at "+width);
+  assert.deepEqual(errors,[],"JS errors at "+width);
+  assert.deepEqual(requests,[],"No remote requests allowed at "+width);
+  process.stdout.write("PASS CZ-112 "+width+"px: conditional question, positive closure, clickable mindmap, source-linked expression\n");
+  await ctx.close();
+ }
+}finally{await browser.close();}
