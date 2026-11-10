@@ -123,6 +123,7 @@ test("each source-specific ending returns to its own quotation in 80–120 words
     assert.ok(words>=80 && words<=120,packet.rule+" words="+words);
     assert.equal(view.quote,packet.quote.text);
     assert.match(view.interpretation,packet.caseId==="dillard"?/Dillard/:/Kierkegaard/);
+    assert.doesNotMatch(view.headline+view.experience+view.interpretation,/\?/);
     assert.equal((view.proactiveQuestion.match(/\?/g)||[]).length,1);
     assert.equal(view.world,null);
     assert.ok(packet.centralPhilosophicalRelation && packet.hiddenRelationship.warrant);

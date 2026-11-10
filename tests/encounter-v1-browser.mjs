@@ -29,7 +29,7 @@ try {
     await sliders.nth(2).press("ArrowRight");
     await sliders.nth(0).press("ArrowRight");
     await run.click();
-    assert.match(await page.locator(".result h3").innerText(),/What gave it that place/);
+    assert.match(await page.locator(".result h3").innerText(),/two different places/);
     assert.equal(await page.locator(".result .reflection").count(),1);
     async function verifyEnding(){
       const result=page.locator(".result");
