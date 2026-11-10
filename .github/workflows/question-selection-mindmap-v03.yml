@@ -53,7 +53,7 @@ jobs:
       - name: Verify public iPhone static preview (best effort)
         continue-on-error: true
         env:
-          PR_HEAD_SHA: \${{ github.event.pull_request.head.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: node tests/question-lab-v03-external-preview.mjs
       - name: Attach source-faithful standalone HTML for iPhone Files
         uses: actions/upload-artifact@v4
