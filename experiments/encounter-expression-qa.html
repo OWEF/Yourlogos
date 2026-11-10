@@ -1295,8 +1295,8 @@ const transferContexts={
   operation:"conversion",questions:{zero:"What does deciding against the purchase leave you free to do?"},distinction:"Price paid / time given",relation:"Thoreau considers shelter in terms of the life exchanged for it. An affordable purchase can still claim a portion of a working life.",
   limit:"No price establishes that a purchase is worthwhile or wasteful.",question:"Which purchase looks different when you read its price as part of a working day?",
   model:{resources:[{id:"money",label:"Available $20 tokens",min:4,max:12,type:"cap"}],
-   choices:[{id:"repair",label:"chair repairs",cost:[1],max:4},{id:"lamp",label:"reading lamps",cost:[2],max:3},{id:"shelf",label:"shelves",cost:[3],max:3}],
-   initial:{amounts:[1,1,0],budgets:[8]},metric:{op:"sum",weights:[1,2,3],unit:"extra working hours"}}
+   choices:[{id:"repair",label:"chair repairs",singular:"chair repair",cost:[1],max:4},{id:"lamp",label:"reading lamps",singular:"reading lamp",cost:[2],max:3},{id:"shelf",label:"shelves",singular:"shelf",cost:[3],max:3}],
+   initial:{amounts:[1,1,0],budgets:[8]},metric:{op:"sum",weights:[1,2,3],unit:"extra working hours",singular:"extra working hour"}}
  },
  smith:{
   id:"smith",author:"Adam Smith",quote:"Those ten persons, therefore, could make among them upwards of forty-eight thousand pins in a day.",
@@ -1306,15 +1306,15 @@ const transferContexts={
   operation:"complementarity",questions:{gain:"How could the same number of workers finish more when one changes tasks?"},distinction:"Hands assigned / work finished",relation:"Smith’s pin makers produce together what an isolated worker could scarcely make alone. Here a printed set still needs a binder: the arrangement of the hands matters as much as their number.",
   limit:"These rates cannot establish historical productivity, welfare, or a universally best division of labour.",question:"What does the last finished booklet owe to the way the work was divided?",
   model:{resources:[{id:"team",label:"Volunteers",min:4,max:4,type:"exact"}],
-   choices:[{id:"press",label:"press operators",cost:[1],max:4},{id:"bind",label:"binders",cost:[1],max:4}],
-   initial:{amounts:[3,1],budgets:[4]},metric:{op:"minimum",weights:[2,1],unit:"finished booklets"}}
+   choices:[{id:"press",label:"press operators",singular:"press operator",cost:[1],max:4},{id:"bind",label:"binders",singular:"binder",cost:[1],max:4}],
+   initial:{amounts:[3,1],budgets:[4]},metric:{op:"minimum",weights:[2,1],unit:"finished booklets",singular:"finished booklet"}}
  },
  epictetus:{
   id:"epictetus",author:"Epictetus",quote:"Some things are in our control and others not.",
   source:{work:"Enchiridion · §1, Elizabeth Carter translation",url:"https://barryfvaughan.org/text/philtext/epictetus/enchiridion.html"},
   scenario:"You have one place to apply for a workshop. You can send an application, revise it, or let the deadline pass. The organizer decides whom to admit.",
   mechanism:"decision_map",operations:["decision_map"],assumptions:["Submitting closes editing for this application."],
-  operation:"agency",distinction:"One’s own action / another person’s judgment",relation:"The distinction concerns what belongs to your agency. You can decide what to submit; even a careful revision cannot give you the organizer’s power of admission.",
+  operation:"agency",control:{action:"Sending the application",external:"admission"},distinction:"One’s own action / another person’s judgment",relation:"The distinction concerns what belongs to your agency. You can decide what to submit; even a careful revision cannot give you the organizer’s power of admission.",
   limit:"No path establishes admission, indifference, or a reader’s character.",question:"Where does your choice end and the organizer’s judgment begin along this route?",
   model:{start:"draft",initial:["Admission belongs to the organizer"],nodes:{
    draft:{prompt:"What do you do with the draft?",options:[
@@ -1456,32 +1456,43 @@ function evaluateKernel(context,input){
  let observed,discovery,condition,headline,question=context.question;
  if(allocation){
   const m=context.model,unit=m.metric?.unit;
-  observed=m.choices.map((c,i)=>input.amounts[i]+" "+c.label).join(" · ");
+  const named=(n,c)=>n+" "+(n===1&&c.singular?c.singular:c.label);
+  const measured=n=>n+" "+(n===1&&m.metric?.singular?m.metric.singular:unit);
+  const amounts=m.choices.map((c,i)=>named(input.amounts[i],c));
+  observed="You chose "+(amounts.length>1?amounts.slice(0,-1).join(", ")+" and "+amounts.at(-1):amounts[0])+".";
   const better=structure.alternatives.reduce((best,a)=>a.delta>0&&(!best||a.delta>best.delta)?a:best,null);
   const next=(m.metric?.op==="minimum"&&better)||structure.alternatives.find(a=>a.remove===-1)||structure.alternatives[0];
-  condition=next?"If you added one unit to "+m.choices[next.add].label+
-   (next.remove<0?" using spare capacity":" and released one from "+m.choices[next.remove].label)+
-   (unit?", the result would be "+next.measure+" "+unit: ", the revised plan would still fit")+".":null;
-  discovery=structure.measure===null?"Remaining capacity: "+structure.slack.join(", ")+".":"This arrangement represents "+structure.measure+" "+unit+".";
-  if(m.metric?.op==="minimum")headline=better?
-    "A different division of the same resources could produce more.":
+  if(next){
+   const gain=m.choices[next.add],released=m.choices[next.remove];
+   const exchange=released?"exchanged one "+(released.singular||"unit of "+released.label)+" for one "+(gain.singular||"unit of "+gain.label):
+    "added one "+(gain.singular||"unit of "+gain.label)+" from the unused budget";
+   condition="If you "+exchange+", "+(unit?"the total would be "+measured(next.measure):"the arrangement would still fit")+".";
+  }
+  discovery=structure.measure===null?"The unused capacity is "+structure.slack.join(", ")+".":"That works out to "+measured(structure.measure)+" under the scenario’s assumptions.";
+  if(m.metric?.op==="minimum")headline=better&&better.remove>=0?"One more "+(m.choices[better.add].singular||"unit here")+" could change what the whole group finishes.":
     "What can be finished depends on the least supplied step.";
-  else if(m.metric?.op==="sum")headline=structure.measure?"Your choices also add up to "+structure.measure+" "+unit+".":"This arrangement claims none of the measured "+unit+".";
+  else if(m.metric?.op==="sum")headline=structure.measure?"What you chose would cost "+measured(structure.measure)+".":"An unused budget leaves its underlying cost unclaimed.";
   else headline=structure.slack.every(n=>n===0)?"Another claim would need room from somewhere.":"There is still room before another choice has to give way.";
   if(m.metric?.op==="minimum" && better)question=context.questions?.gain||question;
   if(m.metric?.op==="sum" && structure.measure===0)question=context.questions?.zero||question;
  }else{
-  observed=structure.steps.map(s=>s.label).join(" → ");
+  const lowerFirst=t=>t[0].toLowerCase()+t.slice(1);
+  const actions=structure.steps.map(s=>lowerFirst(s.label));
+  observed="You chose to "+actions.join(", then ")+".";
+
   const last=structure.steps.at(-1);
-  const alternatives=last.alternatives.join(" or ");
-  condition=alternatives?"At that point you could also choose: "+alternatives+".":null;
-  discovery=(last.before.length?"When you chose, you knew: "+last.before.join(" · ")+". ":"")+last.label+".";
-  if(last.revealed.length)discovery+=" Only afterward: "+last.revealed.join(" · ")+".";
-  headline=last.before.length> (context.model.initial||[]).length?"You made the later choice with evidence the earlier one lacked.":
-    last.revealed.length?"The consequence became visible after the choice.":"You could decide how to act with the outcome still open.";
+
+  condition=last.alternatives.length?"Another option still open then was to "+lowerFirst(last.alternatives[0])+".":null;
+  const evidence=last.before.at(-1);
+  discovery=evidence?"At that moment, "+lowerFirst(evidence)+".":"No further evidence had arrived.";
+  if(last.revealed.length)discovery+=" Only afterward did you learn the result: "+lowerFirst(last.revealed.at(-1))+".";
+  headline=structure.revisions.length?"You revised a commitment while it was still yours to change.":
+    context.operation==="agency"&&context.control?context.control.action+" was your decision. The verdict belonged elsewhere.":
+    last.before.length>(context.model.initial||[]).length?"You made the later choice with evidence the earlier one lacked.":
+    last.revealed.length?"The consequence became visible after the choice.":"You could decide what to do while the claim itself stayed unsettled.";
   if(structure.revisions.length)question=context.questions?.revision||question;
-  if(structure.revisions.length)discovery+=" You revised an earlier commitment while revision was still possible.";
-  if(structure.locked.length)discovery+=" A previous commitment closed an option on this route.";
+
+
  }
  const claims=[{classification:"necessary",text:observed,basis:"validated selections"},
    {classification:fit.assumptions.length?"conditional":"necessary",text:discovery,basis:"scenario model",assumptions:fit.assumptions},

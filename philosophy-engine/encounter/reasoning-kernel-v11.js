@@ -98,32 +98,43 @@ export function evaluateKernel(context,input){
  let observed,discovery,condition,headline,question=context.question;
  if(allocation){
   const m=context.model,unit=m.metric?.unit;
-  observed=m.choices.map((c,i)=>input.amounts[i]+" "+c.label).join(" · ");
+  const named=(n,c)=>n+" "+(n===1&&c.singular?c.singular:c.label);
+  const measured=n=>n+" "+(n===1&&m.metric?.singular?m.metric.singular:unit);
+  const amounts=m.choices.map((c,i)=>named(input.amounts[i],c));
+  observed="You chose "+(amounts.length>1?amounts.slice(0,-1).join(", ")+" and "+amounts.at(-1):amounts[0])+".";
   const better=structure.alternatives.reduce((best,a)=>a.delta>0&&(!best||a.delta>best.delta)?a:best,null);
   const next=(m.metric?.op==="minimum"&&better)||structure.alternatives.find(a=>a.remove===-1)||structure.alternatives[0];
-  condition=next?"If you added one unit to "+m.choices[next.add].label+
-   (next.remove<0?" using spare capacity":" and released one from "+m.choices[next.remove].label)+
-   (unit?", the result would be "+next.measure+" "+unit: ", the revised plan would still fit")+".":null;
-  discovery=structure.measure===null?"Remaining capacity: "+structure.slack.join(", ")+".":"This arrangement represents "+structure.measure+" "+unit+".";
-  if(m.metric?.op==="minimum")headline=better?
-    "A different division of the same resources could produce more.":
+  if(next){
+   const gain=m.choices[next.add],released=m.choices[next.remove];
+   const exchange=released?"exchanged one "+(released.singular||"unit of "+released.label)+" for one "+(gain.singular||"unit of "+gain.label):
+    "added one "+(gain.singular||"unit of "+gain.label)+" from the unused budget";
+   condition="If you "+exchange+", "+(unit?"the total would be "+measured(next.measure):"the arrangement would still fit")+".";
+  }
+  discovery=structure.measure===null?"The unused capacity is "+structure.slack.join(", ")+".":"That works out to "+measured(structure.measure)+" under the scenario’s assumptions.";
+  if(m.metric?.op==="minimum")headline=better&&better.remove>=0?"One more "+(m.choices[better.add].singular||"unit here")+" could change what the whole group finishes.":
     "What can be finished depends on the least supplied step.";
-  else if(m.metric?.op==="sum")headline=structure.measure?"Your choices also add up to "+structure.measure+" "+unit+".":"This arrangement claims none of the measured "+unit+".";
+  else if(m.metric?.op==="sum")headline=structure.measure?"What you chose would cost "+measured(structure.measure)+".":"An unused budget leaves its underlying cost unclaimed.";
   else headline=structure.slack.every(n=>n===0)?"Another claim would need room from somewhere.":"There is still room before another choice has to give way.";
   if(m.metric?.op==="minimum" && better)question=context.questions?.gain||question;
   if(m.metric?.op==="sum" && structure.measure===0)question=context.questions?.zero||question;
  }else{
-  observed=structure.steps.map(s=>s.label).join(" → ");
+  const lowerFirst=t=>t[0].toLowerCase()+t.slice(1);
+  const actions=structure.steps.map(s=>lowerFirst(s.label));
+  observed="You chose to "+actions.join(", then ")+".";
+
   const last=structure.steps.at(-1);
-  const alternatives=last.alternatives.join(" or ");
-  condition=alternatives?"At that point you could also choose: "+alternatives+".":null;
-  discovery=(last.before.length?"When you chose, you knew: "+last.before.join(" · ")+". ":"")+last.label+".";
-  if(last.revealed.length)discovery+=" Only afterward: "+last.revealed.join(" · ")+".";
-  headline=last.before.length> (context.model.initial||[]).length?"You made the later choice with evidence the earlier one lacked.":
-    last.revealed.length?"The consequence became visible after the choice.":"You could decide how to act with the outcome still open.";
+
+  condition=last.alternatives.length?"Another option still open then was to "+lowerFirst(last.alternatives[0])+".":null;
+  const evidence=last.before.at(-1);
+  discovery=evidence?"At that moment, "+lowerFirst(evidence)+".":"No further evidence had arrived.";
+  if(last.revealed.length)discovery+=" Only afterward did you learn the result: "+lowerFirst(last.revealed.at(-1))+".";
+  headline=structure.revisions.length?"You revised a commitment while it was still yours to change.":
+    context.operation==="agency"&&context.control?context.control.action+" was your decision. The verdict belonged elsewhere.":
+    last.before.length>(context.model.initial||[]).length?"You made the later choice with evidence the earlier one lacked.":
+    last.revealed.length?"The consequence became visible after the choice.":"You could decide what to do while the claim itself stayed unsettled.";
   if(structure.revisions.length)question=context.questions?.revision||question;
-  if(structure.revisions.length)discovery+=" You revised an earlier commitment while revision was still possible.";
-  if(structure.locked.length)discovery+=" A previous commitment closed an option on this route.";
+
+
  }
  const claims=[{classification:"necessary",text:observed,basis:"validated selections"},
    {classification:fit.assumptions.length?"conditional":"necessary",text:discovery,basis:"scenario model",assumptions:fit.assumptions},

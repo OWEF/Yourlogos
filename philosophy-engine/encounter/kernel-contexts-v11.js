@@ -9,8 +9,8 @@ export const transferContexts={
   operation:"conversion",questions:{zero:"What does deciding against the purchase leave you free to do?"},distinction:"Price paid / time given",relation:"Thoreau considers shelter in terms of the life exchanged for it. An affordable purchase can still claim a portion of a working life.",
   limit:"No price establishes that a purchase is worthwhile or wasteful.",question:"Which purchase looks different when you read its price as part of a working day?",
   model:{resources:[{id:"money",label:"Available $20 tokens",min:4,max:12,type:"cap"}],
-   choices:[{id:"repair",label:"chair repairs",cost:[1],max:4},{id:"lamp",label:"reading lamps",cost:[2],max:3},{id:"shelf",label:"shelves",cost:[3],max:3}],
-   initial:{amounts:[1,1,0],budgets:[8]},metric:{op:"sum",weights:[1,2,3],unit:"extra working hours"}}
+   choices:[{id:"repair",label:"chair repairs",singular:"chair repair",cost:[1],max:4},{id:"lamp",label:"reading lamps",singular:"reading lamp",cost:[2],max:3},{id:"shelf",label:"shelves",singular:"shelf",cost:[3],max:3}],
+   initial:{amounts:[1,1,0],budgets:[8]},metric:{op:"sum",weights:[1,2,3],unit:"extra working hours",singular:"extra working hour"}}
  },
  smith:{
   id:"smith",author:"Adam Smith",quote:"Those ten persons, therefore, could make among them upwards of forty-eight thousand pins in a day.",
@@ -20,15 +20,15 @@ export const transferContexts={
   operation:"complementarity",questions:{gain:"How could the same number of workers finish more when one changes tasks?"},distinction:"Hands assigned / work finished",relation:"Smith’s pin makers produce together what an isolated worker could scarcely make alone. Here a printed set still needs a binder: the arrangement of the hands matters as much as their number.",
   limit:"These rates cannot establish historical productivity, welfare, or a universally best division of labour.",question:"What does the last finished booklet owe to the way the work was divided?",
   model:{resources:[{id:"team",label:"Volunteers",min:4,max:4,type:"exact"}],
-   choices:[{id:"press",label:"press operators",cost:[1],max:4},{id:"bind",label:"binders",cost:[1],max:4}],
-   initial:{amounts:[3,1],budgets:[4]},metric:{op:"minimum",weights:[2,1],unit:"finished booklets"}}
+   choices:[{id:"press",label:"press operators",singular:"press operator",cost:[1],max:4},{id:"bind",label:"binders",singular:"binder",cost:[1],max:4}],
+   initial:{amounts:[3,1],budgets:[4]},metric:{op:"minimum",weights:[2,1],unit:"finished booklets",singular:"finished booklet"}}
  },
  epictetus:{
   id:"epictetus",author:"Epictetus",quote:"Some things are in our control and others not.",
   source:{work:"Enchiridion · §1, Elizabeth Carter translation",url:"https://barryfvaughan.org/text/philtext/epictetus/enchiridion.html"},
   scenario:"You have one place to apply for a workshop. You can send an application, revise it, or let the deadline pass. The organizer decides whom to admit.",
   mechanism:"decision_map",operations:["decision_map"],assumptions:["Submitting closes editing for this application."],
-  operation:"agency",distinction:"One’s own action / another person’s judgment",relation:"The distinction concerns what belongs to your agency. You can decide what to submit; even a careful revision cannot give you the organizer’s power of admission.",
+  operation:"agency",control:{action:"Sending the application",external:"admission"},distinction:"One’s own action / another person’s judgment",relation:"The distinction concerns what belongs to your agency. You can decide what to submit; even a careful revision cannot give you the organizer’s power of admission.",
   limit:"No path establishes admission, indifference, or a reader’s character.",question:"Where does your choice end and the organizer’s judgment begin along this route?",
   model:{start:"draft",initial:["Admission belongs to the organizer"],nodes:{
    draft:{prompt:"What do you do with the draft?",options:[
