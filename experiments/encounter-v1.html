@@ -95,7 +95,47 @@ main{max-width:660px}.result{scroll-margin:1rem}.result h3{font-size:clamp(23px,
 .result .section-label{display:block;color:var(--sage);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:14px 0 4px}.result .section-label:first-child{margin-top:0}.result blockquote{font:italic 19px/1.28 Georgia,serif;color:var(--ink);margin:5px 0 8px;padding-left:10px;border-left:2px solid var(--gold)}.result p{margin:6px 0 10px;line-height:1.45}.result h3{font-size:24px;margin:4px 0 8px}.result .memory-reference{font-size:13px;color:var(--muted);border-left:2px solid var(--sage);padding-left:10px}.encounter-actions{display:flex;gap:10px;padding:15px 16px}.encounter-actions button{flex:1;border:1px solid var(--line);background:var(--card2);color:var(--ink);padding:12px 10px;border-radius:11px;font-size:14px}.encounter-actions [data-discover]{background:var(--gold);color:#28271f;font-weight:700}.encounter-actions [data-like][aria-pressed=true]{color:var(--rose);border-color:var(--rose)}
 .distinction{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-block:1px solid var(--line);padding:9px 0;margin:8px 0}.distinction>div+div{padding-left:10px;border-left:1px solid var(--line)}.distinction dt{color:var(--sage);font-weight:650;font-size:12px}.distinction dd{margin:3px 0 0;font-size:14px;line-height:1.32}.distinction.sequence{border-top-color:var(--sage)}.result .world-note{line-height:1.35}
 @media(max-width:360px){main{padding-inline:8px}.result{padding:12px}.result .section-label{margin-top:8px}.result p{margin:4px 0 6px}.result details{margin-top:6px}.distinction{margin:5px 0;padding:6px 0}.result h3{margin-bottom:4px}}
-</style></head><body><main><header><div class="brand">YourLogos.</div></header><h1>Encounter</h1>
+
+/* Discover: one immersive idea, one focused exercise, one composed reading. */
+.lab-title{font:normal 17px Georgia,serif;margin:15px 0 5px;color:var(--muted)}
+main[data-screen="intro"] .lab-title,main[data-screen="exercise"] .lab-title,main[data-screen="result"] .lab-title{display:none}
+main[data-screen="intro"]{max-width:780px;min-height:100vh}
+main[data-screen="intro"] .tabs{opacity:.75;max-width:400px;margin:16px auto 0}
+main[data-screen="intro"] .tab{padding:7px 10px;min-width:130px}
+main[data-screen="intro"] .tab span{display:none}
+.flow-case{background:transparent;border:0;overflow:visible}
+.entry-view{min-height:55vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:34px 12px;text-align:center}
+.micro-label{color:var(--sage);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.entry-quote,.intro-quote{font:normal clamp(24px,5vw,31px)/1.38 Georgia,serif;color:var(--ink);max-width:640px;margin:0}
+.entry-view .encounter-actions{width:min(340px,100%);padding:8px 0}
+.flow-head{display:flex;align-items:center;justify-content:space-between;padding:7px 4px 12px;gap:12px}
+.flow-back{border:0;background:transparent;color:var(--muted);padding:12px;min-height:44px;text-align:left;font-size:13px}
+.flow-stage{font-size:10px;letter-spacing:.12em;font-weight:700;color:var(--sage)}
+.intro-view{min-height:min(72vh,650px);display:flex;align-items:center;justify-content:center;text-align:center}
+.intro-content{display:flex;flex-direction:column;align-items:center;gap:28px;width:100%;max-width:620px;padding:40px 16px 56px}
+.intro-quote{font-size:clamp(23px,4.8vw,29px)}
+.intro-scenario{font:normal clamp(21px,4.5vw,27px)/1.52 Georgia,serif;color:var(--ink);margin:0;max-width:580px;animation:discover-reveal .65s ease-out .16s both}
+.intro-cta{max-width:340px;margin:18px auto 0;animation:discover-reveal .6s ease-out .32s both}
+@keyframes discover-reveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.exercise-context{background:#202820;border:1px solid var(--line);border-radius:14px;padding:13px 16px;margin:4px 0 10px}
+.exercise-context p{font-size:14px;line-height:1.45;color:var(--muted);margin:6px 0 0}
+.flow-exercise .case-body{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:18px}
+.flow-exercise .case-body>.story,.flow-exercise .case-body>.eyebrow{display:none}
+.flow-exercise .case-body>.lab-intro{margin:0 0 12px}
+.flow-result .result{background:transparent;border:0;padding:0;margin:0;display:grid;gap:12px}
+.reading-panel{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--card)}
+.reading-panel .section-label{margin:0 0 8px!important;font-size:10px;letter-spacing:.11em}
+.reading-panel p{font-size:14px;color:var(--muted);line-height:1.58;margin:12px 0 0}
+.reading-self{border-color:#63755e;background:linear-gradient(140deg,#263025,#1a211b 70%)}
+.reading-self h2{font:normal clamp(23px,4vw,29px)/1.25 Georgia,serif;margin:5px 0 10px}
+.reading-self .distinction{margin:16px 0 0}
+.reading-source blockquote{font:italic clamp(20px,4vw,25px)/1.35 Georgia,serif;border-left:2px solid var(--gold);padding:0 0 0 13px;margin:12px 0 16px}
+.reading-question{border-color:#877b5a;background:linear-gradient(115deg,#302c22,#25271f)}
+.reading-question .reflection{font:normal clamp(21px,4.5vw,26px)/1.4 Georgia,serif;color:var(--ink);margin:14px 0 8px}
+.result .founder-qa{margin:10px 0 0}
+@media(max-width:440px){.intro-content{padding:28px 12px 44px;gap:22px}.intro-view{min-height:65vh}.reading-panel{padding:18px}.tabs{margin-bottom:8px}.flow-exercise .case-body{padding:14px}}
+@media(prefers-reduced-motion:reduce){.intro-scenario,.intro-cta{animation:none!important}}
+</style></head><body><main><header><div class="brand">YourLogos.</div></header><h1 class="lab-title">Encounter</h1>
 <nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button></nav>
 <section id="cases" aria-label="Current Encounter"></section></main>
 <script type="module">
@@ -107,7 +147,7 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const slug=id=>getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
-const active={mode:"dillard", likes:{dillard:false,kierkegaard:false}, revealed:{dillard:false,kierkegaard:false}, cases:{
+const active={mode:"dillard", likes:{dillard:false,kierkegaard:false}, screen:{dillard:"entry",kierkegaard:"entry"}, cases:{
  dillard:{ticks:[2,2,2],motivation:null,result:null},
  kierkegaard:{stage:0,resource:null,barrier:null,action:null,result:null}
 }};
@@ -128,7 +168,7 @@ function tradeoffHtml(id){
  return '<div class="case-body"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+'</p>'+
   '<p class="question">How would you divide these three hours?</p>'+fields+bars+
   '<p class="question">What most influenced the choice?</p>'+opts+
-  '<button class="primary" type="button" data-run="'+id+'" '+(s.motivation?'':'disabled')+'>Reflect on this evening</button></div>';
+  '<button class="primary" type="button" data-run="'+id+'" '+(s.motivation?'':'disabled')+'>Reveal the meaning</button></div>';
 }
 function forkHtml(id,key,options,source){
  const input=active.cases[id],picked=input[key];
@@ -163,7 +203,7 @@ function decisionHtml(id){
  if(s.stage===4)h+='<div class="path-ready">Your route is complete. See what changed along the way.</div>';
  h+='</div>';
  if(s.stage>0)h+='<button type="button" class="reset" data-reset="'+id+'">Restart this journey</button>';
- if(s.stage===4)h+='<button type="button" class="primary" data-run="'+id+'">Look back on this choice</button>';
+ if(s.stage===4)h+='<button type="button" class="primary" data-run="'+id+'">Reveal the meaning</button>';
  return h+'</div>';
 }
 
@@ -173,17 +213,42 @@ function contrastHtml(visual){
    '<div><dt>'+esc(item.label)+'</dt><dd>'+esc(item.text)+'</dd></div>').join("")+'</dl>';
 }
 function render(){
- const id=active.mode, spec=slug(id), s=active.cases[id];
- const title=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
- const view=active.revealed[id]?expressConsequence(s.result):null;
- const end=view?`<section class="result" tabindex="-1" aria-label="Encounter reflection">
- <span class="section-label">Your Encounter with ${esc(spec.author)}</span><h3>${esc(view.headline)}</h3>
- <p>${esc(view.experience)}</p>${view.world?`<p class="memory-reference">${esc(view.world.text)}</p>`:""}${contrastHtml(view.visual)}<span class="section-label">Return to the quotation</span>
- <blockquote>${esc(view.quote)}</blockquote><p class="interpretation">${esc(view.interpretation)}</p>
- <span class="section-label">A question to carry forward</span><p class="reflection">${esc(view.proactiveQuestion)}</p>
- ${location.hash.startsWith("#qa")?`<details><summary>Founder QA · evidence and limits</summary><pre>${esc(JSON.stringify(s.result,null,2))}</pre></details>`:""}</section>`:"";
- $("cases").innerHTML=`<article class="case" data-id="${id}"><header class="case-top" style="display:block"><h2>${esc(spec.author)}</h2><p class="quote">“${esc(title)}”</p><p class="work">${esc(spec.citationSource)}</p></header><div class="encounter-actions" role="group" aria-label="Choose what to do with this quotation"><button type="button" data-like="${id}" aria-pressed="${active.likes[id]}">${active.likes[id]?"♥ Liked":"♡ Like"}</button><button type="button" data-discover="${id}" aria-expanded="${active.revealed[id]}">${active.revealed[id]?"Discovering":"Discover"}</button></div>${active.revealed[id]?(id==="dillard"?tradeoffHtml(id):decisionHtml(id)):""}${end}</article>`;
+ const id=active.mode, spec=slug(id), state=active.cases[id], screen=active.screen[id];
+ const quote=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
+ const view=screen==="result"?expressConsequence(state.result):null;
+ const source='<span class="micro-label">'+esc(spec.author)+'</span>';
+ const entry='<section class="entry-view" aria-label="Quotation">'+source+
+   '<blockquote class="entry-quote">'+esc(quote)+'</blockquote>'+
+   '<div class="encounter-actions" role="group" aria-label="Choose what to do with this quotation">'+
+   '<button type="button" data-like="'+id+'" aria-pressed="'+active.likes[id]+'">'+(active.likes[id]?"♥ Liked":"♡ Like")+'</button>'+
+   '<button type="button" data-discover="'+id+'">Discover</button></div></section>';
+ const intro='<div class="flow-head"><button type="button" data-back="entry" class="flow-back" aria-label="Back to quotation">← Back</button></div>'+
+   '<section class="intro-view" aria-label="Introducing the quotation and scenario">'+
+   '<div class="intro-content">'+source+
+   '<blockquote class="intro-quote">'+esc(quote)+'</blockquote>'+
+   '<p class="intro-scenario">'+esc(spec.scenario)+'</p>'+
+   '<button type="button" data-enter="'+id+'" class="primary intro-cta">'+
+    (id==="dillard"?"Shape this evening":"Explore this decision")+'</button></div></section>';
+ const exercise='<div class="flow-head"><button type="button" data-back="intro" class="flow-back" aria-label="Back to introduction">← Back</button>'+
+   '<span class="flow-stage">YOUR CHOICES</span></div>'+
+   '<div class="exercise-context"><span class="micro-label">'+esc(spec.author)+'</span><p>'+esc(spec.scenario)+'</p></div>'+
+   (id==="dillard"?tradeoffHtml(id):decisionHtml(id));
+ const result=view?'<div class="flow-head"><button type="button" data-back="exercise" class="flow-back" aria-label="Back to your choices">← Back to choices</button></div>'+
+   '<section class="result journey-finale" tabindex="-1" aria-label="Your Encounter result">'+
+   '<section class="reading-panel reading-self"><span class="section-label">Your Encounter with '+esc(spec.author)+'</span>'+
+   '<h2>'+esc(view.headline)+'</h2><p>'+esc(view.experience)+'</p>'+
+   (view.world?'<p class="memory-reference">'+esc(view.world.text)+'</p>':"")+
+   contrastHtml(view.visual)+'</section>'+
+   '<section class="reading-panel reading-source"><span class="section-label">Return to the philosopher</span>'+
+   '<blockquote>'+esc(view.quote)+'</blockquote><p>'+esc(view.interpretation)+'</p></section>'+
+   '<section class="reading-panel reading-question"><span class="section-label">A question to carry forward</span>'+
+   '<p class="reflection">'+esc(view.proactiveQuestion)+'</p></section>'+
+   (location.hash.startsWith("#qa")?'<details class="founder-qa"><summary>Founder QA · evidence and limits</summary><pre>'+esc(JSON.stringify(state.result,null,2))+'</pre></details>':"")+
+   '</section>':"";
+ const current=screen==="entry"?entry:screen==="intro"?intro:screen==="exercise"?exercise:result;
+ $("cases").innerHTML='<article class="case flow-case flow-'+screen+'" data-id="'+id+'">'+current+'</article>';
  document.querySelectorAll("[data-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.mode===id)));
+ document.querySelector("main")?.setAttribute("data-screen",screen);
 }
 function refreshCard(){render();}
 document.addEventListener("click",ev=>{
@@ -192,7 +257,11 @@ document.addEventListener("click",ev=>{
  const like=ev.target.closest("[data-like]");
  if(like){const id=like.dataset.like;active.likes[id]=!active.likes[id];render();document.querySelector("[data-like]")?.focus({preventScroll:true});return;}
  const discover=ev.target.closest("[data-discover]");
- if(discover){const id=discover.dataset.discover;active.revealed[id]=true;render();document.querySelector("[data-id='"+id+"'] .case-body")?.scrollIntoView({block:"nearest"});return;}
+ if(discover){const id=discover.dataset.discover;active.screen[id]="intro";render();document.querySelector(".intro-view")?.focus({preventScroll:true});return;}
+ const enter=ev.target.closest("[data-enter]");
+ if(enter){active.screen[enter.dataset.enter]="exercise";render();document.querySelector(".case-body")?.focus({preventScroll:true});return;}
+ const back=ev.target.closest("[data-back]");
+ if(back){active.screen[active.mode]=back.dataset.back;render();document.querySelector("[data-back], [data-discover]")?.focus({preventScroll:true});return;}
  const motive=ev.target.closest("[data-motive]");
  if(motive){
   const s=active.cases[motive.dataset.motive];
@@ -236,7 +305,7 @@ document.addEventListener("click",ev=>{
    s.result=encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
     {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 
-  refreshCard(id);const end=document.querySelector(".result");
+  active.screen[id]="result";refreshCard(id);const end=document.querySelector(".result");
   end?.focus({preventScroll:true});end?.scrollIntoView({block:"start",behavior:"instant"});return;
  }
 });
