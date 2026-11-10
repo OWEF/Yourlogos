@@ -167,7 +167,15 @@ export function sourceTrace(id){
   {url:spec.sourceUrl,supports:"Secondary excerpt and discussion of schedules in The Writing Life"}
  ];
  const {record}=atlasFor(spec.quoteId);
- return record.sourcePassage.references.map(ref=>({url:ref.url,supports:ref.supports}));
+ const curated=record.sourcePassage.references.map(ref=>({url:ref.url,supports:ref.supports}));
+ // A newly located source is a *parallel-study lead*, not a silent editorial
+ // promotion of the untouched Atlas record. Kierkegaard's Atlas entry currently
+ // contains only the bundled catalogue reference.
+ if(spec.sourceUrl&&!curated.some(ref=>ref.url===spec.sourceUrl)){
+   curated.push({url:spec.sourceUrl,
+     supports:"Additional external passage lead from parallel research; not yet incorporated into the Context Atlas or editorially approved"});
+ }
+ return curated;
 }
 export function candidateFitAudit(){
  return Object.values(MECHANISM_TRANSFER_CASES).map(spec=>{
