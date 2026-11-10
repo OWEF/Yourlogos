@@ -1,0 +1,68 @@
+name: CZ-115 Philosophical Discovery + Expression v0.5
+on:
+  pull_request:
+    paths:
+      - "philosophy-engine/encounter/discovery-synthesis-v01.js"
+      - "philosophy-engine/encounter/fingerprint-evidence-bridge-v01.js"
+      - "philosophy-engine/encounter/expression-engine-v03.js"
+      - "experiments/two-encounter-discovery-expression-lab-v05*"
+      - "scripts/build-discovery-expression-lab-v05.mjs"
+      - "tests/discovery-expression-v05.test.mjs"
+      - "tests/discovery-expression-mobile-v05.mjs"
+      - "tests/discovery-expression-external-preview-v05.mjs"
+      - ".github/workflows/discovery-expression-v05.yml"
+  workflow_dispatch:
+jobs:
+  source-and-reasoning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify source and phone bundle
+        run: |
+          node --check philosophy-engine/encounter/discovery-synthesis-v01.js
+          node --check philosophy-engine/encounter/fingerprint-evidence-bridge-v01.js
+          node --check philosophy-engine/encounter/expression-engine-v03.js
+          node --check scripts/build-discovery-expression-lab-v05.mjs
+          node --check tests/discovery-expression-v05.test.mjs
+          node --check tests/discovery-expression-mobile-v05.mjs
+          node scripts/build-discovery-expression-lab-v05.mjs --check
+      - name: Existing and new philosophical reasoning QA
+        run: |
+          node --test tests/insight-expression-v01.test.mjs
+          node --test tests/personal-discovery-v03.test.mjs
+          node --test tests/discovery-expression-v05.test.mjs
+  phone-browser:
+    needs: source-and-reasoning
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Install browser controls
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: Validate real offline preview and branch-specific discoveries
+        run: node tests/discovery-expression-mobile-v05.mjs
+      - name: Verify external iPhone link
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node tests/discovery-expression-external-preview-v05.mjs
+      - name: Attach self-contained HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz115-iphone-discovery-v05-html
+          path: experiments/two-encounter-discovery-expression-lab-v05-standalone.html
+          retention-days: 7
+      - name: Attach mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz115-expression-mobile-screenshots
+          path: test-results/cz115-expression/*.png
+          if-no-files-found: ignore
+          retention-days: 5
