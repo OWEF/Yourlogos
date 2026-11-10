@@ -203,7 +203,7 @@ test("match archived volunteered words through the real World adapter, never sys
   assert.equal(connection.recordId,record.id);
   assert.equal(connection.date,record.date);
   assert.equal(connection.fixture,false);
-  assert.match(connection.text,/previously wondered/);
+  assert.match(connection.text,/previously wrote/);
   assert.match(read({...memory,fixture:true}).text,/sample reflection/);
   for(const note of ["Uncertainty about my holiday budget.","I do not wonder whether careful reasoning can eliminate uncertainty.","My friend asked: "+words,""]){
     assert.equal(read(buildWorldMemory({livingThreads:{history:[{...record,question:words,note}]}},catalogue)),null);
