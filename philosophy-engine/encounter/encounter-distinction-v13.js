@@ -1,6 +1,11 @@
 // Each pair belongs to one validated distinction. The time line uses the
 // actual allocation; the temporal pairs distinguish when evidence arrived.
 const eveningPairs = {
+  "planned-replies-majority":["Intended","Protect time for what matters.","Allocated","Replies receive most of the evening."],
+  "obligations-visible-replies":["Reason given","Other things needed doing.","In this evening","Replies receive more time than writing."],
+  "obligations-visible-rest":["Reason given","Other obligations still mattered.","In this evening","Rest receives the largest share."],
+  "obligations-visible-writing":["Reason given","Other things needed doing.","In this evening","Writing receives one of the largest shares."],
+  "interrupted-without-replies":["Demand","The phone still interrupts.","Allocation","No time is assigned to replying."],
   "chosen-rest":["Tonight","Rest gets the largest share.","If repeated","Rest would have a regular place."],
   "deliberate-pause":["Tonight","The story can wait.","If repeated","The promised writing session never arrives."],
   "requests-without-writing":["One reply","A request gets an answer.","Repeated evenings","Writing could keep losing its turn."],
