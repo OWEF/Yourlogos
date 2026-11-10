@@ -8,6 +8,7 @@ on:
       - "scripts/build-two-encounter-lab.mjs"
       - "tests/insight-expression-v01.test.mjs"
       - "tests/two-encounter-expression-browser.mjs"
+      - "tests/insight-expression-external-preview.mjs"
       - ".github/workflows/insight-expression-pilot.yml"
   workflow_dispatch:
 jobs:
@@ -56,6 +57,17 @@ jobs:
           PR_HEAD_SHA: \${{ github.event.pull_request.head.sha }}
         run: |
           curl -fsSL --max-time 25 "https://raw.githack.com/OWEF/Yourlogos/\${PR_HEAD_SHA}/experiments/two-encounter-insight-lab-v02-standalone.html" | grep -q "Two Encounters"
+      - name: Browser-validate alternate isolated HTML preview (best effort)
+        continue-on-error: true
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node tests/insight-expression-external-preview.mjs
+      - name: Attach downloadable standalone iPhone HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz111-standalone-iphone-html
+          path: experiments/two-encounter-insight-lab-v02-standalone.html
+          retention-days: 7
       - name: Attach mobile screenshots
         if: always()
         uses: actions/upload-artifact@v4
