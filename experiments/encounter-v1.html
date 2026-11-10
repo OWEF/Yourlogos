@@ -136,23 +136,58 @@ main[data-screen="intro"] .tab span{display:none}
 @media(max-width:440px){.intro-content{padding:28px 12px 44px;gap:22px}.intro-view{min-height:65vh}.reading-panel{padding:18px}.tabs{margin-bottom:8px}.flow-exercise .case-body{padding:14px}}
 @media(prefers-reduced-motion:reduce){.intro-scenario,.intro-cta{animation:none!important}}
 .expression-lab{padding:1rem;background:#181c18;color:var(--ink)}.voice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.voice-grid article{border-top:1px solid var(--line);padding:.6rem}.voice-grid small{text-transform:uppercase;color:var(--gold)}.expression-lab pre{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:620px){.voice-grid{grid-template-columns:1fr}}
+/* Three stages share the same measure and type, with different page rhythms. */
+:root{--paper:#eee9db;--muted:#bcbbae;--card:#171916;--ink:var(--paper);--line:#36382f;--serif:"Cormorant Garamond",Georgia,serif;--sans:"DM Sans",-apple-system,sans-serif}
+body{background:#10120f;font-family:var(--sans)}main{max-width:760px;padding-bottom:max(32px,env(safe-area-inset-bottom))}.brand{font-family:var(--serif);letter-spacing:-.05em}.tabs{align-items:center;gap:8px}.tab{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0}.tab[aria-pressed=true]{background:transparent;border-color:var(--gold)}.passage-picker{font-size:12px;color:var(--muted)}select{background:#171916;color:var(--paper);padding:8px;border:1px solid var(--line);border-radius:3px;min-height:44px}
+.flow-case{border:0;background:transparent;border-radius:0}.entry-view,.intro-view{background:#181b16;color:var(--paper);border-radius:2px;border:0;border-top:1px solid #756a50}.entry-quote,.intro-quote{font-family:var(--serif);max-width:23ch;letter-spacing:-.03em;text-wrap:balance}.intro-content{max-width:610px;margin:auto}.entry-view{padding:clamp(30px,7vw,76px) clamp(18px,5vw,50px)}.intro-scenario{color:#c1c4b4}.flow-exercise .exercise-context{border:0;border-left:2px solid var(--sage);border-radius:0;background:#1b201a}.flow-exercise .case-body{background:transparent;border:0}.flow-exercise .choice{border-radius:3px;background:transparent}.choice[aria-pressed=true]{outline:1px solid var(--gold)}.allocation-line{display:grid;grid-template-columns:1fr auto;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.allocation-line input{grid-column:1/-1;min-height:44px}.allocation-line output{color:var(--gold);font-variant-numeric:tabular-nums}.route-step{border:0;border-top:1px solid var(--line);margin:14px 0;padding:10px 0}.route-step legend{color:var(--sage);padding-right:10px}.route-step .choice{width:100%;margin:4px 0;min-height:44px}
+.flow-result .result{max-width:610px;margin:auto;gap:0}.reading-panel,.reading-self,.reading-question{border:0;border-radius:0;background:transparent;padding:22px 4px}.reading-panel+.reading-panel{border-top:1px solid var(--line)}.reading-self h2{font:normal clamp(28px,5vw,42px)/1.12 var(--serif);max-width:23ch;text-wrap:balance}.reading-source blockquote{color:var(--paper);font-family:var(--serif)}.reading-question .reflection{color:var(--gold)}.primary,.flow-back,.encounter-actions button{min-height:44px}.reading-panel p{max-width:60ch}.primary:active,.choice:active{transform:translateY(1px)}
+@media(max-width:620px){.passage-picker{display:flex;align-items:center;justify-content:space-between;flex-basis:100%}.passage-picker select{max-width:70%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.intro-logo{display:block;width:clamp(64px,12vw,100px);height:auto;object-fit:contain;mask-image:radial-gradient(ellipse at center,black 44%,transparent 72%);margin:0 auto 4px}.entry-view .intro-logo{width:90px}.entry-quote{font-size:clamp(30px,6vw,48px);line-height:1.18}.reading-panel .section-label{color:#c5b78e}
 </style></head><body><main><header><div class="brand">YourLogos.</div></header><h1 class="lab-title">Encounter</h1>
-<nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button></nav>
+<nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button><label class="passage-picker">More passages <select id="more-passages"><option value="">Choose a philosopher</option><option value="thoreau">Henry David Thoreau</option><option value="smith">Adam Smith</option><option value="epictetus">Epictetus</option><option value="descartes">René Descartes</option></select></label></nav>
 <section id="cases" aria-label="Current Encounter"></section></main>
 <script type="module">
+import {transferContexts} from "../philosophy-engine/encounter/kernel-contexts-v11.js";
+import {evaluateKernel,tradeoffStructure,decisionStructure} from "../philosophy-engine/encounter/reasoning-kernel-v11.js";
 import {getMechanismCase,optionsFor} from "../philosophy-engine/encounter/mechanism-transfer-cases-v02.js";
 import {reallocateVariableBudget} from "../philosophy-engine/encounter/mechanism-transfer-engine-v02.js";
 import {expressionModes,selectExpressionMeaning,selectExpressionStrategy,composeExpression} from "../philosophy-engine/encounter/expression-engine-v1.js";
 import {encounterConsequence,expressConsequence} from "../philosophy-engine/encounter/consequence-v1.js";
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const slug=id=>getMechanismCase(id);
+const slug=id=>transferContexts[id]||getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
 const active={mode:"dillard", likes:{dillard:false,kierkegaard:false}, screen:{dillard:"entry",kierkegaard:"entry"}, cases:{
  dillard:{ticks:[2,2,2],motivation:null,result:null},
  kierkegaard:{stage:0,resource:null,barrier:null,action:null,result:null}
 }};
+for(const [id,c] of Object.entries(transferContexts)){
+ active.screen[id]="entry";
+ active.cases[id]=c.mechanism==="tradeoff"?{amounts:[...c.model.initial.amounts],budgets:[...c.model.initial.budgets]}:{path:[]};
+}
+function kernelControls(spec,state){
+ const m=spec.model;
+ if(spec.mechanism==="tradeoff"){
+  const slider=(kind,index,label,max,min,value)=>`<label class="allocation-line"><span>${esc(label)}</span><output>${value}</output>
+  <input aria-label="${esc(label)}" data-k-slider="${kind}" data-i="${index}" type="range" min="${min}" max="${max}" value="${value}"></label>`;
+  const spent=m.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
+  const controls=m.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
+   m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
+  const status=m.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ");
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p><button class="primary" data-run="'+spec.id+'" '+(tradeoffStructure(m,state)?"":"disabled")+'>Reveal the meaning</button></div>';
+ }
+ let html='<div class="case-body" tabindex="-1">';
+ for(let i=0;i<=state.path.length;i++){
+  const stage=decisionStructure(m,state.path.slice(0,i));
+  if(!stage||stage.at===null)break;
+  html+='<fieldset class="route-step"><legend>'+esc(m.nodes[stage.at].prompt)+'</legend>'+stage.available.map(o=>
+   '<button class="choice" data-k-step="'+i+'" data-value="'+esc(o.id)+'" aria-pressed="'+(state.path[i]===o.id)+'">'+esc(o.label)+'</button>').join("")+'</fieldset>';
+ }
+ if(decisionStructure(m,state.path)?.at===null)html+='<button class="primary" data-run="'+spec.id+'">Reveal the meaning</button>';
+ return html+'</div>';
+}
 function tradeoffHtml(id){
  const spec=slug(id),s=active.cases[id];
  const fields=spec.categories.map((name,i)=>'<div class="slider-block">'+
@@ -167,7 +202,7 @@ function tradeoffHtml(id){
  const opts='<div class="choices">'+spec.influences.map(o=>
   '<button type="button" class="choice" data-motive="'+id+'" data-value="'+o.id+'" aria-pressed="'+(s.motivation===o.id)+'">'+
   '<span class="symbol">✦</span><span><strong>'+esc(o.label)+'</strong><small>'+esc(o.detail)+'</small></span></button>').join("")+'</div>';
- return '<div class="case-body"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+'</p>'+
+ return '<div class="case-body" tabindex="-1"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+'</p>'+
   '<p class="question">How would you divide these three hours?</p>'+fields+bars+
   '<p class="question">What most influenced the choice?</p>'+opts+
   '<button class="primary" type="button" data-run="'+id+'" '+(s.motivation?'':'disabled')+'>Reveal the meaning</button></div>';
@@ -188,7 +223,7 @@ function forkHtml(id,key,options,source){
 }
 function decisionHtml(id){
  const spec=slug(id),s=active.cases[id];
- let h='<div class="case-body"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+
+ let h='<div class="case-body" tabindex="-1"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+
   '</p><p class="lab-intro">Tap the starting point, then follow one choice at a time.</p>'+
   '<div class="journey" data-map="'+id+'"><button type="button" class="journey-root" data-start="'+id+'" aria-pressed="'+(s.stage>=1)+'">'+
   '<span>STARTING POINT</span><strong>'+esc(spec.startingPoint)+'</strong>'+
@@ -229,25 +264,26 @@ function expressionComparison(packet){
 }
 function render(){
  const id=active.mode, spec=slug(id), state=active.cases[id], screen=active.screen[id];
- const quote=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
+ const quote=spec.quote||"Life can only be understood backwards; but it must be lived forwards.";
+ document.querySelector("#more-passages").value=transferContexts[id]?id:"";
  const view=screen==="result"?expressConsequence(state.result):null;
  const source='<span class="micro-label">'+esc(spec.author)+'</span>';
- const entry='<section class="entry-view" aria-label="Quotation">'+source+
+ const entry='<section class="entry-view" aria-label="Quotation"><img class="intro-logo" src="../little-logo-hd-v2.jpg" alt="">'+source+
    '<blockquote class="entry-quote">'+esc(quote)+'</blockquote>'+
    '<div class="encounter-actions" role="group" aria-label="Choose what to do with this quotation">'+
    '<button type="button" data-like="'+id+'" aria-pressed="'+active.likes[id]+'">'+(active.likes[id]?"♥ Liked":"♡ Like")+'</button>'+
    '<button type="button" data-discover="'+id+'">Discover</button></div></section>';
  const intro='<div class="flow-head"><button type="button" data-back="entry" class="flow-back" aria-label="Back to quotation">← Back</button></div>'+
-   '<section class="intro-view" aria-label="Introducing the quotation and scenario">'+
-   '<div class="intro-content">'+source+
+   '<section class="intro-view" tabindex="-1" aria-label="Introducing the quotation and scenario">'+
+   '<div class="intro-content"><img class="intro-logo" src="../little-logo-hd-v2.jpg" alt="">'+source+
    '<blockquote class="intro-quote">'+esc(quote)+'</blockquote>'+
    '<p class="intro-scenario">'+esc(spec.scenario)+'</p>'+
    '<button type="button" data-enter="'+id+'" class="primary intro-cta">'+
-    (id==="dillard"?"Shape this evening":"Explore this decision")+'</button></div></section>';
+    (id==="dillard"?"Shape this evening":spec.mechanism==="tradeoff"?"Try the allocation":"Explore this decision")+'</button></div></section>';
  const exercise='<div class="flow-head"><button type="button" data-back="intro" class="flow-back" aria-label="Back to introduction">← Back</button>'+
    '<span class="flow-stage">YOUR CHOICES</span></div>'+
    '<div class="exercise-context"><span class="micro-label">'+esc(spec.author)+'</span><p>'+esc(spec.scenario)+'</p></div>'+
-   (id==="dillard"?tradeoffHtml(id):decisionHtml(id));
+   (transferContexts[id]?kernelControls(spec,state):id==="dillard"?tradeoffHtml(id):decisionHtml(id));
  const result=view?'<div class="flow-head"><button type="button" data-back="exercise" class="flow-back" aria-label="Back to your choices">← Back to choices</button></div>'+
    '<section class="result journey-finale" tabindex="-1" aria-label="Your Encounter result">'+
    '<section class="reading-panel reading-self"><span class="section-label">Your Encounter with '+esc(spec.author)+'</span>'+
@@ -266,7 +302,16 @@ function render(){
  document.querySelector("main")?.setAttribute("data-screen",screen);
 }
 function refreshCard(){render();}
+document.querySelector("#more-passages").addEventListener("change",ev=>{
+ if(ev.target.value){active.mode=ev.target.value;render();}
+});
 document.addEventListener("click",ev=>{
+ const step=ev.target.closest("[data-k-step]");
+ if(step){
+  const state=active.cases[active.mode],i=Number(step.dataset.kStep);
+  state.path=[...state.path.slice(0,i),step.dataset.value];state.result=null;render();
+  document.querySelector('[data-k-step="'+(i+1)+'"], [data-run]')?.focus();return;
+ }
  const tab=ev.target.closest('[data-mode]');
  if(tab){active.mode=tab.dataset.mode;render();return;}
  const like=ev.target.closest("[data-like]");
@@ -317,7 +362,7 @@ document.addEventListener("click",ev=>{
      id:"qa-example",type:"thread",quoteId:0,note:id==="dillard"?
        "How can I protect time for what matters?":"Can careful reasoning eliminate uncertainty before I act?"
    }]}:null;
-   s.result=encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
+   s.result=transferContexts[id]?evaluateKernel(spec,s):encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
     {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 
   active.screen[id]="result";refreshCard(id);const end=document.querySelector(".result");
@@ -325,6 +370,22 @@ document.addEventListener("click",ev=>{
  }
 });
 document.addEventListener("input",ev=>{
+ const k=ev.target.closest("[data-k-slider]");
+ if(k){
+  const state=active.cases[active.mode],i=Number(k.dataset.i),kind=k.dataset.kSlider;
+  state[kind][i]=Number(k.value);
+  const m=transferContexts[active.mode].model;
+  if(kind==="amounts"&&m.resources.length===1&&m.resources[0].type==="exact"&&m.choices.length===2&&m.choices.every(c=>c.cost[0]===1&&c.max>=state.budgets[0]))
+   state.amounts[1-i]=state.budgets[0]-state.amounts[i];
+  // Keep the active native range in place during touch dragging.
+  const box=k.closest(".case-body");
+  for(const el of box.querySelectorAll("[data-k-slider]")){
+   el.value=state[el.dataset.kSlider][Number(el.dataset.i)];el.previousElementSibling.value=el.value;
+  }
+  const fresh=document.createElement("div");fresh.innerHTML=kernelControls(transferContexts[active.mode],state);
+  box.querySelector("[aria-live]").textContent=fresh.querySelector("[aria-live]").textContent;
+  box.querySelector("[data-run]").disabled=fresh.querySelector("[data-run]").disabled;state.result=null;return;
+ }
  const range=ev.target.closest("[data-range]");
  if(!range)return;
  const id=range.dataset.range,index=Number(range.dataset.index),state=active.cases[id];

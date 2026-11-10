@@ -136,8 +136,16 @@ main[data-screen="intro"] .tab span{display:none}
 @media(max-width:440px){.intro-content{padding:28px 12px 44px;gap:22px}.intro-view{min-height:65vh}.reading-panel{padding:18px}.tabs{margin-bottom:8px}.flow-exercise .case-body{padding:14px}}
 @media(prefers-reduced-motion:reduce){.intro-scenario,.intro-cta{animation:none!important}}
 .expression-lab{padding:1rem;background:#181c18;color:var(--ink)}.voice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.voice-grid article{border-top:1px solid var(--line);padding:.6rem}.voice-grid small{text-transform:uppercase;color:var(--gold)}.expression-lab pre{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:620px){.voice-grid{grid-template-columns:1fr}}
+/* Three stages share the same measure and type, with different page rhythms. */
+:root{--paper:#eee9db;--muted:#bcbbae;--card:#171916;--ink:var(--paper);--line:#36382f;--serif:"Cormorant Garamond",Georgia,serif;--sans:"DM Sans",-apple-system,sans-serif}
+body{background:#10120f;font-family:var(--sans)}main{max-width:760px;padding-bottom:max(32px,env(safe-area-inset-bottom))}.brand{font-family:var(--serif);letter-spacing:-.05em}.tabs{align-items:center;gap:8px}.tab{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0}.tab[aria-pressed=true]{background:transparent;border-color:var(--gold)}.passage-picker{font-size:12px;color:var(--muted)}select{background:#171916;color:var(--paper);padding:8px;border:1px solid var(--line);border-radius:3px;min-height:44px}
+.flow-case{border:0;background:transparent;border-radius:0}.entry-view,.intro-view{background:#181b16;color:var(--paper);border-radius:2px;border:0;border-top:1px solid #756a50}.entry-quote,.intro-quote{font-family:var(--serif);max-width:23ch;letter-spacing:-.03em;text-wrap:balance}.intro-content{max-width:610px;margin:auto}.entry-view{padding:clamp(30px,7vw,76px) clamp(18px,5vw,50px)}.intro-scenario{color:#c1c4b4}.flow-exercise .exercise-context{border:0;border-left:2px solid var(--sage);border-radius:0;background:#1b201a}.flow-exercise .case-body{background:transparent;border:0}.flow-exercise .choice{border-radius:3px;background:transparent}.choice[aria-pressed=true]{outline:1px solid var(--gold)}.allocation-line{display:grid;grid-template-columns:1fr auto;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.allocation-line input{grid-column:1/-1;min-height:44px}.allocation-line output{color:var(--gold);font-variant-numeric:tabular-nums}.route-step{border:0;border-top:1px solid var(--line);margin:14px 0;padding:10px 0}.route-step legend{color:var(--sage);padding-right:10px}.route-step .choice{width:100%;margin:4px 0;min-height:44px}
+.flow-result .result{max-width:610px;margin:auto;gap:0}.reading-panel,.reading-self,.reading-question{border:0;border-radius:0;background:transparent;padding:22px 4px}.reading-panel+.reading-panel{border-top:1px solid var(--line)}.reading-self h2{font:normal clamp(28px,5vw,42px)/1.12 var(--serif);max-width:23ch;text-wrap:balance}.reading-source blockquote{color:var(--paper);font-family:var(--serif)}.reading-question .reflection{color:var(--gold)}.primary,.flow-back,.encounter-actions button{min-height:44px}.reading-panel p{max-width:60ch}.primary:active,.choice:active{transform:translateY(1px)}
+@media(max-width:620px){.passage-picker{display:flex;align-items:center;justify-content:space-between;flex-basis:100%}.passage-picker select{max-width:70%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.intro-logo{display:block;width:clamp(64px,12vw,100px);height:auto;object-fit:contain;mask-image:radial-gradient(ellipse at center,black 44%,transparent 72%);margin:0 auto 4px}.entry-view .intro-logo{width:90px}.entry-quote{font-size:clamp(30px,6vw,48px);line-height:1.18}.reading-panel .section-label{color:#c5b78e}
 </style></head><body><main><header><div class="brand">YourLogos.</div></header><h1 class="lab-title">Encounter</h1>
-<nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button></nav>
+<nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button><label class="passage-picker">More passages <select id="more-passages"><option value="">Choose a philosopher</option><option value="thoreau">Henry David Thoreau</option><option value="smith">Adam Smith</option><option value="epictetus">Epictetus</option><option value="descartes">René Descartes</option></select></label></nav>
 <section id="cases" aria-label="Current Encounter"></section></main>
 <script>
 
@@ -1275,6 +1283,269 @@ function fitMatrix(){
 }
 
 
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/kernel-contexts-v11.js */
+// The texts and their limits are editorial inputs. Household purchases, a print
+// workshop and the two decision graphs are invented teaching scenarios.
+const transferContexts={
+ thoreau:{
+  id:"thoreau",author:"Henry David Thoreau",quote:"the cost of a thing is the amount of what I will call life which is required to be exchanged for it",
+  source:{work:"Walden · Economy (excerpt)",url:"https://digitalthoreau.org/walden/fluid/text/01.html"},
+  scenario:"You are furnishing a room. Each spending token is $20 earned in an extra hour of work. Choose what to buy and how much of the available budget to use.",
+  mechanism:"tradeoff",operations:["tradeoff"],assumptions:["Only these purchases require extra shifts, at a constant net wage."],
+  operation:"conversion",questions:{zero:"What does deciding against the purchase leave you free to do?"},distinction:"Price paid / time given",relation:"Thoreau considers shelter in terms of the life exchanged for it. An affordable purchase can still claim a portion of a working life.",
+  limit:"No price establishes that a purchase is worthwhile or wasteful.",question:"Which purchase looks different when you read its price as part of a working day?",
+  model:{resources:[{id:"money",label:"Available $20 tokens",min:4,max:12,type:"cap"}],
+   choices:[{id:"repair",label:"chair repairs",singular:"chair repair",cost:[1],max:4},{id:"lamp",label:"reading lamps",singular:"reading lamp",cost:[2],max:3},{id:"shelf",label:"shelves",singular:"shelf",cost:[3],max:3}],
+   initial:{amounts:[1,1,0],budgets:[8]},metric:{op:"sum",weights:[1,2,3],unit:"extra working hours",singular:"extra working hour"}}
+ },
+ smith:{
+  id:"smith",author:"Adam Smith",quote:"Those ten persons, therefore, could make among them upwards of forty-eight thousand pins in a day.",
+  source:{work:"The Wealth of Nations · I.i",url:"https://www.d.umn.edu/cla/faculty/jhamlin/4111/Smith/SmithDV1.html"},
+  scenario:"Four volunteers are printing booklets. A press operator prints two sets of pages, and a binder finishes one set. Assign everyone for one shift.",
+  mechanism:"tradeoff",operations:["tradeoff"],assumptions:["Each booklet needs both operations; these invented rates hold for this shift."],
+  operation:"complementarity",questions:{gain:"How could the same number of workers finish more when one changes tasks?"},distinction:"Hands assigned / work finished",relation:"Smith’s pin makers produce together what an isolated worker could scarcely make alone. Here a printed set still needs a binder: the arrangement of the hands matters as much as their number.",
+  limit:"These rates cannot establish historical productivity, welfare, or a universally best division of labour.",question:"What does the last finished booklet owe to the way the work was divided?",
+  model:{resources:[{id:"team",label:"Volunteers",min:4,max:4,type:"exact"}],
+   choices:[{id:"press",label:"press operators",singular:"press operator",cost:[1],max:4},{id:"bind",label:"binders",singular:"binder",cost:[1],max:4}],
+   initial:{amounts:[3,1],budgets:[4]},metric:{op:"minimum",weights:[2,1],unit:"finished booklets",singular:"finished booklet"}}
+ },
+ epictetus:{
+  id:"epictetus",author:"Epictetus",quote:"Some things are in our control and others not.",
+  source:{work:"Enchiridion · §1, Elizabeth Carter translation",url:"https://barryfvaughan.org/text/philtext/epictetus/enchiridion.html"},
+  scenario:"You have one place to apply for a workshop. You can send an application, revise it, or let the deadline pass. The organizer decides whom to admit.",
+  mechanism:"decision_map",operations:["decision_map"],assumptions:["Submitting closes editing for this application."],
+  operation:"agency",control:{action:"Sending the application",external:"admission"},distinction:"One’s own action / another person’s judgment",relation:"The distinction concerns what belongs to your agency. You can decide what to submit; even a careful revision cannot give you the organizer’s power of admission.",
+  limit:"No path establishes admission, indifference, or a reader’s character.",question:"Where does your choice end and the organizer’s judgment begin along this route?",
+  model:{start:"draft",initial:["Admission belongs to the organizer"],nodes:{
+   draft:{prompt:"What do you do with the draft?",options:[
+    {id:"send",label:"Send the application",next:"sent",closes:["revise"],reveal:["The submitted draft is final"]},
+    {id:"revise",label:"Ask a friend to read it",next:"review",reveal:["Your friend flags an unclear example"]},
+    {id:"pass",label:"Let the deadline pass",next:null,reveal:["No application was submitted"]}]},
+   review:{prompt:"Your friend flags an unclear example.",options:[
+    {id:"edit",label:"Clarify the example and submit",next:"sent",closes:["revise"],reveal:["The submitted draft is final"]},
+    {id:"pass",label:"Let the deadline pass",next:null,reveal:["No application was submitted"]}]},
+   sent:{prompt:"Your application is in. The organizer has yet to decide.",options:[
+    {id:"prepare",label:"Prepare a practice session",next:null},{id:"wait",label:"Wait for the decision",next:null},
+    {id:"revise",label:"Revise the submitted draft",next:null}]}
+  }}
+ },
+ descartes:{
+  id:"descartes",author:"René Descartes",quote:"The first was never to accept anything for true which I did not clearly know to be such",
+  source:{work:"Discourse on the Method · II (excerpt)",url:"https://en.wikisource.org/wiki/Discourse_on_the_Method/Part_2"},
+  scenario:"Two summaries of a town vote disagree. A newsletter is due, and you must decide what you can responsibly report.",
+  mechanism:"decision_map",operations:["decision_map"],assumptions:["The signed minutes settle the vote in this illustration, not every question about it."],
+  operation:"information",questions:{revision:"Which evidence let you change what the newsletter would say before it went to print?"},distinction:"Receiving an assertion / grounds for assent",relation:"Descartes asks what licenses the step from considering a claim to accepting it. A deadline can force an editorial decision while leaving the question of truth open. Checking minutes illustrates only the restraint in his first rule.",
+  limit:"A document check is not Cartesian clear and distinct knowledge; neither haste nor doubt proves a claim false.",question:"Which fact available when you acted could actually support the claim you would print?",
+  model:{start:"reports",initial:["The two reports disagree"],nodes:{
+   reports:{prompt:"Two accounts disagree. What next?",options:[
+    {id:"hold",label:"Withhold the figure",next:null},
+    {id:"print",label:"Print the first report",next:null,closes:["withdraw-before-print"]},
+    {id:"seek",label:"Request the minutes",next:"reply",reveal:["The clerk sends an unsigned draft"]}]},
+   reply:{prompt:"The clerk sends an unsigned draft.",options:[
+    {id:"qualify",label:"Pencil in a provisional figure",sets:{report:"provisional"},next:"proof",reveal:["The signed minutes arrive before printing"]},
+    {id:"verify",label:"Check for a signed version",next:"confirmed",reveal:["The signed minutes confirm the second report"]}]},
+   proof:{prompt:"The signed minutes arrive while you can still change the page.",options:[
+    {id:"amend",label:"Replace the provisional figure with the signed result",sets:{report:"confirmed"},next:null},
+    {id:"omit",label:"Remove the provisional figure",sets:{report:"withheld"},next:null}]},
+   confirmed:{prompt:"The signed minutes confirm the second report.",options:[
+    {id:"cite",label:"Publish the confirmed figure with its source",next:null,requires:["The signed minutes confirm the second report"]},
+    {id:"hold",label:"Defer publication",next:null}]}
+  }}
+ }
+};
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/reasoning-kernel-v11.js */
+// All numerical inputs use discrete units declared by the scenario.
+const natural=n=>Number.isSafeInteger(n)&&n>=0;
+const unique=items=>new Set(items).size===items.length;
+const declined=reason=>({version:"reasoning/1.1",status:"unsupported",classification:"unsupported",reason});
+
+function mechanismFit(context,mechanism=context?.mechanism){
+ if(!context?.source?.url || !context.quote || !context.author || !context.relation || !context.limit ||
+    !context.operations?.includes(mechanism))return {status:"unsupported",reason:"Missing source or mechanism warrant."};
+ if(mechanism!==context.mechanism)return {status:"unsupported",reason:"Scenario model does not supply this mechanism."};
+ const s=context.model;
+ const allowedOps={tradeoff:["conversion","complementarity","scarcity"],decision_map:["agency","information","path_dependence"]};
+ if(!allowedOps[mechanism]?.includes(context.operation))return {status:"unsupported",reason:"Context has no supported structural operation."};
+ if(mechanism==="tradeoff"){
+  if(!Array.isArray(s?.choices) || !s.choices.length || !Array.isArray(s.resources) || !s.resources.length || s.choices.some(c=>!c)||s.resources.some(r=>!r)||!unique(s.choices.map(c=>c.id)) || !unique(s.resources.map(r=>r.id)) ||
+     !s.choices.every(c=>c&&natural(c.max)&&c.max>0&&c.cost?.length===s.resources.length&&c.cost.every(natural)&&c.cost.some(Boolean)) ||
+     !s.resources.every(r=>r&&natural(r.min)&&natural(r.max)&&r.min<=r.max&&["exact","cap"].includes(r.type)&&s.choices.some(c=>c.cost[s.resources.indexOf(r)]>0)) ||
+     !s.resources.some((r,i)=>s.choices.filter(c=>c.cost[i]>0).length>=2 && s.choices.reduce((n,c)=>n+c.max*c.cost[i],0)>r.min))
+    return {status:"unsupported",reason:"No valid shared scarcity constraint."};
+  if(context.operation==="conversion"&&s.metric?.op!=="sum" || context.operation==="complementarity"&&
+     (s.metric?.op!=="minimum" || s.metric.weights?.filter(w=>w>0).length<2))return {status:"unsupported",reason:"Scenario lacks the required cost or joint-output relation."};
+  if(s.metric && (!["sum","minimum"].includes(s.metric.op)||s.metric.weights?.length!==s.choices.length||!s.metric.weights.every(natural)||!s.metric.weights.some(Boolean)))return {status:"unsupported",reason:"Invalid consequence measure."};
+ }else if(mechanism==="decision_map"){
+  if(!s?.nodes || !Object.hasOwn(s.nodes,s.start) || !Object.values(s.nodes).every(n=>n&&Array.isArray(n.options)&&n.options.length>0&&n.options.every(o=>o&&typeof o.id==="string"&&typeof o.label==="string"&&["requires","closes","reveal"].every(k=>o[k]===undefined||Array.isArray(o[k])&&o[k].every(v=>typeof v==="string")))&&unique(n.options.map(o=>o.id))&&n.options.every(o=>o.next===null||Object.hasOwn(s.nodes,o.next))))return {status:"unsupported",reason:"Incomplete decision structure."};
+  const seen=new Set(),open=new Set();
+  function acyclic(id){
+   if(id===null||seen.has(id))return true;
+   if(open.has(id))return false;
+   open.add(id);
+   if(!s.nodes[id].options.every(o=>acyclic(o.next)))return false;
+   open.delete(id);seen.add(id);return true;
+  }
+  if(!acyclic(s.start)||![...seen].some(id=>s.nodes[id].options.length>1))return {status:"unsupported",reason:"A finite branching route is required."};
+  if(context.operation==="information" && !Object.values(s.nodes).some(n=>n.options.some(o=>o.reveal?.length)))return {status:"unsupported",reason:"No change in available evidence."};
+ }else return {status:"unsupported",reason:"No supported reasoning operation."};
+ return {status:context.assumptions?.length?"conditional":"applicable",assumptions:context.assumptions||[]};
+}
+
+function allocationFacts(model,amounts,budgets){
+ if(!Array.isArray(amounts)||amounts.length!==model.choices.length||!Array.isArray(budgets)||budgets.length!==model.resources.length||
+    !Array.from(amounts).every((n,i)=>natural(n)&&n<=model.choices[i].max)||
+    !Array.from(budgets).every((n,i)=>natural(n)&&n>=model.resources[i].min&&n<=model.resources[i].max)) return null;
+ const spent=budgets.map((_,i)=>amounts.reduce((n,q,j)=>n+q*model.choices[j].cost[i],0));
+ const slack=budgets.map((n,i)=>n-spent[i]);
+ if(slack.some((n,i)=>n<0 || model.resources[i].type==="exact"&&n!==0))return null;
+ const metric=model.metric;
+ const components=metric?amounts.map((n,i)=>n*metric.weights[i]).filter((_,i)=>metric.weights[i]>0):[];
+ return {spent,slack,measure:metric?(metric.op==="minimum"?Math.min(...components):components.reduce((a,b)=>a+b,0)):null};
+}
+
+function tradeoffStructure(model,input){
+ const current=allocationFacts(model,input?.amounts,input?.budgets);
+ if(!current)return null;
+ const alternatives=[];
+ // Compare one additional choice with either spare capacity or one unit
+ // released elsewhere. Never treat an infeasible alternative as available.
+ for(let add=0;add<model.choices.length;add++)for(let remove=-1;remove<model.choices.length;remove++){
+  if(remove===add)continue;
+  const next=input.amounts.slice();next[add]++;if(remove>=0)next[remove]--;
+  const fact=allocationFacts(model,next,input.budgets);
+  if(fact)alternatives.push({add,remove,amounts:next,measure:fact.measure,delta:fact.measure===null?null:fact.measure-current.measure});
+ }
+ return {...current,amounts:[...input.amounts],budgets:[...input.budgets],alternatives};
+}
+
+function decisionStructure(model,path){
+ if(!Array.isArray(path))return null;
+ let at=model.start;
+ const commitments={},revisions=[];
+ const known=new Set(model.initial||[]),locked=new Set(),steps=[],visited=new Set();
+ for(const id of path){
+  if(at===null||!Object.hasOwn(model.nodes,at)||visited.has(at))return null;
+  visited.add(at);
+  const node=model.nodes[at];
+  const available=node.options.filter(o=>(o.requires||[]).every(k=>known.has(k))&&!locked.has(o.id));
+  const option=available.find(o=>o.id===id);
+  if(!option)return null;
+  steps.push({node:at,choice:id,label:option.label,before:[...known],revealed:option.reveal||[],
+    alternatives:available.filter(o=>o!==option).map(o=>o.label),closed:option.closes||[]});
+  for(const [field,value] of Object.entries(option.sets||{})){
+   if(Object.hasOwn(commitments,field)&&commitments[field]!==value)revisions.push({field,from:commitments[field],to:value});
+   commitments[field]=value;
+  }
+  for(const k of option.reveal||[])known.add(k);
+  for(const k of option.closes||[])locked.add(k);
+  at=option.next;
+ }
+ if(at!==null&&visited.has(at))return null;
+ const available=at===null?[]:model.nodes[at].options.filter(o=>(o.requires||[]).every(k=>known.has(k))&&!locked.has(o.id));
+ return {steps,commitments,revisions,known:[...known],locked:[...locked],at,available};
+}
+
+function evaluateKernel(context,input){
+ const fit=mechanismFit(context);
+ if(fit.status==="unsupported")return declined(fit.reason);
+ const allocation=context.mechanism==="tradeoff";
+ const structure=allocation?tradeoffStructure(context.model,input):decisionStructure(context.model,input?.path);
+ if(!structure || !allocation&&(structure.at!==null||!structure.steps.length))return declined("The choices are incomplete or incompatible with this scenario.");
+ let observed,discovery,condition,headline,question=context.question;
+ if(allocation){
+  const m=context.model,unit=m.metric?.unit;
+  const named=(n,c)=>n+" "+(n===1&&c.singular?c.singular:c.label);
+  const measured=n=>n+" "+(n===1&&m.metric?.singular?m.metric.singular:unit);
+  const amounts=m.choices.map((c,i)=>named(input.amounts[i],c));
+  observed="You chose "+(amounts.length>1?amounts.slice(0,-1).join(", ")+" and "+amounts.at(-1):amounts[0])+".";
+  const better=structure.alternatives.reduce((best,a)=>a.delta>0&&(!best||a.delta>best.delta)?a:best,null);
+  const next=(m.metric?.op==="minimum"&&better)||structure.alternatives.find(a=>a.remove===-1)||structure.alternatives[0];
+  if(next){
+   const gain=m.choices[next.add],released=m.choices[next.remove];
+   const exchange=released?"exchanged one "+(released.singular||"unit of "+released.label)+" for one "+(gain.singular||"unit of "+gain.label):
+    "added one "+(gain.singular||"unit of "+gain.label)+" from the unused budget";
+   condition="If you "+exchange+", "+(unit?"the total would be "+measured(next.measure):"the arrangement would still fit")+".";
+  }
+  discovery=structure.measure===null?"The unused capacity is "+structure.slack.join(", ")+".":"That works out to "+measured(structure.measure)+" under the scenario’s assumptions.";
+  if(m.metric?.op==="minimum")headline=better&&better.remove>=0?"One more "+(m.choices[better.add].singular||"unit here")+" could change what the whole group finishes.":
+    "What can be finished depends on the least supplied step.";
+  else if(m.metric?.op==="sum")headline=structure.measure?"What you chose would cost "+measured(structure.measure)+".":"An unused budget leaves its underlying cost unclaimed.";
+  else headline=structure.slack.every(n=>n===0)?"Another claim would need room from somewhere.":"There is still room before another choice has to give way.";
+  if(m.metric?.op==="minimum" && better)question=context.questions?.gain||question;
+  if(m.metric?.op==="sum" && structure.measure===0)question=context.questions?.zero||question;
+ }else{
+  const lowerFirst=t=>t[0].toLowerCase()+t.slice(1);
+  const actions=structure.steps.map(s=>lowerFirst(s.label));
+  observed="You chose to "+actions.join(", then ")+".";
+
+  const last=structure.steps.at(-1);
+
+  condition=last.alternatives.length?"Another option still open then was to "+lowerFirst(last.alternatives[0])+".":null;
+  const evidence=last.before.at(-1);
+  discovery=evidence?"At that moment, "+lowerFirst(evidence)+".":"No further evidence had arrived.";
+  if(last.revealed.length)discovery+=" Only afterward did you learn the result: "+lowerFirst(last.revealed.at(-1))+".";
+  headline=structure.revisions.length?"You revised a commitment while it was still yours to change.":
+    context.operation==="agency"&&context.control?context.control.action+" was your decision. The verdict belonged elsewhere.":
+    last.before.length>(context.model.initial||[]).length?"You made the later choice with evidence the earlier one lacked.":
+    last.revealed.length?"The consequence became visible after the choice.":"You could decide what to do while the claim itself stayed unsettled.";
+  if(structure.revisions.length)question=context.questions?.revision||question;
+
+
+ }
+ const claims=[{classification:"necessary",text:observed,basis:"validated selections"},
+   {classification:fit.assumptions.length?"conditional":"necessary",text:discovery,basis:"scenario model",assumptions:fit.assumptions},
+   ...(condition?[{classification:"conditional",text:condition,basis:"feasible alternative",assumptions:[...fit.assumptions,"The alternative is chosen."]}]:[]),
+   {classification:"unsupported",text:context.limit,basis:"outside scenario"}];
+ claims.push({role:"discovery",classification:fit.assumptions.length?"conditional":"necessary",text:headline,basis:"evaluated structure",assumptions:fit.assumptions});
+ claims.push({role:"interpretation",classification:"conditional",text:context.relation,basis:context.source.url,assumptions:[...fit.assumptions,"The curated analogy is accepted."]});
+ return {version:"reasoning/1.1",status:"ready",quote:{id:context.id,text:context.quote,author:context.author,work:context.source.work},
+  source:context.source,mechanism:context.mechanism,fit,structure,claims,distinction:context.distinction,
+  headline,relation:context.relation,question,limitations:[context.limit],selections:allocation?{amounts:structure.amounts,budgets:structure.budgets}:{path:[...input.path]}};
+}
+
+// Translate the established pilots' existing configuration rather than copying
+// their case-specific motive, historical, or quotation-return rules.
+function pilotStructure(spec,result,input){
+ const t=spec.family==="tradeoff";
+ let model,selections;
+ if(t){
+  model={resources:[{id:"evening",min:6,max:6,type:"exact"}],choices:spec.categories.map((label,i)=>({id:i,label,max:6,cost:[1]}))};
+  selections={amounts:input.ticks,budgets:[6]};
+ }else{
+  const nodes={};
+  function expand(i,prior,name){
+   const stage=spec.steps[i];
+   const options=Array.isArray(stage.options)?stage.options:stage.options[prior];
+   nodes[name]={prompt:stage.prompt,options:options.map(o=>{
+    const next=i+1<spec.steps.length?name+"/"+o.id:null;
+    if(next)expand(i+1,o.id,next);
+    return {id:o.id,label:o.label,next,reveal:i===1?[o.label]:[]};
+   })};
+  }
+  expand(0,null,"start");
+  model={start:"start",nodes};selections={path:spec.steps.map(step=>input[step.key])};
+ }
+ const source=result.sourceReferences.find(s=>s.url?.startsWith("http"))||result.sourceReferences[0];
+ return evaluateKernel({id:spec.id,quote:result.quote.text,author:spec.author,source:{...source,work:result.quote.work},
+  model,operation:t?"scarcity":"path_dependence",operations:[spec.family],mechanism:spec.family,assumptions:["Within this imagined scenario."],relation:result.sourceRelation,
+  distinction:result.sourceRelation,question:"Which condition makes this reading possible?",limit:spec.guard},selections);
+}
+
+// Fail closed at the expression boundary if claim status or its provenance
+// has been lost while transporting a packet. Prose is emitted from claims.
+function validateKernelPacket(packet){
+ if(packet?.version!=="reasoning/1.1"||packet.status!=="ready"||!packet.source?.url||!packet.quote?.text||
+   !Array.isArray(packet.claims)||!packet.claims.length||!packet.question)return false;
+ if(!packet.claims.every(c=>c&&["necessary","conditional","unsupported"].includes(c.classification)&&c.basis&&
+   typeof c.text==="string"&&c.text.length&&(c.classification!=="conditional"||Array.isArray(c.assumptions)&&c.assumptions.length>0)))return false;
+ const backed=(role,text)=>packet.claims.some(c=>c.role===role&&c.classification!=="unsupported"&&c.text===text);
+ return backed("discovery",packet.headline)&&backed("interpretation",packet.relation)&&
+   packet.claims.some(c=>c.basis==="validated selections"&&c.classification==="necessary");
+}
+
+
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/encounter-distinction-v13.js */
 // Each pair belongs to one validated distinction. The time line uses the
 // actual allocation; the temporal pairs distinguish when evidence arrived.
@@ -1526,6 +1797,7 @@ function quotationEnding(result,kind) {
 
 
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/expression-engine-v1.js */
+
 // Renderings of existing distinctions, indexed by their validated rule IDs.
 // Each row contains three alternate readings of the reflective headline.
 const expressionModes=["reflective","surprising","playful","challenging"];
@@ -1561,6 +1833,13 @@ const preferences={
 
 function selectExpressionMeaning(packet){
  if(packet?.status!=="ready")return null;
+ if(packet.version==="reasoning/1.1"){
+  if(!validateKernelPacket(packet))return null;
+  const allowed=packet.claims.filter(c=>!c.role && c.classification!=="unsupported");
+  return {kind:"kernel/"+packet.mechanism,caseId:packet.quote.id,quote:packet.quote,facts:packet.structure,
+    headline:packet.headline,experience:allowed.map(c=>c.text).join(" "),interpretation:packet.relation,
+    question:packet.question,warrant:packet.distinction,limits:packet.limitations,sources:[packet.source],trace:allowed};
+ }
  const kind=packet.hiddenRelationship.kind;
  return {kind,caseId:packet.caseId,quote:packet.quote,facts:packet.evidence,headline:packet.userFacingDiscovery,
   experience:packet.experience,interpretation:packet.sourceGroundedInterpretation,question:packet.proactiveQuestion,
@@ -1611,6 +1890,8 @@ function composeExpression(meaning,requested){
 
 
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/consequence-v1.js */
+
+
 
 
 
@@ -1792,6 +2073,8 @@ function encounterConsequence(id, input, memory=null) {
     return {status:"declined",reason:error.message};
   }
   // Establish the quotation's source relation before interpreting this path.
+  const kernel=pilotStructure(getMechanismCase(id),result,input);
+  if(kernel.status!=="ready")return {status:"declined",reason:kernel.reason};
   const centralPhilosophicalRelation=result.sourceRelation;
   const reading = id === "dillard" ? readEvening(result) : readRoute(result);
   const {relation,...fields}=reading;
@@ -1807,7 +2090,7 @@ function encounterConsequence(id, input, memory=null) {
   if(optionalWorldConnection && reasoning.kind==="protected-or-remainder"){
     proactiveQuestion="If this evening repeated, what would keep the next request from deciding when writing happens?";
   }
-  return {status:"ready", schema:"encounter-consequence/1.3", caseId:id, quote:result.quote,
+  return {status:"ready", schema:"encounter-consequence/1.3", kernel, caseId:id, quote:result.quote,
     input:result.input, mechanism:result.mechanism, ...fields, hiddenRelationship, discovery, question, tension:reasoning.concepts.join(" / "),
     centralPhilosophicalRelation, observedPath:result.input, scenarioConsequence:fields.consequence,
     sourceGroundedInterpretation:ending.interpretation, userFacingDiscovery:ending.headline,
@@ -1820,6 +2103,10 @@ function encounterConsequence(id, input, memory=null) {
 // Surface projection only. All interpretive text originates in a fired rule.
 function expressConsequence(packet) {
   if (packet?.status !== "ready") return null;
+  if(packet.version==="reasoning/1.1"){
+    const meaning=selectExpressionMeaning(packet);
+    return meaning?{...composeExpression(meaning),quote:packet.quote.text,visual:null,world:null}:null;
+  }
   const {discovery,consequence,connection,question} = packet;
   return {discovery,consequence,connection,question,headline:packet.userFacingDiscovery,
     experience:packet.experience,quote:packet.quote.text,interpretation:packet.sourceGroundedInterpretation,
@@ -1834,15 +2121,42 @@ function expressConsequence(packet) {
 
 
 
+
+
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const slug=id=>getMechanismCase(id);
+const slug=id=>transferContexts[id]||getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
 const active={mode:"dillard", likes:{dillard:false,kierkegaard:false}, screen:{dillard:"entry",kierkegaard:"entry"}, cases:{
  dillard:{ticks:[2,2,2],motivation:null,result:null},
  kierkegaard:{stage:0,resource:null,barrier:null,action:null,result:null}
 }};
+for(const [id,c] of Object.entries(transferContexts)){
+ active.screen[id]="entry";
+ active.cases[id]=c.mechanism==="tradeoff"?{amounts:[...c.model.initial.amounts],budgets:[...c.model.initial.budgets]}:{path:[]};
+}
+function kernelControls(spec,state){
+ const m=spec.model;
+ if(spec.mechanism==="tradeoff"){
+  const slider=(kind,index,label,max,min,value)=>`<label class="allocation-line"><span>${esc(label)}</span><output>${value}</output>
+  <input aria-label="${esc(label)}" data-k-slider="${kind}" data-i="${index}" type="range" min="${min}" max="${max}" value="${value}"></label>`;
+  const spent=m.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
+  const controls=m.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
+   m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
+  const status=m.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ");
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p><button class="primary" data-run="'+spec.id+'" '+(tradeoffStructure(m,state)?"":"disabled")+'>Reveal the meaning</button></div>';
+ }
+ let html='<div class="case-body" tabindex="-1">';
+ for(let i=0;i<=state.path.length;i++){
+  const stage=decisionStructure(m,state.path.slice(0,i));
+  if(!stage||stage.at===null)break;
+  html+='<fieldset class="route-step"><legend>'+esc(m.nodes[stage.at].prompt)+'</legend>'+stage.available.map(o=>
+   '<button class="choice" data-k-step="'+i+'" data-value="'+esc(o.id)+'" aria-pressed="'+(state.path[i]===o.id)+'">'+esc(o.label)+'</button>').join("")+'</fieldset>';
+ }
+ if(decisionStructure(m,state.path)?.at===null)html+='<button class="primary" data-run="'+spec.id+'">Reveal the meaning</button>';
+ return html+'</div>';
+}
 function tradeoffHtml(id){
  const spec=slug(id),s=active.cases[id];
  const fields=spec.categories.map((name,i)=>'<div class="slider-block">'+
@@ -1857,7 +2171,7 @@ function tradeoffHtml(id){
  const opts='<div class="choices">'+spec.influences.map(o=>
   '<button type="button" class="choice" data-motive="'+id+'" data-value="'+o.id+'" aria-pressed="'+(s.motivation===o.id)+'">'+
   '<span class="symbol">✦</span><span><strong>'+esc(o.label)+'</strong><small>'+esc(o.detail)+'</small></span></button>').join("")+'</div>';
- return '<div class="case-body"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+'</p>'+
+ return '<div class="case-body" tabindex="-1"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+'</p>'+
   '<p class="question">How would you divide these three hours?</p>'+fields+bars+
   '<p class="question">What most influenced the choice?</p>'+opts+
   '<button class="primary" type="button" data-run="'+id+'" '+(s.motivation?'':'disabled')+'>Reveal the meaning</button></div>';
@@ -1878,7 +2192,7 @@ function forkHtml(id,key,options,source){
 }
 function decisionHtml(id){
  const spec=slug(id),s=active.cases[id];
- let h='<div class="case-body"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+
+ let h='<div class="case-body" tabindex="-1"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+
   '</p><p class="lab-intro">Tap the starting point, then follow one choice at a time.</p>'+
   '<div class="journey" data-map="'+id+'"><button type="button" class="journey-root" data-start="'+id+'" aria-pressed="'+(s.stage>=1)+'">'+
   '<span>STARTING POINT</span><strong>'+esc(spec.startingPoint)+'</strong>'+
@@ -1919,25 +2233,26 @@ function expressionComparison(packet){
 }
 function render(){
  const id=active.mode, spec=slug(id), state=active.cases[id], screen=active.screen[id];
- const quote=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
+ const quote=spec.quote||"Life can only be understood backwards; but it must be lived forwards.";
+ document.querySelector("#more-passages").value=transferContexts[id]?id:"";
  const view=screen==="result"?expressConsequence(state.result):null;
  const source='<span class="micro-label">'+esc(spec.author)+'</span>';
- const entry='<section class="entry-view" aria-label="Quotation">'+source+
+ const entry='<section class="entry-view" aria-label="Quotation"><img class="intro-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDADUlKC8oITUvKy88OTU/UIVXUElJUKN1e2GFwarLyL6qurfV8P//1eL/5re6////////////zv//////////////2wBDATk8PFBGUJ1XV53/3Lrc////////////////////////////////////////////////////////////////////wgARCAGQAZADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAAfOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUiwAAAAAAANQgAAAAAAAAAAAAAAAAAAAAHTmKveM9c4l7Ty5r1c+NSzps87rkw0MqIKAAAAAAAAAAAAAAAA16PN6c3HD0cqxRCibZX2zl3jy49vnqcr6DyzUSAWCywCgAAAAAAABSAAGoihd7XPXGo6TMNGTPTI6ZU8vs59Dzcu/GsrEShKIsAoAAAAAABZoyBpuM3vteOpI1mqy1C3nY1clupoWgkLz6E807c65rAESwCgAAAAAAFg6646l9F8/WLhazqCy6MTYmrYihqU1c2yyjE6SXjz9PE4zeakoksQKAAAAAWACkGp6IuRUoVRKJpQAUCLc01c2qhEsl5cvXzPNN5qSxIKAAAAWUSwWUjVN7uc0Zq6QqaChZQQaIAAqUtzSiyElce/E5894qCwAAABrNE7ZObpo5drJaglx0EzoupoCKloIpk0lBSUBk59fF2r0rIxcw5c+vKoLAAAFgsDtvz9ZdwgSmdYLpkauhZk1ZYWUA48LNTfq8fWPSJShjcPDVs9lll5898zONZqCwAAAACzWRqeiIRZnpTOrCoJqSNWVVlATxN51JvPSPWWWUArhPRIGTHD0cDMubAoAAAAC3I71iXcYN65aOjEjpnGlnTOi0EsFlM8fRTz+i1KBKJULAefryWc9ZsktTIoAAAABZTpz3zjvnHVYshA3rNVrOo0oyohRZSpbACQrFl6TOrOHP2eeuWdQixIKAAAGjO+tlxrWo53pkzKWSwhDXTkOt52Ot88r0ONjpMc66zkTreNO15bVnWBvO41rKzbNPJnpypCwAAAaGiXdJbiZSyLKkNZC7zpdMZjozg6RkrKypDTOi1F6d8WOiDnh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" alt="">'+source+
    '<blockquote class="entry-quote">'+esc(quote)+'</blockquote>'+
    '<div class="encounter-actions" role="group" aria-label="Choose what to do with this quotation">'+
    '<button type="button" data-like="'+id+'" aria-pressed="'+active.likes[id]+'">'+(active.likes[id]?"♥ Liked":"♡ Like")+'</button>'+
    '<button type="button" data-discover="'+id+'">Discover</button></div></section>';
  const intro='<div class="flow-head"><button type="button" data-back="entry" class="flow-back" aria-label="Back to quotation">← Back</button></div>'+
-   '<section class="intro-view" aria-label="Introducing the quotation and scenario">'+
-   '<div class="intro-content">'+source+
+   '<section class="intro-view" tabindex="-1" aria-label="Introducing the quotation and scenario">'+
+   '<div class="intro-content"><img class="intro-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDADUlKC8oITUvKy88OTU/UIVXUElJUKN1e2GFwarLyL6qurfV8P//1eL/5re6////////////zv//////////////2wBDATk8PFBGUJ1XV53/3Lrc////////////////////////////////////////////////////////////////////wgARCAGQAZADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAAfOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUiwAAAAAAANQgAAAAAAAAAAAAAAAAAAAAHTmKveM9c4l7Ty5r1c+NSzps87rkw0MqIKAAAAAAAAAAAAAAAA16PN6c3HD0cqxRCibZX2zl3jy49vnqcr6DyzUSAWCywCgAAAAAAABSAAGoihd7XPXGo6TMNGTPTI6ZU8vs59Dzcu/GsrEShKIsAoAAAAAABZoyBpuM3vteOpI1mqy1C3nY1clupoWgkLz6E807c65rAESwCgAAAAAAFg6646l9F8/WLhazqCy6MTYmrYihqU1c2yyjE6SXjz9PE4zeakoksQKAAAAAWACkGp6IuRUoVRKJpQAUCLc01c2qhEsl5cvXzPNN5qSxIKAAAAWUSwWUjVN7uc0Zq6QqaChZQQaIAAqUtzSiyElce/E5894qCwAAABrNE7ZObpo5drJaglx0EzoupoCKloIpk0lBSUBk59fF2r0rIxcw5c+vKoLAAAFgsDtvz9ZdwgSmdYLpkauhZk1ZYWUA48LNTfq8fWPSJShjcPDVs9lll5898zONZqCwAAAACzWRqeiIRZnpTOrCoJqSNWVVlATxN51JvPSPWWWUArhPRIGTHD0cDMubAoAAAAC3I71iXcYN65aOjEjpnGlnTOi0EsFlM8fRTz+i1KBKJULAefryWc9ZsktTIoAAAABZTpz3zjvnHVYshA3rNVrOo0oyohRZSpbACQrFl6TOrOHP2eeuWdQixIKAAAGjO+tlxrWo53pkzKWSwhDXTkOt52Ot88r0ONjpMc66zkTreNO15bVnWBvO41rKzbNPJnpypCwAAAaGiXdJbiZSyLKkNZC7zpdMZjozg6RkrKypDTOi1F6d8WOiDnh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" alt="">'+source+
    '<blockquote class="intro-quote">'+esc(quote)+'</blockquote>'+
    '<p class="intro-scenario">'+esc(spec.scenario)+'</p>'+
    '<button type="button" data-enter="'+id+'" class="primary intro-cta">'+
-    (id==="dillard"?"Shape this evening":"Explore this decision")+'</button></div></section>';
+    (id==="dillard"?"Shape this evening":spec.mechanism==="tradeoff"?"Try the allocation":"Explore this decision")+'</button></div></section>';
  const exercise='<div class="flow-head"><button type="button" data-back="intro" class="flow-back" aria-label="Back to introduction">← Back</button>'+
    '<span class="flow-stage">YOUR CHOICES</span></div>'+
    '<div class="exercise-context"><span class="micro-label">'+esc(spec.author)+'</span><p>'+esc(spec.scenario)+'</p></div>'+
-   (id==="dillard"?tradeoffHtml(id):decisionHtml(id));
+   (transferContexts[id]?kernelControls(spec,state):id==="dillard"?tradeoffHtml(id):decisionHtml(id));
  const result=view?'<div class="flow-head"><button type="button" data-back="exercise" class="flow-back" aria-label="Back to your choices">← Back to choices</button></div>'+
    '<section class="result journey-finale" tabindex="-1" aria-label="Your Encounter result">'+
    '<section class="reading-panel reading-self"><span class="section-label">Your Encounter with '+esc(spec.author)+'</span>'+
@@ -1956,7 +2271,16 @@ function render(){
  document.querySelector("main")?.setAttribute("data-screen",screen);
 }
 function refreshCard(){render();}
+document.querySelector("#more-passages").addEventListener("change",ev=>{
+ if(ev.target.value){active.mode=ev.target.value;render();}
+});
 document.addEventListener("click",ev=>{
+ const step=ev.target.closest("[data-k-step]");
+ if(step){
+  const state=active.cases[active.mode],i=Number(step.dataset.kStep);
+  state.path=[...state.path.slice(0,i),step.dataset.value];state.result=null;render();
+  document.querySelector('[data-k-step="'+(i+1)+'"], [data-run]')?.focus();return;
+ }
  const tab=ev.target.closest('[data-mode]');
  if(tab){active.mode=tab.dataset.mode;render();return;}
  const like=ev.target.closest("[data-like]");
@@ -2007,7 +2331,7 @@ document.addEventListener("click",ev=>{
      id:"qa-example",type:"thread",quoteId:0,note:id==="dillard"?
        "How can I protect time for what matters?":"Can careful reasoning eliminate uncertainty before I act?"
    }]}:null;
-   s.result=encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
+   s.result=transferContexts[id]?evaluateKernel(spec,s):encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
     {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 
   active.screen[id]="result";refreshCard(id);const end=document.querySelector(".result");
@@ -2015,6 +2339,22 @@ document.addEventListener("click",ev=>{
  }
 });
 document.addEventListener("input",ev=>{
+ const k=ev.target.closest("[data-k-slider]");
+ if(k){
+  const state=active.cases[active.mode],i=Number(k.dataset.i),kind=k.dataset.kSlider;
+  state[kind][i]=Number(k.value);
+  const m=transferContexts[active.mode].model;
+  if(kind==="amounts"&&m.resources.length===1&&m.resources[0].type==="exact"&&m.choices.length===2&&m.choices.every(c=>c.cost[0]===1&&c.max>=state.budgets[0]))
+   state.amounts[1-i]=state.budgets[0]-state.amounts[i];
+  // Keep the active native range in place during touch dragging.
+  const box=k.closest(".case-body");
+  for(const el of box.querySelectorAll("[data-k-slider]")){
+   el.value=state[el.dataset.kSlider][Number(el.dataset.i)];el.previousElementSibling.value=el.value;
+  }
+  const fresh=document.createElement("div");fresh.innerHTML=kernelControls(transferContexts[active.mode],state);
+  box.querySelector("[aria-live]").textContent=fresh.querySelector("[aria-live]").textContent;
+  box.querySelector("[data-run]").disabled=fresh.querySelector("[data-run]").disabled;state.result=null;return;
+ }
  const range=ev.target.closest("[data-range]");
  if(!range)return;
  const id=range.dataset.range,index=Number(range.dataset.index),state=active.cases[id];

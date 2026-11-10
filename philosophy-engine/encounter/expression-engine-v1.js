@@ -1,3 +1,4 @@
+import {validateKernelPacket} from "./reasoning-kernel-v11.js";
 // Renderings of existing distinctions, indexed by their validated rule IDs.
 // Each row contains three alternate readings of the reflective headline.
 export const expressionModes=["reflective","surprising","playful","challenging"];
@@ -33,6 +34,13 @@ const preferences={
 
 export function selectExpressionMeaning(packet){
  if(packet?.status!=="ready")return null;
+ if(packet.version==="reasoning/1.1"){
+  if(!validateKernelPacket(packet))return null;
+  const allowed=packet.claims.filter(c=>!c.role && c.classification!=="unsupported");
+  return {kind:"kernel/"+packet.mechanism,caseId:packet.quote.id,quote:packet.quote,facts:packet.structure,
+    headline:packet.headline,experience:allowed.map(c=>c.text).join(" "),interpretation:packet.relation,
+    question:packet.question,warrant:packet.distinction,limits:packet.limitations,sources:[packet.source],trace:allowed};
+ }
  const kind=packet.hiddenRelationship.kind;
  return {kind,caseId:packet.caseId,quote:packet.quote,facts:packet.evidence,headline:packet.userFacingDiscovery,
   experience:packet.experience,interpretation:packet.sourceGroundedInterpretation,question:packet.proactiveQuestion,
