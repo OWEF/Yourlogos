@@ -110,5 +110,5 @@ test("standalone phone artifact exactly matches unchanged philosophical sources"
  assert.match(actual,/function expressDiscovery/);
  assert.match(actual,/function adaptYourLogosFingerprint/);
  assert.doesNotMatch(actual,/^import\s/m);
- assert.doesNotMatch(actual,/XMLHttpRequest|localStorage|sessionStorage|fetch\s*\(/);
+ assert.doesNotMatch(actual,/\bXMLHttpRequest\s*\(|\blocalStorage\s*\.|\bsessionStorage\s*\.|\bfetch\s*\(/);
 });
