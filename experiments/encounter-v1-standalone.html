@@ -92,7 +92,7 @@ input[type=range]{display:block;width:100%;accent-color:var(--gold);height:31px;
 @media(max-width:360px){.branch{min-height:143px;padding:10px 5px}.branch strong{font-size:11px}.branch small{font-size:10px}.matrix-row{grid-template-columns:90px 1fr}}
 main{max-width:660px}.result{scroll-margin:1rem}.result h3{font-size:clamp(23px,4vw,32px);line-height:1.22}.result p,.case-body>.story{font-size:15px}.choice strong,.branch strong{font-size:14px}.result details{margin-top:16px}.primary:disabled{opacity:.5;cursor:default}.tab[aria-pressed=true]{border-color:var(--gold);background:#3b382a}.result p.reflection{color:var(--gold)}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important}}
-.result .section-label{display:block;color:var(--sage);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:14px 0 4px}.result .section-label:first-child{margin-top:0}.result blockquote{font:italic 19px/1.28 Georgia,serif;color:var(--ink);margin:5px 0 8px;padding-left:10px;border-left:2px solid var(--gold)}.result p{margin:6px 0 10px;line-height:1.45}.result h3{font-size:24px;margin:4px 0 8px}.result .world-note{font-size:13px}
+.result .section-label{display:block;color:var(--sage);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:14px 0 4px}.result .section-label:first-child{margin-top:0}.result blockquote{font:italic 19px/1.28 Georgia,serif;color:var(--ink);margin:5px 0 8px;padding-left:10px;border-left:2px solid var(--gold)}.result p{margin:6px 0 10px;line-height:1.45}.result h3{font-size:24px;margin:4px 0 8px}.result .memory-reference{font-size:13px;color:var(--muted);border-left:2px solid var(--sage);padding-left:10px}.encounter-actions{display:flex;gap:10px;padding:15px 16px}.encounter-actions button{flex:1;border:1px solid var(--line);background:var(--card2);color:var(--ink);padding:12px 10px;border-radius:11px;font-size:14px}.encounter-actions [data-discover]{background:var(--gold);color:#28271f;font-weight:700}.encounter-actions [data-like][aria-pressed=true]{color:var(--rose);border-color:var(--rose)}
 .distinction{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-block:1px solid var(--line);padding:9px 0;margin:8px 0}.distinction>div+div{padding-left:10px;border-left:1px solid var(--line)}.distinction dt{color:var(--sage);font-weight:650;font-size:12px}.distinction dd{margin:3px 0 0;font-size:14px;line-height:1.32}.distinction.sequence{border-top-color:var(--sage)}.result .world-note{line-height:1.35}
 @media(max-width:360px){main{padding-inline:8px}.result{padding:12px}.result .section-label{margin-top:8px}.result p{margin:4px 0 6px}.result details{margin-top:6px}.distinction{margin:5px 0;padding:6px 0}.result h3{margin-bottom:4px}}
 </style></head><body><main><header><div class="brand">YourLogos.</div></header><h1>Encounter</h1>
@@ -1238,6 +1238,11 @@ function fitMatrix(){
 // Each pair belongs to one validated distinction. The time line uses the
 // actual allocation; the temporal pairs distinguish when evidence arrived.
 const eveningPairs = {
+  "planned-replies-majority":["Intended","Protect time for what matters.","Allocated","Replies receive most of the evening."],
+  "obligations-visible-replies":["Reason given","Other things needed doing.","In this evening","Replies receive more time than writing."],
+  "obligations-visible-rest":["Reason given","Other obligations still mattered.","In this evening","Rest receives the largest share."],
+  "obligations-visible-writing":["Reason given","Other things needed doing.","In this evening","Writing receives one of the largest shares."],
+  "interrupted-without-replies":["Demand","The phone still interrupts.","Allocation","No time is assigned to replying."],
   "chosen-rest":["Tonight","Rest gets the largest share.","If repeated","Rest would have a regular place."],
   "deliberate-pause":["Tonight","The story can wait.","If repeated","The promised writing session never arrives."],
   "requests-without-writing":["One reply","A request gets an answer.","Repeated evenings","Writing could keep losing its turn."],
@@ -1289,6 +1294,29 @@ const priorInquiries = {
   }
 };
 
+// The authored phrase is evidence of a question, not agreement with its thesis.
+// These are conservative, source-specific semantic gates: no remote embeddings,
+// no model-generated memories, and no matching on themes/saves alone.
+function relatedVolunteeredReflection(id, value, inquiry){
+  const words=typeof value==="string"?value.trim():"";
+  if(words.length<22 || words.length>240) return false;
+  if(/^(?:my friend|a friend|someone|he|she|they|the article|the quote|the app|the philosopher|i read|imagine|suppose|for example)\b/i.test(words)) return false;
+  if(/^i (?:do not|don't|never) (?:wonder|worry|ask|question)\b/i.test(words)) return false;
+  if(!/^(?:i\b|i'm\b|i've\b|it feels like i\b|my\b|we\b|our\b|how\b|when\b|what\b|why\b|can\b|could\b|should\b|does\b|is\b)/i.test(words)) return false;
+  if(inquiry.pattern.test(words) || inquiry.statement.test(words)) return true;
+  if(id==="dillard"){
+    const aboutMeaningfulPractice=/\b(?:writ(?:e|ing)|story|time for what matters|daily habits|routines?|priorit(?:y|ies)|things i care about)\b/i.test(words);
+    const aboutRepeatedTime=/\b(?:time|hours?|days?|week|schedule|routine|messages?|repl(?:y|ies)|postpon(?:e|ing)|interrupt(?:ion|ed|ions?)|distract(?:ion|ed|ions?)|demands?)\b/i.test(words);
+    return aboutMeaningfulPractice && aboutRepeatedTime;
+  }
+  if(id==="kierkegaard"){
+    const aboutChoice=/\b(?:decid(?:e|es|ed|ing)|decisions?|choos(?:e|ing)|choices?|act(?:ing)?|commit(?:ting|ment)?|keep going|moving|stay(?:ing)?)\b/i.test(words);
+    const aboutKnowledgeInTime=/\b(?:uncertain(?:ty)?|unknown|unsure|not know|don't know|cannot know|predict(?:ion)?|future|before|after|later|regret(?:ting)?|outcome|hindsight|certainty|know what|what will happen)\b/i.test(words);
+    return aboutChoice && aboutKnowledgeInTime;
+  }
+  return false;
+}
+
 function encounterWorldThread(memory,id){
   const inquiry=priorInquiries[id];
   if (!inquiry || !Array.isArray(memory?.threads)) return null;
@@ -1296,11 +1324,11 @@ function encounterWorldThread(memory,id){
     if(record?.type!=="thread" || !record.id || !Number.isInteger(record.quoteId)) continue;
     for(const field of ["note","opening"]){
       const words=record[field];
-      if(typeof words!=="string" || !(inquiry.pattern.test(words.trim()) || inquiry.statement.test(words.trim()))) continue;
+      if(!relatedVolunteeredReflection(id,words,inquiry)) continue;
       const fixture=memory.fixture===true;
       return {source:"livingThreads.history",recordId:record.id,field,quoteId:record.quoteId,date:record.date||null,
         fixture,excerpt:words.trim(),interpretation:inquiry.connection,
-        text:(fixture?"Sample reflection":"In your earlier reflection")+" — “"+words.trim()+"” "+inquiry.connection};
+        text:(fixture?"In this sample reflection":"You previously wondered")+" — “"+words.trim().slice(0,160)+(words.trim().length>160?"…":"")+"” "+inquiry.connection};
     }
   }
   return null;
@@ -1311,6 +1339,36 @@ function encounterWorldThread(memory,id){
 // Curated interpretations keyed to the distinctions validated by the existing
 // mechanism. A quote family admits only its own reviewed distinctions.
 const dillardReturn = {
+  "planned-replies-majority": [
+    "A plan can name a priority without securing its place.",
+    "You wanted to protect time, yet replies received most of this particular evening. We cannot tell which minutes, if any, were reserved for the story.",
+    "Dillard asks us to look beyond one intended priority to the arrangement that repeated days actually sustain. Answering people is not automatically less valuable than writing. But if this schedule recurred, its larger share of replies would also become part of the life it makes.",
+    "If another request arrived, which part of this plan would you keep?"
+  ],
+  "obligations-visible-replies": [
+    "Your reasons and your hours tell different parts of the story.",
+    "You said other things needed doing, and your evening gave more time to messages than to writing. The allocation cannot tell us which messages were necessary.",
+    "Dillard brings the everyday pattern into view. If this arrangement repeated, answering others would receive a regular share of your life. That is not automatically a mistake: the quotation asks us to notice what the repeated days contain, not to rank every activity.",
+    "Which recurring demand would you deliberately choose to make room for?"
+  ],
+  "obligations-visible-rest": [
+    "Rest can be part of the pattern, not merely a break from it.",
+    "Although other things needed doing, you gave rest more time than writing or messages. This says something about tonight's allocation, not why you needed the pause.",
+    "Dillard asks us to imagine such evenings becoming ordinary days. Rest would then be one of the activities the resulting life has made room for, alongside the things still waiting to be done. A repeated day contains more than the work we finish.",
+    "Which part of this evening would you choose to carry into tomorrow?"
+  ],
+  "obligations-visible-writing": [
+    "A story can have a place even among obligations.",
+    "You said other things needed doing, yet writing received at least as much time as either alternative. Nothing in the hours tells us whether you reserved that space first.",
+    "For Dillard, one writing session is not the same as a writing life. But if days like this recurred, writing would take on a regular place among the other claims on your time. The pattern, rather than one impressive evening, is what her quotation invites you to see.",
+    "What would help a similar writing session happen again?"
+  ],
+  "interrupted-without-replies": [
+    "An interruption need not decide where the hours go.",
+    "You reported other demands breaking into the evening, but gave no time to answering messages. A distraction arriving and your decision to reply are not the same thing.",
+    "Dillard's line is about the days that actually accumulate. If many evenings looked like this, both the demands and the ways you chose to respond would matter. The quotation doesn't reveal why you were interrupted; it directs attention to the ordinary pattern those responses create.",
+    "What would you choose to repeat if the phone buzzed tomorrow?"
+  ],
   "protected-or-remainder": [
     "Finding time leaves open whether that time was protected.",
     "You reserved some time for the story or found it after replying. Either fits the evening you described: messages took most of it, and other demands changed your plan.",
@@ -1484,10 +1542,40 @@ function eveningDistinction(facts) {
     "A deliberate majority allocation leaves less than half for the other two uses combined. More time for either must come from the fixed budget.",
     "The model cannot show the order in which hours were booked.",
     "Your plan gives the story most of the evening. That choice also sets a limit on what you can offer everything else. Keeping the writing time would mean honoring that limit when another claim arrives.");
+  if (declaredInfluence === "planned" && messages > 1.5 && messages > writing)
+    return distinction("planned-replies-majority",["planning to protect time","what the planned distribution actually permits"],premises,
+      "The participant reports an intention to protect time, but the planned evening allocates a majority to replies. The distribution establishes the uses, not which hour was reserved first.",
+      "We do not know which replies were necessary or whether writing had a reserved minimum.",
+      "You intended to protect your time, yet replies occupy most of this particular plan. A schedule can express an intention without showing which activity has priority when the plan meets another demand. Repeating it would give the replies the larger recurring share.",
+      "Which part of this plan would stay unchanged if another request arrived?");
   if (declaredInfluence === "planned" && rest > 0) return distinction("room-for-both",["competing for an extra hour","being able to coexist"],premises,
     "An increase in one activity must displace another, yet the chosen schedule already admits both writing and rest.",
     "Neither the adequacy of the rest nor the quality of the writing is known.",
     "An extra half-hour has to come from somewhere. Yet in the plan you made, writing and rest already coexist. You only have to choose between them when you ask for more time than the evening holds.");
+  if (declaredInfluence === "obligations" && messages > writing && messages >= rest)
+    return distinction("obligations-visible-replies",["reasons for an evening","where its hours actually go"],premises,
+      "The participant cites obligations and allocates more time to replies than to writing. This establishes a recurring distribution if repeated, not the moral worth or necessity of any reply.",
+      "The selected motivation does not tell us which messages were duties.",
+      "Other things needed doing, and in this evening replying takes more time than writing. That is a fact about how the hours are arranged, not a verdict on whether any reply was worth sending. If repeated, the arrangement would give answering people a regular place in your days.",
+      "Which recurring demand would you most want to make room for on purpose?");
+  if (declaredInfluence === "obligations" && rest > writing && rest >= messages)
+    return distinction("obligations-visible-rest",["having demands to meet","making room for recovery"],premises,
+      "The participant reports obligations, while rest receives a larger allocation than writing or messages. Both demands and recovery can feature in a planned recurring day.",
+      "Nothing identifies the motive for resting, or whether the rest was sufficient.",
+      "Even with other things to get done, your evening gives more time to rest than to the story or messages. Repeating such an evening would make recovery part of the pattern of days, not simply an absence of progress on the story.",
+      "If this pattern returned tomorrow, what would it make room for?");
+  if (declaredInfluence === "obligations" && writing >= messages && writing >= rest)
+    return distinction("obligations-visible-writing",["having multiple claims on time","still making a place for the story"],premises,
+      "With obligations reported, writing receives at least as much time as either alternative. Repeating the allocation would give writing a regular sitting, without showing whether it was protected first.",
+      "We cannot tell whether the writing session was reserved or merely fit the other commitments.",
+      "You reported other obligations, yet the story still receives one of the evening's largest shares. An individual sitting doesn't establish a habit, but returning to a similar arrangement could give writing a recurring place alongside those demands.",
+      "What would make this particular arrangement possible again?");
+  if (declaredInfluence === "interrupted" && messages === 0)
+    return distinction("interrupted-without-replies",["demands arriving","demands receiving time"],premises,
+      "The participant reports interruptions but allocates no time to replies. An interruption and a response are different events; the allocated time cannot identify how much attention the interruption consumed.",
+      "The nature and duration of the interruptions remain unknown.",
+      "You reported interruptions, but assigned no time to replying. A buzzing phone is one kind of demand; giving it part of your schedule is another. If this evening repeated, the pattern of how you responded—not merely the arrival of demands—would shape its place in your days.",
+      "If the same interruption came tomorrow, what would you choose to repeat?");
   return distinction("recurring-foothold",["an amount of writing time","the terms on which it recurs"],premises,
     "Positive writing time accumulates under repetition; neither duration nor the broad influence identifies what would preserve it.",
     "We cannot infer a protected minimum, an ordering, or progress on the story.",
@@ -1622,7 +1710,7 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const slug=id=>getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
-const active={mode:"dillard", cases:{
+const active={mode:"dillard", likes:{dillard:false,kierkegaard:false}, revealed:{dillard:false,kierkegaard:false}, cases:{
  dillard:{ticks:[2,2,2],motivation:null,result:null},
  kierkegaard:{stage:0,resource:null,barrier:null,action:null,result:null}
 }};
@@ -1690,21 +1778,24 @@ function contrastHtml(visual){
 function render(){
  const id=active.mode, spec=slug(id), s=active.cases[id];
  const title=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
- const view=expressConsequence(s.result);
+ const view=active.revealed[id]?expressConsequence(s.result):null;
  const end=view?`<section class="result" tabindex="-1" aria-label="Encounter reflection">
  <span class="section-label">Your Encounter with ${esc(spec.author)}</span><h3>${esc(view.headline)}</h3>
- <p>${esc(view.experience)}</p>${contrastHtml(view.visual)}<span class="section-label">Return to the quotation</span>
+ <p>${esc(view.experience)}</p>${view.world?`<p class="memory-reference">${esc(view.world.text)}</p>`:""}${contrastHtml(view.visual)}<span class="section-label">Return to the quotation</span>
  <blockquote>${esc(view.quote)}</blockquote><p class="interpretation">${esc(view.interpretation)}</p>
- ${view.world?`<span class="section-label">My World${view.world.fixture?" · QA fixture":""}</span><p class="world-note">${esc(view.world.text)}</p>`:""}
  <span class="section-label">A question to carry forward</span><p class="reflection">${esc(view.proactiveQuestion)}</p>
- <details><summary>Founder QA · evidence and limits</summary><pre>${esc(JSON.stringify(s.result,null,2))}</pre></details></section>`:"";
- $("cases").innerHTML=`<article class="case" data-id="${id}"><header class="case-top" style="display:block"><h2>${esc(spec.author)}</h2><p class="quote">“${esc(title)}”</p><p class="work">${esc(spec.citationSource)}</p></header>${id==="dillard"?tradeoffHtml(id):decisionHtml(id)}${end}</article>`;
+ ${location.hash.startsWith("#qa")?`<details><summary>Founder QA · evidence and limits</summary><pre>${esc(JSON.stringify(s.result,null,2))}</pre></details>`:""}</section>`:"";
+ $("cases").innerHTML=`<article class="case" data-id="${id}"><header class="case-top" style="display:block"><h2>${esc(spec.author)}</h2><p class="quote">“${esc(title)}”</p><p class="work">${esc(spec.citationSource)}</p></header><div class="encounter-actions" role="group" aria-label="Choose what to do with this quotation"><button type="button" data-like="${id}" aria-pressed="${active.likes[id]}">${active.likes[id]?"♥ Liked":"♡ Like"}</button><button type="button" data-discover="${id}" aria-expanded="${active.revealed[id]}">${active.revealed[id]?"Discovering":"Discover"}</button></div>${active.revealed[id]?(id==="dillard"?tradeoffHtml(id):decisionHtml(id)):""}${end}</article>`;
  document.querySelectorAll("[data-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.mode===id)));
 }
 function refreshCard(){render();}
 document.addEventListener("click",ev=>{
  const tab=ev.target.closest('[data-mode]');
  if(tab){active.mode=tab.dataset.mode;render();return;}
+ const like=ev.target.closest("[data-like]");
+ if(like){const id=like.dataset.like;active.likes[id]=!active.likes[id];render();document.querySelector("[data-like]")?.focus({preventScroll:true});return;}
+ const discover=ev.target.closest("[data-discover]");
+ if(discover){const id=discover.dataset.discover;active.revealed[id]=true;render();document.querySelector("[data-id='"+id+"'] .case-body")?.scrollIntoView({block:"nearest"});return;}
  const motive=ev.target.closest("[data-motive]");
  if(motive){
   const s=active.cases[motive.dataset.motive];
