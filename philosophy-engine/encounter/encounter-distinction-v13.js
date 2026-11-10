@@ -57,6 +57,29 @@ const priorInquiries = {
   }
 };
 
+// The authored phrase is evidence of a question, not agreement with its thesis.
+// These are conservative, source-specific semantic gates: no remote embeddings,
+// no model-generated memories, and no matching on themes/saves alone.
+function relatedVolunteeredReflection(id, value, inquiry){
+  const words=typeof value==="string"?value.trim():"";
+  if(words.length<22 || words.length>240) return false;
+  if(/^(?:my friend|a friend|someone|he|she|they|the article|the quote|the app|the philosopher|i read|imagine|suppose|for example)\\b/i.test(words)) return false;
+  if(/^i (?:do not|don't|never) (?:wonder|worry|ask|question)\\b/i.test(words)) return false;
+  if(!/^(?:i\\b|i'm\\b|i've\\b|it feels like i\\b|my\\b|we\\b|our\\b|how\\b|when\\b|what\\b|why\\b|can\\b|could\\b|should\\b|does\\b|is\\b)/i.test(words)) return false;
+  if(inquiry.pattern.test(words) || inquiry.statement.test(words)) return true;
+  if(id==="dillard"){
+    const aboutMeaningfulPractice=/\\b(?:writ(?:e|ing)|story|time for what matters|daily habits|routines?|priorit(?:y|ies)|things i care about)\\b/i.test(words);
+    const aboutRepeatedTime=/\\b(?:time|hours?|days?|week|schedule|routine|messages?|repl(?:y|ies)|postpon(?:e|ing)|interrupt(?:ion|ed|ions?)|distract(?:ion|ed|ions?)|demands?)\\b/i.test(words);
+    return aboutMeaningfulPractice && aboutRepeatedTime;
+  }
+  if(id==="kierkegaard"){
+    const aboutChoice=/\\b(?:decid(?:e|es|ed|ing)|decisions?|choos(?:e|ing)|choices?|act(?:ing)?|commit(?:ting|ment)?|keep going|moving|stay(?:ing)?)\\b/i.test(words);
+    const aboutKnowledgeInTime=/\\b(?:uncertain(?:ty)?|unknown|unsure|not know|don't know|cannot know|predict(?:ion)?|future|before|after|later|regret(?:ting)?|outcome|hindsight|certainty|know what|what will happen)\\b/i.test(words);
+    return aboutChoice && aboutKnowledgeInTime;
+  }
+  return false;
+}
+
 export function encounterWorldThread(memory,id){
   const inquiry=priorInquiries[id];
   if (!inquiry || !Array.isArray(memory?.threads)) return null;
@@ -64,11 +87,11 @@ export function encounterWorldThread(memory,id){
     if(record?.type!=="thread" || !record.id || !Number.isInteger(record.quoteId)) continue;
     for(const field of ["note","opening"]){
       const words=record[field];
-      if(typeof words!=="string" || !(inquiry.pattern.test(words.trim()) || inquiry.statement.test(words.trim()))) continue;
+      if(!relatedVolunteeredReflection(id,words,inquiry)) continue;
       const fixture=memory.fixture===true;
       return {source:"livingThreads.history",recordId:record.id,field,quoteId:record.quoteId,date:record.date||null,
         fixture,excerpt:words.trim(),interpretation:inquiry.connection,
-        text:(fixture?"Sample reflection":"In your earlier reflection")+" — “"+words.trim()+"” "+inquiry.connection};
+        text:(fixture?"In this sample reflection":"You previously wondered")+" — “"+words.trim().slice(0,160)+(words.trim().length>160?"…":"")+"” "+inquiry.connection};
     }
   }
   return null;
