@@ -59,7 +59,7 @@ try{
   d=await page.evaluate(()=>window.__encounterDebug);
   assert.equal(d.packet.quote.id,28);
   assert.equal(d.expression.mechanism,"decision_map");
-  assert.match(d.expression.question,/possibility to become reliable/);
+  assert.match(d.expression.question,/what would make it last/);
   assert.equal(await page.locator("#result .mindmap").count(),1);
   assert.ok(await page.locator("#result .map-wires path").count()>=5);
   assert.equal(await page.locator("#result .map-node").count(),5);
