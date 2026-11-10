@@ -1,3 +1,4 @@
+import {quotationEnding} from "./quotation-return-v12.js";
 import {evaluateTradeoffCase, evaluateDecisionCase} from "./mechanism-transfer-engine-v02.js";
 
 // A warrant relates two concepts under explicit premises. Everyday wording is
@@ -132,7 +133,16 @@ function readRoute(result) {
     limits:["The event is imagined.","Later evidence cannot settle the original decision or reveal the other future."]};
 }
 
-export function encounterConsequence(id, input) {
+function savedQuotation(memory, quote) {
+  if (!Array.isArray(memory?.savedQuoteReferences)) return null;
+  const match=memory.savedQuoteReferences.find(entry=>entry?.source==="saved" &&
+    entry.quoteId===quote.id && entry.text===quote.text && entry.author===quote.author);
+  if (!match) return null;
+  return {source:"saved",quoteId:match.quoteId,fixture:memory.fixture===true,
+    text:memory.fixture===true?"This sample record marks this quotation as saved.":"You previously saved this quotation in My World."};
+}
+
+export function encounterConsequence(id, input, memory=null) {
   if (!["dillard","kierkegaard"].includes(id)) return {status:"declined",reason:"No reviewed pilot rule for this case."};
   let result;
   try {
@@ -143,12 +153,20 @@ export function encounterConsequence(id, input) {
     if (!(error instanceof TypeError || error instanceof RangeError)) throw error;
     return {status:"declined",reason:error.message};
   }
+  // Establish the quotation's source relation before interpreting this path.
+  const centralPhilosophicalRelation=result.sourceRelation;
   const reading = id === "dillard" ? readEvening(result) : readRoute(result);
   const {relation,...fields}=reading;
   const {discovery,question,...reasoning}=relation;
   const hiddenRelationship={...reasoning,sourceInterpretation:result.sourceRelation,sourceReferences:result.sourceReferences};
-  return {status:"ready", schema:"encounter-consequence/1.1", caseId:id, quote:result.quote,
+  const ending=quotationEnding(result,reasoning.kind);
+  const optionalWorldConnection=savedQuotation(memory,result.quote);
+  return {status:"ready", schema:"encounter-consequence/1.2", caseId:id, quote:result.quote,
     input:result.input, mechanism:result.mechanism, ...fields, hiddenRelationship, discovery, question, tension:reasoning.concepts.join(" / "),
+    centralPhilosophicalRelation, observedPath:result.input, scenarioConsequence:fields.consequence,
+    sourceGroundedInterpretation:ending.interpretation, userFacingDiscovery:ending.headline,
+    experience:ending.experience, optionalWorldConnection,
+    proactiveQuestion:optionalWorldConnection?"Reading this line again, "+ending.question[0].toLowerCase()+ending.question.slice(1):ending.question,
     trace:[...result.rules,reading.rule,reasoning.kind], sources:result.sourceReferences,
     editorialStatus:"provisional", fingerprintEvidence:null};
 }
@@ -157,5 +175,8 @@ export function encounterConsequence(id, input) {
 export function expressConsequence(packet) {
   if (packet?.status !== "ready") return null;
   const {discovery,consequence,connection,question} = packet;
-  return {discovery,consequence,connection,question};
+  return {discovery,consequence,connection,question,headline:packet.userFacingDiscovery,
+    experience:packet.experience,quote:packet.quote.text,interpretation:packet.sourceGroundedInterpretation,
+    world:packet.optionalWorldConnection,proactiveQuestion:packet.proactiveQuestion};
+
 }

@@ -16,7 +16,7 @@ try {
     await page.locator('[data-motive][data-value="planned"]').click();
     await run.click();
     assert.match(await page.locator(".result h3").innerText(),/another evening/);
-    assert.equal(await page.locator(".result .reflection").count(),0);
+    assert.equal(await page.locator(".result .reflection").count(),1);
     await page.locator('[data-motive][data-value="interrupted"]').click();
     assert.equal(await page.locator(".result").count(),0);
     await run.click();
@@ -29,13 +29,24 @@ try {
     await sliders.nth(2).press("ArrowRight");
     await sliders.nth(0).press("ArrowRight");
     await run.click();
-    assert.match(await page.locator(".result h3").innerText(),/first ones you protected/);
+    assert.match(await page.locator(".result h3").innerText(),/two different places/);
     assert.equal(await page.locator(".result .reflection").count(),1);
-    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    async function verifyEnding(){
+      const result=page.locator(".result");
+      assert.deepEqual(await result.locator(".section-label").allTextContents(),[
+        "Your Encounter with "+await page.locator(".case-top h2").innerText(),"Return to the quotation","A question to carry forward"]);
+      assert.equal(await result.locator("blockquote").innerText(),(await page.locator(".case-top .quote").innerText()).slice(1,-1));
+      assert.equal(await result.locator("details").getAttribute("open"),null);
+      assert.equal(await result.locator(".world-note").count(),0);
+      const bounds=await result.boundingBox();
+      assert.ok(bounds.height<=844, width+"px ending height "+bounds.height);
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    }
+    await verifyEnding();
     await page.locator('[data-mode="kierkegaard"]').click();
     await page.locator("[data-start]").click();
     const pick=async(stage,value)=>page.locator(`[data-fork-choice="${stage}"][data-value="${value}"]`).click();
-    for(const [first,word] of [["change",/friends/],["stay",/team change/]]){
+    for(const [first,word] of [["change",/friends/],["stay",/familiar job/]]){
       await pick("resource",first);
       assert.equal(await page.locator('[data-fork-choice="action"]').count(),0);
       assert.equal(await page.locator(".result").count(),0);
@@ -43,12 +54,20 @@ try {
       await pick("action","adapt");
       await run.click();
       assert.match(await page.locator(".result h3").innerText(),word);
+      await verifyEnding();
       await page.locator("summary").click();
       assert.equal(JSON.parse(await page.locator("pre").innerText()).rule,first+"/surprise/adapt");
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     }
     await page.locator("[data-reset]").click();
     assert.equal(await page.locator(".result, [data-fork-choice]").count(),0);
+    await page.goto(url.split("#")[0]+"#qa-saved");
+    await page.locator('[data-mode="dillard"]').click();
+    await page.locator('[data-motive][data-value="planned"]').click();
+    await run.click();
+    assert.match(await page.locator(".result").innerText(),/My World · QA fixture/i);
+    assert.equal(await page.locator(".world-note").count(),1);
+    assert.ok((await page.locator(".result").boundingBox()).height<=844);
     assert.deepEqual(errors,[]);
     if(url.startsWith("file:")) assert.deepEqual(network,[]);
     console.log(width+"px: both journeys, edits, reset, evidence, and viewport passed");
