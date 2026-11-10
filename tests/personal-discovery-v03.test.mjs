@@ -111,3 +111,26 @@ test("offline standalone HTML is an exact reproducible build from seven source m
  assert.doesNotMatch(out,/^import\s/m);
  assert.doesNotMatch(out,/fetch\s*\(|XMLHttpRequest|localStorage|sessionStorage/);
 });
+
+
+test("whole-evening motivation is never misassigned to optional work that received zero hours",()=>{
+ for(const motivation of ["necessary","expected","chosen"]){
+   for(const stance of ["mixed","uncertain","unstated"]){
+     const packet=reasonSeneca({ticks:[0,2,4],motivation});
+     const e=expressPersonalInsight(packet,{stance});
+     assert.doesNotMatch(e.title,/When did optional become necessary/);
+     assert.doesNotMatch(e.summary,/gave free time to an optional request/);
+     assert.ok(e.question);
+   }
+ }
+ const necessary=expressPersonalInsight(reasonSeneca({ticks:[0,3,3],motivation:"necessary"}),{stance:"mixed"});
+ assert.match(necessary.question,/Which part of tonight felt hardest to change/);
+});
+test("Woolf questions respond to actually chosen barriers and actions, not just sentiment",()=>{
+ const q=(barrier,action)=>expressPersonalInsight(
+   reasonWoolf({resource:"income",barrier,action}),{stance:"mixed"}).question;
+ assert.notEqual(q("space","write"),q("access","write"));
+ assert.notEqual(q("space","write"),q("space","challenge"));
+ assert.match(q("space","challenge"),/uninterrupted space/);
+ assert.match(q("access","challenge"),/whose writing/);
+});
