@@ -1,0 +1,21 @@
+name: Encounter consequence review
+on:
+  pull_request:
+    paths:
+      - '**/*encounter-v1*'
+      - 'philosophy-engine/encounter/consequence-v1.js'
+      - 'scripts/build-scenario-transfer-lab-v02.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  encounters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: node scripts/build-encounter-v1.mjs --check && node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs
+      - run: npm install --no-save --package-lock=false playwright-core@1.56.1
+      - run: node tests/encounter-v1-browser.mjs

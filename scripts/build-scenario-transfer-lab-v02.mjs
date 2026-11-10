@@ -30,17 +30,17 @@ function removeImportsAndExports(text,label){
     throw Error("Unsafe HTML-script sequence in "+label);
   return stripped;
 }
-export function buildScenarioTransferStandalone(){
-  const html=read(source);
+export function buildScenarioTransferStandalone(entry=source, extraModules=[]){
+  const html=read(entry);
   const open="<script type=\"module\">";
   if(html.split(open).length!==2||html.split("</script>").length!==2)
     throw Error("Expected a single application module script");
   const frontend=html.split(open)[1].split("</script>")[0];
-  const bundledModules=modules.map(file=>
+  const bundledModules=[...modules,...extraModules].map(file=>
     "\n/* EXACT RESEARCH MODULE: "+file+" */\n"+removeImportsAndExports(read(file),file)
   ).join("\n");
   const script="<script>\n"+bundledModules+"\n/* ORIGINAL LAB UI */\n"+
-    removeImportsAndExports(frontend,source)+"\n</script>";
+    removeImportsAndExports(frontend,entry)+"\n</script>";
   return html.replace(/<script type="module">[\s\S]*?<\/script>/,script);
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){

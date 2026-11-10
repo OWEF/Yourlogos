@@ -1,0 +1,1534 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101310">
+<meta name="color-scheme" content="dark">
+<title>YourLogos · Encounter</title>
+<style>
+:root{color-scheme:dark;--bg:#101310;--card:#1a211a;--card2:#283127;--line:#465044;--ink:#f4f0e5;--muted:#b7c0b1;--soft:#a0ac99;--sage:#a5bea2;--gold:#d7bd8b;--rose:#ceaba5}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;min-width:280px;color:var(--ink);background:radial-gradient(ellipse 75% 320px at 22% 0%,#353526 0,transparent 95%),var(--bg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+main{max-width:1100px;margin:auto;padding:22px 16px calc(76px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font:23px Georgia,serif;letter-spacing:-.04em}
+.version{font-size:10px;letter-spacing:.08em;color:var(--sage);border:1px solid #566654;padding:7px 10px;border-radius:99px}
+.hero{max-width:790px;margin:31px 0 25px}
+.eyebrow{font-size:10px;font-weight:750;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+h1{font:normal clamp(30px,5vw,48px)/1.12 Georgia,serif;letter-spacing:-.03em;margin:8px 0 13px}
+.hero p{max-width:670px;color:var(--muted);margin:0;font-size:14px}
+.tabs{display:flex;gap:9px;margin:22px 0 16px;flex-wrap:wrap}
+.tab{flex:1;min-width:132px;background:#222c22;color:var(--ink);border:1px solid #4a5849;border-radius:13px;padding:13px 10px;text-align:left}
+.tab strong{display:block;font-size:14px}.tab span{font-size:11px;color:var(--muted)}
+.tab[aria-selected=true]{border-color:var(--gold);background:#3b382a}
+.lab-intro{color:var(--muted);font-size:13px;margin-bottom:16px}
+.parallel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:13px}
+.parallel.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.case{background:var(--card);border:1px solid var(--line);border-radius:18px;min-width:0;overflow:hidden}
+.case-top{padding:19px 17px;border-bottom:1px solid var(--line)}
+.case-top .role{font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.09em}
+.case-top h2{font:normal 23px/1.14 Georgia,serif;margin:7px 0}
+.case-top .quote{font:normal 19px/1.3 Georgia,serif;margin:11px 0;color:#ede6d6}
+.case-top .work{font-size:11px;color:var(--sage)}
+.case-top details{margin-top:10px}
+details summary{font-size:12px;color:var(--gold);padding:7px 0;cursor:pointer}
+details p{font-size:12px;color:var(--muted);margin:6px 0}
+.case-body{padding:17px}
+.case-body>.story{font-size:13px;color:#d6ddd0;line-height:1.55;margin:0 0 15px}
+.question{font-weight:650;color:#f3ecdf;font-size:13px;margin:18px 0 10px}
+.slider-block{margin:14px 0}
+.slider-block .head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+.slider-block .hours{color:var(--gold);font-variant-numeric:tabular-nums}
+input[type=range]{display:block;width:100%;accent-color:var(--gold);height:31px;touch-action:pan-x}
+.time-stack{width:100%;height:16px;display:flex;overflow:hidden;border-radius:7px;background:#3b4637}
+.time-stack span{transition:width .12s}
+.time-legend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.time-legend span{font-size:10px;color:var(--muted)}
+.time-legend i{display:inline-block;width:7px;height:7px;border-radius:3px;margin-right:4px}
+.choices{display:grid;gap:8px}
+.choice{background:#2c3529;border:1px solid #52624e;border-radius:11px;color:var(--ink);padding:11px 12px;text-align:left;display:flex;gap:10px;align-items:flex-start}
+.choice[aria-pressed=true]{background:#41402d;border-color:var(--gold)}
+.choice strong{display:block;font-size:12px}.choice small{display:block;font-size:11px;color:var(--muted)}
+.choice .symbol{font-size:17px;color:var(--gold)}
+.primary{display:block;width:100%;background:var(--gold);color:#28271f;border:0;border-radius:11px;padding:13px 12px;font-weight:750;margin:18px 0 5px}
+.secondary{display:block;width:100%;border:1px solid #657b61;border-radius:11px;background:#283327;color:var(--sage);padding:11px 10px;font-size:12px}
+.journey{background:radial-gradient(ellipse 80% 110px at 50% 0%,#333a2e,#202920);border:1px solid #4d5d4c;border-radius:14px;padding:16px 10px;margin-top:5px}
+.journey-root{border:1px solid #bca87c;background:#36362c;color:var(--ink);border-radius:11px;padding:11px;text-align:center;display:block;max-width:86%;min-height:81px;margin:0 auto;font-size:12px}
+.journey-root strong{display:block;font:normal 16px/1.27 Georgia,serif;margin:5px 0}
+.journey-root span{font-size:10px;color:var(--muted)}
+.fork{margin-top:9px}
+.fork .prompt{font-size:11px;color:var(--gold);font-weight:700;text-align:center;margin:9px 0 0}
+.fork svg{display:block;width:100%;height:39px;overflow:visible}
+.fork path{stroke:#9eb19a;stroke-width:2;fill:none;vector-effect:non-scaling-stroke}
+.fork circle{fill:var(--gold)}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.branch{background:#29342b;color:var(--ink);min-width:0;border:1px solid #678166;border-radius:10px;padding:12px 6px;text-align:center;min-height:126px;display:flex;flex-direction:column;gap:6px}
+.branch[aria-pressed=true]{border:2px solid var(--gold);background:#41402e}
+.branch strong{font-size:12px;line-height:1.25}.branch small{font-size:10px;line-height:1.3;color:var(--muted)}
+.branch .chosen{font-size:9px;color:var(--gold);margin-top:auto;text-transform:uppercase;letter-spacing:.08em}
+.path-ready{border:1px dashed #c4af82;padding:12px;text-align:center;border-radius:12px;margin-top:16px;color:#eadbb9;font-size:13px}
+.reset{border:0;background:transparent;color:var(--sage);text-decoration:underline;display:block;margin:10px auto 0;padding:10px;font-size:12px}
+.result{border-top:1px solid var(--line);background:#252c23;padding:17px}
+.result h3{font:normal 19px/1.2 Georgia,serif;margin:7px 0 12px}
+.result .row{background:#30392d;border-left:2px solid var(--sage);border-radius:0 9px 9px 0;padding:8px 10px;margin:8px 0;font-size:12px}
+.result .row strong{font-size:10px;color:var(--gold);display:block;text-transform:uppercase;letter-spacing:.07em}
+.result p{font-size:12px;color:#d2dacd;margin:10px 0}
+.result .guard{border-top:1px solid var(--line);padding-top:10px;color:var(--muted)}
+.result pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#111811;border:1px solid #404e3f;padding:9px;border-radius:9px;max-height:330px;overflow:auto;font-size:10px}
+.control-note{padding:14px;border:1px dashed #98886b;border-radius:12px;background:#332e25;color:#dfd3ba;font-size:12px;margin-top:12px}
+.matrix{background:#202920;border:1px solid #435141;border-radius:15px;padding:16px;margin-top:22px}
+.matrix h2{font:normal 23px Georgia,serif;margin:0 0 11px}
+.matrix-row{display:grid;grid-template-columns:110px 1fr;gap:9px;border-top:1px solid #3e4b3d;padding:10px 0;font-size:12px}
+.matrix-row strong{color:var(--gold)}.matrix-row span{color:var(--muted)}
+.foot{font-size:11px;color:var(--muted);margin-top:24px}
+.foot a{color:var(--sage)}
+.hidden{display:none!important}
+@media(max-width:880px){.parallel.three{grid-template-columns:1fr 1fr}.parallel.three .case:last-child{grid-column:span 2}}
+@media(max-width:680px){.parallel,.parallel.three{grid-template-columns:minmax(0,1fr)}.parallel.three .case:last-child{grid-column:auto}.case-top{padding:17px 16px}.case-body{padding:16px}.result{padding:16px}}
+@media(max-width:360px){.branch{min-height:143px;padding:10px 5px}.branch strong{font-size:11px}.branch small{font-size:10px}.matrix-row{grid-template-columns:90px 1fr}}
+main{max-width:660px}.result{scroll-margin:1rem}.result h3{font-size:clamp(23px,4vw,32px);line-height:1.22}.result p,.case-body>.story{font-size:15px}.choice strong,.branch strong{font-size:14px}.result details{margin-top:16px}.primary:disabled{opacity:.5;cursor:default}.tab[aria-pressed=true]{border-color:var(--gold);background:#3b382a}.result p.reflection{color:var(--gold)}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important}}
+</style></head><body><main><header><div class="brand">YourLogos.</div></header><h1>Encounter</h1>
+<nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button></nav>
+<section id="cases" aria-label="Current Encounter"></section></main>
+<script>
+
+/* EXACT RESEARCH MODULE: philosophy-engine/context-atlas/pilot-records-v01.js */
+/**
+ * CZ-110 — Philosophical Context Atlas v0.1 / fifteen-case research pilot.
+ *
+ * These records are EDITORIAL HYPOTHESES, not proofs, final authorial intent,
+ * verified quotations or production-ready encounters. Their text is copied
+ * from the stable bundled quote catalogue (app.js), with original IDs.
+ * External source links support only the named claims; they are NOT general
+ * certifications of an entire record's historical or philosophical accuracy.
+ */
+const reference = (url, kind, supports) => ({ url, kind, supports });
+
+const item = (id, text, author, source, school, x) => ({
+  id,
+  quote: { text, author, bundledSource: source, provenanceStatus: x.provenance || "catalogue_only" },
+  sourcePassage: {
+    work: source,
+    language: x.language || "unreviewed",
+    locator: x.locator || null,
+    originalText: null,
+    translation: { exactness: x.exactness || "unverified", translator: x.translator || null },
+    references: [reference("app.js", "internal_bundled_catalogue", "quote_identity"), ...(x.refs || [])],
+    contextualSummary: x.context,
+    contextStatus: x.refs?.length ? "passage_linked_editorial_summary" : "editorial_hypothesis_not_source_verified",
+  },
+  authorPosition: {
+    tradition: Array.isArray(school) ? school : [school],
+    stance: x.stance || "editorial_reconstruction",
+    periodOrWork: x.period || source,
+    scopedSummary: x.position,
+    comparisonWithOtherWorks: x.comparison || "Not yet researched; do not assume consistency across an author's entire career.",
+  },
+  argumentModel: {
+    claim: x.claim,
+    warrant: x.warrant,
+    logicalForm: {
+      quantity: x.form[0],
+      quality: x.form[1],
+      relation: x.form[2],
+      modality: x.form[3],
+      note: x.formNote,
+      interpretationNotLogicalProof: true,
+    },
+    concepts: x.concepts,
+    relation: x.relation,
+    scopeOrConditions: x.scope,
+    alternativeReadings: x.alternatives,
+    challenge: x.challenge,
+    limits: x.limits,
+  },
+  philosophicalOperation: {
+    name: x.operation,
+    task: x.operationTask,
+    target: x.operationTarget,
+  },
+  interactionModel: {
+    candidate: x.mechanic,
+    eligibility: x.mechanic === "none" ? "none_suitable" : "conditional",
+    scenario: x.scenario || null,
+    fitnessReason: x.fitness,
+    blocker: x.blocker,
+    approval: "not_approved",
+    mechanismProof: x.guard || null,
+    contraindicatedScenarioIds: x.rejectScenarios || [],
+  },
+  review: { status: "draft", scholarlyReviewed: false, publisherApproved: false, modelVersion: 1 },
+});
+
+const ATLAS_PILOT_V01 = Object.freeze([
+  item(0,"He who has a why to live can bear almost any how.","Friedrich Nietzsche","Twilight of the Idols","Nietzschean philosophy",{
+    context:"An aphoristic expression about an orienting purpose in relation to enduring circumstances; edition-specific language and surrounding text need checking.",
+    position:"A prospective reason for living can change how difficulties are borne; this is not a guarantee that purpose cures suffering.",
+    claim:"A meaningful why can make a difficult how more bearable.",
+    warrant:"The relation between orientation and endurance matters more here than measuring quantities of discomfort.",
+    form:["generic","affirmative","hypothetical","unspecified"], formNote:"Read as a tendency/conditional maxim, not an empirically exceptionless universal law.",
+    concepts:["purpose","endurance","circumstances"], relation:"purpose may condition endurance",
+    scope:"Circumstances of difficulty; how and why must be situated.",
+    alternatives:["An existential insight about purpose","A rhetorical maxim whose generality might overstate its psychological scope"],
+    challenge:"Can a strong purpose coexist with limits that cannot simply be endured?",
+    limits:"Cannot diagnose a person's ability to endure or prescribe endurance.",
+    operation:"test_qualification",operationTask:"Examine limits of a proposed connection between purpose and endurance.",operationTarget:"qualified conditional",
+    mechanic:"none",fitness:"No source-grounded finite allocation, branching mechanism or sharp counterexample condition has yet been reconstructed.",
+    blocker:"Quote wording/translation and proposition scope need source review."
+  }),
+  item(8,"Whereof one cannot speak, thereof one must be silent.","Ludwig Wittgenstein","Tractatus Logico-Philosophicus, 7","Early analytic philosophy",{
+    provenance:"passage_location_checked",locator:"Proposition 7",language:"German",exactness:"translation_variant",
+    refs:[reference("https://plato.stanford.edu/entries/wittgenstein/","scholarly_reference","proposition_7_and_logical_context")],
+    context:"Proposition 7 follows a sustained account of the relation among language, logical representation and the limits of meaningful propositions.",
+    position:"The early Wittgenstein places limits on what propositions can meaningfully express, while the later Wittgenstein must not be assumed to endorse every feature of this earlier theory.",
+    comparison:"The Tractatus and later philosophical investigations require separate period-qualified models.",
+    claim:"What cannot be meaningfully put into a proposition falls outside what can be stated in that form.",
+    warrant:"The proposition depends on the preceding theory of propositions, logic and representation.",
+    form:["generic","affirmative","hypothetical","apodictic"],formNote:"A concluding injunction whose force is tied to a technical theory, not ordinary social silence.",
+    concepts:["proposition","meaning","logical limits","silence"], relation:"limits of propositional expression constrain meaningful saying",
+    scope:"The tractarian account of saying/showing and logical representation.",
+    alternatives:["A statement of the limits of expressible sense","A self-referential challenge about the status of the Tractatus itself"],
+    challenge:"Can the limits of expression be stated without transgressing them?",
+    limits:"Do not translate this automatically into advice to stay quiet in relationships.",
+    operation:"reconstruct_limit",operationTask:"Examine the conditions of saying and showing.",operationTarget:"limits of proposition",
+    mechanic:"none",fitness:"None of the three mechanisms captures the technical argument without a new conceptual operation.",
+    blocker:"Requires careful Tractatus exposition before an exercise is approved."
+  }),
+  item(10,"All of humanity's problems stem from man's inability to sit quietly in a room alone.","Blaise Pascal","Pensées (paraphrased translation)","Early modern Christian apologetics",{
+    provenance:"paraphrase_context_checked",locator:"Pensées, Divertissement; Brunschvicg 139 / Lafuma 136 (numbering varies)",language:"French",exactness:"paraphrase",
+    refs:[reference("https://emend.press/pascal.html","translated_primary_text","diversion_passage_and_context")],
+    context:"The diversion fragment addresses agitation, warfare and distractions, and connects restlessness to the human condition and unhappiness; its popular modern rendering is not a literal universal proposition about every problem.",
+    position:"The diagnosis of diversion is embedded in an unfinished apologetic project, not a secular rule that each social problem arises from solitude avoidance.",
+    claim:"Distraction or diversion can conceal an encounter with the unease of human existence.",
+    warrant:"Repeated pursuit of agitation may be driven by a wish to avoid uncomfortable self-encounter.",
+    form:["generic","affirmative","categorical","unspecified"],formNote:"Popular 'all problems' wording is a paraphrase; do not use it as a formally universal Pascal thesis.",
+    concepts:["diversion","stillness","unhappiness","human condition"],relation:"diversion may mask the human condition",
+    scope:"Human unhappiness within Pascal's divertissement argument.",
+    alternatives:["An existential critique of diversion","An exaggeration if the popular English wording is treated literally"],
+    challenge:"Do all forms of activity merely distract, or can activity itself be meaningful?",
+    limits:"One counterexample to 'all human problems' would test the paraphrase, not faithfully refute Pascal.",
+    operation:"restore_scope",operationTask:"Compare a viral paraphrase with the argument it condenses.",operationTarget:"attribution_and_scope",
+    mechanic:"none",fitness:"Naive Counterexample routing would target a false universal created by paraphrasing.",
+    blocker:"This paraphrase requires copy/translation review before any mechanic is approved."
+  }),
+  item(11,"Two things fill the mind with ever-increasing wonder: the starry sky above me and the moral law within me.","Immanuel Kant","Critique of Practical Reason, conclusion (abridged translation)","Kantian practical philosophy",{
+    context:"A conclusion linking awe before nature to awareness of the moral law, not a quantitative choice between astronomy and ethics.",
+    position:"Kant distinguishes empirical nature and practical reason; the two sources of awe do not represent mutually exclusive life allocations.",
+    claim:"Reflection on nature and moral agency discloses distinct grounds for wonder.",
+    warrant:"The contrast spans natural order and the standpoint of rational moral agency.",
+    form:["singular","affirmative","categorical","assertoric"],formNote:"First-person closing reflection; not a general rule of how many hours to spend outdoors.",
+    concepts:["nature","moral law","wonder","practical reason"],relation:"two distinct grounds jointly occasion wonder",
+    scope:"Concluding reflection in a work of practical philosophy.",
+    alternatives:["A juxtaposition of natural and moral domains","A claim about the dignity and agency of moral beings"],
+    challenge:"What kind of necessity belongs to moral law as opposed to natural law?",
+    limits:"Not a finite resource or a causal if-then diagram.",
+    operation:"distinguish_domains",operationTask:"Compare theoretical and practical forms of wonder.",operationTarget:"conceptual_distinction",
+    mechanic:"none",fitness:"Three current games would artificially reduce two grounds for wonder to a competition.",
+    blocker:"Source wording and conceptual roles require dedicated scholarly checking."
+  }),
+  item(16,"The journey of a thousand miles begins with a single step.","Laozi","Dao De Jing, chapter 64 (translation varies)","Daoist thought",{
+    context:"Often translated from a saying about a thousand-li journey; chapter context also discusses beginnings, gradual formation and noncoercive action.",
+    position:"The proverb should not be isolated from Daoist caution against forced or grasping conduct.",
+    claim:"What becomes extensive may begin in an apparently small movement.",
+    warrant:"Beginnings and gradual processes can precede large-scale developments.",
+    form:["generic","affirmative","categorical","unspecified"],formNote:"Figurative proverb; the arithmetic interpretation is not the philosophical point.",
+    concepts:["beginning","process","action","nonforcing"],relation:"small beginnings can develop into large processes",
+    scope:"A figurative claim about the development of action.",
+    alternatives:["Encouragement of humble beginnings","A caution about controlling outcomes by force"],
+    challenge:"Does taking action ever undermine the very process one hopes to support?",
+    limits:"Not an automatically source-grounded branching decision tree.",
+    operation:"trace_development",operationTask:"Study how action is shaped by process, without forcing a fixed outcome.",operationTarget:"development_over_time",
+    mechanic:"none",fitness:"A decision-tree exercise would require invented dependencies not yet justified by the text.",
+    blocker:"Original Chinese and chapter context need review."
+  }),
+  item(20,"I think, therefore I am.","René Descartes","Discourse on Method, Part IV","Early modern rationalism",{
+    context:"A first-person route through radical doubt toward the certainty of existence while thinking; relation to later Meditations needs a separate record.",
+    position:"The cogito articulates a first-person epistemic certainty in the course of methodical doubt, not a survey of how often people think.",
+    claim:"The occurrence of thinking guarantees the thinker's existence in the act.",
+    warrant:"Doubting itself is thinking; something engaged in it cannot, while doing so, be nothing.",
+    form:["singular","affirmative","hypothetical","apodictic"],formNote:"The relation between inference and immediate self-evidence is interpretively contested.",
+    concepts:["doubt","thinking","existence","certainty"],relation:"thinking entails existence in the first-person act",
+    scope:"First-person act of thought/doubt, not a permanent empirical personality claim.",
+    alternatives:["An inference from thinking to being","An immediate self-verifying recognition"],
+    challenge:"Is this best understood as a syllogism or a performance of certainty?",
+    limits:"Does not imply that people who are not currently reflecting cease to exist.",
+    operation:"test_self_certainty",operationTask:"Explore the certainty that survives radical doubt.",operationTarget:"first_person_self_evidence",
+    mechanic:"none",fitness:"Our three mechanics do not reproduce the self-verifying operation reliably.",
+    blocker:"Clarify the relation of the Discourse and Meditations readings."
+  }),
+  item(21,"He who knows only his own side of the case knows little of that.","John Stuart Mill","On Liberty, Chapter II","Liberal political philosophy / epistemology",{
+    context:"From the defense of free discussion and the importance of confronting opposing reasons.",
+    position:"Hearing the case against one's position matters to understanding its grounds, even if one remains persuaded.",
+    claim:"A person may not grasp the grounds of a view by studying only supporting arguments.",
+    warrant:"Opposition can reveal premises and challenges that confirmation alone conceals.",
+    form:["generic","affirmative","hypothetical","unspecified"],formNote:"General epistemic lesson, not a quantified laboratory law.",
+    concepts:["understanding","opposition","justification","discussion"],relation:"access to objections may deepen understanding",
+    scope:"The epistemic value of disagreement in public discussion.",
+    alternatives:["An epistemological case for hearing opponents","A political defense of open discussion"],
+    challenge:"Does every opposing view deserve equal evidential weight?",
+    limits:"One counterexample cannot establish that engaging opposition is always useless.",
+    operation:"examine_objection",operationTask:"Confront a well-formed objection to a held argument.",operationTarget:"quality_of_reasons",
+    mechanic:"none",fitness:"A Perspective mechanic could fit, but it is explicitly deferred; forcing a universal Counterexample could misread Mill.",
+    blocker:"No approved operation among the three core mechanics."
+  }),
+  item(22,"The philosophers have only interpreted the world, in various ways; the point is to change it.","Karl Marx","Theses on Feuerbach, Thesis XI (translation varies)","Marxian philosophy / praxis",{
+    context:"A programmatic remark in notes on Feuerbach; context concerns sensuous human activity and praxis, not a ban on interpretation.",
+    position:"Marx challenges passive theoretical contemplation divorced from transformative practice.",
+    claim:"Interpretation by itself is insufficient to realize transformative human practice.",
+    warrant:"Human social reality includes practical activity, not merely the conceptual representation of it.",
+    form:["generic","mixed","categorical","unspecified"],formNote:"Rhetorical contrast; do not flatten into an exclusive choice between thought and action.",
+    concepts:["interpretation","praxis","social reality","transformation"],relation:"practice transforms conditions that interpretation describes",
+    scope:"Critique of philosophy detached from socially situated activity.",
+    alternatives:["Criticism of purely contemplative theory","A call to unite theory with practical transformation"],
+    challenge:"Is transforming the world possible without first understanding it?",
+    limits:"Do not imply that Marx denies the value of theory; no finite time budget is specified.",
+    operation:"connect_praxis",operationTask:"Test the dependence of transformative action on understanding.",operationTarget:"theory_practice_relation",
+    mechanic:"none",fitness:"A 'thinking versus doing' slider is a false dilemma; no source-based constraint is present.",
+    blocker:"Original wording and context need confirmation."
+  }),
+  item(23,"I do not wish them to have power over men; but over themselves.","Mary Wollstonecraft","A Vindication of the Rights of Woman, Chapter IV","Enlightenment feminism",{
+    provenance:"passage_location_checked",locator:"Chapter IV",language:"English",exactness:"close_to_source",
+    refs:[reference("https://barryfvaughan.org/text/philtext/wollstonecraft/vindication/4.html","primary_text","chapter_iv_passage_and_education_argument"),reference("https://plato.stanford.edu/entries/wollstonecraft/","scholarly_reference","authorial_social_context")],
+    context:"Within a critique of gendered education and imposed dependence, Wollstonecraft contrasts independence and rational self-command with domination of others.",
+    position:"Autonomy in reason and education is central to Wollstonecraft's critique of imposed female subordination; this is not a proposal to reverse dominance.",
+    claim:"The aim of emancipation is self-direction, not power over other people.",
+    warrant:"Denied education and civic standing obstruct the cultivation of agency.",
+    form:["generic","negative","disjunctive","assertoric"],formNote:"A contrast of two conceptions of power, not two mutually exclusive numerical prizes.",
+    concepts:["education","agency","domination","independence"],relation:"education supports agency; agency differs from domination",
+    scope:"Historical gender hierarchy and women's education.",
+    alternatives:["A distinction between domination and autonomy","A critique of social institutions that deny women independence"],
+    challenge:"Can apparent freedom coexist with structures that undermine self-direction?",
+    limits:"Do not cast domination and autonomy as equal competing goods.",
+    operation:"trace_conditions",operationTask:"Examine how education and institutions shape opportunities for independence.",operationTarget:"institutional_dependency",
+    mechanic:"decision_map",scenario:"Compare access to education/support and consequent feasible choices, with historical constraints visible.",
+    guard:{kind:"branch_dependency",ground:"Education and social institutions can affect paths to independent agency.",requires:"Do not model access as a guarantee of independent outcomes."},
+    fitness:"A contingent chain from social arrangements through agency can be represented without presuming guaranteed outcomes.",
+    blocker:"Branch dependencies and historically appropriate choices require editorial verification."
+  }),
+  item(28,"A woman must have money and a room of her own if she is to write fiction.","Virginia Woolf","A Room of One's Own, Chapter I","Modernist feminist literary criticism",{
+    provenance:"passage_location_checked",locator:"Chapter I, opening argument",language:"English",exactness:"shortened_excerpt",
+    refs:[reference("https://teachers.americanliterature.com/author/virginia-woolf/book/a-room-of-ones-own/chapter-1","primary_text","opening_qualification_and_material_conditions"),reference("https://anthologydev.lib.virginia.edu/work/Woolf/woolf-room-of-ones-own?section=frontMatter","academic_edition","publication_and_argument_context")],
+    context:"Woolf frames this as a limited opinion while acknowledging unresolved questions about women and fiction; she examines historical constraints on women's opportunities to write.",
+    position:"Material independence and private working space support creative opportunity in a historically unequal setting; they are not a guarantee of literary accomplishment.",
+    claim:"For women under the conditions Woolf discusses, material resources and independent space matter to the possibility of writing fiction.",
+    warrant:"Unequal access to money and space restricts the practical opportunity for sustained creative activity.",
+    form:["generic","affirmative","hypothetical","assertoric"],formNote:"The modal must expresses a proposed condition, not a statistical guarantee that resources alone produce fiction.",
+    concepts:["material_security","private_space","gendered_exclusion","creative_agency"],relation:"material conditions constrain practical creative opportunity",
+    scope:"Women and fiction under historical and institutional limitations, not any individual's writing ability.",
+    alternatives:["A material enabling-condition argument","A broader critique of exclusion from education and opportunity"],
+    challenge:"If material resources increase, what further obstacles or possibilities remain?",
+    limits:"Do not imply that lacking a room proves someone cannot write; do not detach the argument from gendered institutional history.",
+    operation:"trace_enabling_conditions",operationTask:"Explore how conditions alter feasible opportunities, without guaranteeing creative success.",operationTarget:"enabling_dependencies",
+    mechanic:"decision_map",scenario:"Change access to material resources and social permission, tracking plausible—not certain—opportunities.",
+    guard:{kind:"branch_dependency",ground:"Money, private space and social exclusion constrain writing opportunities.",requires:"Retain gendered history and distinguish opportunity from achievement."},
+    fitness:"Supported relation of enabling conditions to opportunity is compatible with branching alternatives.",
+    blocker:"Source-specific constraints and branches need editorial review before production."
+  }),
+  item(31,"The true is the whole.","G. W. F. Hegel","Phenomenology of Spirit, Preface (translation varies)","German idealism",{
+    context:"A compressed formulation in the Preface concerning truth as a developing totality rather than an isolated finished proposition.",
+    position:"Hegel's account of the whole involves its development; an isolated factual slogan cannot represent his dialectical argument.",
+    claim:"A claim to truth can require grasping its process and relations within a developing whole.",
+    warrant:"An abstract result detached from the movement that yields it risks losing its explanatory content.",
+    form:["generic","affirmative","categorical","unspecified"],formNote:"Do not treat 'whole' as a mere set aggregation or a universal quantifier over objects.",
+    concepts:["truth","whole","mediation","development"],relation:"the concrete whole includes development and mediation",
+    scope:"Hegel's speculative conception of truth in the Phenomenology Preface.",
+    alternatives:["Truth requires mediated development","A caution against isolated abstract propositions"],
+    challenge:"Can an isolated statement be understood without the process of its emergence?",
+    limits:"A finite budget slider or arbitrary decision tree would distort the role of mediation.",
+    operation:"reconstruct_mediation",operationTask:"Follow the conceptual movement through which a position acquires meaning.",operationTarget:"dialectical_development",
+    mechanic:"none",fitness:"Current trio lacks a reliable experience for speculative mediation.",
+    blocker:"Precise textual paragraph and interpretive debate remain to be reviewed."
+  }),
+  item(33,"To be, or not to be, that is the question.","William Shakespeare","Hamlet, Act III, Scene I","Early modern drama",{
+    context:"Hamlet's soliloquy is spoken by a dramatic character within a tragedy; its ambiguity and dramatic situation matter.",
+    stance:"character_speech",position:"A character confronts suffering, mortality and uncertainty; do not attribute the character's words to Shakespeare's settled philosophical doctrine.",
+    claim:"The speaker frames existence and nonexistence as a grave question.",
+    warrant:"The subsequent speech considers suffering, fear and uncertainty rather than proposing a general action rule.",
+    form:["singular","mixed","disjunctive","problematic"],formNote:"A dramatic existential question, not a recommended binary choice for app users.",
+    concepts:["existence","suffering","uncertainty","dramatic_voice"],relation:"the speaker reflects on an existential alternative under uncertainty",
+    scope:"Specific dramatic speech; not an author-endorsed normative proposition.",
+    alternatives:["Character's reflection on living with suffering","Dramatic display of uncertainty and possible action"],
+    challenge:"How does a character's speech change when understood within the play?",
+    limits:"Do not turn suicidal language into an interactive harm-choice game; do not conflate character with playwright.",
+    operation:"interpret_character_voice",operationTask:"Analyze who is speaking and how dramatic context changes meaning.",operationTarget:"speaker_vs_author",
+    mechanic:"none",fitness:"No safe or faithful fit among current three mechanisms.",
+    blocker:"Requires drama-sensitive editorial review; no action simulation."
+  }),
+  item(34,"Life can only be understood backwards; but it must be lived forwards.","Søren Kierkegaard","Journals, 1843 (translation varies)","Existential philosophy",{
+    context:"A commonly circulated maxim about retrospective intelligibility and forward decision under uncertainty; precise source and wording need checking.",
+    position:"An existential tension between interpreting a life retrospectively and committing to action prospectively.",
+    claim:"Understanding of a life often develops after events while decisions must occur before outcomes are known.",
+    warrant:"Retrospection has information that prospective action cannot have.",
+    form:["generic","affirmative","disjunctive","unspecified"],formNote:"The paradox is temporal, not an instruction to allocate equal time to past and future.",
+    concepts:["retrospection","action","uncertainty","time"],relation:"retrospective understanding and prospective action have asymmetric information",
+    scope:"Experiential understanding and choice under temporal limitations.",
+    alternatives:["A reflection on hindsight","A challenge to demands for certainty before acting"],
+    challenge:"When is waiting for understanding an abdication of action?",
+    limits:"No fixed branching consequence follows solely from this maxim.",
+    operation:"trace_temporal_asymmetry",operationTask:"Contrast hindsight with decision under incomplete information.",operationTarget:"time_and_knowledge",
+    mechanic:"decision_map",scenario:"Show branching possibilities without revealing future results in advance; permit later reflection on the path taken.",
+    guard:{kind:"branch_dependency",ground:"Hindsight and prospective action have asymmetric information.",requires:"Resolve attribution and passage wording before interpreting branch consequences."},
+    fitness:"A sequence may illuminate temporal asymmetry if the original wording is verified.",
+    blocker:"Citation/wording not yet source-verified; approval must remain conditional."
+  }),
+  item(42,"All men by nature desire to know.","Aristotle","Metaphysics I.1 (translation varies)","Ancient Greek philosophy",{
+    context:"The Metaphysics opens by connecting the desire for knowing with perception and delight in the senses, especially sight.",
+    position:"An opening anthropological claim about human orientation toward knowledge, not a questionnaire about each person's conscious preferences.",
+    claim:"Human beings are naturally disposed toward knowing.",
+    warrant:"The desire for sensory perception is adduced as an indication of our orientation toward knowledge.",
+    form:["universal","affirmative","categorical","assertoric"],formNote:"'By nature' indicates a characteristic disposition; do not assume every moment of every human life is an exceptionless desire to know.",
+    concepts:["human_nature","knowledge","desire","perception"],relation:"delight in perception is offered as an indication of desire for knowing",
+    scope:"Natural disposition, not a universal continuous conscious motivation.",
+    alternatives:["A claim about human beings as naturally knowledge-seeking","A claim illustrated by enjoyment of sense perception"],
+    challenge:"Does an individual who rejects inquiry refute a natural-disposition claim?",
+    limits:"Counterexamples need an explicit definition of 'by nature'; a single uninterested moment is not automatically decisive.",
+    operation:"test_scope",operationTask:"Explore whether a concrete case truly falsifies the qualified generalization.",operationTarget:"universal_vs_dispositional",
+    mechanic:"counterexample",scenario:"Test scope and antecedent: nature/disposition versus any particular observed act.",
+    guard:{kind:"generalization_scope",ground:"The opening all-claim asserts a natural human disposition toward knowledge.",requires:"Preserve the dispositional qualifier; reject trivially unrelated examples."},
+    fitness:"A claimed universal invites scope testing, provided the natural-disposition qualifier is preserved.",
+    blocker:"The scope of 'by nature' and the Greek text require review."
+  }),
+  item(49,"Life is long if you know how to use it.","Seneca","On the Shortness of Life (translation varies)","Roman Stoicism",{
+    provenance:"passage_location_checked",locator:"De Brevitate Vitae 2.1",language:"Latin",exactness:"translation_variant",translator:"Aubrey Stewart (external passage variant)",
+    refs:[reference("https://thestoiclibrary.com/shortness-of-life/2","translated_primary_text","passage_2_1_and_examples_of_busyness"),reference("https://en.mouseia.org/texts/seneca-brevitate-vitae/part-2","bilingual_source","latin_sentence_and_passage_context")],
+    context:"Seneca addresses Paulinus and criticizes the ways luxury, ambition, pointless business and restless pursuits consume life; the point is deliberate use, not an optimal allocation of eight daily hours.",
+    position:"A Stoic concern with living deliberately and not allowing empty occupations to squander a finite life.",
+    claim:"How life is lived matters more than merely the numerical length of life.",
+    warrant:"Many forms of restless busyness consume time without correspondingly making life well lived.",
+    form:["generic","affirmative","hypothetical","unspecified"],formNote:"The 'if' concerns knowing how to use life; it does not assert that splitting an arbitrary eight-hour block proves wisdom.",
+    concepts:["finite_life","attention","busyness","deliberate_use"],relation:"unexamined occupations may consume life without deliberate use",
+    scope:"The treatment of life and occupation in De Brevitate Vitae, not a medically endorsed schedule.",
+    alternatives:["A critique of wasting time through empty busyness","An invitation to examine who directs one's life"],
+    challenge:"Can effortful duties be deliberately meaningful rather than a waste of life?",
+    limits:"No numeric balance or extreme allocation determines meaningful living. An arbitrary 8-hour exercise is not the historical argument.",
+    operation:"examine_cost",operationTask:"Identify what activity crowds out under a genuinely stated constraint, then examine whether that cost serves a deliberate end.",operationTarget:"finite_attention_and_opportunity",
+    mechanic:"tradeoff",scenario:"A genuinely constrained choice between competing commitments with the constraint stated; no invented general ideal of an eight-hour day.",
+    guard:{kind:"source_grounded_constraint",ground:"Finite life and ways it is consumed provide a concern with deliberate use.",requires:"An explicit, plausible constraint and competing ends must be shown to exist in the scenario."},
+    rejectScenarios:["eight-hour-thought-exercise"],
+    fitness:"Scarcity of time and unexamined busyness can support a qualified trade-off when a real source-appropriate constraint exists.",
+    blocker:"Current CZ-105 'divide 8 hours freely' lab lacks a source-grounded constraint and cannot be approved as faithful Senecan interaction."
+  }),
+]);
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/context-atlas/grammar-v01.js */
+/**
+ * CZ-110: Four-layer philosophical grammar and cautious mechanic assessment.
+ * This module maps CURATED interpretations, not quote keywords, to tentative
+ * interactions. It cannot prove an author's intended meaning or find truth.
+ * No LLM, network, database, personal profiles, or runtime publication.
+ */
+
+const CONTEXT_ATLAS_SCHEMA_VERSION = 1;
+const mechanics = Object.freeze({
+  tradeoff: "source_grounded_constraint",
+  decision_map: "branch_dependency",
+  counterexample: "generalization_scope",
+});
+const nonEmpty = v => typeof v === "string" && v.trim().length > 0;
+const object = v => v !== null && typeof v === "object" && !Array.isArray(v);
+const quantities = ["universal","particular","singular","generic","unspecified"];
+const qualities = ["affirmative","negative","mixed","figurative","not_classifiable"];
+const relations = ["categorical","hypothetical","disjunctive","mixed","not_classifiable"];
+const modalities = ["problematic","assertoric","apodictic","figurative","unspecified","not_classifiable"];
+const requireText = (value, name, errors) => {if (!nonEmpty(value)) errors.push(name+" must be nonempty");};
+
+function validateContextRecord(r) {
+  const errors = [];
+  if (!object(r)) return ["record must be an object"];
+  if (!Number.isInteger(r.id)||r.id<0) errors.push("invalid quote id");
+  requireText(r.quote?.text,"quote text",errors);
+  requireText(r.quote?.author,"quote author",errors);
+  requireText(r.quote?.bundledSource,"quote work",errors);
+  if (!["catalogue_only","passage_location_checked","paraphrase_context_checked"].includes(r.quote?.provenanceStatus))
+    errors.push("invalid quote provenance status");
+  const p=r.sourcePassage;
+  requireText(p?.work,"source passage work",errors);
+  requireText(p?.contextualSummary,"passage context",errors);
+  if (!Array.isArray(p?.references)||!p.references.some(x=>x.kind==="internal_bundled_catalogue"&&x.url==="app.js"))
+    errors.push("must retain quote identity reference to bundled catalogue");
+  for (const ref of p?.references||[]) {
+    if (!nonEmpty(ref.url)||!nonEmpty(ref.supports)||!nonEmpty(ref.kind))
+      errors.push("incomplete provenance reference");
+    if (ref.url!=="app.js"&&!/^https:\/\//.test(ref.url))
+      errors.push("external references must use https");
+  }
+  if (p?.contextStatus==="passage_linked_editorial_summary" &&
+      !p.references.some(x=>x.url!=="app.js"))
+    errors.push("passage linked without an external reference");
+  requireText(r.authorPosition?.scopedSummary,"author position",errors);
+  requireText(r.authorPosition?.periodOrWork,"position period/work",errors);
+  if (!Array.isArray(r.authorPosition?.tradition)||!r.authorPosition.tradition.length||
+    r.authorPosition.tradition.some(s=>!nonEmpty(s)))
+    errors.push("tradition must be nonempty array");
+  const a=r.argumentModel, f=a?.logicalForm;
+  for (const key of ["claim","warrant","relation","scopeOrConditions","challenge","limits"]) requireText(a?.[key],"argument "+key,errors);
+  if (!Array.isArray(a?.concepts)||a.concepts.length<2||new Set(a.concepts).size!==a.concepts.length)
+    errors.push("concept list must contain at least two distinct nodes");
+  if (!Array.isArray(a?.alternativeReadings)||a.alternativeReadings.length<2||a.alternativeReadings.some(x=>!nonEmpty(x)))
+    errors.push("at least two plausible readings must be preserved");
+  for (const [name,allowed] of [["quantity",quantities],["quality",qualities],["relation",relations],["modality",modalities]])
+    if (!allowed.includes(f?.[name])) errors.push("unsupported logical form "+name);
+  if(f?.interpretationNotLogicalProof!==true||!nonEmpty(f?.note))errors.push("logical classification must declare tentative reading");
+  for (const key of ["name","task","target"]) requireText(r.philosophicalOperation?.[key],"operation "+key,errors);
+
+  const i=r.interactionModel;
+  if (!Object.keys(mechanics).concat("none").includes(i?.candidate))
+    errors.push("unsupported candidate mechanic");
+  if (i?.candidate==="none") {
+    if(i.eligibility!=="none_suitable"||i.mechanismProof!==null||i.scenario!==null) errors.push("none-suitable must have no fabricated mechanic");
+  } else {
+    if(i?.eligibility!=="conditional"||i.mechanismProof?.kind!==mechanics[i.candidate]||
+       !nonEmpty(i.mechanismProof?.ground)||!nonEmpty(i.mechanismProof?.requires)||
+       !nonEmpty(i.scenario))
+      errors.push("candidate lacks source-related operation proof");
+  }
+  requireText(i?.fitnessReason,"mechanic fitness",errors);
+  requireText(i?.blocker,"mechanic blocker",errors);
+  if (!Array.isArray(i?.contraindicatedScenarioIds)||
+      i.contraindicatedScenarioIds.some(x=>!nonEmpty(x)))
+    errors.push("invalid contraindicated scenario IDs");
+  if (i?.approval!=="not_approved") errors.push("pilot cannot claim mechanic approval");
+  if (r.review?.status!=="draft"||r.review?.scholarlyReviewed!==false||r.review?.publisherApproved!==false)
+    errors.push("pilot may not be marked verified/published");
+  return errors;
+}
+
+function evaluatePhilosophicalGrammar(r) {
+  const errors=validateContextRecord(r);
+  if(errors.length) throw new TypeError(errors.join("; "));
+  const candidate=r.interactionModel.candidate;
+  const hasExternalPassage = r.sourcePassage.references.some(x=>x.url!=="app.js");
+  const eligibility = candidate==="none" ? "abstain_no_suitable_mechanic" :
+    !hasExternalPassage ? "candidate_source_review_required" :
+    "candidate_editorial_review_required";
+  return {
+    quoteId:r.id,
+    version:CONTEXT_ATLAS_SCHEMA_VERSION,
+    epistemicStatus:"editorial_hypothesis",
+    sourceContext:{
+      work:r.sourcePassage.work,
+      passage:r.sourcePassage.locator,
+      evidenceType:r.sourcePassage.contextStatus,
+      interpretationStatus:r.review.status,
+      authorPositionScope:r.authorPosition.periodOrWork,
+    },
+    logicalForm:{...r.argumentModel.logicalForm},
+    conceptualStructure:{
+      claim:r.argumentModel.claim,
+      warrant:r.argumentModel.warrant,
+      concepts:r.argumentModel.concepts,
+      relation:r.argumentModel.relation,
+      scope:r.argumentModel.scopeOrConditions,
+      alternatives:r.argumentModel.alternativeReadings,
+      challenge:r.argumentModel.challenge,
+      boundaries:r.argumentModel.limits,
+    },
+    philosophicalOperation:{...r.philosophicalOperation},
+    interactiveRealization:{
+      candidate,eligibility,
+      epistemicStatus:"unapproved_suggestion",
+      proof:r.interactionModel.mechanismProof,
+      proposedScenario:r.interactionModel.scenario,
+      risks:r.interactionModel.blocker,
+      scenarioExclusions:r.interactionModel.contraindicatedScenarioIds,
+      allowedForProduction:false,
+    },
+    trace:[
+      {layer:"quote",reason:"Identity tracked to bundled quotation "+r.id},
+      {layer:"source_context",reason:r.sourcePassage.contextStatus},
+      {layer:"form",reason:r.argumentModel.logicalForm.note},
+      {layer:"conceptual_structure",reason:r.argumentModel.warrant},
+      {layer:"operation",reason:r.philosophicalOperation.task},
+      {layer:"realization",reason:r.interactionModel.fitnessReason},
+    ],
+  };
+}
+
+/**
+ * Bridge audit against the existing REAL CZ-105 Trade-Off reasoner.
+ * The test can reject an existing scenario despite a potential fit between
+ * its philosopher and the abstract Trade-Off operation.
+ */
+function auditLegacyReasoningResult(r, result, scenarioId) {
+  const grammar=evaluatePhilosophicalGrammar(r);
+  if (result?.model?.quoteId!==r.id) throw new TypeError("Quote identity mismatch between atlas and reasoner");
+  if (result?.mechanism!=="tradeoff") throw new TypeError("Unsupported mechanism for existing CZ-105 audit");
+  const reasons=[];
+  if(grammar.interactiveRealization.candidate!=="tradeoff") reasons.push("Quote has not been fitted to Trade-Off");
+  if(grammar.interactiveRealization.scenarioExclusions.includes(scenarioId))
+    reasons.push("Scenario is a teaching invention that does not test the source's central relationship");
+  if(result.model.productionEligible!==true)
+    reasons.push("Existing philosophical model is not source-approved for production");
+  if(r.review.publisherApproved!==true)
+    reasons.push("Context Atlas record has not received editorial approval");
+  return {
+    quoteId:r.id,
+    outcome: reasons.length?"blocked_for_public_expression":"eligible_for_later_expression_review",
+    observedDecision:result.what_happened.summary,
+    necessaryFindings:result.what_follows.necessary.map(f=>f.statement),
+    conditionalFindings:result.what_follows.possible.map(f=>f.statement),
+    candidateDiscovery:grammar.conceptualStructure.claim,
+    candidateJustification:grammar.conceptualStructure.warrant,
+    uncertainty:result.what_remains_uncertain.map(u=>u.question),
+    proposedTension:result.what_follows.tensions.map(t=>t.statement),
+    trace:{atlas:grammar.trace,engine:result.why_this.rule_trace},
+    blockers:reasons,
+    readyForExpression:reasons.length===0,
+    philosophicalTruthClaim:false,
+  };
+}
+
+function summarizeAtlasPilot(records=ATLAS_PILOT_V01){
+ const results=records.map(evaluatePhilosophicalGrammar);
+ const candidateCounts=Object.fromEntries(["tradeoff","decision_map","counterexample","none"].map(
+   m=>[m,results.filter(r=>r.interactiveRealization.candidate===m).length]));
+ return {
+   count:results.length,
+   candidates:candidateCounts,
+   readyForProduction:results.filter(r=>r.interactiveRealization.allowedForProduction).length,
+   sourceLinked:results.filter(r=>r.sourceContext.evidenceType==="passage_linked_editorial_summary").length,
+   notSuitable:results.filter(r=>r.interactiveRealization.eligibility==="abstain_no_suitable_mechanic").map(r=>r.quoteId),
+   concerns:results.filter(r=>r.interactiveRealization.scenarioExclusions.length).map(r=>({id:r.quoteId,excluded:r.interactiveRealization.scenarioExclusions})),
+ };
+}
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/insight-packet-v01.js */
+/**
+ * CZ-111 Insight Packet v0.1: shared contract between source-grounded
+ * philosophical reasoning and surface expression. It is not a truth verdict.
+ */
+const INSIGHT_PACKET_VERSION = 1;
+const MAX_COPY = Object.freeze({headline:100,observation:190,discovery:230,connection:220,question:190});
+
+function assertText(value, label, limit=2500) {
+  if (typeof value !== "string" || !value.trim() || value.length > limit)
+    throw new TypeError(label + " must be nonempty and <= " + limit + " characters");
+}
+function validateInsightPacket(packet) {
+  const errors=[];
+  try {
+    if (packet?.schemaVersion !== INSIGHT_PACKET_VERSION) throw Error("schema version mismatch");
+    if (![49,28].includes(packet.quote?.id)) throw Error("unknown pilot quote ID");
+    if (!["tradeoff","decision_map"].includes(packet.mechanism)) throw Error("unknown mechanism");
+    assertText(packet.scenarioId,"scenarioId");
+    assertText(packet.quote?.text,"source quotation");
+    assertText(packet.quote?.author,"author");
+    assertText(packet.quote?.source,"work");
+    assertText(packet.observation?.text,"observation",MAX_COPY.observation);
+    assertText(packet.insight?.headline,"headline",MAX_COPY.headline);
+    assertText(packet.insight?.discovery,"discovery",MAX_COPY.discovery);
+    assertText(packet.insight?.connection,"connection",MAX_COPY.connection);
+    assertText(packet.insight?.question,"question",MAX_COPY.question);
+    assertText(packet.insight?.limit,"epistemic limit");
+    assertText(packet.insight?.ruleId,"inference rule ID");
+    assertText(packet.insight?.conceptualRelation,"source-grounded relation");
+    if (!Array.isArray(packet.trace?.rules)||packet.trace.rules.length===0 ||
+       packet.trace.rules.some(s=>typeof s!=="string"||!s.trim())) throw Error("missing fired rule trace");
+    if (!Array.isArray(packet.trace?.sourceReferences)||!packet.trace.sourceReferences.length)
+      throw Error("missing source trace");
+    if (packet.flags?.truthVerdict!==false||packet.flags?.productionEligible!==false ||
+       packet.flags?.editorialStatus!=="draft") throw Error("pilot must be clearly non-authoritative");
+    if (packet.visual?.type==="segments") {
+      const values=packet.visual.values;
+      if(!Array.isArray(values)||values.length!==3||values.some(n=>!Number.isFinite(n)||n<0)||
+         values.reduce((a,b)=>a+b,0)!==3)throw Error("invalid three-hour segment visual");
+    } else if (packet.visual?.type==="path") {
+      if(!Array.isArray(packet.visual.nodes)||packet.visual.nodes.length!==3)
+        throw Error("invalid three-node path");
+    } else throw Error("unsupported visual");
+  } catch (e) {errors.push(e.message);}
+  return errors;
+}
+function createInsightPacket(fields) {
+  const packet={
+    schemaVersion: INSIGHT_PACKET_VERSION,
+    ...fields,
+    flags:{truthVerdict:false,productionEligible:false,editorialStatus:"draft"}
+  };
+  const errors=validateInsightPacket(packet);
+  if(errors.length)throw new TypeError(errors.join("; "));
+  return packet;
+}
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/experience-reasoners-v01.js */
+/**
+ * CZ-111: pilot-specific but shared-contract philosophical reasoners.
+ * Independent of presentation and usable for meaningful input variation tests.
+ * They consume the actual CZ-110 Context Atlas. The old CZ-105 8h reasoner is
+ * deliberately not silently reused for a different, 3h exercise.
+ */
+
+
+
+const categories=["Optional work","A friend","Quiet reflection"];
+const resource={income:"financial security",space:"private working space",access:"access to education and publishers"};
+const barrier={income:"financial insecurity",space:"interruptions and fragile privacy",access:"institutional exclusion"};
+const response={write:"start writing despite constraints",protect:"try to protect ongoing time",challenge:"challenge a structural barrier"};
+const isValidChoice=(v,o)=>Object.hasOwn(o,v);
+const h=n=>(Number.isInteger(n)?String(n):String(n))+"h";
+const getContext=(id,mechanism)=>{
+  const record=ATLAS_PILOT_V01.find(r=>r.id===id);
+  if(!record)throw new RangeError("Missing philosophical context "+id);
+  const grammar=evaluatePhilosophicalGrammar(record);
+  if(grammar.interactiveRealization.candidate!==mechanism ||
+     grammar.interactiveRealization.allowedForProduction!==false)
+    throw Error("Mechanic is not a permitted provisional research candidate");
+  return {record,grammar};
+};
+const provenance=(r)=>r.sourcePassage.references.map(x=>({
+  kind:x.kind,uri:x.url,supports:x.supports
+}));
+
+function reallocateEvening(ticks, selectedIndex, desiredTicks){
+ if(!Array.isArray(ticks)||ticks.length!==3||ticks.some(n=>!Number.isInteger(n)||n<0||n>6)||
+    ticks.reduce((a,b)=>a+b,0)!==6)throw new TypeError("Expected three-hour allocation in half-hour ticks");
+ if(!Number.isInteger(selectedIndex)||selectedIndex<0||selectedIndex>2||
+    !Number.isInteger(desiredTicks)||desiredTicks<0||desiredTicks>6)
+    throw new RangeError("Invalid slider");
+ if(ticks[selectedIndex]===desiredTicks)return [...ticks];
+ const other=[0,1,2].filter(i=>i!==selectedIndex),remaining=6-desiredTicks;
+ const previous=ticks[other[0]]+ticks[other[1]];
+ const first=previous===0?Math.round(remaining/2):Math.round(remaining*ticks[other[0]]/previous);
+ const next=[0,0,0];
+ next[selectedIndex]=desiredTicks;next[other[0]]=first;next[other[1]]=remaining-first;
+ if(next.reduce((a,b)=>a+b,0)!==6)throw Error("Zero-sum invariant broken");
+ return next;
+}
+
+function reasonSeneca(input){
+ const {record,grammar}=getContext(49,"tradeoff");
+ const ticks=input?.ticks,motivation=input?.motivation;
+ if(!Array.isArray(ticks)||ticks.length!==3||ticks.some(n=>!Number.isInteger(n)||n<0||n>6)||
+    ticks.reduce((a,b)=>a+b,0)!==6)throw new TypeError("Three-hour fixed budget expected");
+ if(!["chosen","expected","necessary"].includes(motivation))throw new TypeError("Select a valid motivation");
+ const values=ticks.map(t=>t/2),max=Math.max(...values);
+ const leaders=values.map((v,i)=>v===max?i:-1).filter(i=>i!==-1);
+ const focus=leaders[0];
+ const omissions=values.map((v,i)=>v===0?i:-1).filter(i=>i!==-1);
+ const observed=categories.map((label,i)=>label+" "+h(values[i])).join(" · ");
+ const dominant=leaders.length===1?categories[focus].toLowerCase():"more than one purpose";
+ const other=values.map((v,i)=>({i,v})).filter(v=>v.i!==focus).sort((a,b)=>b.v-a.v)[0];
+ const outcomeCode=max===3?"single_priority":leaders.length>1?"shared_priorities":"uneven_priorities";
+ const pattern=outcomeCode==="single_priority"?"The whole evening went to "+categories[focus].toLowerCase()+".":
+   outcomeCode==="shared_priorities"?"Your evening keeps several priorities in play.":
+   "Most time went to "+dominant+"; "+categories[other.i].toLowerCase()+" received "+h(other.v)+".";
+ const motive={
+  chosen:"A freely chosen commitment can be deliberate even when it excludes something else.",
+  expected:"An outside expectation can shape how you use free time, without proving the choice was wrong.",
+  necessary:"A responsibility may be worthwhile even when it reduces the choices available tonight."
+ }[motivation];
+ const omitted=omissions.length?
+   " No time remains tonight for "+omissions.map(i=>categories[i].toLowerCase()).join(" or ")+".":"";
+ const observation=observed; // factual and exact
+ const discovery=(pattern+" "+motive).slice(0,230);
+ const connection=motivation==="expected"?
+   "Seneca questions time consumed by unexamined demands. The issue is who directs the hour—not whether work is automatically wasted.":
+   motivation==="necessary"?
+   "Seneca's concern with deliberate living does not mean every duty is disposable. The question is what can genuinely be chosen.":
+   "For Seneca, how time is used matters. A deliberate sacrifice can express a value; the numbers alone cannot decide if it was worthwhile.";
+ const question=motivation==="expected"?"Which part of tonight's commitment would you still choose without anyone expecting it?":
+   motivation==="necessary"?"Which part of the obligation is unavoidable, and which part might still be yours to decide?":
+   max===3?"What made this one purpose worth excluding the others tonight?":
+   "What would you change if one of these commitments mattered more tomorrow?";
+ const headline=motivation==="expected"?"Your free time isn't always free from expectations.":
+   motivation==="necessary"?"Not every obligation is a surrender.":
+   outcomeCode==="single_priority"?"You chose one priority—and its cost.":
+   outcomeCode==="shared_priorities"?"More than one priority can deserve your time.":"A choice reveals what else must wait.";
+ return createInsightPacket({
+  quote:{id:49,text:record.quote.text,author:record.quote.author,source:record.sourcePassage.work},
+  mechanism:"tradeoff",scenarioId:"three-hour-discretionary-evening",
+  observation:{text:observation,allocation:values,motivation},
+  insight:{
+    headline,discovery,connection,question,
+    ruleId:"tradeoff:"+outcomeCode+":"+motivation,
+    conceptualRelation:grammar.conceptualStructure.relation,
+    limit:"This single hypothetical evening says nothing conclusive about your character, whether work is meaningful, or your use of a whole life.",
+    tension:omitted||"Every allocation leaves less time available for at least one other purpose."
+  },
+  visual:{type:"segments",labels:categories,values},
+  trace:{
+    rules:["bounded-budget:180-minutes", "half-hour-zero-sum", "pattern:"+outcomeCode,
+       "motivation:"+motivation,"source-relation:deliberate-time"],
+    sourceReferences:provenance(record),
+    philosophicalClaim:grammar.conceptualStructure.claim,
+    epistemicStatus:"contextual_interpretation_not_truth"
+  }
+ });
+}
+
+function reasonWoolf(input){
+ const {record,grammar}=getContext(28,"decision_map");
+ const s={resource:input?.resource,barrier:input?.barrier,action:input?.action};
+ if(!isValidChoice(s.resource,resource)||!isValidChoice(s.barrier,barrier)||!isValidChoice(s.action,response))
+   throw new TypeError("Invalid Woolf path");
+ const same=s.resource===s.barrier;
+ const improvement=resource[s.resource],limitation=barrier[s.barrier];
+ const action=response[s.action];
+ const structure=same?"incomplete_improvement":"distinct_barrier";
+ const result=same?
+   "Improving "+improvement+" still leaves it fragile. One improvement is not necessarily enough to sustain creative work.":
+   "Improving "+improvement+" still leaves "+limitation+". A single resource cannot remove every barrier.";
+ const actionContext=s.action==="write"?
+   " Beginning to write preserves agency without making the circumstances fair.":
+   s.action==="protect"?
+   " Protecting the change acknowledges that opportunity must endure.":
+   " Seeking structural change turns attention toward who controls opportunity.";
+ const discovery=(result+actionContext).slice(0,230);
+ const connection="Woolf's argument concerns enabling conditions for women writers. Money, privacy and institutional access can create opportunity—not guarantee achievement.";
+ const question=same?
+   "What would turn this temporary improvement into a reliable condition?":
+   s.action==="challenge"?
+   "When is a personal obstacle actually an institutional one?":
+   "What would remain difficult even after this one barrier disappeared?";
+ const headline=same?"An opened door can still be hard to enter.":
+   s.action==="challenge"?"Freedom also depends on who holds the keys.":
+   "One improved condition doesn't erase the others.";
+ const nodes=[
+  {label:"Improved",value:improvement,kind:"gain"},
+  {label:"Still constrained",value:limitation,kind:"barrier"},
+  {label:"Next move",value:action,kind:"action"}
+ ];
+ return createInsightPacket({
+   quote:{id:28,text:record.quote.text,author:record.quote.author,source:record.sourcePassage.work},
+   mechanism:"decision_map",scenarioId:"women-writing-material-conditions",
+   observation:{text:"Improved: "+improvement+" · Still limited by: "+limitation+" · Response: "+action,
+     resource:s.resource,barrier:s.barrier,action:s.action},
+   insight:{
+     headline,discovery,connection,question,ruleId:"dependency:"+structure+":"+s.action,
+     conceptualRelation:grammar.conceptualStructure.relation,
+     limit:"A fictional branch cannot prove a writer's ability or predict publication. Historical gender and institutional barriers are not reducible to personal preference.",
+     tension:"An enabling resource can be present even while other constraints remain."
+   },
+   visual:{type:"path",nodes},
+   trace:{
+     rules:["enabling-condition:"+s.resource,"remaining-barrier:"+s.barrier,"response:"+s.action,
+       "non-determinism:no-achievement-prediction","source-relation:material-conditions"],
+     sourceReferences:provenance(record),
+     philosophicalClaim:grammar.conceptualStructure.claim,
+     epistemicStatus:"contextual_interpretation_not_truth"
+   }
+ });
+}
+function runEncounter(kind,input) {
+ if(kind==="seneca")return reasonSeneca(input);
+ if(kind==="woolf")return reasonWoolf(input);
+ throw new RangeError("Only founder-approved interaction patterns are available in this pilot");
+}
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/mechanism-transfer-cases-v02.js */
+/**
+ * CZ-117 Quote-Derived Transfer v0.2.
+ *
+ * Research cases, NOT editorially approved interpretations. Separate:
+ *   interaction transfer / generic rule-kernel transfer / source fidelity.
+ *
+ * Source IDs 23/34/49/28/22 reference the exact existing 15-quote Atlas.
+ * ID 12 is currently only in bundled app.js and has SECONDARY excerpt
+ * corroboration; it is NOT part of the approved Atlas or generalizable.
+ * This file changes no existing records or production behavior.
+ */
+
+
+const atlasFor=(id,mechanism)=>{
+ const record=ATLAS_PILOT_V01.find(r=>r.id===id);
+ if(!record)throw new RangeError("No Context Atlas pilot record for quote "+id);
+ const grammar=evaluatePhilosophicalGrammar(record);
+ if(mechanism&&grammar.interactiveRealization.candidate!==mechanism)
+   throw new Error("Atlas rejects "+mechanism+" for quote "+id);
+ if(grammar.interactiveRealization.allowedForProduction!==false)
+   throw new Error("Experimental source must not be production eligible");
+ return {record,grammar};
+};
+const b=(id,label,detail)=>Object.freeze({id,label,detail});
+const branches=(key,prompt,options)=>Object.freeze({key,prompt,options});
+const money=b("income","She earns her own money","An independent financial base");
+const room=b("space","She gets a quiet room","Some time without interruptions");
+const education=b("education","She receives a serious education","She can develop her own judgment");
+const selfDetermination=b("voice","She can make some decisions herself","Others no longer decide everything for her");
+
+const MECHANISM_TRANSFER_CASES=Object.freeze({
+ seneca:{
+   id:"seneca",quoteId:49,author:"Seneca",family:"tradeoff",
+   label:"Seneca · original control",role:"baseline_control",
+   review:"provisional_reference",citationSource:"On the Shortness of Life",
+   context:"Seneca challenges occupations that consume life without deliberation; the three free hours are an illustrative constraint, not a formula from the text.",
+   scenario:"After essential commitments, you have three genuinely free hours tonight. An optional work request arrives, a friend asks to see you, and you hoped for quiet reflection.",
+   categories:["Optional work","A friend","Quiet reflection"],
+   variableBasis:"Competing discretionary claims on finite time, illustrating deliberate living—not an allocation instructed by Seneca.",
+   influences:[
+     {id:"chosen",label:"I genuinely wanted this",detail:"I chose how to spend the evening"},
+     {id:"expected",label:"Someone expected it",detail:"Another person's expectation mattered"},
+     {id:"necessary",label:"I considered it necessary",detail:"One commitment felt difficult to change"}
+   ],
+   timeFrame:"one_discretionary_evening",
+   sourceRelation:"Deliberate use of finite time, not an optimal allocation of hours.",
+   guard:"A hypothetical evening cannot reveal the worth of a whole life or determine whether duties are objectively necessary."
+ },
+ dillard:{
+   id:"dillard",quoteId:12,author:"Annie Dillard",family:"tradeoff",
+   label:"Annie Dillard · transfer",role:"conditional_transfer",
+   review:"outside_atlas_secondary_excerpt_needs_editorial_review",
+   quote:"How we spend our days is, of course, how we spend our lives.",
+   citationSource:"The Writing Life (1989), scheduling passage",
+   sourceUrl:"https://www.dltn.io/posts/annie-dillard-keep-a-daily-routine",
+   context:"Dillard discusses a schedule as a deliberate structure that protects time from distraction and makes repeated days into a life. The passage is written about writing and daily routine; it does not rank occupations or prescribe a perfect schedule.",
+   scenario:"You want to finish a short story. After dinner you have three free hours, but your phone keeps buzzing and you also need time to rest.",
+   categories:["Write your story","Answer messages","Rest and recharge"],
+   variableBasis:"Illustrative competing uses of one evening that could, if repeated, form a daily writing routine. These activities are a curated scenario, not named requirements in Dillard's text.",
+   influences:[
+     {id:"planned",label:"I made a plan to protect my time",detail:"I wanted a routine I could repeat"},
+     {id:"interrupted",label:"Other things kept demanding attention",detail:"Messages and requests changed my plan"},
+     {id:"obligations",label:"I had other things to get done",detail:"Some everyday demands still mattered"}
+   ],
+   timeFrame:"hypothetical_repeated_five_weekdays",
+   sourceRelation:"Daily schedules accumulate over time; a pattern of chosen hours can shape a life without making any one evening determinative.",
+   guard:"The repeated-week calculation is a conditional teaching illustration, not an observation of the user's real habits. Dillard does not say work is bad or that equal time allocations are ideal."
+ },
+ woolf:{
+   id:"woolf",quoteId:28,author:"Virginia Woolf",family:"decision_map",
+   label:"Virginia Woolf · original control",role:"baseline_control",
+   review:"provisional_reference",
+   citationSource:"A Room of One's Own, Chapter I",
+   context:"Money, private working space, and access to institutions can enable writing without guaranteeing publication or artistic achievement.",
+   startingPoint:"She wants to become a writer",
+   scenario:"A young woman wants to write stories, but she works long hours and shares a noisy home. Then one part of her situation has a chance to improve.",
+   semanticModel:"enabling_conditions",
+   sourceRelation:"The material conditions of creative opportunity are not the same as certainty of achievement.",
+   guard:"Keep the historical gendered constraints; a branch is a thought experiment, not an outcome prediction.",
+   steps:[
+    branches("resource","What improves first?",[money,room]),
+    branches("barrier","What still gets in her way?",{
+      income:[b("space","She keeps getting interrupted","A secure income alone does not create privacy"),b("access","Nobody will give her a chance","Institutions still decide whose work circulates")],
+      space:[b("income","She still needs more money","She needs resources to keep working"),b("access","Nobody will give her a chance","Institutions still decide whose work circulates")]
+    }),
+    branches("action","How does she respond?",{
+      space:[b("write","She writes when she can","Begin under imperfect conditions"),b("protect","She protects her writing time","Make the improvement last")],
+      access:[b("write","She keeps writing","Keep creating even if recognition is delayed"),b("challenge","She challenges the gatekeepers","Try to change who gets to be heard")],
+      income:[b("write","She writes anyway","Find a way to start"),b("challenge","She challenges unequal conditions","Address the economic barrier")]
+    })
+   ]
+ },
+ wollstonecraft:{
+   id:"wollstonecraft",quoteId:23,author:"Mary Wollstonecraft",family:"decision_map",
+   label:"Mary Wollstonecraft · transfer",role:"conditional_transfer",
+   review:"atlas_candidate_editorial_review_required",
+   citationSource:"A Vindication of the Rights of Woman (1792), Chapter IV",
+   sourceUrl:"https://www.britlit.org/pub/5v9vgtqk/release/4",
+   context:"Wollstonecraft argues for women's education and independent exercise of reason, rather than power over men. Her critique concerns social arrangements restricting rational autonomy.",
+   startingPoint:"She wants to decide for herself",
+   scenario:"A young woman wants to make her own decisions, but her brothers receive schooling while she is expected to obey her family. One opportunity opens up for her.",
+   semanticModel:"enabling_conditions",
+   sourceRelation:"Access to education and opportunities to exercise judgment can help develop autonomy; neither a single resource nor personal effort guarantees freedom from structural subordination.",
+   guard:"Do not treat education as instant emancipation or portray women as personally to blame for barriers created by institutions. Source wording requires editorial review.",
+   steps:[
+    branches("resource","What opens up first?",[education,selfDetermination]),
+    branches("barrier","What still limits her?",{
+      education:[b("dependence","Her family still makes the decisions","Her learning does not settle who controls her choices"),b("exclusion","Others dismiss her as a thinker","Institutions still deny her equal standing")],
+      voice:[b("education_gap","She was denied a good education","She lacks the learning made available to others"),b("economic","She still depends on someone financially","Her choice may remain materially precarious")]
+    }),
+    branches("action","What does she try next?",{
+      dependence:[b("reason","She argues for her own judgment","Ask others to recognize her reasoning"),b("allies","She asks for support","Seek people who respect her autonomy")],
+      exclusion:[b("study","She keeps learning","Continue exercising judgment"),b("challenge","She challenges the unfair rule","Try to change who is treated as credible")],
+      education_gap:[b("study","She seeks opportunities to learn","Pursue the education she was denied"),b("challenge","She challenges unequal schooling","Question the rule restricting her education")],
+      economic:[b("earn","She seeks independent income","Reduce material dependence"),b("challenge","She challenges the dependency","Try to change what limits her choices")]
+    })
+   ]
+ },
+ kierkegaard:{
+   id:"kierkegaard",quoteId:34,author:"Søren Kierkegaard",family:"decision_map",
+   label:"Kierkegaard · boundary stress test",role:"stress_test_ui_only",
+   review:"atlas_candidate_translation_and_model_review_required",
+   citationSource:"Journal JJ:167 (1843), shortened variant",
+   sourceUrl:"https://homepage.divms.uiowa.edu/~jorgen/kierkegaardquotesource.html",
+   context:"The fuller journal note contrasts the retrospective understanding of life with the necessity of living forward. It also denies that one can step outside time to understand a life fully.",
+   startingPoint:"You have to make a job decision",
+   scenario:"You have a familiar job, but a new offer would mean moving to another city. You must decide this week without knowing how either path will turn out.",
+   semanticModel:"temporal_information_asymmetry",
+   sourceRelation:"The information available before acting differs from the retrospective account afterward; this is not the same causal mechanism as Woolf's or Wollstonecraft's enabling conditions.",
+   guard:"Branches are invented illustrations, not things Kierkegaard predicted. Never reveal future results at the decision stage, assign success, or treat a retrospectively told story as full understanding.",
+   steps:[
+    branches("resource","Which direction do you choose now?",[
+      b("change","You take the new job","Move to a different city"),
+      b("stay","You stay in your current job","Keep the routine you know")
+    ]),
+    branches("barrier","Now imagine one of these happens…",{
+      change:[b("risk","The hours are harder than you expected","The new job needs more evenings"),b("surprise","You miss your old friends","Moving affects people you care about")],
+      stay:[b("missed","You keep wondering about the offer","You cannot see the other future"),b("surprise","Your team changes unexpectedly","Staying didn't freeze your circumstances")]
+    }),
+    branches("action","What do you do next?",{
+      risk:[b("continue","You give yourself more time","See whether you can settle into the hours"),b("revisit","You discuss changing the hours","Try adjusting your new routine")],
+      surprise:[b("adapt","You make a new plan","Adjust how you keep in touch or work"),b("continue","You keep trying for now","See how the change feels over time")],
+      missed:[b("reflect","You ask why you turned it down","Understand the reasons you had then"),b("continue","You focus on the job you kept","Commit to what you chose")]
+    })
+   ]
+ },
+ marx:{
+   id:"marx",quoteId:22,author:"Karl Marx",family:"none",requestedMechanism:"tradeoff",
+   label:"Karl Marx · rejection control",role:"reject_incompatible",
+   review:"atlas_no_fit",
+   citationSource:"Theses on Feuerbach, Thesis XI",
+   context:"Marx critiques merely contemplative philosophy disconnected from transformative praxis. His thesis does not establish that theory and action must compete for a fixed number of hours.",
+   sourceRelation:"The relation of theory and praxis is not a finite time-allocation dilemma.",
+   guard:"Reject a 'thinking versus doing' slider; it would introduce a false opposition absent from this passage."
+ }
+});
+for(const id of ["seneca","woolf","wollstonecraft","kierkegaard","marx"]){
+ const spec=MECHANISM_TRANSFER_CASES[id];
+ const {grammar}=atlasFor(spec.quoteId);
+ if(id==="marx"&&grammar.interactiveRealization.candidate!=="none")throw Error("Expected abstention for Marx");
+ if(id==="wollstonecraft"&&grammar.interactiveRealization.candidate!=="decision_map")throw Error("Atlas does not support conditional transfer");
+ if(id==="kierkegaard"&&grammar.interactiveRealization.candidate!=="decision_map")throw Error("Atlas does not support temporal stress test");
+ if(id==="seneca"&&grammar.interactiveRealization.candidate!=="tradeoff")throw Error("Atlas control changed");
+ if(id==="woolf"&&grammar.interactiveRealization.candidate!=="decision_map")throw Error("Atlas control changed");
+}
+/**
+ * Mechanic-vs-content boundary: a Trade-Off scenario must specify its own
+ * competing variables and meaning. Two or three is the supported UI range;
+ * values and influences are hypotheses curated from contextual research.
+ */
+function validateTradeoffVariables(spec){
+ if(spec.family!=="tradeoff")throw new TypeError("Not a Trade-Off specification");
+ const labels=spec.categories, influences=spec.influences;
+ if(!Array.isArray(labels)||labels.length<2||labels.length>3 ||
+    labels.some(x=>typeof x!=="string"||!x.trim())||
+    new Set(labels).size!==labels.length)
+   throw new TypeError("Trade-Off needs 2 or 3 distinct, source-relevant variables");
+ if(!Array.isArray(influences)||influences.length<2||influences.length>3 ||
+    influences.some(x=>!x?.id||!x?.label||!x?.detail)||
+    new Set(influences.map(x=>x.id)).size!==influences.length)
+   throw new TypeError("Trade-Off needs 2 or 3 valid, distinct influences");
+ if(typeof spec.variableBasis!=="string"||!spec.variableBasis.trim()||
+    typeof spec.scenario!=="string"||!spec.scenario.trim())
+   throw new TypeError("Variable grounding and concrete scenario required");
+ return true;
+}
+for(const id of ["seneca","dillard"])validateTradeoffVariables(MECHANISM_TRANSFER_CASES[id]);
+
+function getMechanismCase(id){
+ if(!Object.hasOwn(MECHANISM_TRANSFER_CASES,id))throw new RangeError("Unknown quoted case");
+ return MECHANISM_TRANSFER_CASES[id];
+}
+function optionsFor(spec,key,prior){
+ const stage=spec.steps?.find(s=>s.key===key);
+ if(!stage)throw new RangeError("Unknown fork stage");
+ if(Array.isArray(stage.options))return stage.options;
+ if(!Object.hasOwn(stage.options,prior||""))throw new RangeError("No relevant next stage for "+key+"/"+prior);
+ return stage.options[prior];
+}
+function sourceTrace(id){
+ const spec=getMechanismCase(id);
+ if(spec.quoteId===12)return [
+  {url:"app.js",supports:"Bundled quote text and stable ID"},
+  {url:spec.sourceUrl,supports:"Secondary excerpt and discussion of schedules in The Writing Life"}
+ ];
+ const {record}=atlasFor(spec.quoteId);
+ const curated=record.sourcePassage.references.map(ref=>({url:ref.url,supports:ref.supports}));
+ // A newly located source is a *parallel-study lead*, not a silent editorial
+ // promotion of the untouched Atlas record. Kierkegaard's Atlas entry currently
+ // contains only the bundled catalogue reference.
+ if(spec.sourceUrl&&!curated.some(ref=>ref.url===spec.sourceUrl)){
+   curated.push({url:spec.sourceUrl,
+     supports:"Additional external passage lead from parallel research; not yet incorporated into the Context Atlas or editorially approved"});
+ }
+ return curated;
+}
+function candidateFitAudit(){
+ return Object.values(MECHANISM_TRANSFER_CASES).map(spec=>{
+   const inAtlas=spec.quoteId!==12;
+   const grammar=inAtlas?atlasFor(spec.quoteId).grammar:null;
+   return {
+    id:spec.id,quoteId:spec.quoteId,role:spec.role,family:spec.family,
+    uiTransfer:spec.role==="reject_incompatible"?"blocked":"prototype_testable",
+    modelTransfer:spec.role==="baseline_control"?"reference_only":
+      spec.id==="dillard"?"conditional_same_allocation_kernel":
+      spec.id==="wollstonecraft"?"conditional_same_enabling_condition_kernel":
+      spec.id==="kierkegaard"?"ui_only_different_temporal_semantics":"rejected_false_dilemma",
+    sourceFit:spec.role==="reject_incompatible"?"atlas_no_fit":
+      inAtlas?grammar.interactiveRealization.eligibility:"outside_atlas_source_review_required",
+    productionEligible:false,
+    review:spec.review,guard:spec.guard
+   };
+ });
+}
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/mechanism-transfer-engine-v02.js */
+/**
+ * CZ-117 source-derived variable transfer harness.
+ *
+ * Reuses the already-tested 3-hour zero-sum allocator and invokes original
+ * Seneca/Woolf reasoners as reference controls. New candidates are interpreted
+ * using one parameterized mechanism kernel and declarative source-linked cases.
+ * What transfers is explicitly labelled; no source or generality claim implied.
+ */
+
+
+
+{reallocateEvening};
+const validHalfHour=x=>Number.isInteger(x)&&x>=0&&x<=6;
+const MOTIVATIONS=Object.freeze(["chosen","expected","necessary"]);
+const uses=(input,spec)=>Array.isArray(input?.ticks)&&
+ input.ticks.length===spec.categories.length&&input.ticks.every(validHalfHour)&&
+ input.ticks.reduce((a,b)=>a+b,0)===6;
+/** Preserve the old three-variable allocator; add a safe two-variable case.
+ * The 3h constraint belongs to these scenarios, not to all future quotations. */
+function reallocateVariableBudget(ticks,index,value){
+ if(!Array.isArray(ticks)||(ticks.length!==2&&ticks.length!==3)||
+    ticks.some(v=>!validHalfHour(v))||ticks.reduce((a,b)=>a+b,0)!==6||
+    !Number.isInteger(index)||index<0||index>=ticks.length||!validHalfHour(value))
+  throw new RangeError("Expected a valid two-or-three-variable, 3-hour allocation");
+ if(ticks.length===3)return reallocateEvening(ticks,index,value);
+ const result=[...ticks];
+ result[index]=value;result[1-index]=6-value;
+ return result;
+}
+
+function quoteDetails(spec){
+ if(spec.quote){
+   return {id:spec.quoteId,text:spec.quote,author:spec.author,work:spec.citationSource};
+ }
+ const record=ATLAS_PILOT_V01.find(r=>r.id===spec.quoteId);
+ if(!record||record.quote.author!==spec.author)throw new Error("Control identity mismatch");
+ return {id:spec.quoteId,text:record.quote.text,author:record.quote.author,work:record.sourcePassage.work};
+}
+function assertExperimental(spec){
+ if(!["baseline_control","conditional_transfer","stress_test_ui_only"].includes(spec.role))
+  throw new Error("Mechanism was deliberately rejected or not curated for transfer");
+}
+function common(spec,inputs,rules){
+ return {
+  quote:quoteDetails(spec),
+  caseId:spec.id,
+  role:spec.role,
+  mechanism:spec.family,
+  semanticModel:spec.semanticModel||null,
+  scenario:spec.scenario||spec.startingPoint,
+  context:spec.context,
+  sourceRelation:spec.sourceRelation,
+  sourceReferences:sourceTrace(spec.id),
+  rules,
+  guard:spec.guard,
+  provisional:true,
+  productionEligible:false,
+  input:inputs,
+  warning:spec.role==="stress_test_ui_only"?
+   "The three-fork UI can illustrate this temporal question, but the enabling-condition decision reasoner has NOT transferred. Future outcomes are not determined.":
+   spec.role==="conditional_transfer"?
+   "Research transfer hypothesis only. Mechanism fit and interpretation need independent editorial validation.":
+   "Existing quotation-specific prototype used as a control."
+ };
+}
+function evaluateTradeoffCase(id,input){
+ const spec=getMechanismCase(id);
+ assertExperimental(spec);
+ if(spec.family!=="tradeoff")throw new RangeError("Not a Trade-Off case");
+ validateTradeoffVariables(spec);
+ if(!uses(input,spec)||!spec.influences.some(m=>m.id===input.motivation))
+  throw new TypeError("Exactly 3 free hours across source-grounded variables and a valid influence are required");
+ const hours=input.ticks.map(n=>n/2),max=Math.max(...hours),leaders=hours.filter(n=>n===max).length;
+ const omitted=hours.map((n,i)=>n===0?spec.categories[i]:null).filter(Boolean);
+ const observation=spec.categories.map((name,i)=>name+": "+hours[i]+"h").join(" · ");
+ const fields={
+  mechanism:"tradeoff",
+  budget:3,
+  hours,
+  observation,
+  variableCount:spec.categories.length,
+  variableBasis:spec.variableBasis,
+  variableLabels:[...spec.categories],
+  influenceLabel:spec.influences.find(m=>m.id===input.motivation).label,
+  pattern:max===3?"one_activity":leaders>1?"balanced_maxima":"uneven_allocation",
+  alternativesOmitted:omitted,
+  influence:input.motivation,
+  conditionalFiveWeekdays:spec.timeFrame==="hypothetical_repeated_five_weekdays"?
+   hours.map(n=>n*5):null
+ };
+ const sourceRelation=spec.timeFrame==="hypothetical_repeated_five_weekdays"?
+  spec.sourceRelation+" Five identical hypothetical evenings would give "+
+  fields.conditionalFiveWeekdays.map((h,i)=>spec.categories[i]+" "+h+"h").join(", ")+
+  " across a five-day week; the user's real routine is unknown.":
+  spec.sourceRelation+" This is a *single* imagined evening, not an inference about an actual life.";
+ const rules=["fixed_budget:180_minutes","half_hour_zero_sum","variables:"+spec.categories.length,
+   "quote_specific_variables_not_copied","observed_pattern:"+fields.pattern,
+   "self_declared_motivation:"+input.motivation,"no_moral_optimization",
+   spec.timeFrame==="hypothetical_repeated_five_weekdays"?"conditional_repetition_not_empirical":"single_evening_no_lifetime_inference"];
+ const base=common(spec,{ticks:[...input.ticks],motivation:input.motivation},rules);
+ const reference=spec.role==="baseline_control"?reasonSeneca(input):null;
+ return {...base,fields,interpretation:sourceRelation,referenceInsight:reference?.insight||null,
+  semanticTransfer:spec.role==="baseline_control"?"reference_quote_specific_adapter":"conditional_constraint_kernel_transfer"};
+}
+function reachableDecisionRoutes(caseId){
+ const spec=getMechanismCase(caseId);
+ assertExperimental(spec);
+ if(spec.family!=="decision_map")throw new RangeError("Not a Decision Map case");
+ const paths=[];
+ for(const first of optionsFor(spec,"resource",null)){
+  for(const second of optionsFor(spec,"barrier",first.id)){
+   for(const third of optionsFor(spec,"action",second.id)){
+    paths.push({resource:first.id,barrier:second.id,action:third.id});
+   }
+  }
+ }
+ return paths;
+}
+function evaluateDecisionCase(id,input){
+ const spec=getMechanismCase(id);
+ assertExperimental(spec);
+ if(spec.family!=="decision_map")throw new RangeError("Not a Decision Map case");
+ const required=["resource","barrier","action"];
+ if(!input||typeof input!=="object"||required.some(k=>typeof input[k]!=="string"))
+  throw new TypeError("All three explicitly chosen decision forks are required");
+ const selected=[];
+ let predecessor=null;
+ for(const key of required){
+  const choices=optionsFor(spec,key,predecessor);
+  const matching=choices.find(choice=>choice.id===input[key]);
+  if(!matching)throw new RangeError("Incompatible choice "+key+" = "+input[key]+" (previous: "+predecessor+")");
+  selected.push({key,id:matching.id,label:matching.label,detail:matching.detail});
+  predecessor=matching.id;
+ }
+ const [improvement,obstacle,response]=selected;
+ const rules=["first_fork:"+improvement.id,"second_fork_depends_on_first:"+obstacle.id,
+   "third_fork_depends_on_second:"+response.id,"no_deterministic_future"];
+ const base=common(spec,{...input},rules);
+ const reference=spec.role==="baseline_control"?reasonWoolf(input):null;
+ const temporal=spec.semanticModel==="temporal_information_asymmetry";
+ const result={
+  ...base,
+  selected,
+  observation:selected.map(n=>n.label).join(" → "),
+  interpretation:temporal?
+   "At the time of the first step, the later uncertainty was not known. Looking back may change the account of that decision, but this simulation cannot reveal what truly would have happened otherwise.":
+   improvement.label+" changes one condition. "+obstacle.label+" still limits the path. "+response.label+
+   " is a possible response—not a guarantee of independence or achievement.",
+  referenceInsight:reference?.insight||null,
+  semanticTransfer:temporal?"UI_only_temporal_asymmetry_needs_new_kernel":
+   spec.role==="baseline_control"?"reference_quote_specific_adapter":"conditional_enabling_condition_kernel_transfer",
+  futureKnownAtChoice:false,
+  outcomePredicted:false
+ };
+ return result;
+}
+function evaluateTransferCase(id,input){
+ const spec=getMechanismCase(id);
+ if(spec.role==="reject_incompatible")return {
+  caseId:id,blocked:true,mechanism:spec.requestedMechanism,reason:spec.guard,
+  quote:quoteDetails(spec),sourceReferences:sourceTrace(id),productionEligible:false
+ };
+ return spec.family==="tradeoff"?evaluateTradeoffCase(id,input):evaluateDecisionCase(id,input);
+}
+function fitMatrix(){
+ return candidateFitAudit();
+}
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/consequence-v1.js */
+
+// A warrant relates two concepts under explicit premises. Everyday wording is
+// attached to the warranted relation; the UI never chooses an interpretation.
+function distinction(kind, concepts, premises, warrant, open, discovery, question = null) {
+  return {kind, concepts, premises, warrant, open, discovery, question};
+}
+
+function eveningDistinction(facts) {
+  const {hours:[writing,messages,rest], declaredInfluence, hypotheticalFiveEvenings} = facts;
+  const premises = {writing,messages,rest,declaredInfluence, repeatedWritingHours:hypotheticalFiveEvenings[0]};
+  if (rest > 1.5 && declaredInfluence === "planned") {
+    return distinction("chosen-rest", ["a pause in one project","a positive place in a routine"], premises,
+      "A declared plan gives most of the finite evening to rest. Repetition would give rest a regular place even if the story advances slowly.",
+      "The reason for resting and any effect on later writing are unknown.",
+      "You gave rest the largest place in a planned evening. Repeat that choice and rest becomes something your week makes room for in its own right. You need no claim about tomorrow’s writing to see what tonight provides.");
+  }
+  if (writing === 0) {
+    if (declaredInfluence === "planned") return distinction("deliberate-pause",["a deferral","a recurring exclusion"],premises,
+      "One planned deferral keeps a later session possible. Repeating the same allocation provides zero writing sessions.",
+      "A different evening may already be set aside.",
+      "You can leave the story for another evening on purpose. If every evening follows this plan, the promised later session never arrives.");
+    if (declaredInfluence === "interrupted" && messages > 0) return distinction("requests-without-writing",["individual replies","a collective claim on time"],premises,
+      "The participant reports disruption, gives time to replies and allocates none to writing. The aggregate can exclude writing without any single request doing so.",
+      "The model cannot assign the lost writing time to a particular request.",
+      "Each message could have been worth answering. Taken together with the rest of this evening, those choices leave the story waiting. Repeating them could settle its place in your week without a separate decision about the story.");
+    return distinction("exception-repeated",["a reason for this evening","a place for a recurring commitment"],premises,
+      "Explaining the allocation leaves open where writing can occur when no session is scheduled.",
+      "We cannot identify a particular obstacle or judge the relative value of these activities.",
+      "You can have a reason for every hour and still have no answer to when the story gets written. Repeating this evening would carry both things forward.");
+  }
+  if (declaredInfluence === "interrupted" && messages > 1.5 && writing > 0) {
+    // Countermodels: reserve w ticks then fill the rest, or fill the other
+    // activities first. Both obey the same budget and leave the observed w.
+    const extraReply = 0.5;
+    premises.counterfactual = {
+      assumption:"Suppose an extra half-hour reply is accepted within the same three hours.",
+      protectedWriting:rest >= extraReply ? {writing, messages:messages+extraReply, rest:rest-extraReply} : null,
+      displacedWriting:{writing:writing-extraReply, messages:messages+extraReply, rest},
+      protectionWhenRestUnavailable:"Keeping the full writing session would require deferring a reply.",
+      observedOrdering:null
+    };
+    return distinction("protected-or-remainder",["having writing time","having a claim on writing time"],premises,
+      "Both scheduling orders produce the observed writing time. Replies take a strict majority and demands reportedly changed the plan; the order matters if another request arrives.",
+      "The allocation records duration only. It cannot establish which time was reserved or which request displaced anything.",
+      "Even with replies taking most of the evening, you made time for the story. Those same minutes could be the first ones you protected or the last ones left over. One more message would put the difference to the test.",
+      "If one more reply took half an hour, which part of the evening would give way?");
+  }
+  if (writing === 3) return distinction("exclusive-evening",["protecting one session","repeating an entire evening"],premises,
+    "Writing occupies the whole budget. Replicating the whole allocation would require another occasion for rest and replies.",
+    "Nothing establishes whether that other time is available.",
+    "You made a whole evening available to the story. Making this evening repeatable would require a second arrangement: somewhere else for the rest and replies to go.");
+  if (declaredInfluence === "planned" && writing > 1.5) return distinction("writing-sets-budget",["time given to a project","limits placed on competing uses"],premises,
+    "A deliberate majority allocation leaves less than half for the other two uses combined. More time for either must come from the fixed budget.",
+    "The model cannot show the order in which hours were booked.",
+    "Your plan gives the story most of the evening. That choice also sets a limit on what you can offer everything else. Keeping the writing time would mean honoring that limit when another claim arrives.");
+  if (declaredInfluence === "planned" && rest > 0) return distinction("room-for-both",["competing for an extra hour","being able to coexist"],premises,
+    "An increase in one activity must displace another, yet the chosen schedule already admits both writing and rest.",
+    "Neither the adequacy of the rest nor the quality of the writing is known.",
+    "An extra half-hour has to come from somewhere. Yet in the plan you made, writing and rest already coexist. You only have to choose between them when you ask for more time than the evening holds.");
+  return distinction("recurring-foothold",["an amount of writing time","the terms on which it recurs"],premises,
+    "Positive writing time accumulates under repetition; neither duration nor the broad influence identifies what would preserve it.",
+    "We cannot infer a protected minimum, an ordering, or progress on the story.",
+    "You found time for the story tonight. A week of such evenings would give you several sittings; tonight alone leaves open what would make the next one happen.");
+}
+
+function readEvening(result) {
+  const f=result.fields;
+  const evidence={hours:f.hours,declaredInfluence:f.influence,hypotheticalFiveEvenings:f.conditionalFiveWeekdays};
+  const relation=eveningDistinction(evidence);
+  return {rule:relation.kind, relation, evidence, observation:f.observation+" · "+f.influenceLabel,
+    consequence:"Five evenings exactly like this would give the story "+f.conditionalFiveWeekdays[0]+" hours.",
+    connection:"Dillard asks what a schedule makes possible when one day follows another.",
+    limits:["The evening and its repetition are hypothetical.","A duration supplies no measure of an activity’s worth."]};
+}
+
+// An event supplies evidence only about the lived branch. Each response uses
+// that evidence differently: inquiry about the past, adaptation, or waiting.
+function routeDistinction(facts) {
+  const {eventKind,responseKind} = facts;
+  const premises={choice:facts.choice, knownThen:facts.atChoice, learnedLater:facts.imaginedLater, next:facts.subsequentResponse};
+  if (eventKind === "unobserved-alternative") {
+    if (responseKind === "reflect") return distinction("reasons-and-alternatives",["recoverable reasons","unobserved outcomes"],premises,
+      "Reflection can revisit a reason held at the deadline; it supplies no observations from the city the participant never moved to.",
+      "How the other job would have turned out is unknowable here.",
+      "You can go back over why you stayed. Even a perfect account of those reasons leaves a gap: you still have only one career to look back on.");
+    return distinction("commitment-without-comparison",["settling what to do","settling which future was better"],premises,
+      "Renewing attention to the chosen job is possible while the comparative question remains unresolved.",
+      "Continuing reveals no ranking of the two jobs.",
+      "You can give the job you kept your full attention while the offer still interests you. Committing to the next day of work requires a choice you can make; proving which job was better would require a life you never lived.");
+  }
+  if (responseKind === "adapt" || responseKind === "revisit") {
+    if (eventKind === "experienced-distance") return distinction("new-reason-for-action",["evidence for a next step","evidence of an earlier error"],premises,
+      "The concrete experience of distance first enters after moving; the new plan acts on it. Its later availability cannot establish a neglected fact at the deadline.",
+      "Distance could be anticipated. Its felt significance and the merits of staying were unavailable for comparison.",
+      "Missing your friends gives you a reason to change how you keep in touch. That reason became clear through moving. You can take it seriously now while leaving open whether moving was a mistake.",
+      "What do you owe those friendships now that distance has become part of them?");
+    if (eventKind === "changed-setting") return distinction("continuity-of-place",["keeping a job","keeping its conditions"],premises,
+      "A team change on the stay branch separates the chosen job from conditions beyond the initial choice. Adaptation acts on the changed setting.",
+      "We cannot infer that stability motivated staying.",
+      "The team change uncovers a limit to what staying could secure. You could choose the familiar job; you could never choose on your colleagues’ behalf that it would stay familiar. Your new plan starts from that boundary.");
+    return distinction("terms-open-to-revision",["accepting an offer","accepting every later cost"],premises,
+      "The unexpected cost enters after acceptance. Asking to adjust the hours makes the current terms a new practical decision.",
+      "Whether the employer agrees is unknown.",
+      "Accepting the offer settled where you would work. Discovering its cost in evenings gives you grounds to reopen the hours. Asking for different terms can make sense even if accepting made sense then.");
+  }
+  if (eventKind === "changed-setting") return distinction("successive-decisions",["the original stay","staying again after change"],premises,
+    "Choosing to continue after the team changes adds a second commitment made with different evidence.",
+    "The later outcome cannot be attributed solely to either decision.",
+    "You stayed twice: once for the job as you knew it, then again after the team changed. A future account that begins and ends with ‘I chose to stay’ would hide the second choice.");
+  if (eventKind === "experienced-distance") return distinction("feeling-and-forecast",["a present cost","a prediction about the life ahead"],premises,
+    "The participant selects a current loss and gives the move time. No later trajectory has been observed.",
+    "Nothing establishes that the feeling will ease or persist.",
+    "Missing your friends tells you something real about the move already. Giving it time leaves a different question open: how much this feeling tells you about the life you are still making there.");
+  return distinction("cost-of-learning",["waiting for evidence","living through its cost"],premises,
+    "Learning whether hard hours become manageable requires additional time under the very conditions being evaluated.",
+    "Waiting promises neither improvement nor certainty.",
+    "To find out whether these hours become bearable, you have to spend more evenings working them. Waiting for a clearer view is itself a choice with a cost.");
+}
+
+function readRoute(result) {
+  const [choice,event,response]=result.selected;
+  const eventTypes={change:{risk:"workload",surprise:"experienced-distance"},stay:{missed:"unobserved-alternative",surprise:"changed-setting"}};
+  const evidence={atChoice:["A familiar job","An offer requiring relocation","A decision this week"],choice:choice.label,
+    imaginedLater:event.label,eventKind:eventTypes[choice.id][event.id],subsequentResponse:response.label,responseKind:response.id,
+    originalVerdict:null,unchosenOutcome:null};
+  const relation=routeDistinction(evidence);
+  evidence.retrospectiveInterpretation=relation.warrant;
+  return {rule:[choice.id,event.id,response.id].join("/"),relation,evidence,observation:result.observation,
+    consequence:event.label+". "+response.label+".",
+    connection:"Kierkegaard’s journal leaves you looking back from inside a life that keeps moving.",
+    limits:["The event is imagined.","Later evidence cannot settle the original decision or reveal the other future."]};
+}
+
+function encounterConsequence(id, input) {
+  if (!["dillard","kierkegaard"].includes(id)) return {status:"declined",reason:"No reviewed pilot rule for this case."};
+  let result;
+  try {
+    if (id === "dillard" && Array.from(input?.ticks ?? []).some(tick => !Number.isInteger(tick)))
+      throw new TypeError("Incomplete time allocation");
+    result = id === "dillard" ? evaluateTradeoffCase(id,input) : evaluateDecisionCase(id,input);
+  } catch (error) {
+    if (!(error instanceof TypeError || error instanceof RangeError)) throw error;
+    return {status:"declined",reason:error.message};
+  }
+  const reading = id === "dillard" ? readEvening(result) : readRoute(result);
+  const {relation,...fields}=reading;
+  const {discovery,question,...reasoning}=relation;
+  const hiddenRelationship={...reasoning,sourceInterpretation:result.sourceRelation,sourceReferences:result.sourceReferences};
+  return {status:"ready", schema:"encounter-consequence/1.1", caseId:id, quote:result.quote,
+    input:result.input, mechanism:result.mechanism, ...fields, hiddenRelationship, discovery, question, tension:reasoning.concepts.join(" / "),
+    trace:[...result.rules,reading.rule,reasoning.kind], sources:result.sourceReferences,
+    editorialStatus:"provisional", fingerprintEvidence:null};
+}
+
+// Surface projection only. All interpretive text originates in a fired rule.
+function expressConsequence(packet) {
+  if (packet?.status !== "ready") return null;
+  const {discovery,consequence,connection,question} = packet;
+  return {discovery,consequence,connection,question};
+}
+
+/* ORIGINAL LAB UI */
+
+
+
+
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const slug=id=>getMechanismCase(id);
+const unit=n=>String(n)+"h";
+const colors=["var(--gold)","var(--sage)","var(--rose)"];
+const active={mode:"dillard", cases:{
+ dillard:{ticks:[2,2,2],motivation:null,result:null},
+ kierkegaard:{stage:0,resource:null,barrier:null,action:null,result:null}
+}};
+function tradeoffHtml(id){
+ const spec=slug(id),s=active.cases[id];
+ const fields=spec.categories.map((name,i)=>'<div class="slider-block">'+
+  '<div class="head"><label for="'+id+'-range-'+i+'">'+esc(name)+'</label>'+
+  '<span class="hours" id="'+id+'-hour-'+i+'">'+unit(s.ticks[i]/2)+'</span></div>'+
+  '<input type="range" id="'+id+'-range-'+i+'" min="0" max="6" step="1" value="'+s.ticks[i]+'"'+
+  ' data-range="'+id+'" data-index="'+i+'" aria-label="'+esc(name)+' hours"'+
+  ' aria-valuetext="'+unit(s.ticks[i]/2)+' out of 3 hours"></div>').join("");
+ const bars='<div class="time-stack" aria-label="3-hour budget">'+s.ticks.map((v,i)=>
+  '<span data-bar="'+id+'" data-index="'+i+'" style="width:'+(v/6*100)+'%;background:'+colors[i]+'"></span>').join("")+'</div>'+
+ '<div class="time-legend">'+spec.categories.map((n,i)=>'<span><i style="background:'+colors[i]+'"></i>'+esc(n)+'</span>').join("")+'</div>';
+ const opts='<div class="choices">'+spec.influences.map(o=>
+  '<button type="button" class="choice" data-motive="'+id+'" data-value="'+o.id+'" aria-pressed="'+(s.motivation===o.id)+'">'+
+  '<span class="symbol">✦</span><span><strong>'+esc(o.label)+'</strong><small>'+esc(o.detail)+'</small></span></button>').join("")+'</div>';
+ return '<div class="case-body"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+'</p>'+
+  '<p class="question">How would you divide these three hours?</p>'+fields+bars+
+  '<p class="question">What most influenced the choice?</p>'+opts+
+  '<button class="primary" type="button" data-run="'+id+'" '+(s.motivation?'':'disabled')+'>Reflect on this evening</button></div>';
+}
+function forkHtml(id,key,options,source){
+ const input=active.cases[id],picked=input[key];
+ const sourceX=source===0?85:source===1?255:170;
+ const spec=slug(id),prompt=spec.steps.find(x=>x.key===key).prompt;
+ return '<div class="fork" data-fork="'+id+'-'+key+'"><div class="prompt">'+esc(prompt)+'</div>'+
+  '<svg viewBox="0 0 340 41" preserveAspectRatio="none" aria-hidden="true"><path d="M'+sourceX+' 0 Q'+sourceX+' 15 170 16 M170 16 L85 40 M170 16 L255 40"/>'+
+  '<circle cx="170" cy="16" r="3"/></svg>'+
+  '<div class="pair" role="group" aria-label="'+esc(prompt)+'">'+
+  options.map(option=>'<button type="button" class="branch" data-case="'+id+'" data-fork-choice="'+key+
+   '" data-value="'+option.id+'" aria-pressed="'+(picked===option.id)+'">'+
+   '<strong>'+esc(option.label)+'</strong><small>'+esc(option.detail)+'</small>'+
+   (picked===option.id?'<span class="chosen">Selected path</span>':"")+
+   '</button>').join("")+'</div></div>';
+}
+function decisionHtml(id){
+ const spec=slug(id),s=active.cases[id];
+ let h='<div class="case-body"><div class="eyebrow">YOUR SCENARIO</div><p class="story">'+esc(spec.scenario)+
+  '</p><p class="lab-intro">Tap the starting point, then follow one choice at a time.</p>'+
+  '<div class="journey" data-map="'+id+'"><button type="button" class="journey-root" data-start="'+id+'" aria-pressed="'+(s.stage>=1)+'">'+
+  '<span>STARTING POINT</span><strong>'+esc(spec.startingPoint)+'</strong>'+
+  '<span>'+(s.stage===0?"Tap to start":"Your route develops below")+'</span></button>';
+ if(s.stage>=1)h+=forkHtml(id,"resource",optionsFor(spec,"resource",null),null);
+ if(s.stage>=2){
+  const i=optionsFor(spec,"resource",null).findIndex(o=>o.id===s.resource);
+  h+=forkHtml(id,"barrier",optionsFor(spec,"barrier",s.resource),i);
+ }
+ if(s.stage>=3){
+  const i=optionsFor(spec,"barrier",s.resource).findIndex(o=>o.id===s.barrier);
+  h+=forkHtml(id,"action",optionsFor(spec,"action",s.barrier),i);
+ }
+ if(s.stage===4)h+='<div class="path-ready">Your route is complete. See what changed along the way.</div>';
+ h+='</div>';
+ if(s.stage>0)h+='<button type="button" class="reset" data-reset="'+id+'">Restart this journey</button>';
+ if(s.stage===4)h+='<button type="button" class="primary" data-run="'+id+'">Look back on this choice</button>';
+ return h+'</div>';
+}
+
+function render(){
+ const id=active.mode, spec=slug(id), s=active.cases[id];
+ const title=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
+ const view=expressConsequence(s.result);
+ const end=view?`<section class="result" tabindex="-1"><h3>${esc(view.discovery)}</h3><p>${esc(view.consequence)}</p><p>${esc(view.connection)}</p>${view.question?`<p class="reflection">${esc(view.question)}</p>`:""}<details><summary>Founder QA · evidence and limits</summary><pre>${esc(JSON.stringify(s.result,null,2))}</pre></details></section>`:"";
+ $("cases").innerHTML=`<article class="case" data-id="${id}"><header class="case-top" style="display:block"><h2>${esc(spec.author)}</h2><p class="quote">“${esc(title)}”</p><p class="work">${esc(spec.citationSource)}</p></header>${id==="dillard"?tradeoffHtml(id):decisionHtml(id)}${end}</article>`;
+ document.querySelectorAll("[data-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.mode===id)));
+}
+function refreshCard(){render();}
+document.addEventListener("click",ev=>{
+ const tab=ev.target.closest('[data-mode]');
+ if(tab){active.mode=tab.dataset.mode;render();return;}
+ const motive=ev.target.closest("[data-motive]");
+ if(motive){
+  const s=active.cases[motive.dataset.motive];
+  s.motivation=motive.dataset.value;s.result=null;refreshCard();document.querySelector('[data-motive][data-value="'+s.motivation+'"]').focus({preventScroll:true});return;
+ }
+ const start=ev.target.closest("[data-start]");
+ if(start){
+  const state=active.cases[start.dataset.start];
+  if(state.stage!==0)return;
+  state.stage=1;state.result=null;refreshCard();document.querySelector('[data-fork-choice="resource"]').focus();return;
+ }
+ const branch=ev.target.closest("[data-fork-choice]");
+ if(branch){
+  const id=branch.dataset.case,key=branch.dataset.forkChoice,value=branch.dataset.value;
+  const state=active.cases[id],spec=slug(id);
+  const index=["resource","barrier","action"].indexOf(key);
+  const upstream=index===0?null:state[["resource","resource","barrier"][index]];
+  if(!optionsFor(spec,key,upstream).some(choice=>choice.id===value))return;
+  if(state[key]===value)return;
+  if(key==="resource"){state.barrier=null;state.action=null;}
+  if(key==="barrier"&&state.barrier!==value){state.action=null;}
+  state[key]=value;state.stage=index+2;state.result=null;refreshCard(id);
+  const next=["barrier","action"][index];
+  document.querySelector(next?'[data-fork-choice="'+next+'"]':'[data-run]').focus();return;
+ }
+ const reset=ev.target.closest("[data-reset]");
+ if(reset){
+  active.cases[reset.dataset.reset]={stage:0,resource:null,barrier:null,action:null,result:null};
+  refreshCard(reset.dataset.reset);return;
+ }
+ const run=ev.target.closest("[data-run]");
+ if(run){
+  const id=run.dataset.run,s=active.cases[id],spec=slug(id);
+
+   s.result=encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
+    {resource:s.resource,barrier:s.barrier,action:s.action});
+
+  refreshCard(id);document.querySelector(".result")?.focus();return;
+ }
+});
+document.addEventListener("input",ev=>{
+ const range=ev.target.closest("[data-range]");
+ if(!range)return;
+ const id=range.dataset.range,index=Number(range.dataset.index),state=active.cases[id];
+ state.ticks=reallocateVariableBudget(state.ticks,index,Number(range.value));state.result=null;
+ state.ticks.forEach((tick,i)=>{
+  const el=$(id+"-range-"+i);if(el){el.value=String(tick);el.setAttribute("aria-valuetext",unit(tick/2)+" out of 3 hours");}
+  const value=$(id+"-hour-"+i);if(value)value.textContent=unit(tick/2);
+  const bar=document.querySelector('[data-bar="'+id+'"][data-index="'+i+'"]');
+  if(bar)bar.style.width=(tick/6*100)+"%";
+ });
+ const result=document.querySelector('[data-id="'+id+'"] .result');
+ if(result)result.remove();
+});
+render();
+
+</script></body></html>
