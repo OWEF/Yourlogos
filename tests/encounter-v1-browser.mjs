@@ -16,6 +16,7 @@ try {
     await page.locator('[data-motive][data-value="planned"]').click();
     await run.click();
     assert.match(await page.locator(".result h3").innerText(),/another evening/);
+    assert.equal(await page.locator(".result .reflection").count(),0);
     await page.locator('[data-motive][data-value="interrupted"]').click();
     assert.equal(await page.locator(".result").count(),0);
     await run.click();
@@ -23,6 +24,14 @@ try {
     await page.locator("[data-range]").first().focus();
     await page.keyboard.press("End");
     assert.equal(await page.locator(".result").count(),0);
+    const sliders=page.locator("[data-range]");
+    await sliders.nth(1).press("End");
+    await sliders.nth(2).press("ArrowRight");
+    await sliders.nth(0).press("ArrowRight");
+    await run.click();
+    assert.match(await page.locator(".result h3").innerText(),/first ones you protected/);
+    assert.equal(await page.locator(".result .reflection").count(),1);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     await page.locator('[data-mode="kierkegaard"]').click();
     await page.locator("[data-start]").click();
     const pick=async(stage,value)=>page.locator(`[data-fork-choice="${stage}"][data-value="${value}"]`).click();
