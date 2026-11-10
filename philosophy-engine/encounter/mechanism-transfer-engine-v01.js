@@ -7,27 +7,14 @@
  * What transfers is explicitly labelled; no source or generality claim implied.
  */
 import {reallocateEvening, reasonSeneca, reasonWoolf} from "./experience-reasoners-v01.js";
-import {getMechanismCase,optionsFor,sourceTrace,candidateFitAudit,validateTradeoffVariables} from "./mechanism-transfer-cases-v01.js";
+import {getMechanismCase,optionsFor,sourceTrace,candidateFitAudit} from "./mechanism-transfer-cases-v01.js";
 import {ATLAS_PILOT_V01} from "../context-atlas/pilot-records-v01.js";
 
 export {reallocateEvening};
 const validHalfHour=x=>Number.isInteger(x)&&x>=0&&x<=6;
 export const MOTIVATIONS=Object.freeze(["chosen","expected","necessary"]);
-const uses=(input,spec)=>Array.isArray(input?.ticks)&&
- input.ticks.length===spec.categories.length&&input.ticks.every(validHalfHour)&&
+const uses=(input)=>Array.isArray(input?.ticks)&&input.ticks.length===3&&input.ticks.every(validHalfHour)&&
  input.ticks.reduce((a,b)=>a+b,0)===6;
-/** Preserve the old three-variable allocator; add a safe two-variable case.
- * The 3h constraint belongs to these scenarios, not to all future quotations. */
-export function reallocateVariableBudget(ticks,index,value){
- if(!Array.isArray(ticks)||(ticks.length!==2&&ticks.length!==3)||
-    ticks.some(v=>!validHalfHour(v))||ticks.reduce((a,b)=>a+b,0)!==6||
-    !Number.isInteger(index)||index<0||index>=ticks.length||!validHalfHour(value))
-  throw new RangeError("Expected a valid two-or-three-variable, 3-hour allocation");
- if(ticks.length===3)return reallocateEvening(ticks,index,value);
- const result=[...ticks];
- result[index]=value;result[1-index]=6-value;
- return result;
-}
 
 function quoteDetails(spec){
  if(spec.quote){
@@ -68,9 +55,7 @@ export function evaluateTradeoffCase(id,input){
  const spec=getMechanismCase(id);
  assertExperimental(spec);
  if(spec.family!=="tradeoff")throw new RangeError("Not a Trade-Off case");
- validateTradeoffVariables(spec);
- if(!uses(input,spec)||!spec.influences.some(m=>m.id===input.motivation))
-  throw new TypeError("Exactly 3 free hours across source-grounded variables and a valid influence are required");
+ if(!uses(input)||!MOTIVATIONS.includes(input.motivation))throw new TypeError("Exactly 3 free hours in half-hour steps and a valid influence are required");
  const hours=input.ticks.map(n=>n/2),max=Math.max(...hours),leaders=hours.filter(n=>n===max).length;
  const omitted=hours.map((n,i)=>n===0?spec.categories[i]:null).filter(Boolean);
  const observation=spec.categories.map((name,i)=>name+": "+hours[i]+"h").join(" · ");
@@ -79,10 +64,6 @@ export function evaluateTradeoffCase(id,input){
   budget:3,
   hours,
   observation,
-  variableCount:spec.categories.length,
-  variableBasis:spec.variableBasis,
-  variableLabels:[...spec.categories],
-  influenceLabel:spec.influences.find(m=>m.id===input.motivation).label,
   pattern:max===3?"one_activity":leaders>1?"balanced_maxima":"uneven_allocation",
   alternativesOmitted:omitted,
   influence:input.motivation,
@@ -94,8 +75,7 @@ export function evaluateTradeoffCase(id,input){
   fields.conditionalFiveWeekdays.map((h,i)=>spec.categories[i]+" "+h+"h").join(", ")+
   " across a five-day week; the user's real routine is unknown.":
   spec.sourceRelation+" This is a *single* imagined evening, not an inference about an actual life.";
- const rules=["fixed_budget:180_minutes","half_hour_zero_sum","variables:"+spec.categories.length,
-   "quote_specific_variables_not_copied","observed_pattern:"+fields.pattern,
+ const rules=["fixed_budget:180_minutes","half_hour_zero_sum","observed_pattern:"+fields.pattern,
    "self_declared_motivation:"+input.motivation,"no_moral_optimization",
    spec.timeFrame==="hypothetical_repeated_five_weekdays"?"conditional_repetition_not_empirical":"single_evening_no_lifetime_inference"];
  const base=common(spec,{ticks:[...input.ticks],motivation:input.motivation},rules);
