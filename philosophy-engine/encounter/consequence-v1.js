@@ -1,3 +1,4 @@
+import {selectExpressionMeaning,composeExpression} from "./expression-engine-v1.js";
 import {encounterDistinction,encounterWorldThread} from "./encounter-distinction-v13.js";
 import {quotationEnding} from "./quotation-return-v12.js";
 import {evaluateTradeoffCase, evaluateDecisionCase} from "./mechanism-transfer-engine-v02.js";
@@ -22,10 +23,10 @@ function eveningDistinction(facts) {
       "One planned deferral keeps a later session possible. Repeating the same allocation provides zero writing sessions.",
       "A different evening may already be set aside.",
       "You can leave the story for another evening on purpose. If every evening follows this plan, the promised later session never arrives.");
-    if (declaredInfluence === "interrupted" && messages > 0) return distinction("requests-without-writing",["individual replies","a collective claim on time"],premises,
-      "The participant reports disruption, gives time to replies and allocates none to writing. The aggregate can exclude writing without any single request doing so.",
+    if (declaredInfluence === "interrupted" && messages > 0) return distinction("requests-without-writing",["every hour assigned","an intention without a session"],premises,
+      "Rest and replies account for the entire budget; the stated writing goal receives zero. This holds without attributing the omission to either activity.",
       "The model cannot assign the lost writing time to a particular request.",
-      "Each message could have been worth answering. Taken together with the rest of this evening, those choices leave the story waiting. Repeating them could settle its place in your week without a separate decision about the story.");
+      "Every hour can be accounted for while the story has no session. If this evening repeated, the intention to write would remain possible without any occasion to act on it.");
     return distinction("exception-repeated",["a reason for this evening","a place for a recurring commitment"],premises,
       "Explaining the allocation leaves open where writing can occur when no session is scheduled.",
       "We cannot identify a particular obstacle or judge the relative value of these activities.",
@@ -210,6 +211,7 @@ export function expressConsequence(packet) {
   const {discovery,consequence,connection,question} = packet;
   return {discovery,consequence,connection,question,headline:packet.userFacingDiscovery,
     experience:packet.experience,quote:packet.quote.text,interpretation:packet.sourceGroundedInterpretation,
-    visual:packet.visualDistinction,world:packet.optionalWorldConnection,proactiveQuestion:packet.proactiveQuestion};
+    visual:packet.visualDistinction,world:packet.optionalWorldConnection,
+    ...composeExpression(selectExpressionMeaning(packet))};
 
 }

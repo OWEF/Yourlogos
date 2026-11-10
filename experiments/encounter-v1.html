@@ -135,12 +135,14 @@ main[data-screen="intro"] .tab span{display:none}
 .result .founder-qa{margin:10px 0 0}
 @media(max-width:440px){.intro-content{padding:28px 12px 44px;gap:22px}.intro-view{min-height:65vh}.reading-panel{padding:18px}.tabs{margin-bottom:8px}.flow-exercise .case-body{padding:14px}}
 @media(prefers-reduced-motion:reduce){.intro-scenario,.intro-cta{animation:none!important}}
+.expression-lab{padding:1rem;background:#181c18;color:var(--ink)}.voice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.voice-grid article{border-top:1px solid var(--line);padding:.6rem}.voice-grid small{text-transform:uppercase;color:var(--gold)}.expression-lab pre{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:620px){.voice-grid{grid-template-columns:1fr}}
 </style></head><body><main><header><div class="brand">YourLogos.</div></header><h1 class="lab-title">Encounter</h1>
 <nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button></nav>
 <section id="cases" aria-label="Current Encounter"></section></main>
 <script type="module">
 import {getMechanismCase,optionsFor} from "../philosophy-engine/encounter/mechanism-transfer-cases-v02.js";
 import {reallocateVariableBudget} from "../philosophy-engine/encounter/mechanism-transfer-engine-v02.js";
+import {expressionModes,selectExpressionMeaning,selectExpressionStrategy,composeExpression} from "../philosophy-engine/encounter/expression-engine-v1.js";
 import {encounterConsequence,expressConsequence} from "../philosophy-engine/encounter/consequence-v1.js";
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -212,6 +214,19 @@ function contrastHtml(visual){
  return '<dl class="distinction '+esc(visual.form)+'" aria-label="The philosophical distinction">'+visual.items.map(item=>
    '<div><dt>'+esc(item.label)+'</dt><dd>'+esc(item.text)+'</dd></div>').join("")+'</dl>';
 }
+const comparisonPreview=location.hash==="#qa-expression" || Boolean(document.querySelector('meta[name="expression-lab"]'));
+function expressionComparison(packet){
+ const meaning=selectExpressionMeaning(packet);
+ const strategy=selectExpressionStrategy(meaning);
+ return '<aside class="expression-lab" aria-label="Founder expression comparison"><h2>Compare voices</h2>'+
+   '<p>Recommended for this path · '+esc(strategy.recommended)+'</p><div class="voice-grid">'+
+   expressionModes.map(mode=>{
+     const reading=composeExpression(meaning,mode);
+     return '<article><small>'+esc(mode)+'</small><h3>'+esc(reading.headline)+'</h3><p>'+esc(reading.experience)+'</p>'+
+       '<p>'+esc(reading.interpretation)+'</p><em>'+esc(reading.proactiveQuestion)+'</em></article>';
+   }).join("")+'</div><details><summary>Validated meaning, sources and limits</summary><pre>'+
+   esc(JSON.stringify(meaning,null,2))+'</pre></details></aside>';
+}
 function render(){
  const id=active.mode, spec=slug(id), state=active.cases[id], screen=active.screen[id];
  const quote=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
@@ -244,7 +259,7 @@ function render(){
    '<section class="reading-panel reading-question"><span class="section-label">A question to carry forward</span>'+
    '<p class="reflection">'+esc(view.proactiveQuestion)+'</p></section>'+
    (location.hash.startsWith("#qa")?'<details class="founder-qa"><summary>Founder QA · evidence and limits</summary><pre>'+esc(JSON.stringify(state.result,null,2))+'</pre></details>':"")+
-   '</section>':"";
+   '</section>'+(comparisonPreview?expressionComparison(state.result):""):"";
  const current=screen==="entry"?entry:screen==="intro"?intro:screen==="exercise"?exercise:result;
  $("cases").innerHTML='<article class="case flow-case flow-'+screen+'" data-id="'+id+'">'+current+'</article>';
  document.querySelectorAll("[data-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.mode===id)));

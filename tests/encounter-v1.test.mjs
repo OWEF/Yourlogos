@@ -261,3 +261,42 @@ test("historical matching accepts varied volunteered inquiries but rejects secon
     "It feels like I can never make enough time to write."
   ]) assert.equal(encounterConsequence("dillard",{ticks:[1,4,1],motivation:"interrupted"},memory(note)).optionalWorldConnection?.excerpt,note);
 });
+
+import {selectExpressionMeaning,selectExpressionStrategy,composeExpression,expressionModes} from "../philosophy-engine/encounter/expression-engine-v1.js";
+test("a fully allocated evening without a sitting attributes no cause to replies",()=>{
+  const packet=evening([0,2,4],"interrupted");
+  const meaning=selectExpressionMeaning(packet);
+  assert.deepEqual(meaning.facts.hours,[0,1,2]);
+  assert.equal(meaning.facts.declaredInfluence,"interrupted");
+  for(const mode of expressionModes){
+    const v=composeExpression(meaning,mode);
+    assert.match(v.experience,/one hour for replies/);
+    assert.match(v.experience,/two hours for rest/);
+    assert.match(v.experience,/no time (for (the story|writing)|to the story)/);
+    assert.doesNotMatch([v.headline,v.experience,v.interpretation,...packet.visualDistinction.items.map(i=>i.text)].join(" "),
+      /messages (?:consumed|took up|prevented)|replies (?:prevented|displaced)|guilt|lazy|abandon/i);
+  }
+});
+test("every mode preserves the source, limits, action and closing inquiry across 92 valid inputs",()=>{
+  const packets=reachableDecisionRoutes("kierkegaard").map(r=>encounterConsequence("kierkegaard",r));
+  for(let w=0;w<=6;w++) for(let m=0;w+m<=6;m++)
+    for(const motive of ["planned","obligations","interrupted"]) packets.push(evening([w,m,6-w-m],motive));
+  assert.equal(packets.length,92);
+  const defaults=new Set();
+  for(const packet of packets){
+    const meaning=selectExpressionMeaning(packet),before=JSON.stringify(meaning);
+    assert.ok(meaning.sources.length && meaning.trace.includes(meaning.kind) && meaning.limits.length);
+    const readings=expressionModes.map(mode=>composeExpression(meaning,mode));
+    assert.deepEqual(readings.map(r=>r.mode),expressionModes);
+    assert.equal(new Set(readings.map(r=>r.headline)).size,4);
+    for(const v of readings){
+      assert.equal(v.interpretation,packet.sourceGroundedInterpretation);
+      assert.equal(v.proactiveQuestion,packet.proactiveQuestion);
+    }
+    assert.equal(JSON.stringify(meaning),before);
+    defaults.add(composeExpression(meaning).mode);
+  }
+  assert.equal(defaults.size,4);
+  assert.equal(selectExpressionStrategy({kind:"unreviewed"}).recommended,"reflective");
+  assert.equal(selectExpressionMeaning({status:"declined"}),null);
+});

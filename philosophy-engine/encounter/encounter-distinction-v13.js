@@ -8,7 +8,7 @@ const eveningPairs = {
   "interrupted-without-replies":["Demand","The phone still interrupts.","Allocation","No time is assigned to replying."],
   "chosen-rest":["Tonight","Rest gets the largest share.","If repeated","Rest would have a regular place."],
   "deliberate-pause":["Tonight","The story can wait.","If repeated","The promised writing session never arrives."],
-  "requests-without-writing":["One reply","A request gets an answer.","Repeated evenings","Writing could keep losing its turn."],
+  "requests-without-writing":["Tonight","Every hour is assigned.","If repeated","The story still has no session."],
   "exception-repeated":["This evening","No time goes to the story.","If repeated","The exception could become the routine."],
   "exclusive-evening":["One sitting","Writing fills the evening.","A routine","Rest and replies need time elsewhere."],
   "writing-sets-budget":["Time set aside","Writing gets most of the evening.","Boundary","Other claims share what remains."],

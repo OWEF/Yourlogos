@@ -7,6 +7,8 @@ on:
       - 'scripts/build-scenario-transfer-lab-v02.mjs'
       - 'philosophy-engine/encounter/quotation-return-v12.js'
       - 'world-memory.js'
+      - 'philosophy-engine/encounter/expression-engine-v1.js'
+      - 'experiments/encounter-expression-qa.html'
       - 'philosophy-engine/encounter/encounter-distinction-v13.js'
   workflow_dispatch:
 permissions:
