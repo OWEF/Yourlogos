@@ -119,7 +119,7 @@ test("each source-specific ending returns to its own quotation in 80–120 words
     for(const motive of ["interrupted","planned","obligations"]) packets.push(evening([w,m,6-w-m],motive));
   for(const packet of packets){
     const view=expressConsequence(packet);
-    const words=[view.headline,view.experience,view.interpretation,view.proactiveQuestion].join(" ").trim().split(/\s+/).length;
+    const words=[view.headline,view.experience,view.interpretation,view.proactiveQuestion,...view.visual.items.map(item=>item.text)].join(" ").trim().split(/\s+/).length;
     assert.ok(words>=80 && words<=120,packet.rule+" words="+words);
     assert.equal(view.quote,packet.quote.text);
     assert.match(view.interpretation,packet.caseId==="dillard"?/Dillard/:/Kierkegaard/);
@@ -156,12 +156,63 @@ test("exact saved catalogue evidence is read-only; weak or stale matches produce
   const memory=buildWorldMemory(saved,catalogue);
   const run=m=>encounterConsequence("dillard",input,m);
   const actual=run(memory);
-  assert.deepEqual(actual.optionalWorldConnection,{source:"saved",quoteId:quote.id,fixture:false,text:"You previously saved this quotation in My World."});
-  assert.match(actual.proactiveQuestion,/Reading this line again/);
+  assert.equal(actual.optionalWorldConnection,null);
+  assert.equal(actual.proactiveQuestion,run(null).proactiveQuestion);
   for(const weak of [null,buildWorldMemory({},catalogue),buildWorldMemory({saved:[13]},catalogue),
     {savedThemes:["Time"]},{savedQuoteReferences:[{source:"saved",quoteId:quote.id,text:"Different passage",author:quote.author}]}]){
     assert.equal(run(weak).optionalWorldConnection,null);
   }
-  assert.equal(run({...memory,fixture:true}).optionalWorldConnection.fixture,true);
+  assert.equal(run({...memory,fixture:true}).optionalWorldConnection,null);
   assert.deepEqual(saved.saved,[quote.id,13]);
+});
+
+test("eight contrast readings reproduce their selected concept and quote-specific question",()=>{
+  for(const [packet,label,claim,question] of [
+    [evening([1,4,1],"interrupted"),"Allocated",/30 minutes/,/one more message/],
+    [evening([4,1,1],"planned"),"Time set aside",/most/,/boundary/],
+    [evening([1,1,4],"planned"),"Tonight",/rest/i,/repeat/],
+    [evening([0,3,3],"planned"),"Tonight",/wait/,/pause/],
+    [journey("change","surprise","continue"),"Then",/imagine/,/first experience/],
+    [journey("stay","surprise","continue"),"First decision",/familiar team/,/which decision/i],
+    [journey("stay","missed","reflect"),"Within reach",/reasons/,/one of its possible futures/],
+    [journey("change","risk","continue"),"To learn",/hours/,/waiting/]
+  ]){
+    const visual=expressConsequence(packet).visual;
+    assert.equal(visual.kind,packet.hiddenRelationship.kind);
+    assert.equal(visual.items[0].label,label);
+    assert.match(visual.items[0].text,claim);
+    assert.match(packet.proactiveQuestion,question);
+    if(packet.caseId==="kierkegaard") assert.equal(packet.evidence.atNextChoice.outcome,null);
+  }
+  assert.match(evening([2,4,0],"interrupted").visualDistinction.items[0].text,/60 minutes/);
+});
+
+test("match archived volunteered words through the real World adapter, never system prompts or keywords",()=>{
+  const catalogue=[["Another passage","An author","Time"]];
+  const words="I wonder whether careful reasoning can eliminate uncertainty before I decide.";
+  const record={id:"history-item",quoteId:0,focus:"uncertainty",date:"2026-10-20",question:"Suggested prompt",note:words};
+  const state=Object.freeze({livingThreads:{history:[Object.freeze(record)]}});
+  const route={resource:"change",barrier:"surprise",action:"continue"};
+  const read=memory=>encounterConsequence("kierkegaard",route,memory).optionalWorldConnection;
+  const memory=buildWorldMemory(state,catalogue);
+  const connection=read(memory);
+  assert.match(encounterConsequence("kierkegaard",route,memory).proactiveQuestion,/reflection settle/);
+  assert.equal(connection.excerpt,words);
+  assert.equal(connection.field,"note");
+  assert.equal(connection.source,"livingThreads.history");
+  assert.equal(connection.recordId,record.id);
+  assert.equal(connection.date,record.date);
+  assert.equal(connection.fixture,false);
+  assert.match(connection.text,/earlier reflection/);
+  assert.match(read({...memory,fixture:true}).text,/Sample reflection/);
+  for(const note of ["Uncertainty about my holiday budget.","I do not wonder whether careful reasoning can eliminate uncertainty.","My friend asked: "+words,""]){
+    assert.equal(read(buildWorldMemory({livingThreads:{history:[{...record,question:words,note}]}},catalogue)),null);
+  }
+  assert.equal(read({threads:[{...memory.threads[0],type:"ai"}]}),null);
+  const prior={...record,note:"",opening:"How do our daily habits shape our priorities?"};
+  const dillard=encounterConsequence("dillard",{ticks:[4,1,1],motivation:"planned"},
+    buildWorldMemory({livingThreads:{history:[prior]}},catalogue));
+  // The curated grammar accepts can/do + my/our + habits/routines.
+  assert.equal(dillard.optionalWorldConnection.field,"opening");
+  assert.equal(read(buildWorldMemory({livingThreads:{history:[prior]}},catalogue)),null);
 });

@@ -29,7 +29,7 @@ try {
     await sliders.nth(2).press("ArrowRight");
     await sliders.nth(0).press("ArrowRight");
     await run.click();
-    assert.match(await page.locator(".result h3").innerText(),/two different places/);
+    assert.match(await page.locator(".result h3").innerText(),/whether that time was protected/);
     assert.equal(await page.locator(".result .reflection").count(),1);
     async function verifyEnding(){
       const result=page.locator(".result");
@@ -38,6 +38,11 @@ try {
       assert.equal(await result.locator("blockquote").innerText(),(await page.locator(".case-top .quote").innerText()).slice(1,-1));
       assert.equal(await result.locator("details").getAttribute("open"),null);
       assert.equal(await result.locator(".world-note").count(),0);
+      assert.equal(await result.evaluate(el=>el===document.activeElement),true);
+      const contrast=result.getByRole("definition");
+      assert.equal(await contrast.count(),2);
+      assert.equal(await result.locator("dl").getAttribute("aria-label"),"The philosophical distinction");
+      assert.ok(await contrast.first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=14));
       const bounds=await result.boundingBox();
       assert.ok(bounds.height<=844, width+"px ending height "+bounds.height);
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
@@ -61,7 +66,7 @@ try {
     }
     await page.locator("[data-reset]").click();
     assert.equal(await page.locator(".result, [data-fork-choice]").count(),0);
-    await page.goto(url.split("#")[0]+"#qa-saved");
+    await page.goto(url.split("#")[0]+"#qa-reflection");
     await page.locator('[data-mode="dillard"]').click();
     await page.locator('[data-motive][data-value="planned"]').click();
     await run.click();

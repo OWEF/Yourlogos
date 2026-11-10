@@ -93,6 +93,8 @@ input[type=range]{display:block;width:100%;accent-color:var(--gold);height:31px;
 main{max-width:660px}.result{scroll-margin:1rem}.result h3{font-size:clamp(23px,4vw,32px);line-height:1.22}.result p,.case-body>.story{font-size:15px}.choice strong,.branch strong{font-size:14px}.result details{margin-top:16px}.primary:disabled{opacity:.5;cursor:default}.tab[aria-pressed=true]{border-color:var(--gold);background:#3b382a}.result p.reflection{color:var(--gold)}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important}}
 .result .section-label{display:block;color:var(--sage);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:14px 0 4px}.result .section-label:first-child{margin-top:0}.result blockquote{font:italic 19px/1.28 Georgia,serif;color:var(--ink);margin:5px 0 8px;padding-left:10px;border-left:2px solid var(--gold)}.result p{margin:6px 0 10px;line-height:1.45}.result h3{font-size:24px;margin:4px 0 8px}.result .world-note{font-size:13px}
+.distinction{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-block:1px solid var(--line);padding:9px 0;margin:8px 0}.distinction>div+div{padding-left:10px;border-left:1px solid var(--line)}.distinction dt{color:var(--sage);font-weight:650;font-size:12px}.distinction dd{margin:3px 0 0;font-size:14px;line-height:1.32}.distinction.sequence{border-top-color:var(--sage)}.result .world-note{line-height:1.35}
+@media(max-width:360px){main{padding-inline:8px}.result{padding:12px}.result .section-label{margin-top:8px}.result p{margin:4px 0 6px}.result details{margin-top:6px}.distinction{margin:5px 0;padding:6px 0}.result h3{margin-bottom:4px}}
 </style></head><body><main><header><div class="brand">YourLogos.</div></header><h1>Encounter</h1>
 <nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button></nav>
 <section id="cases" aria-label="Current Encounter"></section></main>
@@ -1232,13 +1234,86 @@ function fitMatrix(){
 }
 
 
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/encounter-distinction-v13.js */
+// Each pair belongs to one validated distinction. The time line uses the
+// actual allocation; the temporal pairs distinguish when evidence arrived.
+const eveningPairs = {
+  "chosen-rest":["Tonight","Rest gets the largest share.","If repeated","Rest would have a regular place."],
+  "deliberate-pause":["Tonight","The story can wait.","If repeated","The promised writing session never arrives."],
+  "requests-without-writing":["One reply","A request gets an answer.","Repeated evenings","Writing could keep losing its turn."],
+  "exception-repeated":["This evening","No time goes to the story.","If repeated","The exception could become the routine."],
+  "exclusive-evening":["One sitting","Writing fills the evening.","A routine","Rest and replies need time elsewhere."],
+  "writing-sets-budget":["Time set aside","Writing gets most of the evening.","Boundary","Other claims share what remains."],
+  "room-for-both":["In this plan","Writing and rest both fit.","An extra half-hour","Something else must give way."],
+  "recurring-foothold":["Tonight","There is a writing session.","Still open","The next session has no guarantee."]
+};
+const routePairs = {
+  "feeling-and-forecast":["Then","Distance was something to imagine.","Now","You miss your friends. Continuing is still a step into the unknown."],
+  "new-reason-for-action":["Then","The move lay ahead.","Now","Distance gives you a reason to make a plan for your friendships."],
+  "continuity-of-place":["Chosen","You could keep your job.","Outside your choice","You could not keep the team from changing."],
+  "successive-decisions":["First decision","Stay with a familiar team.","Second decision","Give a changed team more time."],
+  "reasons-and-alternatives":["Within reach","Your reasons for staying.","Beyond reach","Experience of the job you turned down."],
+  "commitment-without-comparison":["Still unknown","What moving would have brought.","Within reach","What you give your attention to here."],
+  "terms-open-to-revision":["At acceptance","The actual hours lay ahead.","At renegotiation","You know their cost in evenings."],
+  "cost-of-learning":["To learn","See how the hours feel over time.","What it takes","Live through more of those evenings."]
+};
+
+function encounterDistinction(result, relation) {
+  const kind=relation.kind;
+  let pair;
+  if (kind==="protected-or-remainder"){
+    const minutes=relation.premises.writing*60;
+    pair=["Allocated",minutes+" minutes for the story.","Protected","These minutes might have been reserved or left over."];
+  } else {
+    pair=(result.caseId==="dillard"?eveningPairs:routePairs)[kind];
+  }
+  if (!pair) return null;
+  const [firstLabel,firstText,secondLabel,secondText]=pair;
+  return {kind,form:result.caseId==="kierkegaard" && ["feeling-and-forecast","new-reason-for-action","successive-decisions","terms-open-to-revision"].includes(kind)?"sequence":"comparison",
+    items:[{label:firstLabel,text:firstText},{label:secondLabel,text:secondText}]};
+}
+
+// Recognize complete, supported questions in volunteered fields. A word like
+// "uncertain", a shared theme, or an app-generated prompt is insufficient.
+// Keep the original words; matching a question gives no evidence of agreement.
+const priorInquiries = {
+  dillard:{
+    pattern:/^(?:how (?:do|can) (?:i|we) (?:make|find|protect|set aside) time for (?:what matters(?: most)?|(?:my|our) priorities|writing)|(?:how )?(?:do|can) (?:my|our) (?:daily habits|routines) (?:reflect|shape) (?:what (?:i|we) value|(?:my|our) priorities))\?$/i,
+    statement:/^I (?:keep meaning|intend|want) to (?:write|make time for what matters),? but (?:I (?:keep )?(?:end up answering messages|put it off)|other demands keep taking (?:over|my time))\.?$/i,
+    connection:"Dillard offers a way to revisit that question by imagining tonight’s arrangement repeated."
+  },
+  kierkegaard:{
+    pattern:/^(?:can (?:careful )?(?:reasoning|reflection|thinking(?: it through)?) (?:ever )?(?:remove|eliminate|resolve) (?:all )?uncertainty(?: before (?:i|we) (?:act|choose|decide))?|how (?:can|could) (?:i|we) know (?:the outcome|what will happen) before (?:i|we) (?:act|choose|decide))\?$/i,
+    statement:/^I (?:wonder whether|wish I knew whether|keep asking whether) (?:careful )?(?:reasoning|reflection|thinking it through) (?:can|could) (?:ever )?(?:remove|eliminate|resolve) (?:all )?uncertainty(?: before (?:I|we) (?:act|choose|decide))?[.?]?$/i,
+    connection:"Kierkegaard gives that question a limit: part of the evidence arrives through living the choice."
+  }
+};
+
+function encounterWorldThread(memory,id){
+  const inquiry=priorInquiries[id];
+  if (!inquiry || !Array.isArray(memory?.threads)) return null;
+  for(const record of [...memory.threads].reverse()){
+    if(record?.type!=="thread" || !record.id || !Number.isInteger(record.quoteId)) continue;
+    for(const field of ["note","opening"]){
+      const words=record[field];
+      if(typeof words!=="string" || !(inquiry.pattern.test(words.trim()) || inquiry.statement.test(words.trim()))) continue;
+      const fixture=memory.fixture===true;
+      return {source:"livingThreads.history",recordId:record.id,field,quoteId:record.quoteId,date:record.date||null,
+        fixture,excerpt:words.trim(),interpretation:inquiry.connection,
+        text:(fixture?"Sample reflection":"In your earlier reflection")+" — “"+words.trim()+"” "+inquiry.connection};
+    }
+  }
+  return null;
+}
+
+
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/quotation-return-v12.js */
 // Curated interpretations keyed to the distinctions validated by the existing
 // mechanism. A quote family admits only its own reviewed distinctions.
 const dillardReturn = {
   "protected-or-remainder": [
-    "The same writing time can have two different places in a day.",
-    "Replies took most of the evening, and you said other demands changed your plan. The writing time could have been reserved before the first reply or found after the last one.",
+    "Finding time leaves open whether that time was protected.",
+    "You reserved some time for the story or found it after replying. Either fits the evening you described: messages took most of it, and other demands changed your plan.",
     "Dillard’s line comes into focus if you imagine this evening repeating. Either arrangement can give you a writing session tonight. Over many days, leaving it to whatever time remains would let incoming requests help decide how much of your life goes into the story.",
     "What would one more message reveal about the place writing has in this schedule?"
   ],
@@ -1249,7 +1324,7 @@ const dillardReturn = {
     "Which part of this evening would you deliberately choose to repeat?"
   ],
   "deliberate-pause": [
-    "The story belongs to another evening.",
+    "Putting writing off until another evening works only if an evening changes.",
     "You chose a plan with no writing in it. As a decision about tonight, that leaves the story perfectly possible: there can always be a different evening tomorrow.",
     "Dillard changes the scale of the question. Imagine tomorrow taking exactly the same shape, and then the day after that. What began as a pause for one evening could become the way a life keeps postponing something it means to do.",
     "What would have to differ between your days for this pause to stay a pause?"
@@ -1279,8 +1354,8 @@ const dillardReturn = {
     "Which boundary would have to hold for tomorrow to make the same room for writing?"
   ],
   "room-for-both": [
-    "Rest and writing already share an evening.",
-    "Your plan gave each a place. They compete when you try to enlarge a share of a fixed evening, yet the choice you made allows both activities to happen today.",
+    "A pause can belong to the pattern of a writing life.",
+    "You deliberately planned time on the page and time away from it. Counting only the writing would leave out part of the evening you chose.",
     "Read Dillard’s line with that particular evening in mind. If these days repeated, the rhythm of a writing life could include the time away from the page. What builds up over time is the whole arrangement you repeat, including the pauses.",
     "What would you miss about this pattern if you counted only the time spent writing?"
   ],
@@ -1294,8 +1369,8 @@ const dillardReturn = {
 
 const kierkegaardReturn = {
   "feeling-and-forecast":[
-    "Some of what the move meant came into view afterward.",
-    "You accepted the job before you could experience the distance from your friends. Once you missed them, you chose to give the move more time. You now know something about life there that an offer could only ask you to imagine.",
+    "You understand the move better. You still have to choose forward.",
+    "Missing your friends made the distance real. Giving the move more time means acting on that experience before you know how life there will unfold.",
     "Kierkegaard places you between two moments. Looking back makes the cost of moving clearer. Yet deciding to continue happens facing forward again, before you know how that feeling will change.",
     "How much can this first experience tell you about a life that is still unfolding?"
   ],
@@ -1352,6 +1427,7 @@ function quotationEnding(result,kind) {
 
 
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/consequence-v1.js */
+
 
 
 // A warrant relates two concepts under explicit premises. Everyday wording is
@@ -1478,21 +1554,15 @@ function readRoute(result) {
   const evidence={atChoice:["A familiar job","An offer requiring relocation","A decision this week"],choice:choice.label,
     imaginedLater:event.label,eventKind:eventTypes[choice.id][event.id],subsequentResponse:response.label,responseKind:response.id,
     originalVerdict:null,unchosenOutcome:null};
+  // At the third fork the later event is already known, but the result of
+  // responding has not been experienced on any reachable route.
+  evidence.atNextChoice={observed:event.label,response:response.label,outcome:null};
   const relation=routeDistinction(evidence);
   evidence.retrospectiveInterpretation=relation.warrant;
   return {rule:[choice.id,event.id,response.id].join("/"),relation,evidence,observation:result.observation,
     consequence:event.label+". "+response.label+".",
     connection:"Kierkegaard’s journal leaves you looking back from inside a life that keeps moving.",
     limits:["The event is imagined.","Later evidence cannot settle the original decision or reveal the other future."]};
-}
-
-function savedQuotation(memory, quote) {
-  if (!Array.isArray(memory?.savedQuoteReferences)) return null;
-  const match=memory.savedQuoteReferences.find(entry=>entry?.source==="saved" &&
-    entry.quoteId===quote.id && entry.text===quote.text && entry.author===quote.author);
-  if (!match) return null;
-  return {source:"saved",quoteId:match.quoteId,fixture:memory.fixture===true,
-    text:memory.fixture===true?"This sample record marks this quotation as saved.":"You previously saved this quotation in My World."};
 }
 
 function encounterConsequence(id, input, memory=null) {
@@ -1513,13 +1583,21 @@ function encounterConsequence(id, input, memory=null) {
   const {discovery,question,...reasoning}=relation;
   const hiddenRelationship={...reasoning,sourceInterpretation:result.sourceRelation,sourceReferences:result.sourceReferences};
   const ending=quotationEnding(result,reasoning.kind);
-  const optionalWorldConnection=savedQuotation(memory,result.quote);
-  return {status:"ready", schema:"encounter-consequence/1.2", caseId:id, quote:result.quote,
+  const optionalWorldConnection=encounterWorldThread(memory,id);
+  const visualDistinction=encounterDistinction(result,reasoning);
+  let proactiveQuestion=ending.question;
+  if(optionalWorldConnection && reasoning.kind==="feeling-and-forecast"){
+    proactiveQuestion="Which uncertainty about staying longer could reflection settle, and which would take another lived evening?";
+  }
+  if(optionalWorldConnection && reasoning.kind==="protected-or-remainder"){
+    proactiveQuestion="If this evening repeated, what would keep the next request from deciding when writing happens?";
+  }
+  return {status:"ready", schema:"encounter-consequence/1.3", caseId:id, quote:result.quote,
     input:result.input, mechanism:result.mechanism, ...fields, hiddenRelationship, discovery, question, tension:reasoning.concepts.join(" / "),
     centralPhilosophicalRelation, observedPath:result.input, scenarioConsequence:fields.consequence,
     sourceGroundedInterpretation:ending.interpretation, userFacingDiscovery:ending.headline,
-    experience:ending.experience, optionalWorldConnection,
-    proactiveQuestion:optionalWorldConnection?"Reading this line again, "+ending.question[0].toLowerCase()+ending.question.slice(1):ending.question,
+    experience:ending.experience, optionalWorldConnection, visualDistinction,
+    proactiveQuestion,
     trace:[...result.rules,reading.rule,reasoning.kind], sources:result.sourceReferences,
     editorialStatus:"provisional", fingerprintEvidence:null};
 }
@@ -1530,7 +1608,7 @@ function expressConsequence(packet) {
   const {discovery,consequence,connection,question} = packet;
   return {discovery,consequence,connection,question,headline:packet.userFacingDiscovery,
     experience:packet.experience,quote:packet.quote.text,interpretation:packet.sourceGroundedInterpretation,
-    world:packet.optionalWorldConnection,proactiveQuestion:packet.proactiveQuestion};
+    visual:packet.visualDistinction,world:packet.optionalWorldConnection,proactiveQuestion:packet.proactiveQuestion};
 
 }
 
@@ -1604,13 +1682,18 @@ function decisionHtml(id){
  return h+'</div>';
 }
 
+function contrastHtml(visual){
+ if(!visual)return "";
+ return '<dl class="distinction '+esc(visual.form)+'" aria-label="The philosophical distinction">'+visual.items.map(item=>
+   '<div><dt>'+esc(item.label)+'</dt><dd>'+esc(item.text)+'</dd></div>').join("")+'</dl>';
+}
 function render(){
  const id=active.mode, spec=slug(id), s=active.cases[id];
  const title=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
  const view=expressConsequence(s.result);
  const end=view?`<section class="result" tabindex="-1" aria-label="Encounter reflection">
  <span class="section-label">Your Encounter with ${esc(spec.author)}</span><h3>${esc(view.headline)}</h3>
- <p>${esc(view.experience)}</p><span class="section-label">Return to the quotation</span>
+ <p>${esc(view.experience)}</p>${contrastHtml(view.visual)}<span class="section-label">Return to the quotation</span>
  <blockquote>${esc(view.quote)}</blockquote><p class="interpretation">${esc(view.interpretation)}</p>
  ${view.world?`<span class="section-label">My World${view.world.fixture?" · QA fixture":""}</span><p class="world-note">${esc(view.world.text)}</p>`:""}
  <span class="section-label">A question to carry forward</span><p class="reflection">${esc(view.proactiveQuestion)}</p>
@@ -1658,9 +1741,10 @@ document.addEventListener("click",ev=>{
 
    // Standalone preview has no account context. An explicit fragment enables
    // a labeled synthetic example without reading storage or contacting a host.
-   const quote=id==="dillard"?{quoteId:12,text:spec.quote,author:spec.author}:
-    {quoteId:34,text:"Life can only be understood backwards; but it must be lived forwards.",author:spec.author};
-   const memory=location.hash==="#qa-saved"?{fixture:true,savedQuoteReferences:[{source:"saved",...quote}]}:null;
+   const memory=location.hash==="#qa-reflection"?{fixture:true,threads:[{
+     id:"qa-example",type:"thread",quoteId:0,note:id==="dillard"?
+       "How can I protect time for what matters?":"Can careful reasoning eliminate uncertainty before I act?"
+   }]}:null;
    s.result=encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
     {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 

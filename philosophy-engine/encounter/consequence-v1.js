@@ -1,3 +1,4 @@
+import {encounterDistinction,encounterWorldThread} from "./encounter-distinction-v13.js";
 import {quotationEnding} from "./quotation-return-v12.js";
 import {evaluateTradeoffCase, evaluateDecisionCase} from "./mechanism-transfer-engine-v02.js";
 
@@ -125,21 +126,15 @@ function readRoute(result) {
   const evidence={atChoice:["A familiar job","An offer requiring relocation","A decision this week"],choice:choice.label,
     imaginedLater:event.label,eventKind:eventTypes[choice.id][event.id],subsequentResponse:response.label,responseKind:response.id,
     originalVerdict:null,unchosenOutcome:null};
+  // At the third fork the later event is already known, but the result of
+  // responding has not been experienced on any reachable route.
+  evidence.atNextChoice={observed:event.label,response:response.label,outcome:null};
   const relation=routeDistinction(evidence);
   evidence.retrospectiveInterpretation=relation.warrant;
   return {rule:[choice.id,event.id,response.id].join("/"),relation,evidence,observation:result.observation,
     consequence:event.label+". "+response.label+".",
     connection:"Kierkegaard’s journal leaves you looking back from inside a life that keeps moving.",
     limits:["The event is imagined.","Later evidence cannot settle the original decision or reveal the other future."]};
-}
-
-function savedQuotation(memory, quote) {
-  if (!Array.isArray(memory?.savedQuoteReferences)) return null;
-  const match=memory.savedQuoteReferences.find(entry=>entry?.source==="saved" &&
-    entry.quoteId===quote.id && entry.text===quote.text && entry.author===quote.author);
-  if (!match) return null;
-  return {source:"saved",quoteId:match.quoteId,fixture:memory.fixture===true,
-    text:memory.fixture===true?"This sample record marks this quotation as saved.":"You previously saved this quotation in My World."};
 }
 
 export function encounterConsequence(id, input, memory=null) {
@@ -160,13 +155,21 @@ export function encounterConsequence(id, input, memory=null) {
   const {discovery,question,...reasoning}=relation;
   const hiddenRelationship={...reasoning,sourceInterpretation:result.sourceRelation,sourceReferences:result.sourceReferences};
   const ending=quotationEnding(result,reasoning.kind);
-  const optionalWorldConnection=savedQuotation(memory,result.quote);
-  return {status:"ready", schema:"encounter-consequence/1.2", caseId:id, quote:result.quote,
+  const optionalWorldConnection=encounterWorldThread(memory,id);
+  const visualDistinction=encounterDistinction(result,reasoning);
+  let proactiveQuestion=ending.question;
+  if(optionalWorldConnection && reasoning.kind==="feeling-and-forecast"){
+    proactiveQuestion="Which uncertainty about staying longer could reflection settle, and which would take another lived evening?";
+  }
+  if(optionalWorldConnection && reasoning.kind==="protected-or-remainder"){
+    proactiveQuestion="If this evening repeated, what would keep the next request from deciding when writing happens?";
+  }
+  return {status:"ready", schema:"encounter-consequence/1.3", caseId:id, quote:result.quote,
     input:result.input, mechanism:result.mechanism, ...fields, hiddenRelationship, discovery, question, tension:reasoning.concepts.join(" / "),
     centralPhilosophicalRelation, observedPath:result.input, scenarioConsequence:fields.consequence,
     sourceGroundedInterpretation:ending.interpretation, userFacingDiscovery:ending.headline,
-    experience:ending.experience, optionalWorldConnection,
-    proactiveQuestion:optionalWorldConnection?"Reading this line again, "+ending.question[0].toLowerCase()+ending.question.slice(1):ending.question,
+    experience:ending.experience, optionalWorldConnection, visualDistinction,
+    proactiveQuestion,
     trace:[...result.rules,reading.rule,reasoning.kind], sources:result.sourceReferences,
     editorialStatus:"provisional", fingerprintEvidence:null};
 }
@@ -177,6 +180,6 @@ export function expressConsequence(packet) {
   const {discovery,consequence,connection,question} = packet;
   return {discovery,consequence,connection,question,headline:packet.userFacingDiscovery,
     experience:packet.experience,quote:packet.quote.text,interpretation:packet.sourceGroundedInterpretation,
-    world:packet.optionalWorldConnection,proactiveQuestion:packet.proactiveQuestion};
+    visual:packet.visualDistinction,world:packet.optionalWorldConnection,proactiveQuestion:packet.proactiveQuestion};
 
 }

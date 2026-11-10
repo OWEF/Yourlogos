@@ -93,6 +93,8 @@ input[type=range]{display:block;width:100%;accent-color:var(--gold);height:31px;
 main{max-width:660px}.result{scroll-margin:1rem}.result h3{font-size:clamp(23px,4vw,32px);line-height:1.22}.result p,.case-body>.story{font-size:15px}.choice strong,.branch strong{font-size:14px}.result details{margin-top:16px}.primary:disabled{opacity:.5;cursor:default}.tab[aria-pressed=true]{border-color:var(--gold);background:#3b382a}.result p.reflection{color:var(--gold)}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important}}
 .result .section-label{display:block;color:var(--sage);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:14px 0 4px}.result .section-label:first-child{margin-top:0}.result blockquote{font:italic 19px/1.28 Georgia,serif;color:var(--ink);margin:5px 0 8px;padding-left:10px;border-left:2px solid var(--gold)}.result p{margin:6px 0 10px;line-height:1.45}.result h3{font-size:24px;margin:4px 0 8px}.result .world-note{font-size:13px}
+.distinction{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-block:1px solid var(--line);padding:9px 0;margin:8px 0}.distinction>div+div{padding-left:10px;border-left:1px solid var(--line)}.distinction dt{color:var(--sage);font-weight:650;font-size:12px}.distinction dd{margin:3px 0 0;font-size:14px;line-height:1.32}.distinction.sequence{border-top-color:var(--sage)}.result .world-note{line-height:1.35}
+@media(max-width:360px){main{padding-inline:8px}.result{padding:12px}.result .section-label{margin-top:8px}.result p{margin:4px 0 6px}.result details{margin-top:6px}.distinction{margin:5px 0;padding:6px 0}.result h3{margin-bottom:4px}}
 </style></head><body><main><header><div class="brand">YourLogos.</div></header><h1>Encounter</h1>
 <nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button></nav>
 <section id="cases" aria-label="Current Encounter"></section></main>
@@ -165,13 +167,18 @@ function decisionHtml(id){
  return h+'</div>';
 }
 
+function contrastHtml(visual){
+ if(!visual)return "";
+ return '<dl class="distinction '+esc(visual.form)+'" aria-label="The philosophical distinction">'+visual.items.map(item=>
+   '<div><dt>'+esc(item.label)+'</dt><dd>'+esc(item.text)+'</dd></div>').join("")+'</dl>';
+}
 function render(){
  const id=active.mode, spec=slug(id), s=active.cases[id];
  const title=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
  const view=expressConsequence(s.result);
  const end=view?`<section class="result" tabindex="-1" aria-label="Encounter reflection">
  <span class="section-label">Your Encounter with ${esc(spec.author)}</span><h3>${esc(view.headline)}</h3>
- <p>${esc(view.experience)}</p><span class="section-label">Return to the quotation</span>
+ <p>${esc(view.experience)}</p>${contrastHtml(view.visual)}<span class="section-label">Return to the quotation</span>
  <blockquote>${esc(view.quote)}</blockquote><p class="interpretation">${esc(view.interpretation)}</p>
  ${view.world?`<span class="section-label">My World${view.world.fixture?" · QA fixture":""}</span><p class="world-note">${esc(view.world.text)}</p>`:""}
  <span class="section-label">A question to carry forward</span><p class="reflection">${esc(view.proactiveQuestion)}</p>
@@ -219,9 +226,10 @@ document.addEventListener("click",ev=>{
 
    // Standalone preview has no account context. An explicit fragment enables
    // a labeled synthetic example without reading storage or contacting a host.
-   const quote=id==="dillard"?{quoteId:12,text:spec.quote,author:spec.author}:
-    {quoteId:34,text:"Life can only be understood backwards; but it must be lived forwards.",author:spec.author};
-   const memory=location.hash==="#qa-saved"?{fixture:true,savedQuoteReferences:[{source:"saved",...quote}]}:null;
+   const memory=location.hash==="#qa-reflection"?{fixture:true,threads:[{
+     id:"qa-example",type:"thread",quoteId:0,note:id==="dillard"?
+       "How can I protect time for what matters?":"Can careful reasoning eliminate uncertainty before I act?"
+   }]}:null;
    s.result=encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
     {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 
