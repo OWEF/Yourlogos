@@ -138,7 +138,7 @@ function senecaStages(packet){
      basis,emotionalState:"not_inferred",canCloseWithoutFurtherProbe:true},
    draft:{headline,discovery,connection:
      "Seneca asks whether time is deliberately lived, not whether work or rest is always better."},
-   questionCandidates:{primary:question,curious:curiosity,unsettled:unease},
+   questionCandidates:{primary:headline,deeper:question,curious:curiosity,unsettled:unease},
    visualization:packet.visual
  };
 }
@@ -204,7 +204,7 @@ function woolfStages(packet){
      scenarioNotBiography:true},
    draft:{headline,discovery,connection:
      "Woolf links the freedom to write to material and social conditions—not just determination."},
-   questionCandidates:{primary:question,curious:curiosity,unsettled:unease},
+   questionCandidates:{primary:headline,deeper:question,curious:curiosity,unsettled:unease},
    visualization:{type:"mindmap",nodes:map,
      edges:[["root","gain"],["root","barrier"],["gain","action"],["barrier","action"],["action","possibility"],["action","uncertainty"]],
      implication:"conditional_not_deterministic"}
