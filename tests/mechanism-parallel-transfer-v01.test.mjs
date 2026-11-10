@@ -131,7 +131,7 @@ test("the self-contained phone artifact equals its exact source modules",()=>{
  assert.match(output,/function reasonSeneca/);
  assert.match(output,/function reasonWoolf/);
  assert.match(output,/data-sync/);
- assert.match(output,/data-branch/);
+ assert.match(output,/data-fork-choice/);
  assert.doesNotMatch(output,/^import\s/m);
  assert.doesNotMatch(output,/\bfetch\s*\(|\blocalStorage\s*\.|\bsessionStorage\s*\.|XMLHttpRequest\s*\(/);
 });
