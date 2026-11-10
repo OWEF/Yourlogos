@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101310"><meta name="color-scheme" content="dark">
+<title>YourLogos · Encounter Lab v0.4</title>
+<style>
+:root{color-scheme:dark;--bg:#101310;--card:#191e18;--card2:#22291f;--line:#3c4438;--ink:#f4efe2;--muted:#b3b7aa;--soft:#899385;--sage:#a5bea2;--gold:#d7bd8b;--rose:#cba7a0}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}body{margin:0;min-width:280px;background:radial-gradient(ellipse 68% 350px at 15% 0,#292b1d 0,transparent 100%),var(--bg);color:var(--ink);font:15px/1.58 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:660px;margin:0 auto;padding:22px 17px calc(72px + env(safe-area-inset-bottom))}
+button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+small,.small{color:var(--muted);font-size:12px}
+.brand{font-family:Georgia,serif;font-size:22px;letter-spacing:-.5px}.head{display:flex;align-items:center;justify-content:space-between;gap:10px}.test{color:var(--sage);font-size:10px;border:1px solid #566351;border-radius:30px;padding:7px 10px;letter-spacing:.04em;white-space:nowrap}
+.eyebrow{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.16em;font-weight:800}
+.intro{margin:25px 0 20px}.intro h1{font:normal clamp(30px,7vw,42px)/1.14 Georgia,serif;letter-spacing:-.025em;margin:9px 0 12px}.intro p{color:var(--muted);margin:0}
+.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0 24px}
+.tab{background:#20261e;border:1px solid var(--line);border-radius:13px;padding:12px 6px;min-height:71px;text-align:left;color:var(--muted)}
+.tab strong{display:block;font-size:13px;color:var(--ink)}.tab span{display:block;font-size:11px}
+.tab[aria-selected=true]{background:#363528;border-color:var(--gold)}.tab[aria-selected=true] strong{color:var(--gold)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px;margin-bottom:14px}
+.quotation{font:normal 26px/1.25 Georgia,serif;margin:11px 0 13px}.attribution{font-size:12px;color:var(--muted)}
+.source{margin-top:16px;border-top:1px solid var(--line);padding-top:3px}
+summary{cursor:pointer;padding:12px 0;color:var(--gold);font-size:12px}
+.source p{color:var(--muted);font-size:13px;margin:7px 0}
+.flow{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px;margin:4px 0 18px}.step{flex:1;border-top:2px solid var(--line);padding-top:6px}
+.step.active{border-color:var(--gold);color:var(--gold)}
+h2{font:normal 25px/1.2 Georgia,serif;margin:7px 0 12px}h3{font:normal 20px/1.3 Georgia,serif;margin:8px 0 11px}
+.story{color:var(--muted);line-height:1.6;font-size:14px;margin:0 0 16px}
+.question{font-size:15px;font-weight:620;margin:17px 0 9px}
+.choices{display:grid;gap:8px}.choice{display:flex;align-items:flex-start;text-align:left;gap:12px;padding:14px;border:1px solid #50584c;border-radius:12px;background:#222920;color:var(--ink);min-height:64px;width:100%}
+.choice .symbol{height:27px;width:27px;flex:0 0 27px;display:grid;place-items:center;border:1px solid #71816f;border-radius:8px;color:var(--gold);font-size:14px}
+.choice strong{display:block;font-weight:650;font-size:14px}.choice em{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.choice.active{border-color:var(--gold);background:#353326}.choice.active .symbol{background:#776d48;color:#fff3d2}
+.field{margin:17px 0}.fieldbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.fieldbar label{font-weight:600;font-size:14px}.number{font:normal 25px Georgia,serif;font-variant-numeric:tabular-nums}
+input[type=range]{display:block;width:100%;height:34px;accent-color:var(--gold);touch-action:pan-y}
+.stack{height:12px;display:flex;overflow:hidden;gap:3px;background:#384035;border-radius:10px;margin:9px 0 5px}.stack>span{height:100%;transition:width .12s}
+.legend{display:flex;flex-wrap:wrap;gap:9px 14px;font-size:11px;color:var(--muted);margin-bottom:12px}.swatch{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+.primary,.secondary{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:12px;padding:12px 18px;width:100%;font-weight:750}
+.primary{background:var(--gold);color:#1a1a14;border:1px solid var(--gold);margin-top:18px}
+.secondary{background:var(--card2);color:var(--ink);border:1px solid #65705e;margin:10px 0 0}
+.primary:active,.secondary:active,.choice:active{transform:scale(.99)}
+.ending{border-color:#827756;background:radial-gradient(ellipse 70% 180px at 100% 0,#353426 0,transparent 100%),#1c211c;scroll-margin-top:12px}
+.ending .headline{font:normal 30px/1.16 Georgia,serif;margin:9px 0 16px}
+.ending .lead{font-size:16px;line-height:1.6}
+.rule{border-top:1px solid #4e5243;margin:17px 0}.explain{font-size:14px;color:#e2dfd1;line-height:1.62}.open-question{border-left:2px solid var(--gold);padding:9px 14px;color:#f0e6cd;background:#292a21;font:italic 18px/1.45 Georgia,serif;margin:16px 0}
+.verdict{display:inline-block;border:1px solid var(--sage);border-radius:30px;padding:5px 10px;color:var(--sage);font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.graph{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:13px 0}.node{padding:12px 4px;border:1px solid var(--line);border-radius:10px;text-align:center;font-size:11px;color:var(--muted);background:#222720}.node strong{display:block;color:var(--ink);font-size:12px;margin-top:4px}.node.on{border-color:var(--gold);background:#332e25}.node.issue{border-color:var(--rose)}
+.statement{font:normal 24px/1.23 Georgia,serif;padding:17px;border:1px solid #5c654f;border-radius:12px;background:#252d23;text-align:center;color:var(--gold);margin:12px 0}
+.visualrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:7px;margin:13px 0}
+.tile{padding:15px 8px;text-align:center;border-radius:10px;background:#263027;border:1px solid #56604d;font-size:12px}
+.tile b{display:block;font:normal 21px Georgia,serif;color:var(--gold)}
+.arrow{color:var(--sage);font-size:20px}
+.inspect{border-top:1px solid var(--line);padding:5px 0 0}
+.inspect pre{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:#121712;border-radius:9px;border:1px solid var(--line);padding:12px;max-height:370px;overflow:auto}
+.foot{margin:22px 0;color:var(--soft);font-size:12px;line-height:1.6}.foot a{color:var(--gold)}
+.status{font-size:12px;color:var(--sage);min-height:16px;margin-top:8px}
+@media(max-width:340px){main{padding-left:12px;padding-right:12px}.card{padding:16px 13px}.tab{padding:9px 5px}.tab strong{font-size:12px}.quotation{font-size:23px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* CZ-112: compact, optional one-tap relevance and truly connected mind-map */
+.relevance{margin:19px 0 0;padding-top:15px;border-top:1px solid var(--line)}
+.relevance-title{font-size:12px;color:var(--muted);margin:0 0 10px}
+.stance-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.stance-choices button{background:#252b22;border:1px solid #54604f;border-radius:10px;padding:9px 4px;color:var(--ink);min-height:45px;font-size:12px;line-height:1.22}
+.stance-choices button.active{background:#393727;border-color:var(--gold);color:#f6dfaf}
+.mindmap{width:100%;height:365px;position:relative;margin:13px 0 17px;background:radial-gradient(circle at 50% 29%,#2b3027 0,transparent 70%);border:1px solid #434b3c;border-radius:15px;overflow:hidden}
+.map-wires{width:100%;height:100%;position:absolute;inset:0;pointer-events:none}
+.map-wires path{fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.map-wires .line-open{stroke:var(--sage)}
+.map-wires .line-risk{stroke:#c29b8f}
+.map-wires .line-future{stroke:var(--gold);stroke-dasharray:5 5}
+.map-node{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;background:#242a22;color:var(--ink);border:1px solid #68745f;border-radius:10px;padding:7px;box-shadow:0 2px 12px #080c0860;overflow-wrap:anywhere;line-height:1.25;font-size:11px;min-width:0}
+.map-node .map-tag{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#b3bdae}
+.map-node strong{font-size:11px;line-height:1.25;display:block;color:#f5eedf;font-weight:650}
+.map-node.root{left:22%;top:4%;width:56%;height:17%}
+.map-node.gain{left:2%;top:30%;width:46%;height:21%;border-color:var(--sage)}
+.map-node.block{left:52%;top:30%;width:46%;height:21%;border-color:#bb9488}
+.map-node.next{left:16%;top:62%;width:68%;height:17%;border-color:var(--gold)}
+.map-node.future{left:20%;top:87%;width:60%;height:10%;border-style:dashed}
+.map-node.editable{cursor:pointer;transition:filter .15s}
+.map-node.editable:active{filter:brightness(1.2)}
+.map-note{font-size:11px;color:var(--muted);margin:-7px 0 13px;text-align:center}
+@media(max-width:345px){.mindmap{height:405px}.map-node strong{font-size:10px}.stance-choices button{font-size:11px}}
+
+
+/* CZ-114: The Decision Map IS the process, not a result visualization. */
+.influence-group{border-left:2px solid #6f7761;padding-left:10px;margin-top:10px}
+.nested-relevance{padding:10px 10px 11px;margin:10px 0 4px;background:#292f26;border:1px solid #485548;border-radius:12px}
+.nested-label{font-size:12px;color:#d4d8c9;margin:0 0 9px}
+.journey-map{border:1px solid #495342;border-radius:17px;background:radial-gradient(ellipse 50% 30% at 50% 0%,#35382c,#1c241c);padding:18px 11px 20px;margin:15px 0;overflow:hidden}
+.journey-root{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;max-width:79%;margin:auto;border:1px solid #d7bd8b;background:#333526;color:var(--ink);border-radius:14px;min-height:89px;padding:12px}
+.journey-root strong{font:normal 19px/1.2 Georgia,serif}
+.journey-root span:last-child{color:var(--muted);font-size:11px}
+.journey-root.started{border-color:#849982}
+.map-flag{font-size:10px;letter-spacing:.14em;color:var(--gold);font-weight:700}
+.journey-stage{margin:0;scroll-margin-top:110px}
+.journey-prompt{color:var(--ink);font-size:13px;font-weight:600;text-align:center;margin:15px 0 0}
+.fork-connector{display:block;width:100%;height:47px;overflow:visible}
+.fork-connector path{stroke-width:1.9;fill:none;vector-effect:non-scaling-stroke}
+.fork-stem{stroke:var(--gold)}
+.fork-left,.fork-right{stroke:#8c9a84}
+.branch-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.branch-node{background:#273026;border:1px solid #667663;border-radius:12px;color:var(--ink);padding:12px 8px;min-height:136px;display:flex;flex-direction:column;align-items:center;gap:5px;justify-content:flex-start;text-align:center;white-space:normal}
+.branch-node.chosen{background:#3e3a29;border:2px solid var(--gold)}
+.branch-symbol{font-size:19px;color:var(--gold);line-height:1.1}
+.branch-node strong{font-size:13px;line-height:1.28;font-weight:650}
+.branch-desc{font-size:11px;color:var(--muted);line-height:1.3}
+.branch-selected{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gold);letter-spacing:.06em;margin-top:auto}
+.journey-last-link{margin:auto;background:linear-gradient(to bottom,var(--sage),var(--gold));height:29px;width:2px}
+.journey-consequence{display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;border:1px dashed #b6a777;border-radius:12px;background:#2a3028;padding:13px 12px}
+.journey-consequence strong{font-size:14px}
+.journey-consequence>span:last-of-type{color:var(--muted);font-size:12px}
+.journey-consequence .nested-relevance{width:100%;margin-top:9px}
+.map-reset{display:block;margin:8px auto 0;border:0;background:transparent;color:var(--sage);padding:12px 18px;font-size:12px;text-decoration:underline}
+.path-recap{display:grid;gap:7px;margin:16px 0}
+.recap-node{display:flex;align-items:flex-start;gap:9px;border-left:2px solid var(--sage);padding:8px 10px;background:#2d342b;border-radius:0 9px 9px 0}
+.recap-node:nth-child(2){border-color:#bca08f}
+.recap-node:nth-child(3){border-color:var(--gold)}
+.recap-node span{flex:0 0 74px;font-size:10px;color:var(--muted);text-transform:uppercase}
+.recap-node strong{font-size:12px;font-weight:650;line-height:1.3}
+@media(max-width:345px){.journey-map{padding-left:8px;padding-right:8px}.branch-node{min-height:160px;padding:9px 6px}.branch-node strong{font-size:12px}.branch-desc{font-size:10px}.recap-node span{flex-basis:66px}}
+
+</style>
+</head>
+<body>
+<main>
+<header class="head"><div class="brand">YourLogos <span style="color:var(--gold)">/</span> Encounter Lab</div><div class="test">RESEARCH · V0.1</div></header>
+<section class="intro"><div class="eyebrow">Choose Your Path · v0.4</div><h1>Your choice. A question you didn't expect.</h1><p>Two concrete philosophical experiments. Make a choice, see its consequence, and discover an idea worth carrying forward. These are provisional, source-aware research prototypes—not philosophical truth verdicts.</p></section>
+<nav class="tabs" role="tablist" aria-label="Choose an Encounter"><button id="tab-seneca" role="tab" aria-selected="true" class="tab" type="button" data-route="seneca"><strong>Trade-Off</strong><span>Seneca · Time</span></button><button id="tab-woolf" role="tab" aria-selected="false" class="tab" type="button" data-route="woolf"><strong>Decision Map</strong><span>Woolf · Opportunity</span></button></nav>
+<div class="card" id="quote" aria-live="polite"></div>
+<div class="flow" id="progress" aria-label="Encounter progress"></div>
+<section class="card" id="interactive" aria-live="polite"></section><p id="lab-error" class="small" role="alert" hidden></p>
+<section id="result" class="card ending" aria-live="polite" hidden></section>
+<footer class="foot">Research prototype · Insight Packet → Personal Relevance → Question Selection → Expression v0.4. No AI model, account, production integration or philosophical truth score. Both encounters are source-aware editorial hypotheses awaiting review. <a href="https://github.com/OWEF/Yourlogos/pull/148" target="_blank" rel="noopener noreferrer">Context Atlas</a>.</footer>
+</main>
+<script type="module">
+
+import {ATLAS_PILOT_V01} from "../philosophy-engine/context-atlas/pilot-records-v01.js";
+import {runEncounter,reallocateEvening} from "../philosophy-engine/encounter/experience-reasoners-v01.js";
+import {expressPersonalInsight} from "../philosophy-engine/encounter/expression-engine-v02.js";
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const contexts={seneca:ATLAS_PILOT_V01.find(r=>r.id===49),woolf:ATLAS_PILOT_V01.find(r=>r.id===28)};
+const state={route:"seneca",revealed:false,stance:{seneca:"unstated",woolf:"unstated"},woolfStage:0,seneca:{ticks:[2,2,2],motivation:"chosen"},woolf:{resource:null,barrier:null,action:null}};
+const color=["var(--gold)","var(--sage)","var(--rose)"];
+const category=["Optional work","A friend","Quiet reflection"];
+const hourText=n=>String(n)+"h";
+const field=(key,items)=>{
+  const current=state[state.route][key];
+  return '<div class="choices">'+items.map(([value,title,description,symbol])=>
+    '<button type="button" class="choice'+(current===value?' active':'')+
+    '" data-set="'+esc(key)+'" data-value="'+esc(value)+'" aria-pressed="'+(current===value)+
+    '"><span class="symbol">'+esc(symbol)+'</span><span><strong>'+esc(title)+
+    '</strong><em>'+esc(description)+'</em></span></button>'
+  ).join("")+'</div>';
+};
+function renderQuote(){
+  const c=contexts[state.route];
+  const q=c.quote;
+  $("quote").innerHTML='<div class="eyebrow">SOURCE-BASED QUESTION · '+esc(q.author)+'</div>'+
+    '<div class="quotation">“'+esc(q.text)+'”</div><div class="attribution">'+esc(c.sourcePassage.work)+'</div>'+
+    '<details class="source"><summary>Why the original context matters</summary>'+
+    '<p>'+esc(c.sourcePassage.contextualSummary)+'</p>'+
+    '<p><b>Our proposed reading:</b> '+esc(c.argumentModel.claim)+'</p>'+
+    '<p><b>Another plausible reading:</b> '+esc(c.argumentModel.alternativeReadings[1])+'</p>'+
+    '<p><b>Source status:</b> Draft, not scholarly approved.</p></details>';
+}
+function renderSeneca(){
+ const t=state.seneca.ticks;
+ return '<div class="eyebrow">01 / TRADE-OFF</div>'+
+  '<h2>Who gets your evening?</h2>'+
+  '<p class="story">After your essential commitments, you have <b>three genuinely free hours tonight</b>. An optional work request arrives, a friend asks to see you, and you hoped for some quiet reflection. You can’t do all three at once.</p>'+
+  '<p class="question">How would you spend these hours?</p>'+
+  category.map((name,i)=>'<div class="field"><div class="fieldbar"><label for="range-'+i+'">'+esc(name)+'</label><span class="number" id="time-'+i+'">'+hourText(t[i]/2)+'</span></div>'+
+    '<input type="range" id="range-'+i+'" min="0" max="6" step="1" value="'+t[i]+'" data-range="'+i+'" aria-label="'+esc(name)+' hours" aria-valuetext="'+hourText(t[i]/2)+' out of 3 hours"></div>').join("")+
+  '<div class="stack" aria-label="Three-hour distribution">'+t.map((value,i)=>'<span style="width:'+(value/6*100)+'%;background:'+color[i]+'"></span>').join("")+'</div>'+
+  '<div class="legend">'+category.map((x,i)=>'<span><i class="swatch" style="background:'+color[i]+'"></i>'+esc(x)+'</span>').join("")+'</div>'+
+  '<p class="question">What most influenced that choice?</p>'+
+  '<div class="influence-group">'+field("motivation",[
+    ["chosen","I genuinely wanted this","A priority I recognize as my own","✦"],
+    ["expected","Someone expected it","An external expectation shaped my evening","↗"],
+    ["necessary","I considered it necessary","There was little room to refuse","◈"]
+  ])+renderStanceChips("influence")+'</div>';
+}
+
+const WOOLF_FORKS={
+ resource:[
+  {value:"income",title:"She earns her own money",desc:"Less pressure to earn every hour",icon:"£"},
+  {value:"space",title:"She gets a quiet room",desc:"A place where she can focus",icon:"⌂"}
+ ],
+ barrier:{
+  income:[
+   {value:"space",title:"She keeps getting interrupted",desc:"Her time is never fully hers",icon:"⌂"},
+   {value:"access",title:"Nobody will give her a chance",desc:"The people in power turn her away",icon:"◇"}
+  ],
+  space:[
+   {value:"income",title:"She still needs money",desc:"Writing cannot pay her bills yet",icon:"£"},
+   {value:"access",title:"Nobody will give her a chance",desc:"Gatekeepers still close the door",icon:"◇"}
+  ]
+ },
+ action:{
+  income:[
+   {value:"write",title:"She writes anyway",desc:"Use what time she can find",icon:"✎"},
+   {value:"challenge",title:"She fights for a fairer chance",desc:"Change the rules, not just her hours",icon:"↗"}
+  ],
+  space:[
+   {value:"write",title:"She writes when she can",desc:"Create despite the interruptions",icon:"✎"},
+   {value:"protect",title:"She protects her writing time",desc:"Ask others to respect the space",icon:"◷"}
+  ],
+  access:[
+   {value:"write",title:"She keeps writing",desc:"Even if no one will publish it yet",icon:"✎"},
+   {value:"challenge",title:"She challenges the gatekeepers",desc:"Question who gets to be heard",icon:"↗"}
+  ]
+ }
+};
+function renderStanceChips(context){
+ const value=state.stance[state.route];
+ const label=context==="influence"?"And how does that influence sit with you?":"Does this path feel right to you?";
+ const items=[["positive","Feels right"],["mixed","Mixed feelings"],["uncertain","Not sure"]];
+ return '<div class="nested-relevance" data-context="'+context+'"><p class="nested-label">'+label+' <span class="small">(optional)</span></p>'+
+  '<div class="stance-choices">'+items.map(([id,text])=>
+   '<button type="button" data-stance="'+id+'" class="'+(value===id?"active":"")+
+   '" aria-pressed="'+(value===id)+'">'+esc(text)+'</button>').join("")+'</div></div>';
+}
+function renderWoolfFork(key,choices,parentSide){
+ const selected=state.woolf[key],sourceX=parentSide===0?86:parentSide===1?254:170;
+ const steps={resource:"First, what changes in her life?",barrier:"But what still stands in her way?",action:"Which way does she respond?"};
+ const line='<svg class="fork-connector" aria-hidden="true" viewBox="0 0 340 52" preserveAspectRatio="none">'+
+  '<path class="fork-stem" d="M'+sourceX+' 1 Q'+sourceX+' 22 170 23"/>'+
+  '<path class="fork-left" d="M170 23 L86 51"/><path class="fork-right" d="M170 23 L254 51"/>'+
+  '<circle cx="170" cy="23" r="3" fill="#d7bd8b"/></svg>';
+ return '<section class="journey-stage" data-fork="'+key+'"><p class="journey-prompt">'+steps[key]+'</p>'+
+  line+'<div class="branch-pair" role="group" aria-label="'+steps[key]+'">'+
+  choices.map((option,i)=>'<button type="button" class="branch-node '+(selected===option.value?'chosen':'')+
+   '" data-branch="'+key+'" data-value="'+option.value+'" data-side="'+i+'" aria-pressed="'+(selected===option.value)+'">'+
+   '<span class="branch-symbol">'+option.icon+'</span><strong>'+esc(option.title)+'</strong>'+
+   '<span class="branch-desc">'+esc(option.desc)+'</span>'+
+   (selected===option.value?'<span class="branch-selected">Your path</span>':'')+'</button>').join("")+
+   '</div></section>';
+}
+function renderWoolf(){
+ const stage=state.woolfStage,s=state.woolf;
+ let output='<div class="eyebrow">02 / DECISION MAP · AN INTERACTIVE JOURNEY</div>'+
+ '<h2>What makes freedom possible?</h2>'+
+ '<p class="story">Imagine a woman trying to write in a world that gives her fewer opportunities. Make one choice at each fork and follow where it leads. <b>Every step changes the possibilities.</b></p>'+
+ '<div class="journey-map" role="group" aria-label="Choose one route at each connected decision fork">'+
+ '<button type="button" id="map-start" class="journey-root '+(stage>=1?'started':'')+'" aria-pressed="'+(stage>=1)+'">'+
+ '<span class="map-flag">STARTING POINT</span><strong>She wants to write fiction</strong>'+
+ '<span>'+(stage===0?'Tap here to start her journey':'A goal, not a guaranteed outcome')+'</span></button>';
+ if(stage>=1) output+=renderWoolfFork("resource",WOOLF_FORKS.resource,null);
+ if(stage>=2) {
+  const side=WOOLF_FORKS.resource.findIndex(x=>x.value===s.resource);
+  output+=renderWoolfFork("barrier",WOOLF_FORKS.barrier[s.resource],side);
+ }
+ if(stage>=3) {
+  const options=WOOLF_FORKS.barrier[s.resource];
+  const side=options.findIndex(x=>x.value===s.barrier);
+  output+=renderWoolfFork("action",WOOLF_FORKS.action[s.barrier],side);
+ }
+ if(stage===4){
+  output+='<div class="journey-last-link" aria-hidden="true"></div>'+
+   '<div class="journey-consequence"><span class="map-flag">YOUR PATH IS READY</span>'+
+   '<strong>Follow your decisions to a possible consequence</strong>'+
+   '<span>Your choice shapes her options, but it cannot guarantee the future.</span>'+
+   renderStanceChips("final-path")+'</div>';
+ }
+ output+='</div>';
+ if(stage>0)output+='<button type="button" class="map-reset" id="map-reset">Restart the map</button>';
+ return output;
+}
+
+function renderControls(){
+ $("interactive").innerHTML=(state.route==="seneca"?renderSeneca():renderWoolf())+
+ ((state.route==="seneca"||state.woolfStage===4)?'<button type="button" class="primary" id="reveal">'+
+ (state.route==="woolf"?"See where this path leads":"See what your choice raises")+'</button>':"");
+ for (const choice of $("interactive").querySelectorAll("[data-set]")){
+  choice.addEventListener("click",()=>{
+   const key=choice.dataset.set,value=choice.dataset.value;
+   if(state[state.route][key]!==value)state.stance[state.route]="unstated";
+   state[state.route][key]=value;
+   state.revealed=false;renderControls();renderProgress();renderResult();
+  });
+ }
+ for(const btn of $("interactive").querySelectorAll("[data-stance]")){
+  btn.addEventListener("click",()=>{
+   const value=btn.dataset.stance;
+   state.stance[state.route]=state.stance[state.route]===value?"unstated":value;
+   state.revealed=false;renderControls();renderProgress();renderResult();
+  });
+ }
+ for(const range of $("interactive").querySelectorAll("[data-range]")){
+  range.addEventListener("input",()=>{
+   const i=Number(range.dataset.range);
+   state.seneca.ticks=reallocateEvening(state.seneca.ticks,i,Number(range.value));
+   state.revealed=false;
+   // Preserve original mounted DOM slider during finger drag.
+   state.seneca.ticks.forEach((value,j)=>{
+    const el=$("range-"+j);el.value=String(value);
+    el.setAttribute("aria-valuetext",hourText(value/2)+" out of 3 hours");
+    $("time-"+j).textContent=hourText(value/2);
+   });
+   $("interactive").querySelectorAll(".stack>span").forEach((bar,j)=>bar.style.width=(state.seneca.ticks[j]/6*100)+"%");
+   renderProgress();renderResult();
+  });
+ }
+ const start=$("map-start");
+ if(start)start.addEventListener("click",()=>{
+   if(state.woolfStage!==0)return;
+   state.woolfStage=1;state.revealed=false;renderControls();renderProgress();renderResult();
+ });
+ for(const btn of $("interactive").querySelectorAll("[data-branch]")){
+  btn.addEventListener("click",()=>{
+   const key=btn.dataset.branch,value=btn.dataset.value;
+   if(key==="resource"){
+    if(state.woolf.resource!==value){
+     state.woolf.resource=value;state.woolf.barrier=null;state.woolf.action=null;
+     state.stance.woolf="unstated";
+    }
+    state.woolfStage=2;
+   }else if(key==="barrier"){
+    if(state.woolf.barrier!==value){
+     state.woolf.barrier=value;state.woolf.action=null;
+     state.stance.woolf="unstated";
+    }
+    state.woolfStage=3;
+   }else if(key==="action"){
+    if(!WOOLF_FORKS.action[state.woolf.barrier]?.some(option=>option.value===value))throw Error("Invalid branch");
+    if(state.woolf.action!==value)state.stance.woolf="unstated";
+    state.woolf.action=value;state.woolfStage=4;
+   }
+   state.revealed=false;
+   renderControls();renderProgress();renderResult();
+  });
+ }
+ const reset=$("map-reset");
+ if(reset)reset.addEventListener("click",()=>{
+  state.woolf={resource:null,barrier:null,action:null};
+  state.woolfStage=0;state.stance.woolf="unstated";state.revealed=false;
+  renderControls();renderProgress();renderResult();
+ });
+ const reveal=$("reveal");
+ if(reveal)reveal.addEventListener("click",()=>{
+  try{
+   if(state.route==="woolf"&&(state.woolfStage!==4||Object.values(state.woolf).some(x=>x===null)))
+    throw Error("Choose one path at each fork before viewing a result");
+   const packet=runEncounter(state.route,structuredClone(state[state.route]));
+   const expression=expressPersonalInsight(packet,{stance:state.stance[state.route]});
+   state.revealed={packet,expression};
+   $("lab-error").hidden=true;
+   renderProgress();renderResult();
+   $("result").scrollIntoView({block:"start",behavior:"auto"});
+  }catch(err){
+   $("lab-error").textContent="Could not analyze this path: "+err.message;
+   $("lab-error").hidden=false;
+  }
+ });
+}
+function renderProgress(){
+ $("progress").innerHTML=["Situation","Your action","Discovery"].map((x,i)=>
+  '<div class="step'+(i===2&&!state.revealed?"":" active")+'">'+(i+1)+' · '+x+'</div>'
+ ).join("");
+}
+function visualHtml(v){
+ if(v.type==="segments"){
+  const total=v.values.reduce((a,b)=>a+b,0);
+  return '<div class="stack" style="height:17px" aria-label="Distribution of three hours">'+
+   v.values.map((n,i)=>'<span style="width:'+(n/total*100)+'%;background:'+color[i]+'"></span>').join("")+'</div>'+
+   '<div class="legend">'+v.labels.map((lab,i)=>'<span><i class="swatch" style="background:'+color[i]+'"></i>'+esc(lab)+' '+hourText(v.values[i])+'</span>').join("")+'</div>';
+ }
+ if(v.type==="path"){
+  return '<div class="path-recap" aria-label="This journey followed three chosen decisions">'+
+   v.nodes.map((n,i)=>'<div class="recap-node"><span>'+esc(["Opportunity","Obstacle","Response"][i])+'</span>'+
+   '<strong>'+esc(n.value)+'</strong></div>').join("")+'</div>'+
+   '<p class="map-note">The branching map above is the journey. This is only the chosen route.</p>';
+ }
+ throw Error("Unsupported visual type");
+}
+function renderResult(){
+ const result=$("result");
+ if(!state.revealed){result.hidden=true;result.innerHTML="";return;}
+ const {packet,expression}=state.revealed;
+ result.hidden=false;
+ result.innerHTML='<div class="eyebrow">'+esc(expression.eyebrow)+'</div>'+
+  '<h2 class="headline">'+esc(expression.title)+'</h2>'+
+  visualHtml(expression.visual)+
+  '<p class="lead">'+esc(expression.summary)+'</p>'+
+  '<div class="rule"></div>'+
+  '<div class="eyebrow">THE PHILOSOPHICAL CONNECTION</div>'+
+  '<p class="explain">'+esc(expression.sourceLine)+'</p>'+
+  (expression.question?
+   '<div class="open-question">'+esc(expression.question)+'</div>'+
+   '<p class="small">You can reflect on this—or simply carry it with you.</p>':
+   '<p class="small" style="color:var(--sage)">You feel good about this choice. You can leave it here.</p>')+
+  '<details class="inspect"><summary>Founder QA · How this insight was selected</summary>'+
+  '<p class="small"><b>Observed:</b> '+esc(packet.observation.text)+'</p>'+
+  '<p class="small"><b>Not established:</b> '+esc(packet.insight.limit)+'</p>'+
+  '<p class="small"><b>Source-grounded relation:</b> '+esc(packet.insight.conceptualRelation)+'</p>'+
+  '<pre>'+esc(JSON.stringify({packet,expression},null,2))+'</pre></details>'+
+  '<button class="secondary" type="button" id="again">Try another path</button>';
+ $("again").addEventListener("click",()=>{
+  state.revealed=false;renderProgress();renderResult();
+  $("interactive").scrollIntoView({block:"start",behavior:"auto"});
+ });
+ result.querySelectorAll("[data-map-target]").forEach(btn=>btn.addEventListener("click",()=>{
+  const target=btn.dataset.mapTarget;
+  state.revealed=false;renderProgress();renderResult();
+  // Return user to the selected part of the previously approved action choices.
+  const choice=$('interactive').querySelector('[data-set="'+target+'"]');
+  if(choice)choice.scrollIntoView({block:"center",behavior:"smooth"});
+ }));
+ window.__encounterDebug={packet,expression};
+}
+function setRoute(route){
+ if(!Object.hasOwn(contexts,route))return;
+ state.route=route;state.revealed=false;
+ $("lab-error").hidden=true;
+ render();window.scrollTo({top:0,behavior:"auto"});
+}
+function render(){
+ for(const tab of document.querySelectorAll(".tab"))
+   tab.setAttribute("aria-selected",String(tab.dataset.route===state.route));
+ renderQuote();renderProgress();renderControls();renderResult();
+}
+document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>setRoute(tab.dataset.route)));
+render();
+
+</script>
+</body></html>
