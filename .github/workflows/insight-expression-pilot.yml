@@ -1,0 +1,66 @@
+name: CZ-111 Insight + Expression Mobile Pilot
+on:
+  pull_request:
+    paths:
+      - "philosophy-engine/encounter/**"
+      - "philosophy-engine/context-atlas/**"
+      - "experiments/two-encounter-insight-lab-v02*"
+      - "scripts/build-two-encounter-lab.mjs"
+      - "tests/insight-expression-v01.test.mjs"
+      - "tests/two-encounter-expression-browser.mjs"
+      - ".github/workflows/insight-expression-pilot.yml"
+  workflow_dispatch:
+jobs:
+  reasoning-and-expression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check syntax
+        run: |
+          node --check philosophy-engine/encounter/insight-packet-v01.js
+          node --check philosophy-engine/encounter/experience-reasoners-v01.js
+          node --check philosophy-engine/encounter/expression-engine-v01.js
+          node --check scripts/build-two-encounter-lab.mjs
+          node --check tests/insight-expression-v01.test.mjs
+          node --check tests/two-encounter-expression-browser.mjs
+      - name: Verify standalone lab uses exact source modules
+        run: node scripts/build-two-encounter-lab.mjs --check
+      - name: Exhaustive input and source-context tests
+        run: node --test tests/insight-expression-v01.test.mjs
+  mobile-browser:
+    needs: reasoning-and-expression
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Chrome controls
+        run: |
+          google-chrome --version
+          npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: Validate offline iPhone lab in Chrome mobile viewports
+        run: node tests/two-encounter-expression-browser.mjs
+      - name: Verify commit-pinned HTTPS preview availability
+        continue-on-error: true
+        env:
+          PR_HEAD_SHA: \${{ github.event.pull_request.head.sha }}
+        run: |
+          curl -fsSL --max-time 25 "https://raw.githack.com/OWEF/Yourlogos/\${PR_HEAD_SHA}/experiments/two-encounter-insight-lab-v02-standalone.html" | grep -q "Two Encounters"
+      - name: Attach mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz111-mobile-screenshots
+          path: test-results/two-encounter-v02/*.png
+          if-no-files-found: ignore
+          retention-days: 3
