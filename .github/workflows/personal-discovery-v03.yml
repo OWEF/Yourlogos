@@ -8,6 +8,7 @@ on:
       - "scripts/build-personal-discovery-lab-v03.mjs"
       - "tests/personal-discovery-v03.test.mjs"
       - "tests/personal-discovery-mobile-v03.mjs"
+      - "tests/personal-discovery-external-preview.mjs"
       - ".github/workflows/personal-discovery-v03.yml"
   workflow_dispatch:
 jobs:
@@ -46,6 +47,10 @@ jobs:
         run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
       - name: Exercise both encounters, stance variants, branching map at mobile sizes
         run: node tests/personal-discovery-mobile-v03.mjs
+      - name: Check commit-pinned public phone preview in a real browser
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node tests/personal-discovery-external-preview.mjs
       - name: Upload standalone iPhone HTML
         uses: actions/upload-artifact@v4
         with:
