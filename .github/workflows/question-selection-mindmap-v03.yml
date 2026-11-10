@@ -1,0 +1,71 @@
+name: CZ-112 Question Selection + Relationship Map v0.3
+on:
+  pull_request:
+    paths:
+      - 'philosophy-engine/encounter/question-selection-v02.js'
+      - 'philosophy-engine/encounter/expression-engine-v02.js'
+      - 'experiments/two-encounter-question-lab-v03*'
+      - 'scripts/build-question-lab-v03.mjs'
+      - 'tests/question-selection-v02.test.mjs'
+      - 'tests/question-lab-v03-browser.mjs'
+      - 'tests/question-lab-v03-external-preview.mjs'
+      - '.github/workflows/question-selection-mindmap-v03.yml'
+  workflow_dispatch:
+jobs:
+  reasoning-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source-module and browser-test syntax
+        run: |
+          node --check philosophy-engine/encounter/question-selection-v02.js
+          node --check philosophy-engine/encounter/expression-engine-v02.js
+          node --check tests/question-selection-v02.test.mjs
+          node --check tests/question-lab-v03-browser.mjs
+          node --check tests/question-lab-v03-external-preview.mjs
+      - name: Verify exact-source standalone parity
+        run: node scripts/build-question-lab-v03.mjs --check
+      - name: Audit all 444 feedback variants, philosophical qualifiers, and positive closure
+        run: node --test tests/question-selection-v02.test.mjs
+  mobile-review:
+    needs: reasoning-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install minimal Chrome control
+        run: |
+          google-chrome --version
+          npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: Test actual self-contained phone lab at three viewports
+        run: node tests/question-lab-v03-browser.mjs
+      - name: Verify public iPhone static preview (best effort)
+        continue-on-error: true
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node tests/question-lab-v03-external-preview.mjs
+      - name: Attach source-faithful standalone HTML for iPhone Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz112-question-lab-v03-html
+          path: experiments/two-encounter-question-lab-v03-standalone.html
+          retention-days: 7
+      - name: Attach test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz112-question-lab-v03-screens
+          path: test-results/cz112-v03/*.png
+          if-no-files-found: ignore
+          retention-days: 3
