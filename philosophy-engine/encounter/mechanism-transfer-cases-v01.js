@@ -37,12 +37,6 @@ export const MECHANISM_TRANSFER_CASES=Object.freeze({
    context:"Seneca challenges occupations that consume life without deliberation; the three free hours are an illustrative constraint, not a formula from the text.",
    scenario:"After essential commitments, you have three genuinely free hours tonight. An optional work request arrives, a friend asks to see you, and you hoped for quiet reflection.",
    categories:["Optional work","A friend","Quiet reflection"],
-   variableBasis:"Competing discretionary claims on finite time, illustrating deliberate living—not an allocation instructed by Seneca.",
-   influences:[
-     {id:"chosen",label:"I genuinely wanted this",detail:"I chose how to spend the evening"},
-     {id:"expected",label:"Someone expected it",detail:"Another person's expectation mattered"},
-     {id:"necessary",label:"I considered it necessary",detail:"One commitment felt difficult to change"}
-   ],
    timeFrame:"one_discretionary_evening",
    sourceRelation:"Deliberate use of finite time, not an optimal allocation of hours.",
    guard:"A hypothetical evening cannot reveal the worth of a whole life or determine whether duties are objectively necessary."
@@ -55,14 +49,8 @@ export const MECHANISM_TRANSFER_CASES=Object.freeze({
    citationSource:"The Writing Life (1989), scheduling passage",
    sourceUrl:"https://www.dltn.io/posts/annie-dillard-keep-a-daily-routine",
    context:"Dillard discusses a schedule as a deliberate structure that protects time from distraction and makes repeated days into a life. The passage is written about writing and daily routine; it does not rank occupations or prescribe a perfect schedule.",
-   scenario:"You want to finish a short story. After dinner you have three free hours, but your phone keeps buzzing and you also need time to rest.",
-   categories:["Write your story","Answer messages","Rest and recharge"],
-   variableBasis:"Illustrative competing uses of one evening that could, if repeated, form a daily writing routine. These activities are a curated scenario, not named requirements in Dillard's text.",
-   influences:[
-     {id:"planned",label:"I made a plan to protect my time",detail:"I wanted a routine I could repeat"},
-     {id:"interrupted",label:"Other things kept demanding attention",detail:"Messages and requests changed my plan"},
-     {id:"obligations",label:"I had other things to get done",detail:"Some everyday demands still mattered"}
-   ],
+   scenario:"Imagine a typical weekday after essential commitments. You have three discretionary hours for optional work, time with a friend, or quiet reflection. Imagine choosing a similar pattern on five weekdays; no claim is made that you actually live this way.",
+   categories:["Optional work","A friend","Quiet reflection"],
    timeFrame:"hypothetical_repeated_five_weekdays",
    sourceRelation:"Daily schedules accumulate over time; a pattern of chosen hours can shape a life without making any one evening determinative.",
    guard:"The repeated-week calculation is a conditional teaching illustration, not an observation of the user's real habits. Dillard does not say work is bad or that equal time allocations are ideal."
@@ -73,8 +61,7 @@ export const MECHANISM_TRANSFER_CASES=Object.freeze({
    review:"provisional_reference",
    citationSource:"A Room of One's Own, Chapter I",
    context:"Money, private working space, and access to institutions can enable writing without guaranteeing publication or artistic achievement.",
-   startingPoint:"She wants to become a writer",
-   scenario:"A young woman wants to write stories, but she works long hours and shares a noisy home. Then one part of her situation has a chance to improve.",
+   startingPoint:"She wants to write fiction",
    semanticModel:"enabling_conditions",
    sourceRelation:"The material conditions of creative opportunity are not the same as certainty of achievement.",
    guard:"Keep the historical gendered constraints; a branch is a thought experiment, not an outcome prediction.",
@@ -99,7 +86,6 @@ export const MECHANISM_TRANSFER_CASES=Object.freeze({
    sourceUrl:"https://www.britlit.org/pub/5v9vgtqk/release/4",
    context:"Wollstonecraft argues for women's education and independent exercise of reason, rather than power over men. Her critique concerns social arrangements restricting rational autonomy.",
    startingPoint:"She wants to decide for herself",
-   scenario:"A young woman wants to make her own decisions, but her brothers receive schooling while she is expected to obey her family. One opportunity opens up for her.",
    semanticModel:"enabling_conditions",
    sourceRelation:"Access to education and opportunities to exercise judgment can help develop autonomy; neither a single resource nor personal effort guarantees freedom from structural subordination.",
    guard:"Do not treat education as instant emancipation or portray women as personally to blame for barriers created by institutions. Source wording requires editorial review.",
@@ -124,24 +110,23 @@ export const MECHANISM_TRANSFER_CASES=Object.freeze({
    citationSource:"Journal JJ:167 (1843), shortened variant",
    sourceUrl:"https://homepage.divms.uiowa.edu/~jorgen/kierkegaardquotesource.html",
    context:"The fuller journal note contrasts the retrospective understanding of life with the necessity of living forward. It also denies that one can step outside time to understand a life fully.",
-   startingPoint:"You have to make a job decision",
-   scenario:"You have a familiar job, but a new offer would mean moving to another city. You must decide this week without knowing how either path will turn out.",
+   startingPoint:"A choice must be made before the future is known",
    semanticModel:"temporal_information_asymmetry",
    sourceRelation:"The information available before acting differs from the retrospective account afterward; this is not the same causal mechanism as Woolf's or Wollstonecraft's enabling conditions.",
    guard:"Branches are invented illustrations, not things Kierkegaard predicted. Never reveal future results at the decision stage, assign success, or treat a retrospectively told story as full understanding.",
    steps:[
     branches("resource","Which direction do you choose now?",[
-      b("change","You take the new job","Move to a different city"),
-      b("stay","You stay in your current job","Keep the routine you know")
+      b("change","You begin something new","Act despite not knowing what happens"),
+      b("stay","You stay with the present path","Keep what you already know")
     ]),
-    branches("barrier","Now imagine one of these happens…",{
-      change:[b("risk","The hours are harder than you expected","The new job needs more evenings"),b("surprise","You miss your old friends","Moving affects people you care about")],
-      stay:[b("missed","You keep wondering about the offer","You cannot see the other future"),b("surprise","Your team changes unexpectedly","Staying didn't freeze your circumstances")]
+    branches("barrier","Which uncertainty becomes visible?",{
+      change:[b("risk","The outcome is uncertain","No guarantee the change will work"),b("surprise","An unexpected obstacle appears","The situation changes along the way")],
+      stay:[b("missed","You wonder about the road not taken","Another possibility remains unknown"),b("surprise","An unexpected change appears anyway","Staying cannot freeze circumstances")]
     }),
-    branches("action","What do you do next?",{
-      risk:[b("continue","You give yourself more time","See whether you can settle into the hours"),b("revisit","You discuss changing the hours","Try adjusting your new routine")],
-      surprise:[b("adapt","You make a new plan","Adjust how you keep in touch or work"),b("continue","You keep trying for now","See how the change feels over time")],
-      missed:[b("reflect","You ask why you turned it down","Understand the reasons you had then"),b("continue","You focus on the job you kept","Commit to what you chose")]
+    branches("action","What do you do with this uncertainty?",{
+      risk:[b("continue","You continue for now","Remain committed without certainty"),b("revisit","You reconsider as you learn","Revise the plan in response to events")],
+      surprise:[b("adapt","You adjust what you can","Meet a change not visible in advance"),b("continue","You keep going for now","Accept that complete certainty is unavailable")],
+      missed:[b("reflect","You examine the choice again","Consider a path you cannot directly observe"),b("continue","You remain with your choice","Commit without knowing an alternative future")]
     })
    ]
  },
@@ -164,29 +149,6 @@ for(const id of ["seneca","woolf","wollstonecraft","kierkegaard","marx"]){
  if(id==="seneca"&&grammar.interactiveRealization.candidate!=="tradeoff")throw Error("Atlas control changed");
  if(id==="woolf"&&grammar.interactiveRealization.candidate!=="decision_map")throw Error("Atlas control changed");
 }
-/**
- * Mechanic-vs-content boundary: a Trade-Off scenario must specify its own
- * competing variables and meaning. Two or three is the supported UI range;
- * values and influences are hypotheses curated from contextual research.
- */
-export function validateTradeoffVariables(spec){
- if(spec.family!=="tradeoff")throw new TypeError("Not a Trade-Off specification");
- const labels=spec.categories, influences=spec.influences;
- if(!Array.isArray(labels)||labels.length<2||labels.length>3 ||
-    labels.some(x=>typeof x!=="string"||!x.trim())||
-    new Set(labels).size!==labels.length)
-   throw new TypeError("Trade-Off needs 2 or 3 distinct, source-relevant variables");
- if(!Array.isArray(influences)||influences.length<2||influences.length>3 ||
-    influences.some(x=>!x?.id||!x?.label||!x?.detail)||
-    new Set(influences.map(x=>x.id)).size!==influences.length)
-   throw new TypeError("Trade-Off needs 2 or 3 valid, distinct influences");
- if(typeof spec.variableBasis!=="string"||!spec.variableBasis.trim()||
-    typeof spec.scenario!=="string"||!spec.scenario.trim())
-   throw new TypeError("Variable grounding and concrete scenario required");
- return true;
-}
-for(const id of ["seneca","dillard"])validateTradeoffVariables(MECHANISM_TRANSFER_CASES[id]);
-
 export function getMechanismCase(id){
  if(!Object.hasOwn(MECHANISM_TRANSFER_CASES,id))throw new RangeError("Unknown quoted case");
  return MECHANISM_TRANSFER_CASES[id];
