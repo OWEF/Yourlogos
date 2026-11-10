@@ -1,0 +1,65 @@
+name: CZ-117 Scenario-First Mechanism Transfer v0.2
+on:
+  pull_request:
+    paths:
+      - "philosophy-engine/encounter/mechanism-transfer-cases-v02.js"
+      - "philosophy-engine/encounter/mechanism-transfer-engine-v02.js"
+      - "experiments/mechanism-parallel-transfer-lab-v02*"
+      - "scripts/build-scenario-transfer-lab-v02.mjs"
+      - "tests/scenario-transfer-*.mjs"
+      - ".github/workflows/scenario-transfer-v02.yml"
+  workflow_dispatch:
+jobs:
+  context-and-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Source, syntax, bundle parity
+        run: |
+          node --check philosophy-engine/encounter/mechanism-transfer-cases-v02.js
+          node --check philosophy-engine/encounter/mechanism-transfer-engine-v02.js
+          node --check scripts/build-scenario-transfer-lab-v02.mjs
+          node --check tests/scenario-transfer-v02.test.mjs
+          node --check tests/scenario-transfer-browser-v02.mjs
+          node --check tests/scenario-transfer-preview-v02.mjs
+          node scripts/build-scenario-transfer-lab-v02.mjs --check
+      - name: Original controls plus v0.2 quote-specific model tests
+        run: |
+          node --test tests/insight-expression-v01.test.mjs
+          node --test tests/mechanism-parallel-transfer-v01.test.mjs
+          node --test tests/scenario-transfer-v02.test.mjs
+  interactive-browser:
+    needs: context-and-model
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Install browser controls
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: Verify iPhone/tablet/desktop scenario-first interactions
+        run: node tests/scenario-transfer-browser-v02.mjs
+      - name: Verify external mobile browser preview
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node tests/scenario-transfer-preview-v02.mjs
+      - name: Attach standalone iPhone lab
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz117-scenario-first-iphone-html
+          path: experiments/mechanism-parallel-transfer-lab-v02-standalone.html
+          retention-days: 7
+      - name: Attach comparison screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz117-scenario-first-comparisons
+          path: test-results/cz117-scenarios/*.png
+          if-no-files-found: ignore
+          retention-days: 5
