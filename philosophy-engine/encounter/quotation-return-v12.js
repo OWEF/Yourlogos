@@ -50,10 +50,10 @@ const dillardReturn = {
     "What would have to differ between your days for this pause to stay a pause?"
   ],
   "requests-without-writing": [
-    "The story can wait after every message.",
-    "You gave time to replies, reported interruptions, and left the story for later. Each reply might have been worth sending. Taken together, the evening’s demands used up the time available.",
-    "Dillard asks you to see the pattern that can form across ordinary days. If evenings like this kept recurring, the things that called for a response could acquire a regular place in your life even without a decision to give them one.",
-    "Which part of a repeated day can become a commitment without being named as one?"
+    "An evening can be fully accounted for while the story has no place.",
+    "You set aside time for replies and none for the story. You mentioned interruptions; the allocation alone leaves open what you would have done without them.",
+    "Dillard invites you to read an evening twice: once as a set of things worth doing today, then as a pattern you might find yourself living. Repeat this evening, and the wish to write could last all week without becoming a sitting.",
+    "What would have to change for the story to acquire a place in a week of evenings like this?"
   ],
   "exception-repeated": [
     "An exception can become the usual evening.",

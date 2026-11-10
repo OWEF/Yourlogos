@@ -41,12 +41,14 @@ try {
   await page.keyboard.press("Home");
   await page.locator('[data-motive][data-value="planned"]').click();
   await run.click();
-  assert.match(await page.locator(".reading-self h2").innerText(),/another evening/);
+  assert.match(await page.locator(".reading-self h2").innerText(),/next sitting/);
 
   async function verifyEnding(author,qa=false) {
    const result=page.locator(".result");
    assert.equal(await page.locator("main").getAttribute("data-screen"),"result");
    assert.equal(await result.locator(".reading-panel").count(),3);
+   assert.equal(await page.locator(".voice-grid").count(),0);
+   if (!qa) assert.equal(await result.locator(":scope > :last-child").getAttribute("class"),"reading-panel reading-question");
    assert.deepEqual(await result.locator(".section-label").allTextContents(),[
     "Your Encounter with "+author,"Return to the philosopher","A question to carry forward"]);
    assert.equal(await result.locator(".reading-source blockquote").count(),1);
@@ -66,7 +68,7 @@ try {
   assert.equal(await page.locator('[data-motive][data-value="planned"]').getAttribute("aria-pressed"),"true");
   await page.locator('[data-motive][data-value="interrupted"]').click();
   await run.click();
-  assert.match(await page.locator(".reading-self h2").innerText(),/message/);
+  assert.match(await page.locator(".reading-self h2").innerText(),/Every hour/);
   await verifyEnding("Annie Dillard");
 
   await page.locator('[data-mode="kierkegaard"]').click();
@@ -112,6 +114,14 @@ try {
   await page.locator('[data-back="intro"]').click();
   assert.equal(await page.locator(".intro-scenario").evaluate(el=>getComputedStyle(el).animationName),"none");
 
+  await page.goto(new URL("encounter-expression-qa.html",url).href);
+  await page.locator('[data-discover="dillard"]').click();
+  await page.locator("[data-enter]").click();
+  await page.locator('[data-motive][data-value="interrupted"]').click();
+  await run.click();
+  assert.deepEqual(await page.locator(".voice-grid article small").allTextContents(),["reflective","surprising","playful","challenging"]);
+  assert.equal(await page.locator(".expression-lab details").count(),1);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   assert.deepEqual(errors,[]);
   if(url.startsWith("file:"))assert.deepEqual(network,[]);
   console.log(width+"px: immersive intro, mechanism, three-panel reading, history and controls passed");
