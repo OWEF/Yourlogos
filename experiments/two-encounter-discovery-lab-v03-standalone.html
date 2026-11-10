@@ -989,6 +989,61 @@ const prompts={
  }
 };
 
+function contextualSeneca(packet,selected,stance){
+ const hours=packet.observation.allocation?.[0];
+ if(typeof hours!=="number")throw new TypeError("Missing optional-work allocation");
+ // The motivation question was asked about the entire allocation, not just work.
+ // A claim about optional work becoming obligatory requires exclusive focus.
+ if(hours===3)return selected;
+ if(packet.observation.motivation==="necessary")return {
+   ...selected,
+   title:stance==="positive"?"You made room for what felt important.":"Which commitment felt non-negotiable?",
+   tension:"You described your overall evening as necessary, but the allocation alone doesn't tell us which commitment carried that necessity.",
+   question:stance==="positive"?null:"Which part of tonight felt hardest to change, and why?",
+   connection:"Seneca's question is whether time is deliberately directed. We cannot assume that optional work was what felt necessary."
+ };
+ if(packet.observation.motivation==="expected")return {
+   ...selected,
+   title:stance==="positive"?"You chose how to respond to others.":"Whose expectations shaped your evening?",
+   tension:"You said expectations influenced your allocation, but your time chart doesn't show which particular commitment carried that pressure.",
+   question:stance==="positive"?null:"Which part of the evening did you choose mainly because someone else expected it?",
+   connection:"Seneca's concern with deliberate living can invite a question about expectations without proving any particular activity was imposed."
+ };
+ if(packet.observation.motivation==="chosen"&&hours===0)return {
+   ...selected,
+   title:stance==="positive"?"You made a choice you can stand behind.":"What made your chosen priorities worth it?",
+   tension:"You freely protected time for commitments other than optional work, leaving that request aside for tonight.",
+   question:stance==="positive"?null:"What made the priorities you kept worth saying no to the extra work?",
+   connection:"For Seneca, the choice is about how time is directed, not whether refusing optional work is always the right thing."
+ };
+ return selected;
+}
+const woolfQuestions={
+ income:{
+   write:"If she starts writing, what might she have to sacrifice to afford the time?",
+   protect:"How secure must her income be before she can reliably protect writing time?",
+   challenge:"What could change the conditions that make writing so financially costly?"
+ },
+ space:{
+   write:"What happens when her chance to write can be interrupted at any moment?",
+   protect:"Who would need to respect her writing time for that protection to last?",
+   challenge:"Who has the power to make uninterrupted space possible?"
+ },
+ access:{
+   write:"How can she begin when other people still control whose work gets heard?",
+   protect:"Can an opportunity last when gatekeepers can still close the door?",
+   challenge:"Who decides whose writing deserves to be given a chance?"
+ }
+};
+function contextualWoolfQuestion(packet,stance,defaultPrompt){
+ if(stance==="positive")return null;
+ const {resource,barrier,action}=packet.observation;
+ if(!Object.hasOwn(woolfQuestions,barrier)||!Object.hasOwn(woolfQuestions[barrier],action))
+   throw new TypeError("Incomplete material-condition path");
+ if(resource===barrier)return "If this condition improved, why does it remain fragile—and what would make it last?";
+ return woolfQuestions[barrier][action]||defaultPrompt;
+}
+
 function selectDiscovery(packet,stance="unstated"){
  const errs=validateInsightPacket(packet);
  if(errs.length)throw new TypeError("Invalid Insight Packet: "+errs.join("; "));
@@ -996,10 +1051,12 @@ function selectDiscovery(packet,stance="unstated"){
  const isSeneca=packet.mechanism==="tradeoff"&&packet.quote.id===49;
  const isWoolf=packet.mechanism==="decision_map"&&packet.quote.id===28;
  if(!isSeneca&&!isWoolf)throw new RangeError("Unsupported pilot pair");
- const selected=isSeneca?prompts.seneca[packet.observation.motivation]?.[stance]:prompts.woolf[stance];
- if(!selected)throw Error("No source-aware question selection for given evidence");
+ const base=isSeneca?prompts.seneca[packet.observation.motivation]?.[stance]:prompts.woolf[stance];
+ if(!base)throw Error("No source-aware question selection for given evidence");
+ const selected=isSeneca?contextualSeneca(packet,base,stance):base;
  const positive=stance==="positive";
- const question=positive?null:selected.question;
+ const question=positive?null:(isWoolf?
+   contextualWoolfQuestion(packet,stance,selected.question):selected.question);
  const rationale=isSeneca?
   "The question responds to the user's declared motivation ('"+packet.observation.motivation+"'), which is evidence but not a diagnosis.":
   "The question addresses the user's material-condition path without presuming an author's fictional writer will succeed.";
