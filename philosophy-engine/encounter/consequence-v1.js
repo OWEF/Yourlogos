@@ -56,10 +56,40 @@ function eveningDistinction(facts) {
     "A deliberate majority allocation leaves less than half for the other two uses combined. More time for either must come from the fixed budget.",
     "The model cannot show the order in which hours were booked.",
     "Your plan gives the story most of the evening. That choice also sets a limit on what you can offer everything else. Keeping the writing time would mean honoring that limit when another claim arrives.");
+  if (declaredInfluence === "planned" && messages > 1.5 && messages > writing)
+    return distinction("planned-replies-majority",["planning to protect time","what the planned distribution actually permits"],premises,
+      "The participant reports an intention to protect time, but the planned evening allocates a majority to replies. The distribution establishes the uses, not which hour was reserved first.",
+      "We do not know which replies were necessary or whether writing had a reserved minimum.",
+      "You intended to protect your time, yet replies occupy most of this particular plan. A schedule can express an intention without showing which activity has priority when the plan meets another demand. Repeating it would give the replies the larger recurring share.",
+      "Which part of this plan would stay unchanged if another request arrived?");
   if (declaredInfluence === "planned" && rest > 0) return distinction("room-for-both",["competing for an extra hour","being able to coexist"],premises,
     "An increase in one activity must displace another, yet the chosen schedule already admits both writing and rest.",
     "Neither the adequacy of the rest nor the quality of the writing is known.",
     "An extra half-hour has to come from somewhere. Yet in the plan you made, writing and rest already coexist. You only have to choose between them when you ask for more time than the evening holds.");
+  if (declaredInfluence === "obligations" && messages > writing && messages >= rest)
+    return distinction("obligations-visible-replies",["reasons for an evening","where its hours actually go"],premises,
+      "The participant cites obligations and allocates more time to replies than to writing. This establishes a recurring distribution if repeated, not the moral worth or necessity of any reply.",
+      "The selected motivation does not tell us which messages were duties.",
+      "Other things needed doing, and in this evening replying takes more time than writing. That is a fact about how the hours are arranged, not a verdict on whether any reply was worth sending. If repeated, the arrangement would give answering people a regular place in your days.",
+      "Which recurring demand would you most want to make room for on purpose?");
+  if (declaredInfluence === "obligations" && rest > writing && rest >= messages)
+    return distinction("obligations-visible-rest",["having demands to meet","making room for recovery"],premises,
+      "The participant reports obligations, while rest receives a larger allocation than writing or messages. Both demands and recovery can feature in a planned recurring day.",
+      "Nothing identifies the motive for resting, or whether the rest was sufficient.",
+      "Even with other things to get done, your evening gives more time to rest than to the story or messages. Repeating such an evening would make recovery part of the pattern of days, not simply an absence of progress on the story.",
+      "If this pattern returned tomorrow, what would it make room for?");
+  if (declaredInfluence === "obligations" && writing >= messages && writing >= rest)
+    return distinction("obligations-visible-writing",["having multiple claims on time","still making a place for the story"],premises,
+      "With obligations reported, writing receives at least as much time as either alternative. Repeating the allocation would give writing a regular sitting, without showing whether it was protected first.",
+      "We cannot tell whether the writing session was reserved or merely fit the other commitments.",
+      "You reported other obligations, yet the story still receives one of the evening's largest shares. An individual sitting doesn't establish a habit, but returning to a similar arrangement could give writing a recurring place alongside those demands.",
+      "What would make this particular arrangement possible again?");
+  if (declaredInfluence === "interrupted" && messages === 0)
+    return distinction("interrupted-without-replies",["demands arriving","demands receiving time"],premises,
+      "The participant reports interruptions but allocates no time to replies. An interruption and a response are different events; the allocated time cannot identify how much attention the interruption consumed.",
+      "The nature and duration of the interruptions remain unknown.",
+      "You reported interruptions, but assigned no time to replying. A buzzing phone is one kind of demand; giving it part of your schedule is another. If this evening repeated, the pattern of how you responded—not merely the arrival of demands—would shape its place in your days.",
+      "If the same interruption came tomorrow, what would you choose to repeat?");
   return distinction("recurring-foothold",["an amount of writing time","the terms on which it recurs"],premises,
     "Positive writing time accumulates under repetition; neither duration nor the broad influence identifies what would preserve it.",
     "We cannot infer a protected minimum, an ordering, or progress on the story.",
