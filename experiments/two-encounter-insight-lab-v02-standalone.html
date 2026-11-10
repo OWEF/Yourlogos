@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101310"><meta name="color-scheme" content="dark">
+<title>YourLogos · Two Encounters — Insight Lab v0.2</title>
+<style>
+:root{color-scheme:dark;--bg:#101310;--card:#191e18;--card2:#22291f;--line:#3c4438;--ink:#f4efe2;--muted:#b3b7aa;--soft:#899385;--sage:#a5bea2;--gold:#d7bd8b;--rose:#cba7a0}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}body{margin:0;min-width:280px;background:radial-gradient(ellipse 68% 350px at 15% 0,#292b1d 0,transparent 100%),var(--bg);color:var(--ink);font:15px/1.58 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:660px;margin:0 auto;padding:22px 17px calc(72px + env(safe-area-inset-bottom))}
+button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+small,.small{color:var(--muted);font-size:12px}
+.brand{font-family:Georgia,serif;font-size:22px;letter-spacing:-.5px}.head{display:flex;align-items:center;justify-content:space-between;gap:10px}.test{color:var(--sage);font-size:10px;border:1px solid #566351;border-radius:30px;padding:7px 10px;letter-spacing:.04em;white-space:nowrap}
+.eyebrow{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.16em;font-weight:800}
+.intro{margin:25px 0 20px}.intro h1{font:normal clamp(30px,7vw,42px)/1.14 Georgia,serif;letter-spacing:-.025em;margin:9px 0 12px}.intro p{color:var(--muted);margin:0}
+.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0 24px}
+.tab{background:#20261e;border:1px solid var(--line);border-radius:13px;padding:12px 6px;min-height:71px;text-align:left;color:var(--muted)}
+.tab strong{display:block;font-size:13px;color:var(--ink)}.tab span{display:block;font-size:11px}
+.tab[aria-selected=true]{background:#363528;border-color:var(--gold)}.tab[aria-selected=true] strong{color:var(--gold)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px;margin-bottom:14px}
+.quotation{font:normal 26px/1.25 Georgia,serif;margin:11px 0 13px}.attribution{font-size:12px;color:var(--muted)}
+.source{margin-top:16px;border-top:1px solid var(--line);padding-top:3px}
+summary{cursor:pointer;padding:12px 0;color:var(--gold);font-size:12px}
+.source p{color:var(--muted);font-size:13px;margin:7px 0}
+.flow{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px;margin:4px 0 18px}.step{flex:1;border-top:2px solid var(--line);padding-top:6px}
+.step.active{border-color:var(--gold);color:var(--gold)}
+h2{font:normal 25px/1.2 Georgia,serif;margin:7px 0 12px}h3{font:normal 20px/1.3 Georgia,serif;margin:8px 0 11px}
+.story{color:var(--muted);line-height:1.6;font-size:14px;margin:0 0 16px}
+.question{font-size:15px;font-weight:620;margin:17px 0 9px}
+.choices{display:grid;gap:8px}.choice{display:flex;align-items:flex-start;text-align:left;gap:12px;padding:14px;border:1px solid #50584c;border-radius:12px;background:#222920;color:var(--ink);min-height:64px;width:100%}
+.choice .symbol{height:27px;width:27px;flex:0 0 27px;display:grid;place-items:center;border:1px solid #71816f;border-radius:8px;color:var(--gold);font-size:14px}
+.choice strong{display:block;font-weight:650;font-size:14px}.choice em{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.choice.active{border-color:var(--gold);background:#353326}.choice.active .symbol{background:#776d48;color:#fff3d2}
+.field{margin:17px 0}.fieldbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.fieldbar label{font-weight:600;font-size:14px}.number{font:normal 25px Georgia,serif;font-variant-numeric:tabular-nums}
+input[type=range]{display:block;width:100%;height:34px;accent-color:var(--gold);touch-action:pan-y}
+.stack{height:12px;display:flex;overflow:hidden;gap:3px;background:#384035;border-radius:10px;margin:9px 0 5px}.stack>span{height:100%;transition:width .12s}
+.legend{display:flex;flex-wrap:wrap;gap:9px 14px;font-size:11px;color:var(--muted);margin-bottom:12px}.swatch{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+.primary,.secondary{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:12px;padding:12px 18px;width:100%;font-weight:750}
+.primary{background:var(--gold);color:#1a1a14;border:1px solid var(--gold);margin-top:18px}
+.secondary{background:var(--card2);color:var(--ink);border:1px solid #65705e;margin:10px 0 0}
+.primary:active,.secondary:active,.choice:active{transform:scale(.99)}
+.ending{border-color:#827756;background:radial-gradient(ellipse 70% 180px at 100% 0,#353426 0,transparent 100%),#1c211c;scroll-margin-top:12px}
+.ending .headline{font:normal 30px/1.16 Georgia,serif;margin:9px 0 16px}
+.ending .lead{font-size:16px;line-height:1.6}
+.rule{border-top:1px solid #4e5243;margin:17px 0}.explain{font-size:14px;color:#e2dfd1;line-height:1.62}.open-question{border-left:2px solid var(--gold);padding:9px 14px;color:#f0e6cd;background:#292a21;font:italic 18px/1.45 Georgia,serif;margin:16px 0}
+.verdict{display:inline-block;border:1px solid var(--sage);border-radius:30px;padding:5px 10px;color:var(--sage);font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.graph{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:13px 0}.node{padding:12px 4px;border:1px solid var(--line);border-radius:10px;text-align:center;font-size:11px;color:var(--muted);background:#222720}.node strong{display:block;color:var(--ink);font-size:12px;margin-top:4px}.node.on{border-color:var(--gold);background:#332e25}.node.issue{border-color:var(--rose)}
+.statement{font:normal 24px/1.23 Georgia,serif;padding:17px;border:1px solid #5c654f;border-radius:12px;background:#252d23;text-align:center;color:var(--gold);margin:12px 0}
+.visualrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:7px;margin:13px 0}
+.tile{padding:15px 8px;text-align:center;border-radius:10px;background:#263027;border:1px solid #56604d;font-size:12px}
+.tile b{display:block;font:normal 21px Georgia,serif;color:var(--gold)}
+.arrow{color:var(--sage);font-size:20px}
+.inspect{border-top:1px solid var(--line);padding:5px 0 0}
+.inspect pre{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:#121712;border-radius:9px;border:1px solid var(--line);padding:12px;max-height:370px;overflow:auto}
+.foot{margin:22px 0;color:var(--soft);font-size:12px;line-height:1.6}.foot a{color:var(--gold)}
+.status{font-size:12px;color:var(--sage);min-height:16px;margin-top:8px}
+@media(max-width:340px){main{padding-left:12px;padding-right:12px}.card{padding:16px 13px}.tab{padding:9px 5px}.tab strong{font-size:12px}.quotation{font-size:23px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header class="head"><div class="brand">YourLogos <span style="color:var(--gold)">/</span> Encounter Lab</div><div class="test">RESEARCH · V0.1</div></header>
+<section class="intro"><div class="eyebrow">Insight + Expression · v0.2</div><h1>A small choice. A larger question.</h1><p>Two concrete philosophical experiments. Make a choice, see its consequence, and discover an idea worth carrying forward. These are provisional, source-aware research prototypes—not philosophical truth verdicts.</p></section>
+<nav class="tabs" role="tablist" aria-label="Choose an Encounter"><button id="tab-seneca" role="tab" aria-selected="true" class="tab" type="button" data-route="seneca"><strong>Trade-Off</strong><span>Seneca · Time</span></button><button id="tab-woolf" role="tab" aria-selected="false" class="tab" type="button" data-route="woolf"><strong>Decision Map</strong><span>Woolf · Opportunity</span></button></nav>
+<div class="card" id="quote" aria-live="polite"></div>
+<div class="flow" id="progress" aria-label="Encounter progress"></div>
+<section class="card" id="interactive" aria-live="polite"></section><p id="lab-error" class="small" role="alert" hidden></p>
+<section id="result" class="card ending" aria-live="polite" hidden></section>
+<footer class="foot">Research prototype · Insight Packet v0.1 → Expression Engine v0.1. No AI model, account, production integration or philosophical truth score. Both encounters are source-aware editorial hypotheses awaiting review. <a href="https://github.com/OWEF/Yourlogos/pull/148" target="_blank" rel="noopener noreferrer">Context Atlas</a>.</footer>
+</main>
+<script>
+
+/* EXACT RESEARCH MODULE: philosophy-engine/context-atlas/pilot-records-v01.js */
+/**
+ * CZ-110 — Philosophical Context Atlas v0.1 / fifteen-case research pilot.
+ *
+ * These records are EDITORIAL HYPOTHESES, not proofs, final authorial intent,
+ * verified quotations or production-ready encounters. Their text is copied
+ * from the stable bundled quote catalogue (app.js), with original IDs.
+ * External source links support only the named claims; they are NOT general
+ * certifications of an entire record's historical or philosophical accuracy.
+ */
+const reference = (url, kind, supports) => ({ url, kind, supports });
+
+const item = (id, text, author, source, school, x) => ({
+  id,
+  quote: { text, author, bundledSource: source, provenanceStatus: x.provenance || "catalogue_only" },
+  sourcePassage: {
+    work: source,
+    language: x.language || "unreviewed",
+    locator: x.locator || null,
+    originalText: null,
+    translation: { exactness: x.exactness || "unverified", translator: x.translator || null },
+    references: [reference("app.js", "internal_bundled_catalogue", "quote_identity"), ...(x.refs || [])],
+    contextualSummary: x.context,
+    contextStatus: x.refs?.length ? "passage_linked_editorial_summary" : "editorial_hypothesis_not_source_verified",
+  },
+  authorPosition: {
+    tradition: Array.isArray(school) ? school : [school],
+    stance: x.stance || "editorial_reconstruction",
+    periodOrWork: x.period || source,
+    scopedSummary: x.position,
+    comparisonWithOtherWorks: x.comparison || "Not yet researched; do not assume consistency across an author's entire career.",
+  },
+  argumentModel: {
+    claim: x.claim,
+    warrant: x.warrant,
+    logicalForm: {
+      quantity: x.form[0],
+      quality: x.form[1],
+      relation: x.form[2],
+      modality: x.form[3],
+      note: x.formNote,
+      interpretationNotLogicalProof: true,
+    },
+    concepts: x.concepts,
+    relation: x.relation,
+    scopeOrConditions: x.scope,
+    alternativeReadings: x.alternatives,
+    challenge: x.challenge,
+    limits: x.limits,
+  },
+  philosophicalOperation: {
+    name: x.operation,
+    task: x.operationTask,
+    target: x.operationTarget,
+  },
+  interactionModel: {
+    candidate: x.mechanic,
+    eligibility: x.mechanic === "none" ? "none_suitable" : "conditional",
+    scenario: x.scenario || null,
+    fitnessReason: x.fitness,
+    blocker: x.blocker,
+    approval: "not_approved",
+    mechanismProof: x.guard || null,
+    contraindicatedScenarioIds: x.rejectScenarios || [],
+  },
+  review: { status: "draft", scholarlyReviewed: false, publisherApproved: false, modelVersion: 1 },
+});
+
+const ATLAS_PILOT_V01 = Object.freeze([
+  item(0,"He who has a why to live can bear almost any how.","Friedrich Nietzsche","Twilight of the Idols","Nietzschean philosophy",{
+    context:"An aphoristic expression about an orienting purpose in relation to enduring circumstances; edition-specific language and surrounding text need checking.",
+    position:"A prospective reason for living can change how difficulties are borne; this is not a guarantee that purpose cures suffering.",
+    claim:"A meaningful why can make a difficult how more bearable.",
+    warrant:"The relation between orientation and endurance matters more here than measuring quantities of discomfort.",
+    form:["generic","affirmative","hypothetical","unspecified"], formNote:"Read as a tendency/conditional maxim, not an empirically exceptionless universal law.",
+    concepts:["purpose","endurance","circumstances"], relation:"purpose may condition endurance",
+    scope:"Circumstances of difficulty; how and why must be situated.",
+    alternatives:["An existential insight about purpose","A rhetorical maxim whose generality might overstate its psychological scope"],
+    challenge:"Can a strong purpose coexist with limits that cannot simply be endured?",
+    limits:"Cannot diagnose a person's ability to endure or prescribe endurance.",
+    operation:"test_qualification",operationTask:"Examine limits of a proposed connection between purpose and endurance.",operationTarget:"qualified conditional",
+    mechanic:"none",fitness:"No source-grounded finite allocation, branching mechanism or sharp counterexample condition has yet been reconstructed.",
+    blocker:"Quote wording/translation and proposition scope need source review."
+  }),
+  item(8,"Whereof one cannot speak, thereof one must be silent.","Ludwig Wittgenstein","Tractatus Logico-Philosophicus, 7","Early analytic philosophy",{
+    provenance:"passage_location_checked",locator:"Proposition 7",language:"German",exactness:"translation_variant",
+    refs:[reference("https://plato.stanford.edu/entries/wittgenstein/","scholarly_reference","proposition_7_and_logical_context")],
+    context:"Proposition 7 follows a sustained account of the relation among language, logical representation and the limits of meaningful propositions.",
+    position:"The early Wittgenstein places limits on what propositions can meaningfully express, while the later Wittgenstein must not be assumed to endorse every feature of this earlier theory.",
+    comparison:"The Tractatus and later philosophical investigations require separate period-qualified models.",
+    claim:"What cannot be meaningfully put into a proposition falls outside what can be stated in that form.",
+    warrant:"The proposition depends on the preceding theory of propositions, logic and representation.",
+    form:["generic","affirmative","hypothetical","apodictic"],formNote:"A concluding injunction whose force is tied to a technical theory, not ordinary social silence.",
+    concepts:["proposition","meaning","logical limits","silence"], relation:"limits of propositional expression constrain meaningful saying",
+    scope:"The tractarian account of saying/showing and logical representation.",
+    alternatives:["A statement of the limits of expressible sense","A self-referential challenge about the status of the Tractatus itself"],
+    challenge:"Can the limits of expression be stated without transgressing them?",
+    limits:"Do not translate this automatically into advice to stay quiet in relationships.",
+    operation:"reconstruct_limit",operationTask:"Examine the conditions of saying and showing.",operationTarget:"limits of proposition",
+    mechanic:"none",fitness:"None of the three mechanisms captures the technical argument without a new conceptual operation.",
+    blocker:"Requires careful Tractatus exposition before an exercise is approved."
+  }),
+  item(10,"All of humanity's problems stem from man's inability to sit quietly in a room alone.","Blaise Pascal","Pensées (paraphrased translation)","Early modern Christian apologetics",{
+    provenance:"paraphrase_context_checked",locator:"Pensées, Divertissement; Brunschvicg 139 / Lafuma 136 (numbering varies)",language:"French",exactness:"paraphrase",
+    refs:[reference("https://emend.press/pascal.html","translated_primary_text","diversion_passage_and_context")],
+    context:"The diversion fragment addresses agitation, warfare and distractions, and connects restlessness to the human condition and unhappiness; its popular modern rendering is not a literal universal proposition about every problem.",
+    position:"The diagnosis of diversion is embedded in an unfinished apologetic project, not a secular rule that each social problem arises from solitude avoidance.",
+    claim:"Distraction or diversion can conceal an encounter with the unease of human existence.",
+    warrant:"Repeated pursuit of agitation may be driven by a wish to avoid uncomfortable self-encounter.",
+    form:["generic","affirmative","categorical","unspecified"],formNote:"Popular 'all problems' wording is a paraphrase; do not use it as a formally universal Pascal thesis.",
+    concepts:["diversion","stillness","unhappiness","human condition"],relation:"diversion may mask the human condition",
+    scope:"Human unhappiness within Pascal's divertissement argument.",
+    alternatives:["An existential critique of diversion","An exaggeration if the popular English wording is treated literally"],
+    challenge:"Do all forms of activity merely distract, or can activity itself be meaningful?",
+    limits:"One counterexample to 'all human problems' would test the paraphrase, not faithfully refute Pascal.",
+    operation:"restore_scope",operationTask:"Compare a viral paraphrase with the argument it condenses.",operationTarget:"attribution_and_scope",
+    mechanic:"none",fitness:"Naive Counterexample routing would target a false universal created by paraphrasing.",
+    blocker:"This paraphrase requires copy/translation review before any mechanic is approved."
+  }),
+  item(11,"Two things fill the mind with ever-increasing wonder: the starry sky above me and the moral law within me.","Immanuel Kant","Critique of Practical Reason, conclusion (abridged translation)","Kantian practical philosophy",{
+    context:"A conclusion linking awe before nature to awareness of the moral law, not a quantitative choice between astronomy and ethics.",
+    position:"Kant distinguishes empirical nature and practical reason; the two sources of awe do not represent mutually exclusive life allocations.",
+    claim:"Reflection on nature and moral agency discloses distinct grounds for wonder.",
+    warrant:"The contrast spans natural order and the standpoint of rational moral agency.",
+    form:["singular","affirmative","categorical","assertoric"],formNote:"First-person closing reflection; not a general rule of how many hours to spend outdoors.",
+    concepts:["nature","moral law","wonder","practical reason"],relation:"two distinct grounds jointly occasion wonder",
+    scope:"Concluding reflection in a work of practical philosophy.",
+    alternatives:["A juxtaposition of natural and moral domains","A claim about the dignity and agency of moral beings"],
+    challenge:"What kind of necessity belongs to moral law as opposed to natural law?",
+    limits:"Not a finite resource or a causal if-then diagram.",
+    operation:"distinguish_domains",operationTask:"Compare theoretical and practical forms of wonder.",operationTarget:"conceptual_distinction",
+    mechanic:"none",fitness:"Three current games would artificially reduce two grounds for wonder to a competition.",
+    blocker:"Source wording and conceptual roles require dedicated scholarly checking."
+  }),
+  item(16,"The journey of a thousand miles begins with a single step.","Laozi","Dao De Jing, chapter 64 (translation varies)","Daoist thought",{
+    context:"Often translated from a saying about a thousand-li journey; chapter context also discusses beginnings, gradual formation and noncoercive action.",
+    position:"The proverb should not be isolated from Daoist caution against forced or grasping conduct.",
+    claim:"What becomes extensive may begin in an apparently small movement.",
+    warrant:"Beginnings and gradual processes can precede large-scale developments.",
+    form:["generic","affirmative","categorical","unspecified"],formNote:"Figurative proverb; the arithmetic interpretation is not the philosophical point.",
+    concepts:["beginning","process","action","nonforcing"],relation:"small beginnings can develop into large processes",
+    scope:"A figurative claim about the development of action.",
+    alternatives:["Encouragement of humble beginnings","A caution about controlling outcomes by force"],
+    challenge:"Does taking action ever undermine the very process one hopes to support?",
+    limits:"Not an automatically source-grounded branching decision tree.",
+    operation:"trace_development",operationTask:"Study how action is shaped by process, without forcing a fixed outcome.",operationTarget:"development_over_time",
+    mechanic:"none",fitness:"A decision-tree exercise would require invented dependencies not yet justified by the text.",
+    blocker:"Original Chinese and chapter context need review."
+  }),
+  item(20,"I think, therefore I am.","René Descartes","Discourse on Method, Part IV","Early modern rationalism",{
+    context:"A first-person route through radical doubt toward the certainty of existence while thinking; relation to later Meditations needs a separate record.",
+    position:"The cogito articulates a first-person epistemic certainty in the course of methodical doubt, not a survey of how often people think.",
+    claim:"The occurrence of thinking guarantees the thinker's existence in the act.",
+    warrant:"Doubting itself is thinking; something engaged in it cannot, while doing so, be nothing.",
+    form:["singular","affirmative","hypothetical","apodictic"],formNote:"The relation between inference and immediate self-evidence is interpretively contested.",
+    concepts:["doubt","thinking","existence","certainty"],relation:"thinking entails existence in the first-person act",
+    scope:"First-person act of thought/doubt, not a permanent empirical personality claim.",
+    alternatives:["An inference from thinking to being","An immediate self-verifying recognition"],
+    challenge:"Is this best understood as a syllogism or a performance of certainty?",
+    limits:"Does not imply that people who are not currently reflecting cease to exist.",
+    operation:"test_self_certainty",operationTask:"Explore the certainty that survives radical doubt.",operationTarget:"first_person_self_evidence",
+    mechanic:"none",fitness:"Our three mechanics do not reproduce the self-verifying operation reliably.",
+    blocker:"Clarify the relation of the Discourse and Meditations readings."
+  }),
+  item(21,"He who knows only his own side of the case knows little of that.","John Stuart Mill","On Liberty, Chapter II","Liberal political philosophy / epistemology",{
+    context:"From the defense of free discussion and the importance of confronting opposing reasons.",
+    position:"Hearing the case against one's position matters to understanding its grounds, even if one remains persuaded.",
+    claim:"A person may not grasp the grounds of a view by studying only supporting arguments.",
+    warrant:"Opposition can reveal premises and challenges that confirmation alone conceals.",
+    form:["generic","affirmative","hypothetical","unspecified"],formNote:"General epistemic lesson, not a quantified laboratory law.",
+    concepts:["understanding","opposition","justification","discussion"],relation:"access to objections may deepen understanding",
+    scope:"The epistemic value of disagreement in public discussion.",
+    alternatives:["An epistemological case for hearing opponents","A political defense of open discussion"],
+    challenge:"Does every opposing view deserve equal evidential weight?",
+    limits:"One counterexample cannot establish that engaging opposition is always useless.",
+    operation:"examine_objection",operationTask:"Confront a well-formed objection to a held argument.",operationTarget:"quality_of_reasons",
+    mechanic:"none",fitness:"A Perspective mechanic could fit, but it is explicitly deferred; forcing a universal Counterexample could misread Mill.",
+    blocker:"No approved operation among the three core mechanics."
+  }),
+  item(22,"The philosophers have only interpreted the world, in various ways; the point is to change it.","Karl Marx","Theses on Feuerbach, Thesis XI (translation varies)","Marxian philosophy / praxis",{
+    context:"A programmatic remark in notes on Feuerbach; context concerns sensuous human activity and praxis, not a ban on interpretation.",
+    position:"Marx challenges passive theoretical contemplation divorced from transformative practice.",
+    claim:"Interpretation by itself is insufficient to realize transformative human practice.",
+    warrant:"Human social reality includes practical activity, not merely the conceptual representation of it.",
+    form:["generic","mixed","categorical","unspecified"],formNote:"Rhetorical contrast; do not flatten into an exclusive choice between thought and action.",
+    concepts:["interpretation","praxis","social reality","transformation"],relation:"practice transforms conditions that interpretation describes",
+    scope:"Critique of philosophy detached from socially situated activity.",
+    alternatives:["Criticism of purely contemplative theory","A call to unite theory with practical transformation"],
+    challenge:"Is transforming the world possible without first understanding it?",
+    limits:"Do not imply that Marx denies the value of theory; no finite time budget is specified.",
+    operation:"connect_praxis",operationTask:"Test the dependence of transformative action on understanding.",operationTarget:"theory_practice_relation",
+    mechanic:"none",fitness:"A 'thinking versus doing' slider is a false dilemma; no source-based constraint is present.",
+    blocker:"Original wording and context need confirmation."
+  }),
+  item(23,"I do not wish them to have power over men; but over themselves.","Mary Wollstonecraft","A Vindication of the Rights of Woman, Chapter IV","Enlightenment feminism",{
+    provenance:"passage_location_checked",locator:"Chapter IV",language:"English",exactness:"close_to_source",
+    refs:[reference("https://barryfvaughan.org/text/philtext/wollstonecraft/vindication/4.html","primary_text","chapter_iv_passage_and_education_argument"),reference("https://plato.stanford.edu/entries/wollstonecraft/","scholarly_reference","authorial_social_context")],
+    context:"Within a critique of gendered education and imposed dependence, Wollstonecraft contrasts independence and rational self-command with domination of others.",
+    position:"Autonomy in reason and education is central to Wollstonecraft's critique of imposed female subordination; this is not a proposal to reverse dominance.",
+    claim:"The aim of emancipation is self-direction, not power over other people.",
+    warrant:"Denied education and civic standing obstruct the cultivation of agency.",
+    form:["generic","negative","disjunctive","assertoric"],formNote:"A contrast of two conceptions of power, not two mutually exclusive numerical prizes.",
+    concepts:["education","agency","domination","independence"],relation:"education supports agency; agency differs from domination",
+    scope:"Historical gender hierarchy and women's education.",
+    alternatives:["A distinction between domination and autonomy","A critique of social institutions that deny women independence"],
+    challenge:"Can apparent freedom coexist with structures that undermine self-direction?",
+    limits:"Do not cast domination and autonomy as equal competing goods.",
+    operation:"trace_conditions",operationTask:"Examine how education and institutions shape opportunities for independence.",operationTarget:"institutional_dependency",
+    mechanic:"decision_map",scenario:"Compare access to education/support and consequent feasible choices, with historical constraints visible.",
+    guard:{kind:"branch_dependency",ground:"Education and social institutions can affect paths to independent agency.",requires:"Do not model access as a guarantee of independent outcomes."},
+    fitness:"A contingent chain from social arrangements through agency can be represented without presuming guaranteed outcomes.",
+    blocker:"Branch dependencies and historically appropriate choices require editorial verification."
+  }),
+  item(28,"A woman must have money and a room of her own if she is to write fiction.","Virginia Woolf","A Room of One's Own, Chapter I","Modernist feminist literary criticism",{
+    provenance:"passage_location_checked",locator:"Chapter I, opening argument",language:"English",exactness:"shortened_excerpt",
+    refs:[reference("https://teachers.americanliterature.com/author/virginia-woolf/book/a-room-of-ones-own/chapter-1","primary_text","opening_qualification_and_material_conditions"),reference("https://anthologydev.lib.virginia.edu/work/Woolf/woolf-room-of-ones-own?section=frontMatter","academic_edition","publication_and_argument_context")],
+    context:"Woolf frames this as a limited opinion while acknowledging unresolved questions about women and fiction; she examines historical constraints on women's opportunities to write.",
+    position:"Material independence and private working space support creative opportunity in a historically unequal setting; they are not a guarantee of literary accomplishment.",
+    claim:"For women under the conditions Woolf discusses, material resources and independent space matter to the possibility of writing fiction.",
+    warrant:"Unequal access to money and space restricts the practical opportunity for sustained creative activity.",
+    form:["generic","affirmative","hypothetical","assertoric"],formNote:"The modal must expresses a proposed condition, not a statistical guarantee that resources alone produce fiction.",
+    concepts:["material_security","private_space","gendered_exclusion","creative_agency"],relation:"material conditions constrain practical creative opportunity",
+    scope:"Women and fiction under historical and institutional limitations, not any individual's writing ability.",
+    alternatives:["A material enabling-condition argument","A broader critique of exclusion from education and opportunity"],
+    challenge:"If material resources increase, what further obstacles or possibilities remain?",
+    limits:"Do not imply that lacking a room proves someone cannot write; do not detach the argument from gendered institutional history.",
+    operation:"trace_enabling_conditions",operationTask:"Explore how conditions alter feasible opportunities, without guaranteeing creative success.",operationTarget:"enabling_dependencies",
+    mechanic:"decision_map",scenario:"Change access to material resources and social permission, tracking plausible—not certain—opportunities.",
+    guard:{kind:"branch_dependency",ground:"Money, private space and social exclusion constrain writing opportunities.",requires:"Retain gendered history and distinguish opportunity from achievement."},
+    fitness:"Supported relation of enabling conditions to opportunity is compatible with branching alternatives.",
+    blocker:"Source-specific constraints and branches need editorial review before production."
+  }),
+  item(31,"The true is the whole.","G. W. F. Hegel","Phenomenology of Spirit, Preface (translation varies)","German idealism",{
+    context:"A compressed formulation in the Preface concerning truth as a developing totality rather than an isolated finished proposition.",
+    position:"Hegel's account of the whole involves its development; an isolated factual slogan cannot represent his dialectical argument.",
+    claim:"A claim to truth can require grasping its process and relations within a developing whole.",
+    warrant:"An abstract result detached from the movement that yields it risks losing its explanatory content.",
+    form:["generic","affirmative","categorical","unspecified"],formNote:"Do not treat 'whole' as a mere set aggregation or a universal quantifier over objects.",
+    concepts:["truth","whole","mediation","development"],relation:"the concrete whole includes development and mediation",
+    scope:"Hegel's speculative conception of truth in the Phenomenology Preface.",
+    alternatives:["Truth requires mediated development","A caution against isolated abstract propositions"],
+    challenge:"Can an isolated statement be understood without the process of its emergence?",
+    limits:"A finite budget slider or arbitrary decision tree would distort the role of mediation.",
+    operation:"reconstruct_mediation",operationTask:"Follow the conceptual movement through which a position acquires meaning.",operationTarget:"dialectical_development",
+    mechanic:"none",fitness:"Current trio lacks a reliable experience for speculative mediation.",
+    blocker:"Precise textual paragraph and interpretive debate remain to be reviewed."
+  }),
+  item(33,"To be, or not to be, that is the question.","William Shakespeare","Hamlet, Act III, Scene I","Early modern drama",{
+    context:"Hamlet's soliloquy is spoken by a dramatic character within a tragedy; its ambiguity and dramatic situation matter.",
+    stance:"character_speech",position:"A character confronts suffering, mortality and uncertainty; do not attribute the character's words to Shakespeare's settled philosophical doctrine.",
+    claim:"The speaker frames existence and nonexistence as a grave question.",
+    warrant:"The subsequent speech considers suffering, fear and uncertainty rather than proposing a general action rule.",
+    form:["singular","mixed","disjunctive","problematic"],formNote:"A dramatic existential question, not a recommended binary choice for app users.",
+    concepts:["existence","suffering","uncertainty","dramatic_voice"],relation:"the speaker reflects on an existential alternative under uncertainty",
+    scope:"Specific dramatic speech; not an author-endorsed normative proposition.",
+    alternatives:["Character's reflection on living with suffering","Dramatic display of uncertainty and possible action"],
+    challenge:"How does a character's speech change when understood within the play?",
+    limits:"Do not turn suicidal language into an interactive harm-choice game; do not conflate character with playwright.",
+    operation:"interpret_character_voice",operationTask:"Analyze who is speaking and how dramatic context changes meaning.",operationTarget:"speaker_vs_author",
+    mechanic:"none",fitness:"No safe or faithful fit among current three mechanisms.",
+    blocker:"Requires drama-sensitive editorial review; no action simulation."
+  }),
+  item(34,"Life can only be understood backwards; but it must be lived forwards.","Søren Kierkegaard","Journals, 1843 (translation varies)","Existential philosophy",{
+    context:"A commonly circulated maxim about retrospective intelligibility and forward decision under uncertainty; precise source and wording need checking.",
+    position:"An existential tension between interpreting a life retrospectively and committing to action prospectively.",
+    claim:"Understanding of a life often develops after events while decisions must occur before outcomes are known.",
+    warrant:"Retrospection has information that prospective action cannot have.",
+    form:["generic","affirmative","disjunctive","unspecified"],formNote:"The paradox is temporal, not an instruction to allocate equal time to past and future.",
+    concepts:["retrospection","action","uncertainty","time"],relation:"retrospective understanding and prospective action have asymmetric information",
+    scope:"Experiential understanding and choice under temporal limitations.",
+    alternatives:["A reflection on hindsight","A challenge to demands for certainty before acting"],
+    challenge:"When is waiting for understanding an abdication of action?",
+    limits:"No fixed branching consequence follows solely from this maxim.",
+    operation:"trace_temporal_asymmetry",operationTask:"Contrast hindsight with decision under incomplete information.",operationTarget:"time_and_knowledge",
+    mechanic:"decision_map",scenario:"Show branching possibilities without revealing future results in advance; permit later reflection on the path taken.",
+    guard:{kind:"branch_dependency",ground:"Hindsight and prospective action have asymmetric information.",requires:"Resolve attribution and passage wording before interpreting branch consequences."},
+    fitness:"A sequence may illuminate temporal asymmetry if the original wording is verified.",
+    blocker:"Citation/wording not yet source-verified; approval must remain conditional."
+  }),
+  item(42,"All men by nature desire to know.","Aristotle","Metaphysics I.1 (translation varies)","Ancient Greek philosophy",{
+    context:"The Metaphysics opens by connecting the desire for knowing with perception and delight in the senses, especially sight.",
+    position:"An opening anthropological claim about human orientation toward knowledge, not a questionnaire about each person's conscious preferences.",
+    claim:"Human beings are naturally disposed toward knowing.",
+    warrant:"The desire for sensory perception is adduced as an indication of our orientation toward knowledge.",
+    form:["universal","affirmative","categorical","assertoric"],formNote:"'By nature' indicates a characteristic disposition; do not assume every moment of every human life is an exceptionless desire to know.",
+    concepts:["human_nature","knowledge","desire","perception"],relation:"delight in perception is offered as an indication of desire for knowing",
+    scope:"Natural disposition, not a universal continuous conscious motivation.",
+    alternatives:["A claim about human beings as naturally knowledge-seeking","A claim illustrated by enjoyment of sense perception"],
+    challenge:"Does an individual who rejects inquiry refute a natural-disposition claim?",
+    limits:"Counterexamples need an explicit definition of 'by nature'; a single uninterested moment is not automatically decisive.",
+    operation:"test_scope",operationTask:"Explore whether a concrete case truly falsifies the qualified generalization.",operationTarget:"universal_vs_dispositional",
+    mechanic:"counterexample",scenario:"Test scope and antecedent: nature/disposition versus any particular observed act.",
+    guard:{kind:"generalization_scope",ground:"The opening all-claim asserts a natural human disposition toward knowledge.",requires:"Preserve the dispositional qualifier; reject trivially unrelated examples."},
+    fitness:"A claimed universal invites scope testing, provided the natural-disposition qualifier is preserved.",
+    blocker:"The scope of 'by nature' and the Greek text require review."
+  }),
+  item(49,"Life is long if you know how to use it.","Seneca","On the Shortness of Life (translation varies)","Roman Stoicism",{
+    provenance:"passage_location_checked",locator:"De Brevitate Vitae 2.1",language:"Latin",exactness:"translation_variant",translator:"Aubrey Stewart (external passage variant)",
+    refs:[reference("https://thestoiclibrary.com/shortness-of-life/2","translated_primary_text","passage_2_1_and_examples_of_busyness"),reference("https://en.mouseia.org/texts/seneca-brevitate-vitae/part-2","bilingual_source","latin_sentence_and_passage_context")],
+    context:"Seneca addresses Paulinus and criticizes the ways luxury, ambition, pointless business and restless pursuits consume life; the point is deliberate use, not an optimal allocation of eight daily hours.",
+    position:"A Stoic concern with living deliberately and not allowing empty occupations to squander a finite life.",
+    claim:"How life is lived matters more than merely the numerical length of life.",
+    warrant:"Many forms of restless busyness consume time without correspondingly making life well lived.",
+    form:["generic","affirmative","hypothetical","unspecified"],formNote:"The 'if' concerns knowing how to use life; it does not assert that splitting an arbitrary eight-hour block proves wisdom.",
+    concepts:["finite_life","attention","busyness","deliberate_use"],relation:"unexamined occupations may consume life without deliberate use",
+    scope:"The treatment of life and occupation in De Brevitate Vitae, not a medically endorsed schedule.",
+    alternatives:["A critique of wasting time through empty busyness","An invitation to examine who directs one's life"],
+    challenge:"Can effortful duties be deliberately meaningful rather than a waste of life?",
+    limits:"No numeric balance or extreme allocation determines meaningful living. An arbitrary 8-hour exercise is not the historical argument.",
+    operation:"examine_cost",operationTask:"Identify what activity crowds out under a genuinely stated constraint, then examine whether that cost serves a deliberate end.",operationTarget:"finite_attention_and_opportunity",
+    mechanic:"tradeoff",scenario:"A genuinely constrained choice between competing commitments with the constraint stated; no invented general ideal of an eight-hour day.",
+    guard:{kind:"source_grounded_constraint",ground:"Finite life and ways it is consumed provide a concern with deliberate use.",requires:"An explicit, plausible constraint and competing ends must be shown to exist in the scenario."},
+    rejectScenarios:["eight-hour-thought-exercise"],
+    fitness:"Scarcity of time and unexamined busyness can support a qualified trade-off when a real source-appropriate constraint exists.",
+    blocker:"Current CZ-105 'divide 8 hours freely' lab lacks a source-grounded constraint and cannot be approved as faithful Senecan interaction."
+  }),
+]);
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/context-atlas/grammar-v01.js */
+/**
+ * CZ-110: Four-layer philosophical grammar and cautious mechanic assessment.
+ * This module maps CURATED interpretations, not quote keywords, to tentative
+ * interactions. It cannot prove an author's intended meaning or find truth.
+ * No LLM, network, database, personal profiles, or runtime publication.
+ */
+
+const CONTEXT_ATLAS_SCHEMA_VERSION = 1;
+const mechanics = Object.freeze({
+  tradeoff: "source_grounded_constraint",
+  decision_map: "branch_dependency",
+  counterexample: "generalization_scope",
+});
+const nonEmpty = v => typeof v === "string" && v.trim().length > 0;
+const object = v => v !== null && typeof v === "object" && !Array.isArray(v);
+const quantities = ["universal","particular","singular","generic","unspecified"];
+const qualities = ["affirmative","negative","mixed","figurative","not_classifiable"];
+const relations = ["categorical","hypothetical","disjunctive","mixed","not_classifiable"];
+const modalities = ["problematic","assertoric","apodictic","figurative","unspecified","not_classifiable"];
+const requireText = (value, name, errors) => {if (!nonEmpty(value)) errors.push(name+" must be nonempty");};
+
+function validateContextRecord(r) {
+  const errors = [];
+  if (!object(r)) return ["record must be an object"];
+  if (!Number.isInteger(r.id)||r.id<0) errors.push("invalid quote id");
+  requireText(r.quote?.text,"quote text",errors);
+  requireText(r.quote?.author,"quote author",errors);
+  requireText(r.quote?.bundledSource,"quote work",errors);
+  if (!["catalogue_only","passage_location_checked","paraphrase_context_checked"].includes(r.quote?.provenanceStatus))
+    errors.push("invalid quote provenance status");
+  const p=r.sourcePassage;
+  requireText(p?.work,"source passage work",errors);
+  requireText(p?.contextualSummary,"passage context",errors);
+  if (!Array.isArray(p?.references)||!p.references.some(x=>x.kind==="internal_bundled_catalogue"&&x.url==="app.js"))
+    errors.push("must retain quote identity reference to bundled catalogue");
+  for (const ref of p?.references||[]) {
+    if (!nonEmpty(ref.url)||!nonEmpty(ref.supports)||!nonEmpty(ref.kind))
+      errors.push("incomplete provenance reference");
+    if (ref.url!=="app.js"&&!/^https:\/\//.test(ref.url))
+      errors.push("external references must use https");
+  }
+  if (p?.contextStatus==="passage_linked_editorial_summary" &&
+      !p.references.some(x=>x.url!=="app.js"))
+    errors.push("passage linked without an external reference");
+  requireText(r.authorPosition?.scopedSummary,"author position",errors);
+  requireText(r.authorPosition?.periodOrWork,"position period/work",errors);
+  if (!Array.isArray(r.authorPosition?.tradition)||!r.authorPosition.tradition.length||
+    r.authorPosition.tradition.some(s=>!nonEmpty(s)))
+    errors.push("tradition must be nonempty array");
+  const a=r.argumentModel, f=a?.logicalForm;
+  for (const key of ["claim","warrant","relation","scopeOrConditions","challenge","limits"]) requireText(a?.[key],"argument "+key,errors);
+  if (!Array.isArray(a?.concepts)||a.concepts.length<2||new Set(a.concepts).size!==a.concepts.length)
+    errors.push("concept list must contain at least two distinct nodes");
+  if (!Array.isArray(a?.alternativeReadings)||a.alternativeReadings.length<2||a.alternativeReadings.some(x=>!nonEmpty(x)))
+    errors.push("at least two plausible readings must be preserved");
+  for (const [name,allowed] of [["quantity",quantities],["quality",qualities],["relation",relations],["modality",modalities]])
+    if (!allowed.includes(f?.[name])) errors.push("unsupported logical form "+name);
+  if(f?.interpretationNotLogicalProof!==true||!nonEmpty(f?.note))errors.push("logical classification must declare tentative reading");
+  for (const key of ["name","task","target"]) requireText(r.philosophicalOperation?.[key],"operation "+key,errors);
+
+  const i=r.interactionModel;
+  if (!Object.keys(mechanics).concat("none").includes(i?.candidate))
+    errors.push("unsupported candidate mechanic");
+  if (i?.candidate==="none") {
+    if(i.eligibility!=="none_suitable"||i.mechanismProof!==null||i.scenario!==null) errors.push("none-suitable must have no fabricated mechanic");
+  } else {
+    if(i?.eligibility!=="conditional"||i.mechanismProof?.kind!==mechanics[i.candidate]||
+       !nonEmpty(i.mechanismProof?.ground)||!nonEmpty(i.mechanismProof?.requires)||
+       !nonEmpty(i.scenario))
+      errors.push("candidate lacks source-related operation proof");
+  }
+  requireText(i?.fitnessReason,"mechanic fitness",errors);
+  requireText(i?.blocker,"mechanic blocker",errors);
+  if (!Array.isArray(i?.contraindicatedScenarioIds)||
+      i.contraindicatedScenarioIds.some(x=>!nonEmpty(x)))
+    errors.push("invalid contraindicated scenario IDs");
+  if (i?.approval!=="not_approved") errors.push("pilot cannot claim mechanic approval");
+  if (r.review?.status!=="draft"||r.review?.scholarlyReviewed!==false||r.review?.publisherApproved!==false)
+    errors.push("pilot may not be marked verified/published");
+  return errors;
+}
+
+function evaluatePhilosophicalGrammar(r) {
+  const errors=validateContextRecord(r);
+  if(errors.length) throw new TypeError(errors.join("; "));
+  const candidate=r.interactionModel.candidate;
+  const hasExternalPassage = r.sourcePassage.references.some(x=>x.url!=="app.js");
+  const eligibility = candidate==="none" ? "abstain_no_suitable_mechanic" :
+    !hasExternalPassage ? "candidate_source_review_required" :
+    "candidate_editorial_review_required";
+  return {
+    quoteId:r.id,
+    version:CONTEXT_ATLAS_SCHEMA_VERSION,
+    epistemicStatus:"editorial_hypothesis",
+    sourceContext:{
+      work:r.sourcePassage.work,
+      passage:r.sourcePassage.locator,
+      evidenceType:r.sourcePassage.contextStatus,
+      interpretationStatus:r.review.status,
+      authorPositionScope:r.authorPosition.periodOrWork,
+    },
+    logicalForm:{...r.argumentModel.logicalForm},
+    conceptualStructure:{
+      claim:r.argumentModel.claim,
+      warrant:r.argumentModel.warrant,
+      concepts:r.argumentModel.concepts,
+      relation:r.argumentModel.relation,
+      scope:r.argumentModel.scopeOrConditions,
+      alternatives:r.argumentModel.alternativeReadings,
+      challenge:r.argumentModel.challenge,
+      boundaries:r.argumentModel.limits,
+    },
+    philosophicalOperation:{...r.philosophicalOperation},
+    interactiveRealization:{
+      candidate,eligibility,
+      epistemicStatus:"unapproved_suggestion",
+      proof:r.interactionModel.mechanismProof,
+      proposedScenario:r.interactionModel.scenario,
+      risks:r.interactionModel.blocker,
+      scenarioExclusions:r.interactionModel.contraindicatedScenarioIds,
+      allowedForProduction:false,
+    },
+    trace:[
+      {layer:"quote",reason:"Identity tracked to bundled quotation "+r.id},
+      {layer:"source_context",reason:r.sourcePassage.contextStatus},
+      {layer:"form",reason:r.argumentModel.logicalForm.note},
+      {layer:"conceptual_structure",reason:r.argumentModel.warrant},
+      {layer:"operation",reason:r.philosophicalOperation.task},
+      {layer:"realization",reason:r.interactionModel.fitnessReason},
+    ],
+  };
+}
+
+/**
+ * Bridge audit against the existing REAL CZ-105 Trade-Off reasoner.
+ * The test can reject an existing scenario despite a potential fit between
+ * its philosopher and the abstract Trade-Off operation.
+ */
+function auditLegacyReasoningResult(r, result, scenarioId) {
+  const grammar=evaluatePhilosophicalGrammar(r);
+  if (result?.model?.quoteId!==r.id) throw new TypeError("Quote identity mismatch between atlas and reasoner");
+  if (result?.mechanism!=="tradeoff") throw new TypeError("Unsupported mechanism for existing CZ-105 audit");
+  const reasons=[];
+  if(grammar.interactiveRealization.candidate!=="tradeoff") reasons.push("Quote has not been fitted to Trade-Off");
+  if(grammar.interactiveRealization.scenarioExclusions.includes(scenarioId))
+    reasons.push("Scenario is a teaching invention that does not test the source's central relationship");
+  if(result.model.productionEligible!==true)
+    reasons.push("Existing philosophical model is not source-approved for production");
+  if(r.review.publisherApproved!==true)
+    reasons.push("Context Atlas record has not received editorial approval");
+  return {
+    quoteId:r.id,
+    outcome: reasons.length?"blocked_for_public_expression":"eligible_for_later_expression_review",
+    observedDecision:result.what_happened.summary,
+    necessaryFindings:result.what_follows.necessary.map(f=>f.statement),
+    conditionalFindings:result.what_follows.possible.map(f=>f.statement),
+    candidateDiscovery:grammar.conceptualStructure.claim,
+    candidateJustification:grammar.conceptualStructure.warrant,
+    uncertainty:result.what_remains_uncertain.map(u=>u.question),
+    proposedTension:result.what_follows.tensions.map(t=>t.statement),
+    trace:{atlas:grammar.trace,engine:result.why_this.rule_trace},
+    blockers:reasons,
+    readyForExpression:reasons.length===0,
+    philosophicalTruthClaim:false,
+  };
+}
+
+function summarizeAtlasPilot(records=ATLAS_PILOT_V01){
+ const results=records.map(evaluatePhilosophicalGrammar);
+ const candidateCounts=Object.fromEntries(["tradeoff","decision_map","counterexample","none"].map(
+   m=>[m,results.filter(r=>r.interactiveRealization.candidate===m).length]));
+ return {
+   count:results.length,
+   candidates:candidateCounts,
+   readyForProduction:results.filter(r=>r.interactiveRealization.allowedForProduction).length,
+   sourceLinked:results.filter(r=>r.sourceContext.evidenceType==="passage_linked_editorial_summary").length,
+   notSuitable:results.filter(r=>r.interactiveRealization.eligibility==="abstain_no_suitable_mechanic").map(r=>r.quoteId),
+   concerns:results.filter(r=>r.interactiveRealization.scenarioExclusions.length).map(r=>({id:r.quoteId,excluded:r.interactiveRealization.scenarioExclusions})),
+ };
+}
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/insight-packet-v01.js */
+/**
+ * CZ-111 Insight Packet v0.1: shared contract between source-grounded
+ * philosophical reasoning and surface expression. It is not a truth verdict.
+ */
+const INSIGHT_PACKET_VERSION = 1;
+const MAX_COPY = Object.freeze({headline:100,observation:190,discovery:230,connection:220,question:190});
+
+function assertText(value, label, limit=2500) {
+  if (typeof value !== "string" || !value.trim() || value.length > limit)
+    throw new TypeError(label + " must be nonempty and <= " + limit + " characters");
+}
+function validateInsightPacket(packet) {
+  const errors=[];
+  try {
+    if (packet?.schemaVersion !== INSIGHT_PACKET_VERSION) throw Error("schema version mismatch");
+    if (![49,28].includes(packet.quote?.id)) throw Error("unknown pilot quote ID");
+    if (!["tradeoff","decision_map"].includes(packet.mechanism)) throw Error("unknown mechanism");
+    assertText(packet.scenarioId,"scenarioId");
+    assertText(packet.quote?.text,"source quotation");
+    assertText(packet.quote?.author,"author");
+    assertText(packet.quote?.source,"work");
+    assertText(packet.observation?.text,"observation",MAX_COPY.observation);
+    assertText(packet.insight?.headline,"headline",MAX_COPY.headline);
+    assertText(packet.insight?.discovery,"discovery",MAX_COPY.discovery);
+    assertText(packet.insight?.connection,"connection",MAX_COPY.connection);
+    assertText(packet.insight?.question,"question",MAX_COPY.question);
+    assertText(packet.insight?.limit,"epistemic limit");
+    assertText(packet.insight?.ruleId,"inference rule ID");
+    assertText(packet.insight?.conceptualRelation,"source-grounded relation");
+    if (!Array.isArray(packet.trace?.rules)||packet.trace.rules.length===0 ||
+       packet.trace.rules.some(s=>typeof s!=="string"||!s.trim())) throw Error("missing fired rule trace");
+    if (!Array.isArray(packet.trace?.sourceReferences)||!packet.trace.sourceReferences.length)
+      throw Error("missing source trace");
+    if (packet.flags?.truthVerdict!==false||packet.flags?.productionEligible!==false ||
+       packet.flags?.editorialStatus!=="draft") throw Error("pilot must be clearly non-authoritative");
+    if (packet.visual?.type==="segments") {
+      const values=packet.visual.values;
+      if(!Array.isArray(values)||values.length!==3||values.some(n=>!Number.isFinite(n)||n<0)||
+         values.reduce((a,b)=>a+b,0)!==3)throw Error("invalid three-hour segment visual");
+    } else if (packet.visual?.type==="path") {
+      if(!Array.isArray(packet.visual.nodes)||packet.visual.nodes.length!==3)
+        throw Error("invalid three-node path");
+    } else throw Error("unsupported visual");
+  } catch (e) {errors.push(e.message);}
+  return errors;
+}
+function createInsightPacket(fields) {
+  const packet={
+    schemaVersion: INSIGHT_PACKET_VERSION,
+    ...fields,
+    flags:{truthVerdict:false,productionEligible:false,editorialStatus:"draft"}
+  };
+  const errors=validateInsightPacket(packet);
+  if(errors.length)throw new TypeError(errors.join("; "));
+  return packet;
+}
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/experience-reasoners-v01.js */
+/**
+ * CZ-111: pilot-specific but shared-contract philosophical reasoners.
+ * Independent of presentation and usable for meaningful input variation tests.
+ * They consume the actual CZ-110 Context Atlas. The old CZ-105 8h reasoner is
+ * deliberately not silently reused for a different, 3h exercise.
+ */
+
+
+
+const categories=["Optional work","A friend","Quiet reflection"];
+const resource={income:"financial security",space:"private working space",access:"access to education and publishers"};
+const barrier={income:"financial insecurity",space:"interruptions and fragile privacy",access:"institutional exclusion"};
+const response={write:"start writing despite constraints",protect:"try to protect ongoing time",challenge:"challenge a structural barrier"};
+const isValidChoice=(v,o)=>Object.hasOwn(o,v);
+const h=n=>(Number.isInteger(n)?String(n):String(n))+"h";
+const getContext=(id,mechanism)=>{
+  const record=ATLAS_PILOT_V01.find(r=>r.id===id);
+  if(!record)throw new RangeError("Missing philosophical context "+id);
+  const grammar=evaluatePhilosophicalGrammar(record);
+  if(grammar.interactiveRealization.candidate!==mechanism ||
+     grammar.interactiveRealization.allowedForProduction!==false)
+    throw Error("Mechanic is not a permitted provisional research candidate");
+  return {record,grammar};
+};
+const provenance=(r)=>r.sourcePassage.references.map(x=>({
+  kind:x.kind,uri:x.url,supports:x.supports
+}));
+
+function reallocateEvening(ticks, selectedIndex, desiredTicks){
+ if(!Array.isArray(ticks)||ticks.length!==3||ticks.some(n=>!Number.isInteger(n)||n<0||n>6)||
+    ticks.reduce((a,b)=>a+b,0)!==6)throw new TypeError("Expected three-hour allocation in half-hour ticks");
+ if(!Number.isInteger(selectedIndex)||selectedIndex<0||selectedIndex>2||
+    !Number.isInteger(desiredTicks)||desiredTicks<0||desiredTicks>6)
+    throw new RangeError("Invalid slider");
+ if(ticks[selectedIndex]===desiredTicks)return [...ticks];
+ const other=[0,1,2].filter(i=>i!==selectedIndex),remaining=6-desiredTicks;
+ const previous=ticks[other[0]]+ticks[other[1]];
+ const first=previous===0?Math.round(remaining/2):Math.round(remaining*ticks[other[0]]/previous);
+ const next=[0,0,0];
+ next[selectedIndex]=desiredTicks;next[other[0]]=first;next[other[1]]=remaining-first;
+ if(next.reduce((a,b)=>a+b,0)!==6)throw Error("Zero-sum invariant broken");
+ return next;
+}
+
+function reasonSeneca(input){
+ const {record,grammar}=getContext(49,"tradeoff");
+ const ticks=input?.ticks,motivation=input?.motivation;
+ if(!Array.isArray(ticks)||ticks.length!==3||ticks.some(n=>!Number.isInteger(n)||n<0||n>6)||
+    ticks.reduce((a,b)=>a+b,0)!==6)throw new TypeError("Three-hour fixed budget expected");
+ if(!["chosen","expected","necessary"].includes(motivation))throw new TypeError("Select a valid motivation");
+ const values=ticks.map(t=>t/2),max=Math.max(...values);
+ const leaders=values.map((v,i)=>v===max?i:-1).filter(i=>i!==-1);
+ const focus=leaders[0];
+ const omissions=values.map((v,i)=>v===0?i:-1).filter(i=>i!==-1);
+ const observed=categories.map((label,i)=>label+" "+h(values[i])).join(" · ");
+ const dominant=leaders.length===1?categories[focus].toLowerCase():"more than one purpose";
+ const other=values.map((v,i)=>({i,v})).filter(v=>v.i!==focus).sort((a,b)=>b.v-a.v)[0];
+ const outcomeCode=max===3?"single_priority":leaders.length>1?"shared_priorities":"uneven_priorities";
+ const pattern=outcomeCode==="single_priority"?"The whole evening went to "+categories[focus].toLowerCase()+".":
+   outcomeCode==="shared_priorities"?"Your evening keeps several priorities in play.":
+   "Most time went to "+dominant+"; "+categories[other.i].toLowerCase()+" received "+h(other.v)+".";
+ const motive={
+  chosen:"A freely chosen commitment can be deliberate even when it excludes something else.",
+  expected:"An outside expectation can shape how you use free time, without proving the choice was wrong.",
+  necessary:"A responsibility may be worthwhile even when it reduces the choices available tonight."
+ }[motivation];
+ const omitted=omissions.length?
+   " No time remains tonight for "+omissions.map(i=>categories[i].toLowerCase()).join(" or ")+".":"";
+ const observation=observed; // factual and exact
+ const discovery=(pattern+" "+motive).slice(0,230);
+ const connection=motivation==="expected"?
+   "Seneca questions time consumed by unexamined demands. The issue is who directs the hour—not whether work is automatically wasted.":
+   motivation==="necessary"?
+   "Seneca's concern with deliberate living does not mean every duty is disposable. The question is what can genuinely be chosen.":
+   "For Seneca, how time is used matters. A deliberate sacrifice can express a value; the numbers alone cannot decide if it was worthwhile.";
+ const question=motivation==="expected"?"Which part of tonight's commitment would you still choose without anyone expecting it?":
+   motivation==="necessary"?"Which part of the obligation is unavoidable, and which part might still be yours to decide?":
+   max===3?"What made this one purpose worth excluding the others tonight?":
+   "What would you change if one of these commitments mattered more tomorrow?";
+ const headline=motivation==="expected"?"Your free time isn't always free from expectations.":
+   motivation==="necessary"?"Not every obligation is a surrender.":
+   outcomeCode==="single_priority"?"You chose one priority—and its cost.":
+   outcomeCode==="shared_priorities"?"More than one priority can deserve your time.":"A choice reveals what else must wait.";
+ return createInsightPacket({
+  quote:{id:49,text:record.quote.text,author:record.quote.author,source:record.sourcePassage.work},
+  mechanism:"tradeoff",scenarioId:"three-hour-discretionary-evening",
+  observation:{text:observation,allocation:values,motivation},
+  insight:{
+    headline,discovery,connection,question,
+    ruleId:"tradeoff:"+outcomeCode+":"+motivation,
+    conceptualRelation:grammar.conceptualStructure.relation,
+    limit:"This single hypothetical evening says nothing conclusive about your character, whether work is meaningful, or your use of a whole life.",
+    tension:omitted||"Every allocation leaves less time available for at least one other purpose."
+  },
+  visual:{type:"segments",labels:categories,values},
+  trace:{
+    rules:["bounded-budget:180-minutes", "half-hour-zero-sum", "pattern:"+outcomeCode,
+       "motivation:"+motivation,"source-relation:deliberate-time"],
+    sourceReferences:provenance(record),
+    philosophicalClaim:grammar.conceptualStructure.claim,
+    epistemicStatus:"contextual_interpretation_not_truth"
+  }
+ });
+}
+
+function reasonWoolf(input){
+ const {record,grammar}=getContext(28,"decision_map");
+ const s={resource:input?.resource,barrier:input?.barrier,action:input?.action};
+ if(!isValidChoice(s.resource,resource)||!isValidChoice(s.barrier,barrier)||!isValidChoice(s.action,response))
+   throw new TypeError("Invalid Woolf path");
+ const same=s.resource===s.barrier;
+ const improvement=resource[s.resource],limitation=barrier[s.barrier];
+ const action=response[s.action];
+ const structure=same?"incomplete_improvement":"distinct_barrier";
+ const result=same?
+   "Improving "+improvement+" still leaves it fragile. One improvement is not necessarily enough to sustain creative work.":
+   "Improving "+improvement+" still leaves "+limitation+". A single resource cannot remove every barrier.";
+ const actionContext=s.action==="write"?
+   " Beginning to write preserves agency without making the circumstances fair.":
+   s.action==="protect"?
+   " Protecting the change acknowledges that opportunity must endure.":
+   " Seeking structural change turns attention toward who controls opportunity.";
+ const discovery=(result+actionContext).slice(0,230);
+ const connection="Woolf's argument concerns enabling conditions for women writers. Money, privacy and institutional access can create opportunity—not guarantee achievement.";
+ const question=same?
+   "What would turn this temporary improvement into a reliable condition?":
+   s.action==="challenge"?
+   "When is a personal obstacle actually an institutional one?":
+   "What would remain difficult even after this one barrier disappeared?";
+ const headline=same?"An opened door can still be hard to enter.":
+   s.action==="challenge"?"Freedom also depends on who holds the keys.":
+   "One improved condition doesn't erase the others.";
+ const nodes=[
+  {label:"Improved",value:improvement,kind:"gain"},
+  {label:"Still constrained",value:limitation,kind:"barrier"},
+  {label:"Next move",value:action,kind:"action"}
+ ];
+ return createInsightPacket({
+   quote:{id:28,text:record.quote.text,author:record.quote.author,source:record.sourcePassage.work},
+   mechanism:"decision_map",scenarioId:"women-writing-material-conditions",
+   observation:{text:"Improved: "+improvement+" · Still limited by: "+limitation+" · Response: "+action,
+     resource:s.resource,barrier:s.barrier,action:s.action},
+   insight:{
+     headline,discovery,connection,question,ruleId:"dependency:"+structure+":"+s.action,
+     conceptualRelation:grammar.conceptualStructure.relation,
+     limit:"A fictional branch cannot prove a writer's ability or predict publication. Historical gender and institutional barriers are not reducible to personal preference.",
+     tension:"An enabling resource can be present even while other constraints remain."
+   },
+   visual:{type:"path",nodes},
+   trace:{
+     rules:["enabling-condition:"+s.resource,"remaining-barrier:"+s.barrier,"response:"+s.action,
+       "non-determinism:no-achievement-prediction","source-relation:material-conditions"],
+     sourceReferences:provenance(record),
+     philosophicalClaim:grammar.conceptualStructure.claim,
+     epistemicStatus:"contextual_interpretation_not_truth"
+   }
+ });
+}
+function runEncounter(kind,input) {
+ if(kind==="seneca")return reasonSeneca(input);
+ if(kind==="woolf")return reasonWoolf(input);
+ throw new RangeError("Only founder-approved interaction patterns are available in this pilot");
+}
+
+
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/expression-engine-v01.js */
+/**
+ * CZ-111 Expression Engine v0.1.
+ * Converts a validated Insight Packet into a predictable SHORT presentation.
+ * It may arrange or omit detail but never infer new philosophical claims.
+ * Does not use LLMs, external APIs, scoring, profiling, or persistence.
+ */
+
+const EXPRESSION_VERSION=1;
+
+function expressInsight(packet,{tone="reflective"}={}){
+ const errors=validateInsightPacket(packet);
+ if(errors.length)throw new TypeError("Invalid Insight Packet: "+errors.join("; "));
+ if(tone!=="reflective")throw new RangeError("Only source-faithful reflective expression is supported in v0.1");
+ return {
+   version:EXPRESSION_VERSION,
+   quoteId:packet.quote.id,
+   mechanism:packet.mechanism,
+   eyebrow:"YOUR DISCOVERY",
+   title:packet.insight.headline,
+   summary:packet.insight.discovery,
+   observation:packet.observation.text,
+   sourceLine:packet.insight.connection,
+   question:packet.insight.question,
+   visual:packet.visual,
+   // For editor tools, never for the regular three-line Encounter surface:
+   debug:{
+     ruleId:packet.insight.ruleId,
+     philosophicalLimit:packet.insight.limit,
+     sourceReferences:packet.trace.sourceReferences,
+     conceptualRelation:packet.insight.conceptualRelation,
+     trace:packet.trace.rules,
+     disclaimer:"Draft philosophical interpretation, not a truth verdict."
+   }
+ };
+}
+
+/* ORIGINAL LAB UI */
+
+
+
+
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const contexts={seneca:ATLAS_PILOT_V01.find(r=>r.id===49),woolf:ATLAS_PILOT_V01.find(r=>r.id===28)};
+const state={route:"seneca",revealed:false,seneca:{ticks:[2,2,2],motivation:"chosen"},woolf:{resource:"income",barrier:"space",action:"write"}};
+const color=["var(--gold)","var(--sage)","var(--rose)"];
+const category=["Optional work","A friend","Quiet reflection"];
+const hourText=n=>String(n)+"h";
+const field=(key,items)=>{
+  const current=state[state.route][key];
+  return '<div class="choices">'+items.map(([value,title,description,symbol])=>
+    '<button type="button" class="choice'+(current===value?' active':'')+
+    '" data-set="'+esc(key)+'" data-value="'+esc(value)+'" aria-pressed="'+(current===value)+
+    '"><span class="symbol">'+esc(symbol)+'</span><span><strong>'+esc(title)+
+    '</strong><em>'+esc(description)+'</em></span></button>'
+  ).join("")+'</div>';
+};
+function renderQuote(){
+  const c=contexts[state.route];
+  const q=c.quote;
+  $("quote").innerHTML='<div class="eyebrow">SOURCE-BASED QUESTION · '+esc(q.author)+'</div>'+
+    '<div class="quotation">“'+esc(q.text)+'”</div><div class="attribution">'+esc(c.sourcePassage.work)+'</div>'+
+    '<details class="source"><summary>Why the original context matters</summary>'+
+    '<p>'+esc(c.sourcePassage.contextualSummary)+'</p>'+
+    '<p><b>Our proposed reading:</b> '+esc(c.argumentModel.claim)+'</p>'+
+    '<p><b>Another plausible reading:</b> '+esc(c.argumentModel.alternativeReadings[1])+'</p>'+
+    '<p><b>Source status:</b> Draft, not scholarly approved.</p></details>';
+}
+function renderSeneca(){
+ const t=state.seneca.ticks;
+ return '<div class="eyebrow">01 / TRADE-OFF</div>'+
+  '<h2>Who gets your evening?</h2>'+
+  '<p class="story">After your essential commitments, you have <b>three genuinely free hours tonight</b>. An optional work request arrives, a friend asks to see you, and you hoped for some quiet reflection. You can’t do all three at once.</p>'+
+  '<p class="question">How would you spend these hours?</p>'+
+  category.map((name,i)=>'<div class="field"><div class="fieldbar"><label for="range-'+i+'">'+esc(name)+'</label><span class="number" id="time-'+i+'">'+hourText(t[i]/2)+'</span></div>'+
+    '<input type="range" id="range-'+i+'" min="0" max="6" step="1" value="'+t[i]+'" data-range="'+i+'" aria-label="'+esc(name)+' hours" aria-valuetext="'+hourText(t[i]/2)+' out of 3 hours"></div>').join("")+
+  '<div class="stack" aria-label="Three-hour distribution">'+t.map((value,i)=>'<span style="width:'+(value/6*100)+'%;background:'+color[i]+'"></span>').join("")+'</div>'+
+  '<div class="legend">'+category.map((x,i)=>'<span><i class="swatch" style="background:'+color[i]+'"></i>'+esc(x)+'</span>').join("")+'</div>'+
+  '<p class="question">What most influenced that choice?</p>'+
+  field("motivation",[
+    ["chosen","I genuinely wanted this","A priority I recognize as my own","✦"],
+    ["expected","Someone expected it","An external expectation shaped my evening","↗"],
+    ["necessary","I considered it necessary","There was little room to refuse","◈"]
+  ]);
+}
+function renderWoolf(){
+ return '<div class="eyebrow">02 / DECISION MAP</div>'+
+ '<h2>What makes freedom possible?</h2>'+
+ '<p class="story">A woman wants to write fiction in a historically restrictive setting. Her talent is not the question: <b>the conditions of her opportunity are.</b> Change one condition, then see what still stands in her way.</p>'+
+ '<p class="question">First, what improves?</p>'+field("resource",[
+   ["income","Independent income","Less financial insecurity","£"],
+   ["space","A room of her own","Some protected working space","⌂"],
+   ["access","Institutional access","More access to education and publishers","◇"]
+ ])+
+ '<p class="question">But what remains difficult?</p>'+field("barrier",[
+   ["income","Financial insecurity","The improvement is fragile or insufficient","£"],
+   ["space","Interruptions and shared space","Privacy is still not reliable","⌂"],
+   ["access","Institutional exclusion","Access remains controlled by gatekeepers","◇"]
+ ])+
+ '<p class="question">What should she attempt next?</p>'+field("action",[
+   ["write","Begin writing now","Work with the opportunity available","✎"],
+   ["protect","Protect working time","Make the improvement sustainable","◷"],
+   ["challenge","Challenge the barrier","Address the conditions beyond one person","↗"]
+ ]);
+}
+function renderControls(){
+ $("interactive").innerHTML=(state.route==="seneca"?renderSeneca():renderWoolf())+
+ '<button type="button" class="primary" id="reveal">Reveal what this choice means</button>';
+ for (const choice of $("interactive").querySelectorAll("[data-set]")){
+   choice.addEventListener("click",()=>{
+     state[state.route][choice.dataset.set]=choice.dataset.value;
+     state.revealed=false;renderControls();renderProgress();renderResult();
+   });
+ }
+ for(const range of $("interactive").querySelectorAll("[data-range]")){
+   range.addEventListener("input",()=>{
+     const i=Number(range.dataset.range);
+     state.seneca.ticks=reallocateEvening(state.seneca.ticks,i,Number(range.value));
+     state.revealed=false;
+     // Keep the dragged input mounted to preserve continuous touch gestures.
+     state.seneca.ticks.forEach((value,j)=>{
+       const el=$("range-"+j);el.value=String(value);
+       el.setAttribute("aria-valuetext",hourText(value/2)+" out of 3 hours");
+       $("time-"+j).textContent=hourText(value/2);
+     });
+     $("interactive").querySelectorAll(".stack>span").forEach((bar,j)=>bar.style.width=(state.seneca.ticks[j]/6*100)+"%");
+     renderProgress();renderResult();
+   });
+ }
+ $("reveal").addEventListener("click",()=>{
+   try{
+     const input=structuredClone(state[state.route]);
+     const packet=runEncounter(state.route,input);
+     const expression=expressInsight(packet);
+     state.revealed={packet,expression};
+     renderProgress();renderResult();
+     $("result").scrollIntoView({block:"start",behavior:"auto"});
+   }catch(error){
+     $("lab-error").textContent="This combination could not be analyzed: "+error.message;
+     $("lab-error").hidden=false;
+   }
+ });
+}
+function renderProgress(){
+ $("progress").innerHTML=["Situation","Your action","Discovery"].map((x,i)=>
+  '<div class="step'+(i===2&&!state.revealed?"":" active")+'">'+(i+1)+' · '+x+'</div>'
+ ).join("");
+}
+function visualHtml(v){
+ if(v.type==="segments"){
+  const total=v.values.reduce((a,b)=>a+b,0);
+  return '<div class="stack" style="height:17px" aria-label="Distribution of three hours">'+
+   v.values.map((n,i)=>'<span style="width:'+(n/total*100)+'%;background:'+color[i]+'"></span>').join("")+'</div>'+
+   '<div class="legend">'+v.labels.map((lab,i)=>'<span><i class="swatch" style="background:'+color[i]+'"></i>'+esc(lab)+' '+hourText(v.values[i])+'</span>').join("")+'</div>';
+ }
+ if(v.type==="path")return '<div class="graph" aria-label="Conditions, remaining obstacle, and chosen response">'+
+   v.nodes.map((n,i)=>'<div class="node '+(i===0?"on":i===1?"issue":"")+'">'+
+     esc(n.label)+'<strong>'+esc(n.value)+'</strong></div>').join("")+'</div>';
+ throw Error("Unsupported visual");
+}
+function renderResult(){
+ const result=$("result");
+ if(!state.revealed){result.hidden=true;result.innerHTML="";return;}
+ const {packet,expression}=state.revealed;
+ result.hidden=false;
+ result.innerHTML='<div class="eyebrow">'+esc(expression.eyebrow)+'</div>'+
+  '<h2 class="headline">'+esc(expression.title)+'</h2>'+
+  visualHtml(expression.visual)+
+  '<p class="lead">'+esc(expression.summary)+'</p>'+
+  '<div class="rule"></div>'+
+  '<div class="eyebrow">THE PHILOSOPHICAL CONNECTION</div>'+
+  '<p class="explain">'+esc(expression.sourceLine)+'</p>'+
+  '<div class="open-question">'+esc(expression.question)+'</div>'+
+  '<details class="inspect"><summary>Founder QA · Inspect the full reasoning</summary>'+
+  '<p class="small"><b>Observed:</b> '+esc(packet.observation.text)+'</p>'+
+  '<p class="small"><b>Not established:</b> '+esc(packet.insight.limit)+'</p>'+
+  '<p class="small"><b>Source-grounded relation:</b> '+esc(packet.insight.conceptualRelation)+'</p>'+
+  '<pre>'+esc(JSON.stringify({packet,expression},null,2))+'</pre></details>'+
+  '<button class="secondary" type="button" id="again">Try another path</button>';
+ $("again").addEventListener("click",()=>{
+    state.revealed=false;renderProgress();renderResult();
+    $("interactive").scrollIntoView({block:"start",behavior:"auto"});
+ });
+ window.__encounterDebug={packet,expression};
+}
+function setRoute(route){
+ if(!Object.hasOwn(contexts,route))return;
+ state.route=route;state.revealed=false;
+ $("lab-error").hidden=true;
+ render();window.scrollTo({top:0,behavior:"auto"});
+}
+function render(){
+ for(const tab of document.querySelectorAll(".tab"))
+   tab.setAttribute("aria-selected",String(tab.dataset.route===state.route));
+ renderQuote();renderProgress();renderControls();renderResult();
+}
+document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>setRoute(tab.dataset.route)));
+render();
+
+
+</script>
+</body></html>
