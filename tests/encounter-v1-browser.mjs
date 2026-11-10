@@ -97,6 +97,8 @@ try {
   await verifyEnding("Søren Kierkegaard");
 
   await page.goto(url.split("#")[0]+"#qa-reflection");
+  await page.reload(); // Fragment navigation alone preserves the prior in-memory Encounter state.
+  assert.equal(await page.locator("main").getAttribute("data-screen"),"entry");
   await page.locator('[data-discover="dillard"]').click();
   await page.locator("[data-enter]").click();
   await page.locator('[data-motive][data-value="planned"]').click();
