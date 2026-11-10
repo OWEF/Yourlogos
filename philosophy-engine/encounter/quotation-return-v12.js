@@ -1,6 +1,36 @@
 // Curated interpretations keyed to the distinctions validated by the existing
 // mechanism. A quote family admits only its own reviewed distinctions.
 const dillardReturn = {
+  "planned-replies-majority": [
+    "A plan can name a priority without securing its place.",
+    "You wanted to protect time, yet replies received most of this particular evening. We cannot tell which minutes, if any, were reserved for the story.",
+    "Dillard asks us to look beyond one intended priority to the arrangement that repeated days actually sustain. Answering people is not automatically less valuable than writing. But if this schedule recurred, its larger share of replies would also become part of the life it makes.",
+    "If another request arrived, which part of this plan would you keep?"
+  ],
+  "obligations-visible-replies": [
+    "Your reasons and your hours tell different parts of the story.",
+    "You said other things needed doing, and your evening gave more time to messages than to writing. The allocation cannot tell us which messages were necessary.",
+    "Dillard brings the everyday pattern into view. If this arrangement repeated, answering others would receive a regular share of your life. That is not automatically a mistake: the quotation asks us to notice what the repeated days contain, not to rank every activity.",
+    "Which recurring demand would you deliberately choose to make room for?"
+  ],
+  "obligations-visible-rest": [
+    "Rest can be part of the pattern, not merely a break from it.",
+    "Although other things needed doing, you gave rest more time than writing or messages. This says something about tonight's allocation, not why you needed the pause.",
+    "Dillard asks us to imagine such evenings becoming ordinary days. Rest would then be one of the activities the resulting life has made room for, alongside the things still waiting to be done. A repeated day contains more than the work we finish.",
+    "Which part of this evening would you choose to carry into tomorrow?"
+  ],
+  "obligations-visible-writing": [
+    "A story can have a place even among obligations.",
+    "You said other things needed doing, yet writing received at least as much time as either alternative. Nothing in the hours tells us whether you reserved that space first.",
+    "For Dillard, one writing session is not the same as a writing life. But if days like this recurred, writing would take on a regular place among the other claims on your time. The pattern, rather than one impressive evening, is what her quotation invites you to see.",
+    "What would help a similar writing session happen again?"
+  ],
+  "interrupted-without-replies": [
+    "An interruption need not decide where the hours go.",
+    "You reported other demands breaking into the evening, but gave no time to answering messages. A distraction arriving and your decision to reply are not the same thing.",
+    "Dillard's line is about the days that actually accumulate. If many evenings looked like this, both the demands and the ways you chose to respond would matter. The quotation doesn't reveal why you were interrupted; it directs attention to the ordinary pattern those responses create.",
+    "What would you choose to repeat if the phone buzzed tomorrow?"
+  ],
   "protected-or-remainder": [
     "Finding time leaves open whether that time was protected.",
     "You reserved some time for the story or found it after replying. Either fits the evening you described: messages took most of it, and other demands changed your plan.",
