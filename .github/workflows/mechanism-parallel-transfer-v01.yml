@@ -1,0 +1,65 @@
+name: CZ-116 Parallel Mechanism Transfer Lab
+on:
+  pull_request:
+    paths:
+      - "philosophy-engine/encounter/mechanism-transfer-*.js"
+      - "experiments/mechanism-parallel-transfer-lab-v01*"
+      - "scripts/build-parallel-transfer-lab-v01.mjs"
+      - "tests/mechanism-parallel-transfer-*.mjs"
+      - ".github/workflows/mechanism-parallel-transfer-v01.yml"
+  workflow_dispatch:
+jobs:
+  source-and-rule-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Syntax and exact source parity
+        run: |
+          node --check philosophy-engine/encounter/mechanism-transfer-cases-v01.js
+          node --check philosophy-engine/encounter/mechanism-transfer-engine-v01.js
+          node --check scripts/build-parallel-transfer-lab-v01.mjs
+          node --check tests/mechanism-parallel-transfer-v01.test.mjs
+          node --check tests/mechanism-parallel-transfer-browser-v01.mjs
+          node --check tests/mechanism-parallel-transfer-preview-v01.mjs
+          node scripts/build-parallel-transfer-lab-v01.mjs --check
+      - name: Unchanged philosophical control tests
+        run: |
+          node --test tests/insight-expression-v01.test.mjs
+          node --test tests/personal-discovery-v03.test.mjs
+      - name: Parallel transfer, no-fit and conditional-source tests
+        run: node --test tests/mechanism-parallel-transfer-v01.test.mjs
+  browser-e2e:
+    needs: source-and-rule-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Install browser controls
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: Validate sliders, split-source reasoning, forks and no-fit guard
+        run: node tests/mechanism-parallel-transfer-browser-v01.mjs
+      - name: Validate external iPhone preview
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node tests/mechanism-parallel-transfer-preview-v01.mjs
+      - name: Attach offline HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz116-iphone-parallel-lab-html
+          path: experiments/mechanism-parallel-transfer-lab-v01-standalone.html
+          retention-days: 7
+      - name: Attach mobile comparison screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz116-parallel-lab-screenshots
+          path: test-results/cz116-transfer/*.png
+          if-no-files-found: ignore
+          retention-days: 5
