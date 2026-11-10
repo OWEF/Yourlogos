@@ -63,18 +63,18 @@ const priorInquiries = {
 function relatedVolunteeredReflection(id, value, inquiry){
   const words=typeof value==="string"?value.trim():"";
   if(words.length<22 || words.length>240) return false;
-  if(/^(?:my friend|a friend|someone|he|she|they|the article|the quote|the app|the philosopher|i read|imagine|suppose|for example)\\b/i.test(words)) return false;
-  if(/^i (?:do not|don't|never) (?:wonder|worry|ask|question)\\b/i.test(words)) return false;
-  if(!/^(?:i\\b|i'm\\b|i've\\b|it feels like i\\b|my\\b|we\\b|our\\b|how\\b|when\\b|what\\b|why\\b|can\\b|could\\b|should\\b|does\\b|is\\b)/i.test(words)) return false;
+  if(/^(?:my friend|a friend|someone|he|she|they|the article|the quote|the app|the philosopher|i read|imagine|suppose|for example)\b/i.test(words)) return false;
+  if(/^i (?:do not|don't|never) (?:wonder|worry|ask|question)\b/i.test(words)) return false;
+  if(!/^(?:i\b|i'm\b|i've\b|it feels like i\b|my\b|we\b|our\b|how\b|when\b|what\b|why\b|can\b|could\b|should\b|does\b|is\b)/i.test(words)) return false;
   if(inquiry.pattern.test(words) || inquiry.statement.test(words)) return true;
   if(id==="dillard"){
-    const aboutMeaningfulPractice=/\\b(?:writ(?:e|ing)|story|time for what matters|daily habits|routines?|priorit(?:y|ies)|things i care about)\\b/i.test(words);
-    const aboutRepeatedTime=/\\b(?:time|hours?|days?|week|schedule|routine|messages?|repl(?:y|ies)|postpon(?:e|ing)|interrupt(?:ion|ed|ions?)|distract(?:ion|ed|ions?)|demands?)\\b/i.test(words);
+    const aboutMeaningfulPractice=/\b(?:writ(?:e|ing)|story|time for what matters|daily habits|routines?|priorit(?:y|ies)|things i care about)\b/i.test(words);
+    const aboutRepeatedTime=/\b(?:time|hours?|days?|week|schedule|routine|messages?|repl(?:y|ies)|postpon(?:e|ing)|interrupt(?:ion|ed|ions?)|distract(?:ion|ed|ions?)|demands?)\b/i.test(words);
     return aboutMeaningfulPractice && aboutRepeatedTime;
   }
   if(id==="kierkegaard"){
-    const aboutChoice=/\\b(?:decid(?:e|es|ed|ing)|decisions?|choos(?:e|ing)|choices?|act(?:ing)?|commit(?:ting|ment)?|keep going|moving|stay(?:ing)?)\\b/i.test(words);
-    const aboutKnowledgeInTime=/\\b(?:uncertain(?:ty)?|unknown|unsure|not know|don't know|cannot know|predict(?:ion)?|future|before|after|later|regret(?:ting)?|outcome|hindsight|certainty|know what|what will happen)\\b/i.test(words);
+    const aboutChoice=/\b(?:decid(?:e|es|ed|ing)|decisions?|choos(?:e|ing)|choices?|act(?:ing)?|commit(?:ting|ment)?|keep going|moving|stay(?:ing)?)\b/i.test(words);
+    const aboutKnowledgeInTime=/\b(?:uncertain(?:ty)?|unknown|unsure|not know|don't know|cannot know|predict(?:ion)?|future|before|after|later|regret(?:ting)?|outcome|hindsight|certainty|know what|what will happen)\b/i.test(words);
     return aboutChoice && aboutKnowledgeInTime;
   }
   return false;
