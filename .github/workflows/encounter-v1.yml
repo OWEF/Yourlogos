@@ -6,6 +6,7 @@ on:
       - 'philosophy-engine/encounter/consequence-v1.js'
       - 'scripts/build-scenario-transfer-lab-v02.mjs'
       - 'philosophy-engine/encounter/quotation-return-v12.js'
+      - '**/*kernel*v11*'
       - 'world-memory.js'
       - 'philosophy-engine/encounter/expression-engine-v1.js'
       - 'experiments/encounter-expression-qa.html'
@@ -16,11 +17,22 @@ permissions:
 jobs:
   encounters:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: 96152d406ed6c9eb3343787cf0487345660caed9
+          path: baseline
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
-      - run: node scripts/build-encounter-v1.mjs --check && node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs
+      - run: node scripts/build-encounter-v1.mjs --check && node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs tests/kernel-v11.test.mjs
       - run: npm install --no-save --package-lock=false playwright-core@1.56.1
       - run: node tests/encounter-v1-browser.mjs
+      - run: node tests/kernel-v11-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: discover-design-comparison
+          path: design-review/*.png

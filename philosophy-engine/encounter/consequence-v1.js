@@ -1,3 +1,5 @@
+import {pilotStructure} from "./reasoning-kernel-v11.js";
+import {getMechanismCase} from "./mechanism-transfer-cases-v02.js";
 import {selectExpressionMeaning,composeExpression} from "./expression-engine-v1.js";
 import {encounterDistinction,encounterWorldThread} from "./encounter-distinction-v13.js";
 import {quotationEnding} from "./quotation-return-v12.js";
@@ -180,6 +182,8 @@ export function encounterConsequence(id, input, memory=null) {
     return {status:"declined",reason:error.message};
   }
   // Establish the quotation's source relation before interpreting this path.
+  const kernel=pilotStructure(getMechanismCase(id),result,input);
+  if(kernel.status!=="ready")return {status:"declined",reason:kernel.reason};
   const centralPhilosophicalRelation=result.sourceRelation;
   const reading = id === "dillard" ? readEvening(result) : readRoute(result);
   const {relation,...fields}=reading;
@@ -195,7 +199,7 @@ export function encounterConsequence(id, input, memory=null) {
   if(optionalWorldConnection && reasoning.kind==="protected-or-remainder"){
     proactiveQuestion="If this evening repeated, what would keep the next request from deciding when writing happens?";
   }
-  return {status:"ready", schema:"encounter-consequence/1.3", caseId:id, quote:result.quote,
+  return {status:"ready", schema:"encounter-consequence/1.3", kernel, caseId:id, quote:result.quote,
     input:result.input, mechanism:result.mechanism, ...fields, hiddenRelationship, discovery, question, tension:reasoning.concepts.join(" / "),
     centralPhilosophicalRelation, observedPath:result.input, scenarioConsequence:fields.consequence,
     sourceGroundedInterpretation:ending.interpretation, userFacingDiscovery:ending.headline,
@@ -208,6 +212,10 @@ export function encounterConsequence(id, input, memory=null) {
 // Surface projection only. All interpretive text originates in a fired rule.
 export function expressConsequence(packet) {
   if (packet?.status !== "ready") return null;
+  if(packet.version==="reasoning/1.1"){
+    const meaning=selectExpressionMeaning(packet);
+    return meaning?{...composeExpression(meaning),quote:packet.quote.text,visual:null,world:null}:null;
+  }
   const {discovery,consequence,connection,question} = packet;
   return {discovery,consequence,connection,question,headline:packet.userFacingDiscovery,
     experience:packet.experience,quote:packet.quote.text,interpretation:packet.sourceGroundedInterpretation,
