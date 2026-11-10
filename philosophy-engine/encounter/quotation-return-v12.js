@@ -2,8 +2,8 @@
 // mechanism. A quote family admits only its own reviewed distinctions.
 const dillardReturn = {
   "protected-or-remainder": [
-    "The same writing time can have two different places in a day.",
-    "Replies took most of the evening, and you said other demands changed your plan. The writing time could have been reserved before the first reply or found after the last one.",
+    "Finding time leaves open whether that time was protected.",
+    "You reserved some time for the story or found it after replying. Either fits the evening you described: messages took most of it, and other demands changed your plan.",
     "Dillard’s line comes into focus if you imagine this evening repeating. Either arrangement can give you a writing session tonight. Over many days, leaving it to whatever time remains would let incoming requests help decide how much of your life goes into the story.",
     "What would one more message reveal about the place writing has in this schedule?"
   ],
@@ -14,7 +14,7 @@ const dillardReturn = {
     "Which part of this evening would you deliberately choose to repeat?"
   ],
   "deliberate-pause": [
-    "The story belongs to another evening.",
+    "Putting writing off until another evening works only if an evening changes.",
     "You chose a plan with no writing in it. As a decision about tonight, that leaves the story perfectly possible: there can always be a different evening tomorrow.",
     "Dillard changes the scale of the question. Imagine tomorrow taking exactly the same shape, and then the day after that. What began as a pause for one evening could become the way a life keeps postponing something it means to do.",
     "What would have to differ between your days for this pause to stay a pause?"
@@ -44,8 +44,8 @@ const dillardReturn = {
     "Which boundary would have to hold for tomorrow to make the same room for writing?"
   ],
   "room-for-both": [
-    "Rest and writing already share an evening.",
-    "Your plan gave each a place. They compete when you try to enlarge a share of a fixed evening, yet the choice you made allows both activities to happen today.",
+    "A pause can belong to the pattern of a writing life.",
+    "You deliberately planned time on the page and time away from it. Counting only the writing would leave out part of the evening you chose.",
     "Read Dillard’s line with that particular evening in mind. If these days repeated, the rhythm of a writing life could include the time away from the page. What builds up over time is the whole arrangement you repeat, including the pauses.",
     "What would you miss about this pattern if you counted only the time spent writing?"
   ],
@@ -59,8 +59,8 @@ const dillardReturn = {
 
 const kierkegaardReturn = {
   "feeling-and-forecast":[
-    "Some of what the move meant came into view afterward.",
-    "You accepted the job before you could experience the distance from your friends. Once you missed them, you chose to give the move more time. You now know something about life there that an offer could only ask you to imagine.",
+    "You understand the move better. You still have to choose forward.",
+    "Missing your friends made the distance real. Giving the move more time means acting on that experience before you know how life there will unfold.",
     "Kierkegaard places you between two moments. Looking back makes the cost of moving clearer. Yet deciding to continue happens facing forward again, before you know how that feeling will change.",
     "How much can this first experience tell you about a life that is still unfolding?"
   ],
