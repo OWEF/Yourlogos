@@ -91,7 +91,7 @@ export function encounterWorldThread(memory,id){
       const fixture=memory.fixture===true;
       return {source:"livingThreads.history",recordId:record.id,field,quoteId:record.quoteId,date:record.date||null,
         fixture,excerpt:words.trim(),interpretation:inquiry.connection,
-        text:(fixture?"In this sample reflection":"You previously wondered")+" — “"+words.trim().slice(0,160)+(words.trim().length>160?"…":"")+"” "+inquiry.connection};
+        text:(fixture?"In this sample reflection":"You previously wrote")+": “"+words.trim().slice(0,110)+(words.trim().length>110?"…":"")+"” "+inquiry.connection};
     }
   }
   return null;
