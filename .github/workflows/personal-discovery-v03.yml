@@ -1,0 +1,62 @@
+name: CZ-112 Personal Discovery + Mind Map Mobile QA
+on:
+  pull_request:
+    paths:
+      - "philosophy-engine/encounter/personal-question-engine-v02.js"
+      - "philosophy-engine/encounter/expression-engine-v02.js"
+      - "experiments/two-encounter-discovery-lab-v03*"
+      - "scripts/build-personal-discovery-lab-v03.mjs"
+      - "tests/personal-discovery-v03.test.mjs"
+      - "tests/personal-discovery-mobile-v03.mjs"
+      - ".github/workflows/personal-discovery-v03.yml"
+  workflow_dispatch:
+jobs:
+  source-and-reasoning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate exact source and scripts
+        run: |
+          node --check philosophy-engine/encounter/personal-question-engine-v02.js
+          node --check philosophy-engine/encounter/expression-engine-v02.js
+          node --check scripts/build-personal-discovery-lab-v03.mjs
+          node --check tests/personal-discovery-v03.test.mjs
+          node --check tests/personal-discovery-mobile-v03.mjs
+          node scripts/build-personal-discovery-lab-v03.mjs --check
+      - name: Run exhaustive four-stances x 111 quote-specific paths tests
+        run: |
+          node --test tests/insight-expression-v01.test.mjs
+          node --test tests/personal-discovery-v03.test.mjs
+  mobile:
+    needs: source-and-reasoning
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Prepare browser tests
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: Exercise both encounters, stance variants, branching map at mobile sizes
+        run: node tests/personal-discovery-mobile-v03.mjs
+      - name: Upload standalone iPhone HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz112-discovery-v03-standalone-html
+          path: experiments/two-encounter-discovery-lab-v03-standalone.html
+          retention-days: 7
+      - name: Upload actual rendered mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz112-discovery-v03-screenshots
+          path: test-results/cz112-discovery/*.png
+          if-no-files-found: ignore
+          retention-days: 5
