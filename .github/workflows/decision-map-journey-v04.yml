@@ -1,0 +1,60 @@
+name: CZ-114 Decision Map Journey v0.4
+on:
+  pull_request:
+    paths:
+      - "experiments/two-encounter-branching-lab-v04*"
+      - "scripts/build-branching-map-lab-v04.mjs"
+      - "tests/branching-map-mobile-v04.mjs"
+      - "tests/branching-map-external-preview.mjs"
+      - ".github/workflows/decision-map-journey-v04.yml"
+  workflow_dispatch:
+jobs:
+  source-and-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Check JS syntax and source parity
+        run: |
+          node --check scripts/build-branching-map-lab-v04.mjs
+          node --check tests/branching-map-mobile-v04.mjs
+          node --check tests/branching-map-external-preview.mjs
+          node scripts/build-branching-map-lab-v04.mjs --check
+      - name: Preserve existing source-grounded philosophical tests
+        run: |
+          node --test tests/insight-expression-v01.test.mjs
+          node --test tests/personal-discovery-v03.test.mjs
+  mobile-interactions:
+    needs: source-and-model
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Install browser controls
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.56.1
+      - name: End-to-end branching journey and nested relevance on mobile
+        run: node tests/branching-map-mobile-v04.mjs
+      - name: Verify public phone preview
+        env:
+          PR_HEAD_SHA: \${{ github.event.pull_request.head.sha }}
+        run: node tests/branching-map-external-preview.mjs
+      - name: Attach offline phone lab
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz114-iphone-branching-v04-html
+          path: experiments/two-encounter-branching-lab-v04-standalone.html
+          retention-days: 7
+      - name: Attach screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz114-branching-mobile-screenshots
+          path: test-results/cz114-branching-map/*.png
+          retention-days: 5
+          if-no-files-found: ignore
