@@ -110,3 +110,57 @@ test("each ending carries its own conclusion and cited warrant even when the que
   }
   assert.ok(packets.some(p=>p.question===null) && packets.some(p=>p.question));
 });
+
+import {buildWorldMemory} from "../world-memory.js";
+
+test("each source-specific ending returns to its own quotation in 80–120 words",()=>{
+  const packets=reachableDecisionRoutes("kierkegaard").map(input=>encounterConsequence("kierkegaard",input));
+  for(let w=0;w<=6;w++) for(let m=0;m+w<=6;m++)
+    for(const motive of ["interrupted","planned","obligations"]) packets.push(evening([w,m,6-w-m],motive));
+  for(const packet of packets){
+    const view=expressConsequence(packet);
+    const words=[view.headline,view.experience,view.interpretation,view.proactiveQuestion].join(" ").trim().split(/\s+/).length;
+    assert.ok(words>=80 && words<=120,packet.rule+" words="+words);
+    assert.equal(view.quote,packet.quote.text);
+    assert.match(view.interpretation,packet.caseId==="dillard"?/Dillard/:/Kierkegaard/);
+    assert.equal((view.proactiveQuestion.match(/\?/g)||[]).length,1);
+    assert.equal(view.world,null);
+    assert.ok(packet.centralPhilosophicalRelation && packet.hiddenRelationship.warrant);
+  }
+});
+
+test("material changes in premises select different explanations and questions",()=>{
+  const groups=[
+    [[evening([1,4,1],"interrupted"),/reserved/,/requests/],[evening([1,1,4],"planned"),/rest/,/rest/],
+      [evening([0,3,3],"planned"),/no writing/,/pause/],[evening([4,1,1],"planned"),/most/,/boundary/]],
+    [[journey("change","surprise","continue"),/friends/,/continue/],[journey("stay","surprise","adapt"),/team/,/plan/],
+      [journey("stay","missed","reflect"),/turned it down/,/alternative|imagine/],[journey("change","risk","continue"),/hours/,/experience/]]
+  ];
+  for(const paths of groups){
+    const questions=new Set();
+    for(const [p,observed,grounded] of paths){
+      assert.match(p.experience,observed);assert.match(p.sourceGroundedInterpretation,grounded);
+      questions.add(p.proactiveQuestion);
+    }
+    assert.equal(questions.size,4);
+  }
+});
+
+test("exact saved catalogue evidence is read-only; weak or stale matches produce no section",()=>{
+  const input={ticks:[1,4,1],motivation:"interrupted"};
+  const quote=evening(input.ticks,input.motivation).quote;
+  const catalogue=Array.from({length:14},()=>["Another passage","Other author","Time"]);
+  catalogue[quote.id]=[quote.text,quote.author,"Time"];
+  const saved=Object.freeze({saved:Object.freeze([quote.id,13])});
+  const memory=buildWorldMemory(saved,catalogue);
+  const run=m=>encounterConsequence("dillard",input,m);
+  const actual=run(memory);
+  assert.deepEqual(actual.optionalWorldConnection,{source:"saved",quoteId:quote.id,fixture:false,text:"You previously saved this quotation in My World."});
+  assert.match(actual.proactiveQuestion,/Reading this line again/);
+  for(const weak of [null,buildWorldMemory({},catalogue),buildWorldMemory({saved:[13]},catalogue),
+    {savedThemes:["Time"]},{savedQuoteReferences:[{source:"saved",quoteId:quote.id,text:"Different passage",author:quote.author}]}]){
+    assert.equal(run(weak).optionalWorldConnection,null);
+  }
+  assert.equal(run({...memory,fixture:true}).optionalWorldConnection.fixture,true);
+  assert.deepEqual(saved.saved,[quote.id,13]);
+});

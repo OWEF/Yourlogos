@@ -48,7 +48,11 @@ export function buildWorldMemory(state={},quotes=[],cosmos=[]){
  oldChoices.forEach(x=>increment(x.theme,.25));
  legacy.forEach(x=>increment(x.theme,.25));
  const themes=[...counts.entries()].sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
- return {interests,threads:[...threads,...aiThreads],journeyEvents,sessions,savedThemes,chosenThemes,latestSavedQuoteId:saved.at(-1)??null,
+ // Keep exact catalogue identity available for quotation-specific, read-only returns.
+ const savedQuoteReferences=saved.map(quoteId=>({
+   quoteId,text:quotes[quoteId]?.[0],author:quotes[quoteId]?.[1],source:"saved"
+ }));
+ return {savedQuoteReferences,interests,threads:[...threads,...aiThreads],journeyEvents,sessions,savedThemes,chosenThemes,latestSavedQuoteId:saved.at(-1)??null,
    themes,evidence,hasExplicitMemory:threads.some(x=>x.note||x.opening)};
 }
 export function matchWorldMemory(memory,quote,id){

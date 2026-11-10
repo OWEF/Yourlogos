@@ -92,6 +92,7 @@ input[type=range]{display:block;width:100%;accent-color:var(--gold);height:31px;
 @media(max-width:360px){.branch{min-height:143px;padding:10px 5px}.branch strong{font-size:11px}.branch small{font-size:10px}.matrix-row{grid-template-columns:90px 1fr}}
 main{max-width:660px}.result{scroll-margin:1rem}.result h3{font-size:clamp(23px,4vw,32px);line-height:1.22}.result p,.case-body>.story{font-size:15px}.choice strong,.branch strong{font-size:14px}.result details{margin-top:16px}.primary:disabled{opacity:.5;cursor:default}.tab[aria-pressed=true]{border-color:var(--gold);background:#3b382a}.result p.reflection{color:var(--gold)}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important}}
+.result .section-label{display:block;color:var(--sage);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:14px 0 4px}.result .section-label:first-child{margin-top:0}.result blockquote{font:italic 19px/1.28 Georgia,serif;color:var(--ink);margin:5px 0 8px;padding-left:10px;border-left:2px solid var(--gold)}.result p{margin:6px 0 10px;line-height:1.45}.result h3{font-size:24px;margin:4px 0 8px}.result .world-note{font-size:13px}
 </style></head><body><main><header><div class="brand">YourLogos.</div></header><h1>Encounter</h1>
 <nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button></nav>
 <section id="cases" aria-label="Current Encounter"></section></main>
@@ -1231,7 +1232,127 @@ function fitMatrix(){
 }
 
 
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/quotation-return-v12.js */
+// Curated interpretations keyed to the distinctions validated by the existing
+// mechanism. A quote family admits only its own reviewed distinctions.
+const dillardReturn = {
+  "protected-or-remainder": [
+    "Writing had a place. What gave it that place?",
+    "Replies took most of the evening, and you said other demands changed your plan. The writing time could have been reserved before the first reply or found after the last one.",
+    "Dillard’s line comes into focus if you imagine this evening repeating. Either arrangement can give you a writing session tonight. Over many days, leaving it to whatever time remains would let incoming requests help decide how much of your life goes into the story.",
+    "What would one more message reveal about the place writing has in this schedule?"
+  ],
+  "chosen-rest": [
+    "An evening of rest can be chosen on purpose.",
+    "You planned the evening and gave its largest share to rest. Measured only by the unfinished story, that time might look like a gap. Your plan gives it a place of its own.",
+    "Dillard invites you to look at what repeated days contain. If this evening recurred, rest would be one of the things your life made room for. The passage leaves you to judge what belongs in that pattern.",
+    "Which part of this evening would you deliberately choose to repeat?"
+  ],
+  "deliberate-pause": [
+    "The story belongs to another evening.",
+    "You chose a plan with no writing in it. As a decision about tonight, that leaves the story perfectly possible: there can always be a different evening tomorrow.",
+    "Dillard changes the scale of the question. Imagine tomorrow taking exactly the same shape, and then the day after that. What began as a pause for one evening could become the way a life keeps postponing something it means to do.",
+    "What would have to differ between your days for this pause to stay a pause?"
+  ],
+  "requests-without-writing": [
+    "The story can wait after every message.",
+    "You gave time to replies, reported interruptions, and left the story for later. Each reply might have been worth sending. Taken together, the evening’s demands used up the time available.",
+    "Dillard asks you to see the pattern that can form across ordinary days. If evenings like this kept recurring, the things that called for a response could acquire a regular place in your life even without a decision to give them one.",
+    "Which part of a repeated day can become a commitment without being named as one?"
+  ],
+  "exception-repeated": [
+    "An exception can become the usual evening.",
+    "The story received no time in this evening. The demands you described may explain why a writing session could wait today. They leave open the practical question of when another session could happen.",
+    "Dillard brings the single day alongside the life made from many such days. Repeat the same exception often enough and the pattern has a consequence of its own: the story can keep its importance in your intentions while disappearing from your schedule.",
+    "How would you recognize the point when a temporary exception had become a routine?"
+  ],
+  "exclusive-evening": [
+    "A writing evening and a writing life require different arrangements.",
+    "Writing filled the evening. For tonight, that makes the story’s place clear. It also puts every reply and every chance to rest somewhere beyond the time you had available.",
+    "Dillard’s quotation invites a second look at a successful sitting. If you wanted to repeat it, the arrangement around the writing would matter too. A day can give one activity everything; a succession of such days has to be lived around the claims it leaves outside.",
+    "What else would need a place in your week for this evening to recur?"
+  ],
+  "writing-sets-budget": [
+    "Planning for the story also means setting a limit.",
+    "You deliberately gave most of the evening to writing. That decision did something beyond finding time for a session. It narrowed how much time the evening could offer everything else.",
+    "In Dillard’s account, a schedule gives an intention a form you can live repeatedly. If you kept this arrangement across many days, the boundary you put around other demands would help explain how the story came to occupy part of your life.",
+    "Which boundary would have to hold for tomorrow to make the same room for writing?"
+  ],
+  "room-for-both": [
+    "Rest and writing already share an evening.",
+    "Your plan gave each a place. They compete when you try to enlarge a share of a fixed evening, yet the choice you made allows both activities to happen today.",
+    "Read Dillard’s line with that particular evening in mind. If these days repeated, the rhythm of a writing life could include the time away from the page. What builds up over time is the whole arrangement you repeat, including the pauses.",
+    "What would you miss about this pattern if you counted only the time spent writing?"
+  ],
+  "recurring-foothold": [
+    "Tonight gives the story a sitting. Tomorrow is still open.",
+    "You left room for the story alongside other uses of the evening. A session is possible under this arrangement, although the time you assigned cannot tell us what would keep that space available tomorrow.",
+    "Dillard’s words turn one sitting into a question about repetition. A life spent writing could take shape through evenings much like this one, provided the place writing found today keeps appearing in the ordinary days that follow.",
+    "What would give this evening’s writing time a regular place in a week?"
+  ]
+};
+
+const kierkegaardReturn = {
+  "feeling-and-forecast":[
+    "Some of what the move meant came into view afterward.",
+    "You accepted the job before you could experience the distance from your friends. Once you missed them, you chose to give the move more time. You now know something about life there that an offer could only ask you to imagine.",
+    "Kierkegaard places you between two moments. Looking back makes the cost of moving clearer. Yet deciding to continue happens facing forward again, before you know how that feeling will change.",
+    "How much can this first experience tell you about a life that is still unfolding?"
+  ],
+  "new-reason-for-action":[
+    "Missing your friends gives you a new reason to act.",
+    "Moving made the distance tangible. Your plan to keep in touch answers something you learned by living there. You could anticipate that distance before accepting the job; you could only experience this particular loss afterward.",
+    "Kierkegaard’s backward glance helps explain why the move looks different now. That later understanding leaves the worth of the original decision open. Even the plan it prompted is another forward step whose outcome you have yet to live.",
+    "Which part of what you know now could reasonably have guided you then?"
+  ],
+  "continuity-of-place":[
+    "A familiar job became a different choice.",
+    "You stayed in the job you knew. Then the team changed, and you made a new plan. Only after the change could you see which parts of familiarity depended on other people staying too.",
+    "Kierkegaard helps explain why staying can look different in retrospect. The team change illuminates what your earlier choice could secure. It also gives you a new situation to act in, while the future of the new plan remains open.",
+    "What can the team change teach you about staying that you could never have settled in advance?"
+  ],
+  "successive-decisions":[
+    "Looking back, you can see two decisions to stay.",
+    "First you chose a familiar workplace. After the team changed, you decided to give the altered job time. The second decision had a fact available to it that the first one lacked.",
+    "Kierkegaard’s line helps separate moments that a later story might fold into one. In retrospect both choices look like staying. Living through them meant choosing twice, each time with a different view of the job and an open future.",
+    "Which decision would you be judging if you later said staying had been a mistake?"
+  ],
+  "reasons-and-alternatives":[
+    "Your reasons are reachable. The other life stays out of view.",
+    "After staying, you kept wondering about the offer and revisited why you turned it down. You can look back at the circumstances you faced and reconsider what seemed persuasive at the time.",
+    "Kierkegaard’s backward view has a limit here. Only the path you took has become experience. Reconstructing your choice can deepen your understanding of it, while the career that might have followed a move remains something you imagine.",
+    "What can you understand about a decision when only one of its possible futures was lived?"
+  ],
+  "commitment-without-comparison":[
+    "You can continue before the comparison is settled.",
+    "You stayed, wondered about the offer, then turned your attention to the job you kept. The question about the other city was still open when you chose what to do next.",
+    "Kierkegaard’s line gives that sequence its force. Looking back supplies experience of staying; moving remains an imagined alternative. Your working life still calls for another choice even when reflection cannot produce a complete comparison of the two futures.",
+    "What kind of understanding is enough to continue when the other path remains unknown?"
+  ],
+  "terms-open-to-revision":[
+    "The hours became a question you could reopen.",
+    "You accepted the new job, found its hours harder than expected, and asked about changing them. The cost that gives your request a reason now became concrete only after you started working there.",
+    "Kierkegaard’s quotation brings out the timing. Looking back, you can explain why the offer means something different today. Asking for different hours takes that understanding forward into another decision whose answer you still cannot know.",
+    "How far should what you learned on the job change your judgment of accepting it?"
+  ],
+  "cost-of-learning":[
+    "A clearer view will cost you more evenings.",
+    "After taking the job, you found the hours harder than expected. You chose to give yourself time to settle in. Learning whether the hours become manageable means spending more evenings under those very conditions.",
+    "Kierkegaard’s line explains why you cannot pause outside this choice to obtain a final answer. Later experience may make the job easier to understand. Getting that experience is already another way of living forward.",
+    "What does waiting for certainty require you to choose in the meantime?"
+  ]
+};
+
+function quotationEnding(result,kind) {
+  const family=result.caseId==="dillard"?dillardReturn:kierkegaardReturn;
+  if (!Object.hasOwn(family,kind)) throw Error("Missing source-specific quotation return for "+kind);
+  const [headline,experience,interpretation,question]=family[kind];
+  return {headline,experience,interpretation,question};
+}
+
+
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/consequence-v1.js */
+
 
 // A warrant relates two concepts under explicit premises. Everyday wording is
 // attached to the warranted relation; the UI never chooses an interpretation.
@@ -1365,7 +1486,16 @@ function readRoute(result) {
     limits:["The event is imagined.","Later evidence cannot settle the original decision or reveal the other future."]};
 }
 
-function encounterConsequence(id, input) {
+function savedQuotation(memory, quote) {
+  if (!Array.isArray(memory?.savedQuoteReferences)) return null;
+  const match=memory.savedQuoteReferences.find(entry=>entry?.source==="saved" &&
+    entry.quoteId===quote.id && entry.text===quote.text && entry.author===quote.author);
+  if (!match) return null;
+  return {source:"saved",quoteId:match.quoteId,fixture:memory.fixture===true,
+    text:memory.fixture===true?"This sample record marks this quotation as saved.":"You previously saved this quotation in My World."};
+}
+
+function encounterConsequence(id, input, memory=null) {
   if (!["dillard","kierkegaard"].includes(id)) return {status:"declined",reason:"No reviewed pilot rule for this case."};
   let result;
   try {
@@ -1376,12 +1506,20 @@ function encounterConsequence(id, input) {
     if (!(error instanceof TypeError || error instanceof RangeError)) throw error;
     return {status:"declined",reason:error.message};
   }
+  // Establish the quotation's source relation before interpreting this path.
+  const centralPhilosophicalRelation=result.sourceRelation;
   const reading = id === "dillard" ? readEvening(result) : readRoute(result);
   const {relation,...fields}=reading;
   const {discovery,question,...reasoning}=relation;
   const hiddenRelationship={...reasoning,sourceInterpretation:result.sourceRelation,sourceReferences:result.sourceReferences};
-  return {status:"ready", schema:"encounter-consequence/1.1", caseId:id, quote:result.quote,
+  const ending=quotationEnding(result,reasoning.kind);
+  const optionalWorldConnection=savedQuotation(memory,result.quote);
+  return {status:"ready", schema:"encounter-consequence/1.2", caseId:id, quote:result.quote,
     input:result.input, mechanism:result.mechanism, ...fields, hiddenRelationship, discovery, question, tension:reasoning.concepts.join(" / "),
+    centralPhilosophicalRelation, observedPath:result.input, scenarioConsequence:fields.consequence,
+    sourceGroundedInterpretation:ending.interpretation, userFacingDiscovery:ending.headline,
+    experience:ending.experience, optionalWorldConnection,
+    proactiveQuestion:optionalWorldConnection?"Reading this line again, "+ending.question[0].toLowerCase()+ending.question.slice(1):ending.question,
     trace:[...result.rules,reading.rule,reasoning.kind], sources:result.sourceReferences,
     editorialStatus:"provisional", fingerprintEvidence:null};
 }
@@ -1390,7 +1528,10 @@ function encounterConsequence(id, input) {
 function expressConsequence(packet) {
   if (packet?.status !== "ready") return null;
   const {discovery,consequence,connection,question} = packet;
-  return {discovery,consequence,connection,question};
+  return {discovery,consequence,connection,question,headline:packet.userFacingDiscovery,
+    experience:packet.experience,quote:packet.quote.text,interpretation:packet.sourceGroundedInterpretation,
+    world:packet.optionalWorldConnection,proactiveQuestion:packet.proactiveQuestion};
+
 }
 
 /* ORIGINAL LAB UI */
@@ -1467,7 +1608,13 @@ function render(){
  const id=active.mode, spec=slug(id), s=active.cases[id];
  const title=id==="dillard"?spec.quote:"Life can only be understood backwards; but it must be lived forwards.";
  const view=expressConsequence(s.result);
- const end=view?`<section class="result" tabindex="-1"><h3>${esc(view.discovery)}</h3><p>${esc(view.consequence)}</p><p>${esc(view.connection)}</p>${view.question?`<p class="reflection">${esc(view.question)}</p>`:""}<details><summary>Founder QA · evidence and limits</summary><pre>${esc(JSON.stringify(s.result,null,2))}</pre></details></section>`:"";
+ const end=view?`<section class="result" tabindex="-1" aria-label="Encounter reflection">
+ <span class="section-label">Your Encounter with ${esc(spec.author)}</span><h3>${esc(view.headline)}</h3>
+ <p>${esc(view.experience)}</p><span class="section-label">Return to the quotation</span>
+ <blockquote>${esc(view.quote)}</blockquote><p class="interpretation">${esc(view.interpretation)}</p>
+ ${view.world?`<span class="section-label">My World${view.world.fixture?" · QA fixture":""}</span><p class="world-note">${esc(view.world.text)}</p>`:""}
+ <span class="section-label">A question to carry forward</span><p class="reflection">${esc(view.proactiveQuestion)}</p>
+ <details><summary>Founder QA · evidence and limits</summary><pre>${esc(JSON.stringify(s.result,null,2))}</pre></details></section>`:"";
  $("cases").innerHTML=`<article class="case" data-id="${id}"><header class="case-top" style="display:block"><h2>${esc(spec.author)}</h2><p class="quote">“${esc(title)}”</p><p class="work">${esc(spec.citationSource)}</p></header>${id==="dillard"?tradeoffHtml(id):decisionHtml(id)}${end}</article>`;
  document.querySelectorAll("[data-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.mode===id)));
 }
@@ -1509,10 +1656,16 @@ document.addEventListener("click",ev=>{
  if(run){
   const id=run.dataset.run,s=active.cases[id],spec=slug(id);
 
+   // Standalone preview has no account context. An explicit fragment enables
+   // a labeled synthetic example without reading storage or contacting a host.
+   const quote=id==="dillard"?{quoteId:12,text:spec.quote,author:spec.author}:
+    {quoteId:34,text:"Life can only be understood backwards; but it must be lived forwards.",author:spec.author};
+   const memory=location.hash==="#qa-saved"?{fixture:true,savedQuoteReferences:[{source:"saved",...quote}]}:null;
    s.result=encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
-    {resource:s.resource,barrier:s.barrier,action:s.action});
+    {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 
-  refreshCard(id);document.querySelector(".result")?.focus();return;
+  refreshCard(id);const end=document.querySelector(".result");
+  end?.focus({preventScroll:true});end?.scrollIntoView({block:"start",behavior:"instant"});return;
  }
 });
 document.addEventListener("input",ev=>{

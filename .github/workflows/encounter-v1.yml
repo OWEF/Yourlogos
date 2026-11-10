@@ -5,6 +5,8 @@ on:
       - '**/*encounter-v1*'
       - 'philosophy-engine/encounter/consequence-v1.js'
       - 'scripts/build-scenario-transfer-lab-v02.mjs'
+      - 'philosophy-engine/encounter/quotation-return-v12.js'
+      - 'world-memory.js'
   workflow_dispatch:
 permissions:
   contents: read
