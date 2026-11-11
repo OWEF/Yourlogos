@@ -305,7 +305,7 @@ function reasonSemantically(context,input){
    if(!Number.isSafeInteger(input.repetitions)||input.repetitions<2||input.repetitions>1000)return reject('Invalid repetition horizon.');
    add('repetition',`Repeating this allocation ${input.repetitions} times repeats its resource demands; it does not establish a habit.`, 'conditional',{totals:structure.spent.map(n=>n*input.repetitions)});
   }
-  const better=structure.alternatives.find(a=>a.delta>0);
+  const better=context.model.metric?.op==='minimum'?structure.alternatives.find(a=>a.delta>0):null;
   if(better)add('complementarity',`Reallocating one unit can increase the modeled result from ${structure.measure} to ${better.measure}.`,'conditional',better);
   else if(structure.alternatives.length)add('opportunity',structure.slack.every(n=>n===0)?'A feasible increase here requires releasing resources elsewhere.':'Unused capacity permits a change without displacing every existing allocation.','conditional',structure.alternatives[0]);
   if(structure.measure!==null)add('conversion',`This allocation corresponds to ${structure.measure} ${context.model.metric.unit}.`,'conditional',{measure:structure.measure});

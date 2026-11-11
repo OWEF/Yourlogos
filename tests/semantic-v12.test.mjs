@@ -30,3 +30,9 @@ test('held-out shared staffing and archival domains transfer without new inferen
  assert.equal(reasonSemantically(dispute,{path:['accept','hold']}).meaning.kind,'revision');
  assert.equal(reasonSemantically(dispute,{path:['hold','hold']}).meaning.kind,'information');
 });
+
+test('conversion cost is not mistaken for complementary output',()=>{
+ const c=semanticCases.money,p=reasonSemantically(c,{amounts:[1,0,1],budgets:[8]});
+ assert.equal(p.meaning.kind,'conversion');
+ assert.ok(!p.claims.some(c=>c.kind==='complementarity'));
+});

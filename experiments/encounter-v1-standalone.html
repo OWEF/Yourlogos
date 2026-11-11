@@ -1428,7 +1428,7 @@ function reasonSemantically(context,input){
    if(!Number.isSafeInteger(input.repetitions)||input.repetitions<2||input.repetitions>1000)return reject('Invalid repetition horizon.');
    add('repetition',`Repeating this allocation ${input.repetitions} times repeats its resource demands; it does not establish a habit.`, 'conditional',{totals:structure.spent.map(n=>n*input.repetitions)});
   }
-  const better=structure.alternatives.find(a=>a.delta>0);
+  const better=context.model.metric?.op==='minimum'?structure.alternatives.find(a=>a.delta>0):null;
   if(better)add('complementarity',`Reallocating one unit can increase the modeled result from ${structure.measure} to ${better.measure}.`,'conditional',better);
   else if(structure.alternatives.length)add('opportunity',structure.slack.every(n=>n===0)?'A feasible increase here requires releasing resources elsewhere.':'Unused capacity permits a change without displacing every existing allocation.','conditional',structure.alternatives[0]);
   if(structure.measure!==null)add('conversion',`This allocation corresponds to ${structure.measure} ${context.model.metric.unit}.`,'conditional',{measure:structure.measure});
@@ -2262,9 +2262,9 @@ function kernelControls(spec,state){
    m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
   const facts=tradeoffStructure(m,state);
   const consequence=semanticEdition&&facts&&m.metric?'This arrangement means '+facts.measure+' '+esc(m.metric.unit)+'.':'';
-  const reconsider=semanticEdition&&state.firstAllocation?'<div class="reconsider"><p>'+consequence+'</p><p>Keep this arrangement, or move a share and notice what has to change.</p><button class="choice" data-confirm-allocation>Continue with this choice</button></div>':'';
+  const reconsider=semanticEdition&&state.firstAllocation?'<div class="reconsider"><p>'+consequence+'</p><p>Keep this arrangement, or move a share and notice what has to change.</p></div>':'';
   const status=m.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ");
-  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!state.confirmed?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!state.confirmed?'Consider the cost':'Reveal the meaning')+'</button></div>';
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!state.firstAllocation?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!state.firstAllocation?'Consider the cost':'Reveal the meaning')+'</button></div>';
  }
  let html='<div class="case-body" tabindex="-1">';
  for(let i=0;i<=state.path.length;i++){
@@ -2485,7 +2485,7 @@ document.addEventListener("input",ev=>{
   action.disabled=fresh.querySelector('[data-run], [data-test-allocation]').disabled;
   if(semanticEdition&&state.firstAllocation){state.confirmed=false;
    box.querySelector('.reconsider').innerHTML=fresh.querySelector('.reconsider').innerHTML;
-   action.removeAttribute('data-run');action.setAttribute('data-test-allocation','');action.textContent='Consider the cost';}state.result=null;return;
+   action.removeAttribute('data-test-allocation');action.setAttribute('data-run',active.mode);action.textContent='Reveal the meaning';}state.result=null;return;
  }
  const range=ev.target.closest("[data-range]");
  if(!range)return;
