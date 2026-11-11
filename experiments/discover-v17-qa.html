@@ -2240,15 +2240,15 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const semanticEdition=Boolean(document.querySelector('meta[name="semantic-discover"]'));
 const founderEdition=Boolean(document.querySelector('meta[name="expression-lab"]'));
-const transferContexts=semanticEdition?Object.fromEntries(Object.entries(semanticCases).map(([id,c])=>[id,{...c,id,model:{...c.model,initial:c.initial}}])):originalContexts;
-const slug=id=>transferContexts[id]||getMechanismCase(id);
+const currentContexts=semanticEdition?Object.fromEntries(Object.entries(semanticCases).map(([id,c])=>[id,{...c,id,model:{...c.model,initial:c.initial}}])):transferContexts;
+const slug=id=>currentContexts[id]||getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
 const active={mode:"dillard", likes:{dillard:false,kierkegaard:false}, screen:{dillard:"entry",kierkegaard:"entry"}, cases:{
  dillard:{ticks:[2,2,2],motivation:null,result:null},
  kierkegaard:{stage:0,resource:null,barrier:null,action:null,result:null}
 }};
-for(const [id,c] of Object.entries(transferContexts)){
+for(const [id,c] of Object.entries(currentContexts)){
  active.screen[id]="entry";
  active.cases[id]=c.mechanism==="tradeoff"?{amounts:[...c.model.initial.amounts],budgets:[...c.model.initial.budgets]}:{path:[]};
 }
@@ -2353,7 +2353,7 @@ function expressionComparison(packet){
 function render(){
  const id=active.mode, spec=slug(id), state=active.cases[id], screen=active.screen[id];
  const quote=spec.quote||"Life can only be understood backwards; but it must be lived forwards.";
- if(document.querySelector("#more-passages"))document.querySelector("#more-passages").value=transferContexts[id]?id:"";
+ if(document.querySelector("#more-passages"))document.querySelector("#more-passages").value=currentContexts[id]?id:"";
  let view=null;
  if(screen==="result"){
   if(state.result?.version==="meaning/1.2"){
@@ -2377,7 +2377,7 @@ function render(){
  const exercise='<div class="flow-head"><button type="button" data-back="intro" class="flow-back" aria-label="Back to introduction">← Back</button>'+
    '<span class="flow-stage">YOUR CHOICES</span></div>'+
    '<div class="exercise-context"><span class="micro-label">'+esc(spec.author)+'</span><p>'+esc(spec.scenario)+'</p></div>'+
-   (transferContexts[id]?kernelControls(spec,state):id==="dillard"?tradeoffHtml(id):decisionHtml(id));
+   (currentContexts[id]?kernelControls(spec,state):id==="dillard"?tradeoffHtml(id):decisionHtml(id));
  const result=view?'<div class="flow-head"><button type="button" data-back="exercise" class="flow-back" aria-label="Back to your choices">← Back to choices</button></div>'+
    '<section class="result journey-finale" tabindex="-1" aria-label="Your Encounter result">'+
    '<section class="reading-panel reading-self"><span class="section-label">Your Encounter with '+esc(spec.author)+'</span>'+
@@ -2459,7 +2459,7 @@ document.addEventListener("click",ev=>{
      id:"qa-example",type:"thread",quoteId:0,note:id==="dillard"?
        "How can I protect time for what matters?":"Can careful reasoning eliminate uncertainty before I act?"
    }]}:null;
-   s.result=transferContexts[id]?(semanticEdition?reasonSemantically(spec,s):evaluateKernel(spec,s)):encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
+   s.result=currentContexts[id]?(semanticEdition?reasonSemantically(spec,s):evaluateKernel(spec,s)):encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
     {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 
   active.screen[id]="result";refreshCard(id);const end=document.querySelector(".result");
@@ -2471,7 +2471,7 @@ document.addEventListener("input",ev=>{
  if(k){
   const state=active.cases[active.mode],i=Number(k.dataset.i),kind=k.dataset.kSlider;
   state[kind][i]=Number(k.value);
-  const m=transferContexts[active.mode].model;
+  const m=currentContexts[active.mode].model;
   if(kind==="amounts"&&m.resources.length===1&&m.resources[0].type==="exact"&&m.choices.length===2&&m.choices.every(c=>c.cost[0]===1&&c.max>=state.budgets[0]))
    state.amounts[1-i]=state.budgets[0]-state.amounts[i];
   // Keep the active native range in place during touch dragging.
@@ -2479,7 +2479,7 @@ document.addEventListener("input",ev=>{
   for(const el of box.querySelectorAll("[data-k-slider]")){
    el.value=state[el.dataset.kSlider][Number(el.dataset.i)];el.previousElementSibling.value=el.value;
   }
-  const fresh=document.createElement("div");fresh.innerHTML=kernelControls(transferContexts[active.mode],state);
+  const fresh=document.createElement("div");fresh.innerHTML=kernelControls(currentContexts[active.mode],state);
   box.querySelector("[aria-live]").textContent=fresh.querySelector("[aria-live]").textContent;
   const action=box.querySelector('[data-run], [data-test-allocation]');
   action.disabled=fresh.querySelector('[data-run], [data-test-allocation]').disabled;
@@ -2503,9 +2503,9 @@ document.addEventListener("input",ev=>{
 if(semanticEdition){
  const nav=document.querySelector('.tabs');
  if(!founderEdition)nav.remove();
- else nav.innerHTML=Object.entries(transferContexts).map(([id,c])=>'<button data-mode="'+id+'">'+esc(c.author)+'</button>').join('');
+ else nav.innerHTML=Object.entries(currentContexts).map(([id,c])=>'<button data-mode="'+id+'">'+esc(c.author)+'</button>').join('');
  const requested=new URLSearchParams(location.hash.slice(1)).get('encounter');
- active.mode=Object.hasOwn(transferContexts,requested)?requested:'money';
+ active.mode=Object.hasOwn(currentContexts,requested)?requested:'money';
 }
 render();
 
