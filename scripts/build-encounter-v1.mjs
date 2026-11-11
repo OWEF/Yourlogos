@@ -3,6 +3,7 @@ import {buildScenarioTransferStandalone} from "./build-scenario-transfer-lab-v02
 
 const bundled = buildScenarioTransferStandalone("experiments/encounter-v1.html", [
   "philosophy-engine/encounter/kernel-contexts-v11.js",
+  "philosophy-engine/encounter/semantic-reasoning-v12.js",
   "philosophy-engine/encounter/reasoning-kernel-v11.js",
   "philosophy-engine/encounter/encounter-distinction-v13.js",
   "philosophy-engine/encounter/quotation-return-v12.js",

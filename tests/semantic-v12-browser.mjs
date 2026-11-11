@@ -1,0 +1,6 @@
+import {chromium} from 'playwright-core';
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';
+import {resolve} from 'node:path';
+const browser=await chromium.launch({channel:'chrome',args:['--no-sandbox']});
+try{for(const width of [320,390,1024]){const page=await browser.newPage({viewport:{width,height:844}});const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(pathToFileURL(resolve('experiments/semantic-v12-standalone.html')).href);for(const id of ['money','workshop','apology','evidence'])for(const mode of ['reflective','surprising','playful','challenging']){await page.locator('#case').selectOption(id);await page.locator('#mode').selectOption(mode);await page.getByRole('button',{name:'Explore',exact:true}).click();await page.getByRole('button',{name:'Reveal',exact:true}).click();assert.ok(await page.getByText('A Question to Carry Forward',{exact:true}).isVisible());assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.getByRole('button',{name:'Edit choices'}).click();await page.getByRole('button',{name:'Reveal',exact:true}).click();assert.ok(await page.getByText('A Question to Carry Forward',{exact:true}).isVisible());}assert.deepEqual(errors,[]);await page.close();}}finally{await browser.close();}
