@@ -98,7 +98,7 @@ try {
   assert.match(await page.locator(".reading-self h2").innerText(),/familiar job/);
   await verifyEnding("Søren Kierkegaard");
 
-  await page.goto(url.split("#")[0]+"#qa-reflection");
+  await page.goto(new URL("encounter-expression-qa.html",url).href+"#qa-reflection");
   await page.reload(); // Fragment navigation alone preserves the prior in-memory Encounter state.
   assert.equal(await page.locator("main").getAttribute("data-screen"),"entry");
   await page.locator('[data-discover="dillard"]').click();
