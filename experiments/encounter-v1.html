@@ -148,7 +148,9 @@ body{background:#10120f;font-family:var(--sans)}main{max-width:760px;padding-bot
 <nav class="tabs" aria-label="Choose an Encounter"><button class="tab" data-mode="dillard"><strong>Annie Dillard</strong><span>One evening to spend</span></button><button class="tab" data-mode="kierkegaard"><strong>Søren Kierkegaard</strong><span>A job in another city</span></button><label class="passage-picker">More passages <select id="more-passages"><option value="">Choose a philosopher</option><option value="thoreau">Henry David Thoreau</option><option value="smith">Adam Smith</option><option value="epictetus">Epictetus</option><option value="descartes">René Descartes</option></select></label></nav>
 <section id="cases" aria-label="Current Encounter"></section></main>
 <script type="module">
-import {transferContexts} from "../philosophy-engine/encounter/kernel-contexts-v11.js";
+import {transferContexts as originalContexts} from "../philosophy-engine/encounter/kernel-contexts-v11.js";
+import {semanticCases} from "../philosophy-engine/encounter/semantic-cases-v12.js";
+import {reasonSemantically} from "../philosophy-engine/encounter/semantic-reasoning-v12.js";
 import {evaluateKernel,tradeoffStructure,decisionStructure} from "../philosophy-engine/encounter/reasoning-kernel-v11.js";
 import {getMechanismCase,optionsFor} from "../philosophy-engine/encounter/mechanism-transfer-cases-v02.js";
 import {reallocateVariableBudget} from "../philosophy-engine/encounter/mechanism-transfer-engine-v02.js";
@@ -156,6 +158,9 @@ import {expressionModes,selectExpressionMeaning,selectExpressionStrategy,compose
 import {encounterConsequence,expressConsequence} from "../philosophy-engine/encounter/consequence-v1.js";
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const semanticEdition=Boolean(document.querySelector('meta[name="semantic-discover"]'));
+const founderEdition=Boolean(document.querySelector('meta[name="expression-lab"]'));
+const transferContexts=semanticEdition?Object.fromEntries(Object.entries(semanticCases).map(([id,c])=>[id,{...c,id,model:{...c.model,initial:c.initial}}])):originalContexts;
 const slug=id=>transferContexts[id]||getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
@@ -175,8 +180,11 @@ function kernelControls(spec,state){
   const spent=m.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
   const controls=m.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
    m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
+  const facts=tradeoffStructure(m,state);
+  const consequence=semanticEdition&&facts&&m.metric?'This arrangement means '+facts.measure+' '+esc(m.metric.unit)+'.':'';
+  const reconsider=semanticEdition&&state.firstAllocation?'<div class="reconsider"><p>'+consequence+'</p><p>Keep this arrangement, or move a share and notice what has to change.</p><button class="choice" data-confirm-allocation>Continue with this choice</button></div>':'';
   const status=m.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ");
-  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p><button class="primary" data-run="'+spec.id+'" '+(tradeoffStructure(m,state)?"":"disabled")+'>Reveal the meaning</button></div>';
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!state.confirmed?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!state.confirmed?'Consider the cost':'Reveal the meaning')+'</button></div>';
  }
  let html='<div class="case-body" tabindex="-1">';
  for(let i=0;i<=state.path.length;i++){
@@ -249,7 +257,7 @@ function contrastHtml(visual){
  return '<dl class="distinction '+esc(visual.form)+'" aria-label="The philosophical distinction">'+visual.items.map(item=>
    '<div><dt>'+esc(item.label)+'</dt><dd>'+esc(item.text)+'</dd></div>').join("")+'</dl>';
 }
-const comparisonPreview=location.hash==="#qa-expression" || Boolean(document.querySelector('meta[name="expression-lab"]'));
+const comparisonPreview=Boolean(document.querySelector('meta[name="expression-lab"]'));
 function expressionComparison(packet){
  const meaning=selectExpressionMeaning(packet);
  const strategy=selectExpressionStrategy(meaning);
@@ -265,8 +273,14 @@ function expressionComparison(packet){
 function render(){
  const id=active.mode, spec=slug(id), state=active.cases[id], screen=active.screen[id];
  const quote=spec.quote||"Life can only be understood backwards; but it must be lived forwards.";
- document.querySelector("#more-passages").value=transferContexts[id]?id:"";
- const view=screen==="result"?expressConsequence(state.result):null;
+ if(document.querySelector("#more-passages"))document.querySelector("#more-passages").value=transferContexts[id]?id:"";
+ let view=null;
+ if(screen==="result"){
+  if(state.result?.version==="meaning/1.2"){
+   const meaning=selectExpressionMeaning(state.result),reading=meaning&&composeExpression(meaning);
+   if(reading?.status==="ready")view={...reading,quote:spec.quote};
+  }else view=expressConsequence(state.result);
+ }
  const source='<span class="micro-label">'+esc(spec.author)+'</span>';
  const entry='<section class="entry-view" aria-label="Quotation"><img class="intro-logo" src="../little-logo-hd-v2.jpg" alt="">'+source+
    '<blockquote class="entry-quote">'+esc(quote)+'</blockquote>'+
@@ -294,18 +308,21 @@ function render(){
    '<blockquote>'+esc(view.quote)+'</blockquote><p>'+esc(view.interpretation)+'</p></section>'+
    '<section class="reading-panel reading-question"><span class="section-label">A question to carry forward</span>'+
    '<p class="reflection">'+esc(view.proactiveQuestion)+'</p></section>'+
-   (location.hash.startsWith("#qa")?'<details class="founder-qa"><summary>Founder QA · evidence and limits</summary><pre>'+esc(JSON.stringify(state.result,null,2))+'</pre></details>':"")+
+   (founderEdition?'<details class="founder-qa"><summary>Founder QA · evidence and limits</summary><pre>'+esc(JSON.stringify(state.result,null,2))+'</pre></details>':"")+
    '</section>'+(comparisonPreview?expressionComparison(state.result):""):"";
- const current=screen==="entry"?entry:screen==="intro"?intro:screen==="exercise"?exercise:result;
+ const unavailable='<div class="flow-head"><button class="flow-back" data-back="exercise">Back to choices</button></div><p role="status">These choices do not yet support a responsible reading. Please revisit the scenario.</p>';
+ const current=screen==="entry"?entry:screen==="intro"?intro:screen==="exercise"?exercise:(result||unavailable);
  $("cases").innerHTML='<article class="case flow-case flow-'+screen+'" data-id="'+id+'">'+current+'</article>';
  document.querySelectorAll("[data-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.mode===id)));
  document.querySelector("main")?.setAttribute("data-screen",screen);
 }
 function refreshCard(){render();}
-document.querySelector("#more-passages").addEventListener("change",ev=>{
+document.querySelector("#more-passages")?.addEventListener("change",ev=>{
  if(ev.target.value){active.mode=ev.target.value;render();}
 });
 document.addEventListener("click",ev=>{
+ if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();return;}
+ if(ev.target.closest('[data-confirm-allocation]')){active.cases[active.mode].confirmed=true;render();return;}
  const step=ev.target.closest("[data-k-step]");
  if(step){
   const state=active.cases[active.mode],i=Number(step.dataset.kStep);
@@ -362,7 +379,7 @@ document.addEventListener("click",ev=>{
      id:"qa-example",type:"thread",quoteId:0,note:id==="dillard"?
        "How can I protect time for what matters?":"Can careful reasoning eliminate uncertainty before I act?"
    }]}:null;
-   s.result=transferContexts[id]?evaluateKernel(spec,s):encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
+   s.result=transferContexts[id]?(semanticEdition?reasonSemantically(spec,s):evaluateKernel(spec,s)):encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
     {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 
   active.screen[id]="result";refreshCard(id);const end=document.querySelector(".result");
@@ -384,7 +401,11 @@ document.addEventListener("input",ev=>{
   }
   const fresh=document.createElement("div");fresh.innerHTML=kernelControls(transferContexts[active.mode],state);
   box.querySelector("[aria-live]").textContent=fresh.querySelector("[aria-live]").textContent;
-  box.querySelector("[data-run]").disabled=fresh.querySelector("[data-run]").disabled;state.result=null;return;
+  const action=box.querySelector('[data-run], [data-test-allocation]');
+  action.disabled=fresh.querySelector('[data-run], [data-test-allocation]').disabled;
+  if(semanticEdition&&state.firstAllocation){state.confirmed=false;
+   box.querySelector('.reconsider').innerHTML=fresh.querySelector('.reconsider').innerHTML;
+   action.removeAttribute('data-run');action.setAttribute('data-test-allocation','');action.textContent='Consider the cost';}state.result=null;return;
  }
  const range=ev.target.closest("[data-range]");
  if(!range)return;
@@ -399,5 +420,12 @@ document.addEventListener("input",ev=>{
  const result=document.querySelector('[data-id="'+id+'"] .result');
  if(result)result.remove();
 });
+if(semanticEdition){
+ const nav=document.querySelector('.tabs');
+ if(!founderEdition)nav.remove();
+ else nav.innerHTML=Object.entries(transferContexts).map(([id,c])=>'<button data-mode="'+id+'">'+esc(c.author)+'</button>').join('');
+ const requested=new URLSearchParams(location.hash.slice(1)).get('encounter');
+ active.mode=Object.hasOwn(transferContexts,requested)?requested:'money';
+}
 render();
 </script></body></html>

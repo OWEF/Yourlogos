@@ -1355,6 +1355,30 @@ const transferContexts={
 };
 
 
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/semantic-cases-v12.js */
+
+
+const semanticSources={
+ thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',boundary:transferContexts.thoreau.limit}},
+ smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',boundary:transferContexts.smith.limit}},
+ epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',boundary:transferContexts.epictetus.limit}},
+ descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',boundary:transferContexts.descartes.limit}}
+};
+// Generate a two-stage commitment graph from options and subsequent information.
+// No philosopher or quotation identity is consulted by the constructor.
+function commitmentScenario({prompt,field,actions,development,initial=[]}){
+ const options=actions.map(a=>({...a,sets:{[field]:a.commitment},next:'later',reveal:[development]}));
+ const later=actions.map(a=>({...a,sets:{[field]:a.commitment},next:null}));
+ return {start:'first',initial,nodes:{first:{prompt,options},later:{prompt:development,options:later}}};
+}
+const semanticCases={
+ money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
+ workshop:constructScenario(semanticSources.smith,{model:transferContexts.smith.model,initial:{amounts:[3,1],budgets:[4]}}),
+ apology:constructScenario(semanticSources.epictetus,{scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer'},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
+ evidence:constructScenario(semanticSources.descartes,{scenario:'A historical exhibition contains an uncertain attribution. Decide whether to endorse it as new evidence arrives.',model:commitmentScenario({prompt:'What can the label claim?',field:'assent',initial:['The attribution is disputed.'],development:'An independent archive contradicts the attribution; the dispute remains unresolved.',actions:[{id:'endorse',label:'Endorse the attribution',commitment:'assent'},{id:'suspend',label:'Suspend judgment',commitment:'withhold'}]}),initial:{path:['endorse','suspend']}})
+};
+
+
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/semantic-reasoning-v12.js */
 
 // Semantic consequences are data, never callbacks or quote-ID dispatch.
@@ -2210,8 +2234,13 @@ function expressConsequence(packet) {
 
 
 
+
+
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const semanticEdition=Boolean(document.querySelector('meta[name="semantic-discover"]'));
+const founderEdition=Boolean(document.querySelector('meta[name="expression-lab"]'));
+const transferContexts=semanticEdition?Object.fromEntries(Object.entries(semanticCases).map(([id,c])=>[id,{...c,id,model:{...c.model,initial:c.initial}}])):originalContexts;
 const slug=id=>transferContexts[id]||getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
@@ -2231,8 +2260,11 @@ function kernelControls(spec,state){
   const spent=m.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
   const controls=m.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
    m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
+  const facts=tradeoffStructure(m,state);
+  const consequence=semanticEdition&&facts&&m.metric?'This arrangement means '+facts.measure+' '+esc(m.metric.unit)+'.':'';
+  const reconsider=semanticEdition&&state.firstAllocation?'<div class="reconsider"><p>'+consequence+'</p><p>Keep this arrangement, or move a share and notice what has to change.</p><button class="choice" data-confirm-allocation>Continue with this choice</button></div>':'';
   const status=m.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ");
-  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p><button class="primary" data-run="'+spec.id+'" '+(tradeoffStructure(m,state)?"":"disabled")+'>Reveal the meaning</button></div>';
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!state.confirmed?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!state.confirmed?'Consider the cost':'Reveal the meaning')+'</button></div>';
  }
  let html='<div class="case-body" tabindex="-1">';
  for(let i=0;i<=state.path.length;i++){
@@ -2305,7 +2337,7 @@ function contrastHtml(visual){
  return '<dl class="distinction '+esc(visual.form)+'" aria-label="The philosophical distinction">'+visual.items.map(item=>
    '<div><dt>'+esc(item.label)+'</dt><dd>'+esc(item.text)+'</dd></div>').join("")+'</dl>';
 }
-const comparisonPreview=location.hash==="#qa-expression" || Boolean(document.querySelector('meta[name="expression-lab"]'));
+const comparisonPreview=Boolean(document.querySelector('meta[name="expression-lab"]'));
 function expressionComparison(packet){
  const meaning=selectExpressionMeaning(packet);
  const strategy=selectExpressionStrategy(meaning);
@@ -2321,8 +2353,14 @@ function expressionComparison(packet){
 function render(){
  const id=active.mode, spec=slug(id), state=active.cases[id], screen=active.screen[id];
  const quote=spec.quote||"Life can only be understood backwards; but it must be lived forwards.";
- document.querySelector("#more-passages").value=transferContexts[id]?id:"";
- const view=screen==="result"?expressConsequence(state.result):null;
+ if(document.querySelector("#more-passages"))document.querySelector("#more-passages").value=transferContexts[id]?id:"";
+ let view=null;
+ if(screen==="result"){
+  if(state.result?.version==="meaning/1.2"){
+   const meaning=selectExpressionMeaning(state.result),reading=meaning&&composeExpression(meaning);
+   if(reading?.status==="ready")view={...reading,quote:spec.quote};
+  }else view=expressConsequence(state.result);
+ }
  const source='<span class="micro-label">'+esc(spec.author)+'</span>';
  const entry='<section class="entry-view" aria-label="Quotation"><img class="intro-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDADUlKC8oITUvKy88OTU/UIVXUElJUKN1e2GFwarLyL6qurfV8P//1eL/5re6////////////zv//////////////2wBDATk8PFBGUJ1XV53/3Lrc////////////////////////////////////////////////////////////////////wgARCAGQAZADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAAfOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUiwAAAAAAANQgAAAAAAAAAAAAAAAAAAAAHTmKveM9c4l7Ty5r1c+NSzps87rkw0MqIKAAAAAAAAAAAAAAAA16PN6c3HD0cqxRCibZX2zl3jy49vnqcr6DyzUSAWCywCgAAAAAAABSAAGoihd7XPXGo6TMNGTPTI6ZU8vs59Dzcu/GsrEShKIsAoAAAAAABZoyBpuM3vteOpI1mqy1C3nY1clupoWgkLz6E807c65rAESwCgAAAAAAFg6646l9F8/WLhazqCy6MTYmrYihqU1c2yyjE6SXjz9PE4zeakoksQKAAAAAWACkGp6IuRUoVRKJpQAUCLc01c2qhEsl5cvXzPNN5qSxIKAAAAWUSwWUjVN7uc0Zq6QqaChZQQaIAAqUtzSiyElce/E5894qCwAAABrNE7ZObpo5drJaglx0EzoupoCKloIpk0lBSUBk59fF2r0rIxcw5c+vKoLAAAFgsDtvz9ZdwgSmdYLpkauhZk1ZYWUA48LNTfq8fWPSJShjcPDVs9lll5898zONZqCwAAAACzWRqeiIRZnpTOrCoJqSNWVVlATxN51JvPSPWWWUArhPRIGTHD0cDMubAoAAAAC3I71iXcYN65aOjEjpnGlnTOi0EsFlM8fRTz+i1KBKJULAefryWc9ZsktTIoAAAABZTpz3zjvnHVYshA3rNVrOo0oyohRZSpbACQrFl6TOrOHP2eeuWdQixIKAAAGjO+tlxrWo53pkzKWSwhDXTkOt52Ot88r0ONjpMc66zkTreNO15bVnWBvO41rKzbNPJnpypCwAAAaGiXdJbiZSyLKkNZC7zpdMZjozg6RkrKypDTOi1F6d8WOiDnh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" alt="">'+source+
    '<blockquote class="entry-quote">'+esc(quote)+'</blockquote>'+
@@ -2350,18 +2388,21 @@ function render(){
    '<blockquote>'+esc(view.quote)+'</blockquote><p>'+esc(view.interpretation)+'</p></section>'+
    '<section class="reading-panel reading-question"><span class="section-label">A question to carry forward</span>'+
    '<p class="reflection">'+esc(view.proactiveQuestion)+'</p></section>'+
-   (location.hash.startsWith("#qa")?'<details class="founder-qa"><summary>Founder QA · evidence and limits</summary><pre>'+esc(JSON.stringify(state.result,null,2))+'</pre></details>':"")+
+   (founderEdition?'<details class="founder-qa"><summary>Founder QA · evidence and limits</summary><pre>'+esc(JSON.stringify(state.result,null,2))+'</pre></details>':"")+
    '</section>'+(comparisonPreview?expressionComparison(state.result):""):"";
- const current=screen==="entry"?entry:screen==="intro"?intro:screen==="exercise"?exercise:result;
+ const unavailable='<div class="flow-head"><button class="flow-back" data-back="exercise">Back to choices</button></div><p role="status">These choices do not yet support a responsible reading. Please revisit the scenario.</p>';
+ const current=screen==="entry"?entry:screen==="intro"?intro:screen==="exercise"?exercise:(result||unavailable);
  $("cases").innerHTML='<article class="case flow-case flow-'+screen+'" data-id="'+id+'">'+current+'</article>';
  document.querySelectorAll("[data-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.mode===id)));
  document.querySelector("main")?.setAttribute("data-screen",screen);
 }
 function refreshCard(){render();}
-document.querySelector("#more-passages").addEventListener("change",ev=>{
+document.querySelector("#more-passages")?.addEventListener("change",ev=>{
  if(ev.target.value){active.mode=ev.target.value;render();}
 });
 document.addEventListener("click",ev=>{
+ if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();return;}
+ if(ev.target.closest('[data-confirm-allocation]')){active.cases[active.mode].confirmed=true;render();return;}
  const step=ev.target.closest("[data-k-step]");
  if(step){
   const state=active.cases[active.mode],i=Number(step.dataset.kStep);
@@ -2418,7 +2459,7 @@ document.addEventListener("click",ev=>{
      id:"qa-example",type:"thread",quoteId:0,note:id==="dillard"?
        "How can I protect time for what matters?":"Can careful reasoning eliminate uncertainty before I act?"
    }]}:null;
-   s.result=transferContexts[id]?evaluateKernel(spec,s):encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
+   s.result=transferContexts[id]?(semanticEdition?reasonSemantically(spec,s):evaluateKernel(spec,s)):encounterConsequence(id,spec.family==="tradeoff"?{ticks:[...s.ticks],motivation:s.motivation}:
     {resource:s.resource,barrier:s.barrier,action:s.action},memory);
 
   active.screen[id]="result";refreshCard(id);const end=document.querySelector(".result");
@@ -2440,7 +2481,11 @@ document.addEventListener("input",ev=>{
   }
   const fresh=document.createElement("div");fresh.innerHTML=kernelControls(transferContexts[active.mode],state);
   box.querySelector("[aria-live]").textContent=fresh.querySelector("[aria-live]").textContent;
-  box.querySelector("[data-run]").disabled=fresh.querySelector("[data-run]").disabled;state.result=null;return;
+  const action=box.querySelector('[data-run], [data-test-allocation]');
+  action.disabled=fresh.querySelector('[data-run], [data-test-allocation]').disabled;
+  if(semanticEdition&&state.firstAllocation){state.confirmed=false;
+   box.querySelector('.reconsider').innerHTML=fresh.querySelector('.reconsider').innerHTML;
+   action.removeAttribute('data-run');action.setAttribute('data-test-allocation','');action.textContent='Consider the cost';}state.result=null;return;
  }
  const range=ev.target.closest("[data-range]");
  if(!range)return;
@@ -2455,6 +2500,13 @@ document.addEventListener("input",ev=>{
  const result=document.querySelector('[data-id="'+id+'"] .result');
  if(result)result.remove();
 });
+if(semanticEdition){
+ const nav=document.querySelector('.tabs');
+ if(!founderEdition)nav.remove();
+ else nav.innerHTML=Object.entries(transferContexts).map(([id,c])=>'<button data-mode="'+id+'">'+esc(c.author)+'</button>').join('');
+ const requested=new URLSearchParams(location.hash.slice(1)).get('encounter');
+ active.mode=Object.hasOwn(transferContexts,requested)?requested:'money';
+}
 render();
 
 </script></body></html>

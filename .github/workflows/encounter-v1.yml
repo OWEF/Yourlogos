@@ -8,6 +8,7 @@ on:
       - 'philosophy-engine/encounter/quotation-return-v12.js'
       - '**/*kernel*v11*'
       - '**/*semantic*v12*'
+      - '**/*discover*v17*'
       - 'world-memory.js'
       - 'philosophy-engine/encounter/expression-engine-v1.js'
       - 'experiments/encounter-expression-qa.html'
@@ -33,6 +34,7 @@ jobs:
       - run: node tests/encounter-v1-browser.mjs
       - run: node tests/kernel-v11-browser.mjs
       - run: node tests/semantic-v12-browser.mjs
+      - run: node tests/discover-v17-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
