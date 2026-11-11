@@ -47,7 +47,7 @@ try {
    const result=page.locator(".result");
    assert.equal(await page.locator("main").getAttribute("data-screen"),"result");
    assert.equal(await result.locator(".reading-panel").count(),3);
-   assert.equal(await page.locator(".voice-grid").count(),0);
+   assert.equal(await page.locator(".voice-grid").count(),qa?1:0);
    if (!qa) assert.equal(await result.locator(":scope > :last-child").getAttribute("class"),"reading-panel reading-question");
    assert.deepEqual(await result.locator(".section-label").allTextContents(),[
     "Your Encounter with "+author,"Return to the philosopher","A question to carry forward"]);
