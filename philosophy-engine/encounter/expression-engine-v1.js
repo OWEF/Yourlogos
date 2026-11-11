@@ -1,3 +1,4 @@
+import {expressSemantic} from './semantic-reasoning-v12.js';
 import {validateKernelPacket} from "./reasoning-kernel-v11.js";
 // Renderings of existing distinctions, indexed by their validated rule IDs.
 // Each row contains three alternate readings of the reflective headline.
@@ -34,6 +35,7 @@ const preferences={
 
 export function selectExpressionMeaning(packet){
  if(packet?.status!=="ready")return null;
+ if(packet.version==="meaning/1.2")return {kind:"semantic",packet};
  if(packet.version==="reasoning/1.1"){
   if(!validateKernelPacket(packet))return null;
   const allowed=packet.claims.filter(c=>!c.role && c.classification!=="unsupported");
@@ -51,7 +53,7 @@ export function selectExpressionMeaning(packet){
 
 export function selectExpressionStrategy(meaning){
  // Unknown or provisional distinctions have only the base reading.
- const eligible=Object.hasOwn(inflections,meaning.kind)?expressionModes:["reflective"];
+ const eligible=meaning.kind==="semantic"?expressionModes:Object.hasOwn(inflections,meaning.kind)?expressionModes:["reflective"];
  const recommended=preferences[meaning.kind]||"reflective";
  return {eligible:[...eligible],recommended:eligible.includes(recommended)?recommended:"reflective"};
 }
@@ -71,6 +73,7 @@ function eveningSentence(facts,mode){
 }
 
 export function composeExpression(meaning,requested){
+ if(meaning.kind==="semantic")return expressSemantic(meaning.packet,requested);
  const strategy=selectExpressionStrategy(meaning);
  const mode=requested===undefined?strategy.recommended:strategy.eligible.includes(requested)?requested :"reflective";
  const idx=expressionModes.indexOf(mode);

@@ -7,6 +7,7 @@ on:
       - 'scripts/build-scenario-transfer-lab-v02.mjs'
       - 'philosophy-engine/encounter/quotation-return-v12.js'
       - '**/*kernel*v11*'
+      - '**/*semantic*v12*'
       - 'world-memory.js'
       - 'philosophy-engine/encounter/expression-engine-v1.js'
       - 'experiments/encounter-expression-qa.html'
@@ -27,10 +28,11 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
-      - run: node scripts/build-encounter-v1.mjs --check && node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs tests/kernel-v11.test.mjs
+      - run: node scripts/build-encounter-v1.mjs --check && node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs tests/kernel-v11.test.mjs tests/semantic-v12.test.mjs
       - run: npm install --no-save --package-lock=false playwright-core@1.56.1
       - run: node tests/encounter-v1-browser.mjs
       - run: node tests/kernel-v11-browser.mjs
+      - run: node tests/semantic-v12-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
