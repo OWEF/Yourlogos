@@ -65,5 +65,5 @@ test('unrelated commitment revision cannot become a change of assent',()=>{
  c.model.nodes.later.options[1].commitments.delivery='call';
  const p=reasonSemantically(c,{path:['suspend','suspend']});
  assert.equal(p.meaning.kind,'assent');assert.equal(p.meaning.evidence.changes.length,0);
- assert.match(p.meaning.text,/maintained/);assert.equal(p.structure.semanticRevisions.length,1);
+ assert.match(p.meaning.text,/remained the same/);assert.equal(p.structure.semanticRevisions.length,1);
 });
