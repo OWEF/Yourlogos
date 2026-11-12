@@ -1,0 +1,989 @@
+{
+  "money": {
+    "input": {
+      "amounts": [
+        1,
+        0,
+        1
+      ],
+      "budgets": [
+        8
+      ],
+      "intentions": {
+        "lamp": 1
+      },
+      "repetitions": 5
+    },
+    "selected": {
+      "kind": "conversion",
+      "text": "This allocation corresponds to 4 extra working hours.",
+      "classification": "conditional",
+      "evidence": {
+        "measure": 4,
+        "unit": "extra working hours"
+      },
+      "assumptions": [
+        "Only these purchases require extra shifts, at a constant net wage."
+      ]
+    },
+    "selectionTrace": [
+      {
+        "kind": "allocation",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the temporal cost carried by a monetary choice",
+        "educationalPurpose": "Understand possessions through life exchanged",
+        "uncertainty": [
+          "Only these purchases require extra shifts, at a constant net wage."
+        ]
+      },
+      {
+        "kind": "intention_gap",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the temporal cost carried by a monetary choice",
+        "educationalPurpose": "Understand possessions through life exchanged",
+        "uncertainty": [
+          "Only these purchases require extra shifts, at a constant net wage."
+        ]
+      },
+      {
+        "kind": "repetition",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the temporal cost carried by a monetary choice",
+        "educationalPurpose": "Understand possessions through life exchanged",
+        "uncertainty": [
+          "Only these purchases require extra shifts, at a constant net wage."
+        ]
+      },
+      {
+        "kind": "opportunity",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the temporal cost carried by a monetary choice",
+        "educationalPurpose": "Understand possessions through life exchanged",
+        "uncertainty": [
+          "Only these purchases require extra shifts, at a constant net wage."
+        ]
+      },
+      {
+        "kind": "conversion",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "central",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the temporal cost carried by a monetary choice",
+        "educationalPurpose": "Understand possessions through life exchanged",
+        "uncertainty": [
+          "Only these purchases require extra shifts, at a constant net wage."
+        ]
+      }
+    ],
+    "voices": {
+      "reflective": {
+        "status": "ready",
+        "mode": "reflective",
+        "headline": "Under the scenario assumptions, this allocation corresponds to 4 extra working hours.",
+        "experience": "The distinction is between price and life exchanged.",
+        "interpretation": "Henry David Thoreau brings into view the temporal cost carried by a monetary choice. Only these purchases require extra shifts, at a constant net wage. No price establishes that a purchase is worthwhile or wasteful.",
+        "proactiveQuestion": "When you consider 4 extra working hours, what becomes visible about life exchanged through price?",
+        "wordCount": 70,
+        "evidence": {
+          "measure": 4,
+          "unit": "extra working hours"
+        },
+        "classification": "conditional"
+      },
+      "surprising": {
+        "status": "ready",
+        "mode": "surprising",
+        "headline": "Under the scenario assumptions, this allocation corresponds to 4 extra working hours.",
+        "experience": "The same decision can be read through life exchanged, as well as price.",
+        "interpretation": "What Henry David Thoreau makes visible here is the temporal cost carried by a monetary choice. Only these purchases require extra shifts, at a constant net wage. No price establishes that a purchase is worthwhile or wasteful.",
+        "proactiveQuestion": "Does describing 4 extra working hours through life exchanged change what you notice?",
+        "wordCount": 75,
+        "evidence": {
+          "measure": 4,
+          "unit": "extra working hours"
+        },
+        "classification": "conditional"
+      },
+      "playful": {
+        "status": "ready",
+        "mode": "playful",
+        "headline": "Under the scenario assumptions, this allocation corresponds to 4 extra working hours.",
+        "experience": "Try reading price through the lens of life exchanged.",
+        "interpretation": "That shift opens Henry David Thoreau’s question of the temporal cost carried by a monetary choice. Only these purchases require extra shifts, at a constant net wage. No price establishes that a purchase is worthwhile or wasteful.",
+        "proactiveQuestion": "Keep 4 extra working hours in view: what changes when you switch those lenses?",
+        "wordCount": 72,
+        "evidence": {
+          "measure": 4,
+          "unit": "extra working hours"
+        },
+        "classification": "conditional"
+      },
+      "challenging": {
+        "status": "ready",
+        "mode": "challenging",
+        "headline": "Under the scenario assumptions, this allocation corresponds to 4 extra working hours.",
+        "experience": "A distinction remains: price and life exchanged are not interchangeable.",
+        "interpretation": "Henry David Thoreau asks us to examine the temporal cost carried by a monetary choice. Only these purchases require extra shifts, at a constant net wage. No price establishes that a purchase is worthwhile or wasteful.",
+        "proactiveQuestion": "What would you overlook about 4 extra working hours if you considered only price?",
+        "wordCount": 72,
+        "evidence": {
+          "measure": 4,
+          "unit": "extra working hours"
+        },
+        "classification": "conditional"
+      }
+    }
+  },
+  "workshop": {
+    "input": {
+      "amounts": [
+        3,
+        1
+      ],
+      "budgets": [
+        4
+      ]
+    },
+    "selected": {
+      "kind": "dependency",
+      "text": "The arrangement completes 1 finished booklet; completion depends on all required stages. Moving one assignment can raise completion to 2 without adding resources.",
+      "classification": "conditional",
+      "evidence": {
+        "measure": 1,
+        "components": [
+          6,
+          1
+        ],
+        "alternative": {
+          "add": 1,
+          "remove": 0,
+          "amounts": [
+            2,
+            2
+          ],
+          "measure": 2,
+          "delta": 1
+        }
+      },
+      "assumptions": [
+        "Each booklet needs both operations; these invented rates hold for this shift."
+      ]
+    },
+    "selectionTrace": [
+      {
+        "kind": "allocation",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the dependence of completed work on coordinated contributions",
+        "educationalPurpose": "Understand joint production through dependence",
+        "uncertainty": [
+          "Each booklet needs both operations; these invented rates hold for this shift."
+        ]
+      },
+      {
+        "kind": "complementarity",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the dependence of completed work on coordinated contributions",
+        "educationalPurpose": "Understand joint production through dependence",
+        "uncertainty": [
+          "Each booklet needs both operations; these invented rates hold for this shift."
+        ]
+      },
+      {
+        "kind": "conversion",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the dependence of completed work on coordinated contributions",
+        "educationalPurpose": "Understand joint production through dependence",
+        "uncertainty": [
+          "Each booklet needs both operations; these invented rates hold for this shift."
+        ]
+      },
+      {
+        "kind": "dependency",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "central",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the dependence of completed work on coordinated contributions",
+        "educationalPurpose": "Understand joint production through dependence",
+        "uncertainty": [
+          "Each booklet needs both operations; these invented rates hold for this shift."
+        ]
+      }
+    ],
+    "voices": {
+      "reflective": {
+        "status": "ready",
+        "mode": "reflective",
+        "headline": "Under the scenario assumptions, the arrangement completes 1 finished booklet; completion depends on all required stages. Moving one assignment can raise completion to 2 without adding resources.",
+        "experience": "The distinction is between divided tasks and joint production.",
+        "interpretation": "Adam Smith brings into view the dependence of completed work on coordinated contributions. Each booklet needs both operations; these invented rates hold for this shift. These rates cannot establish historical productivity, welfare, or a universally best division of labour.",
+        "proactiveQuestion": "When you consider 1 completed unit, what becomes visible about joint production through divided tasks?",
+        "wordCount": 90,
+        "evidence": {
+          "measure": 1,
+          "components": [
+            6,
+            1
+          ],
+          "alternative": {
+            "add": 1,
+            "remove": 0,
+            "amounts": [
+              2,
+              2
+            ],
+            "measure": 2,
+            "delta": 1
+          }
+        },
+        "classification": "conditional"
+      },
+      "surprising": {
+        "status": "ready",
+        "mode": "surprising",
+        "headline": "Under the scenario assumptions, the arrangement completes 1 finished booklet; completion depends on all required stages. Moving one assignment can raise completion to 2 without adding resources.",
+        "experience": "The same decision can be read through joint production, as well as divided tasks.",
+        "interpretation": "What Adam Smith makes visible here is the dependence of completed work on coordinated contributions. Each booklet needs both operations; these invented rates hold for this shift. These rates cannot establish historical productivity, welfare, or a universally best division of labour.",
+        "proactiveQuestion": "Does describing 1 completed unit through joint production change what you notice?",
+        "wordCount": 94,
+        "evidence": {
+          "measure": 1,
+          "components": [
+            6,
+            1
+          ],
+          "alternative": {
+            "add": 1,
+            "remove": 0,
+            "amounts": [
+              2,
+              2
+            ],
+            "measure": 2,
+            "delta": 1
+          }
+        },
+        "classification": "conditional"
+      },
+      "playful": {
+        "status": "ready",
+        "mode": "playful",
+        "headline": "Under the scenario assumptions, the arrangement completes 1 finished booklet; completion depends on all required stages. Moving one assignment can raise completion to 2 without adding resources.",
+        "experience": "Try reading divided tasks through the lens of joint production.",
+        "interpretation": "That shift opens Adam Smith’s question of the dependence of completed work on coordinated contributions. Each booklet needs both operations; these invented rates hold for this shift. These rates cannot establish historical productivity, welfare, or a universally best division of labour.",
+        "proactiveQuestion": "Keep 1 completed unit in view: what changes when you switch those lenses?",
+        "wordCount": 91,
+        "evidence": {
+          "measure": 1,
+          "components": [
+            6,
+            1
+          ],
+          "alternative": {
+            "add": 1,
+            "remove": 0,
+            "amounts": [
+              2,
+              2
+            ],
+            "measure": 2,
+            "delta": 1
+          }
+        },
+        "classification": "conditional"
+      },
+      "challenging": {
+        "status": "ready",
+        "mode": "challenging",
+        "headline": "Under the scenario assumptions, the arrangement completes 1 finished booklet; completion depends on all required stages. Moving one assignment can raise completion to 2 without adding resources.",
+        "experience": "A distinction remains: divided tasks and joint production are not interchangeable.",
+        "interpretation": "Adam Smith asks us to examine the dependence of completed work on coordinated contributions. Each booklet needs both operations; these invented rates hold for this shift. These rates cannot establish historical productivity, welfare, or a universally best division of labour.",
+        "proactiveQuestion": "What would you overlook about 1 completed unit if you considered only divided tasks?",
+        "wordCount": 92,
+        "evidence": {
+          "measure": 1,
+          "components": [
+            6,
+            1
+          ],
+          "alternative": {
+            "add": 1,
+            "remove": 0,
+            "amounts": [
+              2,
+              2
+            ],
+            "measure": 2,
+            "delta": 1
+          }
+        },
+        "classification": "conditional"
+      }
+    }
+  },
+  "apology": {
+    "input": {
+      "path": [
+        "offer",
+        "space"
+      ]
+    },
+    "selected": {
+      "kind": "agency",
+      "text": "You chose to offer an apology, then give space without another message; the friend’s forgiveness remains outside those choices.",
+      "classification": "conditional",
+      "evidence": {
+        "action": "Give space without another message",
+        "own": "whether and when to contact the friend",
+        "external": "the friend’s forgiveness",
+        "events": [
+          {
+            "action": "Offer an apology",
+            "intention": null,
+            "before": [
+              "Your friend decides whether to forgive."
+            ],
+            "externalInformation": [
+              "Your friend asks for space; forgiveness remains unknown."
+            ],
+            "occurred": {
+              "apologyOffered": true
+            },
+            "relationships": [
+              "action_succession"
+            ]
+          },
+          {
+            "action": "Give space without another message",
+            "intention": null,
+            "before": [
+              "Your friend decides whether to forgive.",
+              "Your friend asks for space; forgiveness remains unknown."
+            ],
+            "externalInformation": [],
+            "occurred": {
+              "apologyOffered": true
+            },
+            "relationships": [
+              "action_succession"
+            ]
+          }
+        ]
+      },
+      "assumptions": [
+        "Choosing a response cannot determine another person’s forgiveness."
+      ]
+    },
+    "selectionTrace": [
+      {
+        "kind": "decision",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the limits of what a chosen action can settle",
+        "educationalPurpose": "Separate chosen action from external outcome",
+        "uncertainty": [
+          "Choosing a response cannot determine another person’s forgiveness."
+        ]
+      },
+      {
+        "kind": "information",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the limits of what a chosen action can settle",
+        "educationalPurpose": "Separate chosen action from external outcome",
+        "uncertainty": [
+          "Choosing a response cannot determine another person’s forgiveness."
+        ]
+      },
+      {
+        "kind": "agency",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "central",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the limits of what a chosen action can settle",
+        "educationalPurpose": "Separate chosen action from external outcome",
+        "uncertainty": [
+          "Choosing a response cannot determine another person’s forgiveness."
+        ]
+      },
+      {
+        "kind": "uncertainty",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the limits of what a chosen action can settle",
+        "educationalPurpose": "Separate chosen action from external outcome",
+        "uncertainty": [
+          "Choosing a response cannot determine another person’s forgiveness."
+        ]
+      }
+    ],
+    "voices": {
+      "reflective": {
+        "status": "ready",
+        "mode": "reflective",
+        "headline": "Under the scenario assumptions, you chose to offer an apology, then give space without another message; the friend’s forgiveness remains outside those choices.",
+        "experience": "The distinction is between our actions and external outcomes.",
+        "interpretation": "Epictetus brings into view the limits of what a chosen action can settle. Choosing a response cannot determine another person’s forgiveness. No path establishes forgiveness, indifference, or a reader’s character.",
+        "proactiveQuestion": "When you consider the friend’s forgiveness, what becomes visible about external outcomes through our actions?",
+        "wordCount": 77,
+        "evidence": {
+          "action": "Give space without another message",
+          "own": "whether and when to contact the friend",
+          "external": "the friend’s forgiveness",
+          "events": [
+            {
+              "action": "Offer an apology",
+              "intention": null,
+              "before": [
+                "Your friend decides whether to forgive."
+              ],
+              "externalInformation": [
+                "Your friend asks for space; forgiveness remains unknown."
+              ],
+              "occurred": {
+                "apologyOffered": true
+              },
+              "relationships": [
+                "action_succession"
+              ]
+            },
+            {
+              "action": "Give space without another message",
+              "intention": null,
+              "before": [
+                "Your friend decides whether to forgive.",
+                "Your friend asks for space; forgiveness remains unknown."
+              ],
+              "externalInformation": [],
+              "occurred": {
+                "apologyOffered": true
+              },
+              "relationships": [
+                "action_succession"
+              ]
+            }
+          ]
+        },
+        "classification": "conditional"
+      },
+      "surprising": {
+        "status": "ready",
+        "mode": "surprising",
+        "headline": "Under the scenario assumptions, you chose to offer an apology, then give space without another message; the friend’s forgiveness remains outside those choices.",
+        "experience": "The same decision can be read through external outcomes, as well as our actions.",
+        "interpretation": "What Epictetus makes visible here is the limits of what a chosen action can settle. Choosing a response cannot determine another person’s forgiveness. No path establishes forgiveness, indifference, or a reader’s character.",
+        "proactiveQuestion": "Does describing the friend’s forgiveness through external outcomes change what you notice?",
+        "wordCount": 81,
+        "evidence": {
+          "action": "Give space without another message",
+          "own": "whether and when to contact the friend",
+          "external": "the friend’s forgiveness",
+          "events": [
+            {
+              "action": "Offer an apology",
+              "intention": null,
+              "before": [
+                "Your friend decides whether to forgive."
+              ],
+              "externalInformation": [
+                "Your friend asks for space; forgiveness remains unknown."
+              ],
+              "occurred": {
+                "apologyOffered": true
+              },
+              "relationships": [
+                "action_succession"
+              ]
+            },
+            {
+              "action": "Give space without another message",
+              "intention": null,
+              "before": [
+                "Your friend decides whether to forgive.",
+                "Your friend asks for space; forgiveness remains unknown."
+              ],
+              "externalInformation": [],
+              "occurred": {
+                "apologyOffered": true
+              },
+              "relationships": [
+                "action_succession"
+              ]
+            }
+          ]
+        },
+        "classification": "conditional"
+      },
+      "playful": {
+        "status": "ready",
+        "mode": "playful",
+        "headline": "Under the scenario assumptions, you chose to offer an apology, then give space without another message; the friend’s forgiveness remains outside those choices.",
+        "experience": "Try reading our actions through the lens of external outcomes.",
+        "interpretation": "That shift opens Epictetus’s question of the limits of what a chosen action can settle. Choosing a response cannot determine another person’s forgiveness. No path establishes forgiveness, indifference, or a reader’s character.",
+        "proactiveQuestion": "Keep the friend’s forgiveness in view: what changes when you switch those lenses?",
+        "wordCount": 78,
+        "evidence": {
+          "action": "Give space without another message",
+          "own": "whether and when to contact the friend",
+          "external": "the friend’s forgiveness",
+          "events": [
+            {
+              "action": "Offer an apology",
+              "intention": null,
+              "before": [
+                "Your friend decides whether to forgive."
+              ],
+              "externalInformation": [
+                "Your friend asks for space; forgiveness remains unknown."
+              ],
+              "occurred": {
+                "apologyOffered": true
+              },
+              "relationships": [
+                "action_succession"
+              ]
+            },
+            {
+              "action": "Give space without another message",
+              "intention": null,
+              "before": [
+                "Your friend decides whether to forgive.",
+                "Your friend asks for space; forgiveness remains unknown."
+              ],
+              "externalInformation": [],
+              "occurred": {
+                "apologyOffered": true
+              },
+              "relationships": [
+                "action_succession"
+              ]
+            }
+          ]
+        },
+        "classification": "conditional"
+      },
+      "challenging": {
+        "status": "ready",
+        "mode": "challenging",
+        "headline": "Under the scenario assumptions, you chose to offer an apology, then give space without another message; the friend’s forgiveness remains outside those choices.",
+        "experience": "A distinction remains: our actions and external outcomes are not interchangeable.",
+        "interpretation": "Epictetus asks us to examine the limits of what a chosen action can settle. Choosing a response cannot determine another person’s forgiveness. No path establishes forgiveness, indifference, or a reader’s character.",
+        "proactiveQuestion": "What would you overlook about the friend’s forgiveness if you considered only our actions?",
+        "wordCount": 79,
+        "evidence": {
+          "action": "Give space without another message",
+          "own": "whether and when to contact the friend",
+          "external": "the friend’s forgiveness",
+          "events": [
+            {
+              "action": "Offer an apology",
+              "intention": null,
+              "before": [
+                "Your friend decides whether to forgive."
+              ],
+              "externalInformation": [
+                "Your friend asks for space; forgiveness remains unknown."
+              ],
+              "occurred": {
+                "apologyOffered": true
+              },
+              "relationships": [
+                "action_succession"
+              ]
+            },
+            {
+              "action": "Give space without another message",
+              "intention": null,
+              "before": [
+                "Your friend decides whether to forgive.",
+                "Your friend asks for space; forgiveness remains unknown."
+              ],
+              "externalInformation": [],
+              "occurred": {
+                "apologyOffered": true
+              },
+              "relationships": [
+                "action_succession"
+              ]
+            }
+          ]
+        },
+        "classification": "conditional"
+      }
+    }
+  },
+  "evidence": {
+    "input": {
+      "path": [
+        "endorse",
+        "suspend"
+      ]
+    },
+    "selected": {
+      "kind": "assent",
+      "text": "You chose to endorse the attribution, then suspend judgment. This changes your stated position; it does not prove the claim false.",
+      "classification": "necessary",
+      "evidence": {
+        "commitments": {
+          "assent": "withhold"
+        },
+        "changes": [
+          {
+            "field": "assent",
+            "from": "assent",
+            "to": "withhold",
+            "at": 1,
+            "evidenceAvailable": [
+              "The attribution is disputed.",
+              "An independent archive contradicts the attribution; the dispute remains unresolved."
+            ]
+          }
+        ],
+        "events": [
+          {
+            "action": "Endorse the attribution",
+            "intention": null,
+            "before": [
+              "The attribution is disputed."
+            ],
+            "externalInformation": [
+              "An independent archive contradicts the attribution; the dispute remains unresolved."
+            ],
+            "occurred": {},
+            "relationships": []
+          },
+          {
+            "action": "Suspend judgment",
+            "intention": null,
+            "before": [
+              "The attribution is disputed.",
+              "An independent archive contradicts the attribution; the dispute remains unresolved."
+            ],
+            "externalInformation": [],
+            "occurred": {},
+            "relationships": [
+              "genuine_revision"
+            ]
+          }
+        ],
+        "position": "withhold"
+      },
+      "assumptions": [
+        "The new archive is relevant but does not settle the disputed attribution."
+      ]
+    },
+    "selectionTrace": [
+      {
+        "kind": "decision",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the need for grounds before accepting a claim",
+        "educationalPurpose": "Distinguish considering a claim from accepting it",
+        "uncertainty": [
+          "The new archive is relevant but does not settle the disputed attribution."
+        ]
+      },
+      {
+        "kind": "revision",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the need for grounds before accepting a claim",
+        "educationalPurpose": "Distinguish considering a claim from accepting it",
+        "uncertainty": [
+          "The new archive is relevant but does not settle the disputed attribution."
+        ]
+      },
+      {
+        "kind": "information",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the need for grounds before accepting a claim",
+        "educationalPurpose": "Distinguish considering a claim from accepting it",
+        "uncertainty": [
+          "The new archive is relevant but does not settle the disputed attribution."
+        ]
+      },
+      {
+        "kind": "assent",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "central",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the need for grounds before accepting a claim",
+        "educationalPurpose": "Distinguish considering a claim from accepting it",
+        "uncertainty": [
+          "The new archive is relevant but does not settle the disputed attribution."
+        ]
+      },
+      {
+        "kind": "uncertainty",
+        "sourceFidelityProvenance": "curated source contract, not independently proved",
+        "sourceFidelity": "observation_only",
+        "pathRelevant": true,
+        "evidentialWarrant": true,
+        "conceptualRelationship": "the need for grounds before accepting a claim",
+        "educationalPurpose": "Distinguish considering a claim from accepting it",
+        "uncertainty": [
+          "The new archive is relevant but does not settle the disputed attribution."
+        ]
+      }
+    ],
+    "voices": {
+      "reflective": {
+        "status": "ready",
+        "mode": "reflective",
+        "headline": "You chose to endorse the attribution, then suspend judgment. This changes your stated position; it does not prove the claim false.",
+        "experience": "The distinction is between considering and assenting.",
+        "interpretation": "René Descartes brings into view the need for grounds before accepting a claim. The new archive is relevant but does not settle the disputed attribution. A document check is not Cartesian clear and distinct knowledge; neither haste nor doubt proves a claim false.",
+        "proactiveQuestion": "When you consider your decision to suspend judgment, what becomes visible about assenting through considering?",
+        "wordCount": 86,
+        "evidence": {
+          "commitments": {
+            "assent": "withhold"
+          },
+          "changes": [
+            {
+              "field": "assent",
+              "from": "assent",
+              "to": "withhold",
+              "at": 1,
+              "evidenceAvailable": [
+                "The attribution is disputed.",
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ]
+            }
+          ],
+          "events": [
+            {
+              "action": "Endorse the attribution",
+              "intention": null,
+              "before": [
+                "The attribution is disputed."
+              ],
+              "externalInformation": [
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ],
+              "occurred": {},
+              "relationships": []
+            },
+            {
+              "action": "Suspend judgment",
+              "intention": null,
+              "before": [
+                "The attribution is disputed.",
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ],
+              "externalInformation": [],
+              "occurred": {},
+              "relationships": [
+                "genuine_revision"
+              ]
+            }
+          ],
+          "position": "withhold"
+        },
+        "classification": "necessary"
+      },
+      "surprising": {
+        "status": "ready",
+        "mode": "surprising",
+        "headline": "You chose to endorse the attribution, then suspend judgment. This changes your stated position; it does not prove the claim false.",
+        "experience": "The same decision can be read through assenting, as well as considering.",
+        "interpretation": "What René Descartes makes visible here is the need for grounds before accepting a claim. The new archive is relevant but does not settle the disputed attribution. A document check is not Cartesian clear and distinct knowledge; neither haste nor doubt proves a claim false.",
+        "proactiveQuestion": "Does describing your decision to suspend judgment through assenting change what you notice?",
+        "wordCount": 91,
+        "evidence": {
+          "commitments": {
+            "assent": "withhold"
+          },
+          "changes": [
+            {
+              "field": "assent",
+              "from": "assent",
+              "to": "withhold",
+              "at": 1,
+              "evidenceAvailable": [
+                "The attribution is disputed.",
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ]
+            }
+          ],
+          "events": [
+            {
+              "action": "Endorse the attribution",
+              "intention": null,
+              "before": [
+                "The attribution is disputed."
+              ],
+              "externalInformation": [
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ],
+              "occurred": {},
+              "relationships": []
+            },
+            {
+              "action": "Suspend judgment",
+              "intention": null,
+              "before": [
+                "The attribution is disputed.",
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ],
+              "externalInformation": [],
+              "occurred": {},
+              "relationships": [
+                "genuine_revision"
+              ]
+            }
+          ],
+          "position": "withhold"
+        },
+        "classification": "necessary"
+      },
+      "playful": {
+        "status": "ready",
+        "mode": "playful",
+        "headline": "You chose to endorse the attribution, then suspend judgment. This changes your stated position; it does not prove the claim false.",
+        "experience": "Try reading considering through the lens of assenting.",
+        "interpretation": "That shift opens René Descartes’s question of the need for grounds before accepting a claim. The new archive is relevant but does not settle the disputed attribution. A document check is not Cartesian clear and distinct knowledge; neither haste nor doubt proves a claim false.",
+        "proactiveQuestion": "Keep your decision to suspend judgment in view: what changes when you switch those lenses?",
+        "wordCount": 89,
+        "evidence": {
+          "commitments": {
+            "assent": "withhold"
+          },
+          "changes": [
+            {
+              "field": "assent",
+              "from": "assent",
+              "to": "withhold",
+              "at": 1,
+              "evidenceAvailable": [
+                "The attribution is disputed.",
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ]
+            }
+          ],
+          "events": [
+            {
+              "action": "Endorse the attribution",
+              "intention": null,
+              "before": [
+                "The attribution is disputed."
+              ],
+              "externalInformation": [
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ],
+              "occurred": {},
+              "relationships": []
+            },
+            {
+              "action": "Suspend judgment",
+              "intention": null,
+              "before": [
+                "The attribution is disputed.",
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ],
+              "externalInformation": [],
+              "occurred": {},
+              "relationships": [
+                "genuine_revision"
+              ]
+            }
+          ],
+          "position": "withhold"
+        },
+        "classification": "necessary"
+      },
+      "challenging": {
+        "status": "ready",
+        "mode": "challenging",
+        "headline": "You chose to endorse the attribution, then suspend judgment. This changes your stated position; it does not prove the claim false.",
+        "experience": "A distinction remains: considering and assenting are not interchangeable.",
+        "interpretation": "René Descartes asks us to examine the need for grounds before accepting a claim. The new archive is relevant but does not settle the disputed attribution. A document check is not Cartesian clear and distinct knowledge; neither haste nor doubt proves a claim false.",
+        "proactiveQuestion": "What would you overlook about your decision to suspend judgment if you considered only considering?",
+        "wordCount": 89,
+        "evidence": {
+          "commitments": {
+            "assent": "withhold"
+          },
+          "changes": [
+            {
+              "field": "assent",
+              "from": "assent",
+              "to": "withhold",
+              "at": 1,
+              "evidenceAvailable": [
+                "The attribution is disputed.",
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ]
+            }
+          ],
+          "events": [
+            {
+              "action": "Endorse the attribution",
+              "intention": null,
+              "before": [
+                "The attribution is disputed."
+              ],
+              "externalInformation": [
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ],
+              "occurred": {},
+              "relationships": []
+            },
+            {
+              "action": "Suspend judgment",
+              "intention": null,
+              "before": [
+                "The attribution is disputed.",
+                "An independent archive contradicts the attribution; the dispute remains unresolved."
+              ],
+              "externalInformation": [],
+              "occurred": {},
+              "relationships": [
+                "genuine_revision"
+              ]
+            }
+          ],
+          "position": "withhold"
+        },
+        "classification": "necessary"
+      }
+    }
+  }
+}

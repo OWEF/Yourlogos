@@ -59,3 +59,21 @@ The D1 fixture proves retained event history, not the full proposed cumulative e
 The engine need not implement natural-language philosophy validation. Congruence among visible labels, structured commitments, source interpretation and source text is a **trusted curation boundary**, currently **not independently verified by the engine**. The conflicting-label and false-agency probes demonstrate that boundary; they are not a request for brittle keyword rules. Source-fidelity trace fields should make that provenance explicit rather than suggest the engine proved fidelity.
 
 Useful executable contracts can stay structural: declare each modeled variable's owner (`self` or `external`) and kind (`event`, `commitment`, `observation`); allow chosen-action effects to write only self-owned variables; admit externally owned observations through separately identified developments; preserve occurred events monotonically so a later action cannot erase an apology or publication; scope revision claims to their own domains; require route-local evidence IDs for citation assertions. An agency claim then depends on an external variable that no own-action effect can assign. These checks enforce declared causal ownership and temporal scope without pretending to understand arbitrary prose or prove the philosophical interpretation.
+
+## Re-review after structural corrections
+
+Independently reran `node --test tests/semantic-v12.test.mjs tests/semantic-v18-holdout.test.mjs`: **14 tests passed, 0 failed**. Read the revised engine and printed the apology, Smith and Descartes outputs, including a fresh cross-domain assent probe.
+
+Resolved within the declared contracts:
+
+- An unrelated contact-domain revision no longer changes the assent conclusion. The repeated endorsement probe correctly says the position remained the same.
+- A first assent declaration is distinguished from maintenance. An unresolved relation in the assent domain prevents the central assent claim, producing incompatibility under the present source contract.
+- Own-action `effects` cannot assign externally owned or undeclared variables. Event effects can only assert occurrence; attempts to erase a prior event are rejected. The apology route now retains `apologyOffered: true` through the later space-giving action.
+- The agency contract requires a declared externally owned outcome variable. This is useful causal metadata validation, not a claim that external outcomes are impossible to influence.
+- Smith's baseline reading now explicitly explains that moving one assignment raises completed booklets from one to two without adding resources. The output connects arrangement to joint production more concretely.
+- The Descartes reading now names endorsement followed by suspended judgment and preserves both non-refutation and non-Cartesian-certainty limits.
+- `selectionTrace.sourceFidelityProvenance` expressly identifies source fidelity as a curated contract, not independently proved. This corrects the provenance concern.
+
+Still open: source interpretation, label-to-annotation congruence, labor-conversion assumptions, and indispensable-stage assumptions remain trusted curation. The structural checks apply to the new effects/domain channels; legacy `sets`, untyped evidence text, and source prose are not a general semantic validation system. Do not claim that every possible authored scenario is philosophically checked. Reader comprehension and human editorial approval remain untested. The four modes preserve meaning but mostly vary framing, not philosophical depth.
+
+**Evaluation provenance:** preserve the original first-pass result of five holdout tests passing before this review's corrections. After review-led changes to the engine and fixtures, these cases are no longer strictly unseen holdouts; the current 14 passing tests are regression/re-review evidence. A new frozen implementation and genuinely unused cases would be required for a further unseen-transfer claim. The reviewer made no engine edits.
