@@ -31,7 +31,7 @@ try {
    const range=page.locator('[data-k-slider="amounts"]').first();
    const old=await range.inputValue();
    await range.fill('0');await range.dispatchEvent('input');
-   if(id==='workshop')assert.ok(await page.locator('[data-test-allocation]').isDisabled());
+   if(id==='workshop'){assert.ok(await page.locator('[data-test-allocation]').isEnabled());assert.equal(await page.locator('[data-k-slider="amounts"]').last().inputValue(),'4');}
    await range.fill(old);await range.dispatchEvent('input');
    await page.locator('[data-test-allocation]').click();
    assert.ok(await page.locator('.reconsider').isVisible());
