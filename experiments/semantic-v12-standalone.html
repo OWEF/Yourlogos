@@ -272,15 +272,10 @@ function validateTension(context){
  if(!s?.relation||!s.concepts?.length||!s.boundary)return reject('Missing semantic warrant or interpretive boundary.');
  if(context.mechanism==='decision_map'){
   for(const node of Object.values(m.nodes)){
-   const signatures=new Set();
-   for(const o of node.options){
-    if(!o.sets||!Object.keys(o.sets).length)return reject('Every option must declare a commitment.');
-    const key=stable(o.sets);
-    if(signatures.has(key))return reject('Options repeat the same commitment.');
-    signatures.add(key);
+   if(node.options.some(o=>!o.action && !o.label))return reject('An observable action is required.');
+   for(const o of node.options)for(const [field,value] of Object.entries(o.commitments||{})){
+    if(!m.commitmentDomains?.[field]?.states?.includes(value))return reject('Commitment state lacks a declared semantic domain.');
    }
-   // There must be an incompatible assignment, not merely different labels.
-   if(node.options.length>1&&!node.options.some((a,i)=>node.options.slice(i+1).some(b=>Object.keys(a.sets).some(k=>k in b.sets&&a.sets[k]!==b.sets[k]))))return reject('Options are compatible rather than a philosophical fork.');
   }
  }
  return {status:'supported',fit};
@@ -308,19 +303,47 @@ function reasonSemantically(context,input){
   const better=context.model.metric?.op==='minimum'?structure.alternatives.find(a=>a.delta>0):null;
   if(better)add('complementarity',`Reallocating one unit can increase the modeled result from ${structure.measure} to ${better.measure}.`,'conditional',better);
   else if(structure.alternatives.length)add('opportunity',structure.slack.every(n=>n===0)?'A feasible increase here requires releasing resources elsewhere.':'Unused capacity permits a change without displacing every existing allocation.','conditional',structure.alternatives[0]);
-  if(structure.measure!==null)add('conversion',`This allocation corresponds to ${structure.measure} ${context.model.metric.unit}.`,'conditional',{measure:structure.measure});
+  if(structure.measure!==null)add('conversion',`This allocation corresponds to ${structure.measure} ${context.model.metric.unit}.`,'conditional',{measure:structure.measure,unit:context.model.metric.unit});
  }else{
   const last=structure.steps.at(-1);if(!last)return reject('No decision selected.');
   add('decision',`Your final choice was to ${last.label.toLowerCase()}.`,'necessary',{choice:last.choice});
-  if(structure.revisions.length)add('revision','Your later commitment differs from an earlier one; the intervening information cannot retrospectively become earlier knowledge.','necessary',structure.revisions);
-  else if(structure.locked.length)add('closure','An earlier act closed alternatives; editing the scenario does not make that act reversible within it.','necessary',{locked:structure.locked});
-  else if(structure.known.length>(context.model.initial||[]).length)add('information','Later information changes the basis for another decision without proving the earlier decision mistaken.','necessary',{steps:structure.steps});
-  else add('uncertainty','You made a commitment without resolving every uncertainty; an unchosen route remains a possibility, not an observed outcome.','conditional',{steps:structure.steps});
+  const ledger={},changes=[],events=[];
+  for(const step of structure.steps){
+   const option=context.model.nodes[step.node].options.find(o=>o.id===step.choice);
+   const event={action:option.action||option.label,intention:option.intention||null,before:step.before,externalInformation:step.revealed,relationships:[]};
+   for(const [field,value] of Object.entries(option.commitments||{})){
+    const prior=ledger[field],domain=context.model.commitmentDomains[field];
+    if(prior!==undefined&&prior!==value){
+     if(domain.oppositions?.some(pair=>pair.includes(prior)&&pair.includes(value))){
+      const change={field,from:prior,to:value,at:events.length,evidenceAvailable:step.before};changes.push(change);event.relationships.push('genuine_revision');
+     }else event.relationships.push('unresolved_relationship');
+    }else if(prior===value)event.relationships.push('compatible_continuation');
+    ledger[field]=value;
+   }
+   if(!Object.keys(option.commitments||{}).length)event.relationships.push('action_succession');
+   events.push(event);
+  }
+  structure.semanticEvents=events;structure.semanticRevisions=changes;
+  if(changes.length)add('revision','You explicitly changed a commitment; this does not establish that the earlier decision was mistaken.','necessary',{changes,events});
+  if(structure.locked.length)add('closure','An earlier act closed alternatives; editing the scenario does not make that act reversible within it.','necessary',{locked:structure.locked});
+  if(structure.known.length>(context.model.initial||[]).length)add('information','Later information changes the basis for another decision without proving the earlier decision mistaken.','necessary',{steps:structure.steps});
+  const control=context.model.agency;
+  if(control?.external&&control?.own)add('agency',`You chose to ${events.map(e=>e.action.toLowerCase()).join(', then ')}; ${control.external} remains outside those choices.`, 'conditional',{action:last.label,own:control.own,external:control.external,events});
+  if(context.model.assentField&&Object.hasOwn(ledger,context.model.assentField))add('assent',changes.length?'You changed your stated position on the claim.':'You maintained your stated position on the claim.','necessary',{commitments:ledger,changes,events,position:ledger[context.model.assentField]});
+  add('uncertainty','An unchosen route remains a possibility, not an observed outcome.','conditional',{steps:structure.steps});
+
  }
- const priority=['intention_gap','revision','complementarity','closure','information','conversion','repetition','opportunity','uncertainty'];
- const meaning=priority.map(k=>claims.find(c=>c.kind===k)).find(Boolean);
+ if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
+ const contract=context.semantic.selection;
+ if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
+ const selectionTrace=claims.map(c=>({kind:c.kind,sourceFidelity:contract.central.includes(c.kind)?'central':contract.alternatives?.includes(c.kind)?'secondary':'observation_only',pathRelevant:Object.keys(c.evidence).length>0,evidentialWarrant:c.classification!=='unsupported',conceptualRelationship:context.semantic.relation,educationalPurpose:contract.purpose,uncertainty:c.assumptions}));
+ const eligible=claims.filter(c=>contract.central.includes(c.kind)&&Object.keys(c.evidence).length);
+ const secondary=claims.filter(c=>contract.alternatives?.includes(c.kind)&&Object.keys(c.evidence).length);
+ const candidates=eligible.length?eligible:secondary;
+ if(candidates.length!==1)return reject(candidates.length?'Several source-relevant meanings require editorial disambiguation.':'No source-relevant consequence is warranted.');
+ const meaning=candidates[0];
  if(!meaning)return reject('No justified philosophical tension detected.');
- return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
+ return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
 const questions={intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
@@ -328,37 +351,48 @@ function expressSemantic(packet,mode='reflective'){
  if(packet?.version!=='meaning/1.2'||packet.status!=='ready'||!packet.claims.includes(packet.meaning)||!frames[mode])return null;
  const m=packet.meaning;
  if(!['necessary','conditional'].includes(m.classification))return null;
- const headline=(m.classification==='conditional'?'Under the scenario assumptions, ':'')+m.text;
- const experience=frames[mode];
- const interpretation=`Through ${packet.author}’s distinction between ${packet.semantic.concepts.join(' and ')}, this illustrates ${packet.semantic.relation}.`;
- const proactiveQuestion=questions[m.kind];
+ const headline=m.classification==='conditional'?'Under the scenario assumptions, '+m.text[0].toLowerCase()+m.text.slice(1):m.text;
+ const concepts=packet.semantic.concepts;
+ const evidence=m.evidence;
+ const anchor={conversion:`${evidence.measure} ${evidence.unit}`,dependency:`${evidence.measure} completed ${evidence.measure===1?'unit':'units'}`,agency:evidence.external,assent:`your decision to ${evidence.events?.at(-1)?.action.toLowerCase()}`,revision:'the explicitly changed commitment'}[m.kind]||'this consequence';
+ const relationship=packet.semantic.relation;
+ const compositions={
+  reflective:{experience:`The distinction is between ${concepts.join(' and ')}.`,interpretation:`${packet.author} brings into view ${relationship}.`,question:`When you consider ${anchor}, what becomes visible about ${concepts[1]} through ${concepts[0]}?`},
+  surprising:{experience:`The same decision can be read through ${concepts[1]}, as well as ${concepts[0]}.`,interpretation:`What ${packet.author} makes visible here is ${relationship}.`,question:`Does describing ${anchor} through ${concepts[1]} change what you notice?`},
+  playful:{experience:`Try reading ${concepts[0]} through the lens of ${concepts[1]}.`,interpretation:`That shift opens ${packet.author}’s question of ${relationship}.`,question:`Keep ${anchor} in view: what changes when you switch those lenses?`},
+  challenging:{experience:`A distinction remains: ${concepts[0]} and ${concepts[1]} are not interchangeable.`,interpretation:`${packet.author} asks us to examine ${relationship}.`,question:`What would you overlook about ${anchor} if you considered only ${concepts[0]}?`}
+ };
+ const composed=compositions[mode];
+ const experience=composed.experience;
+ const interpretation=composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
+ const proactiveQuestion=composed.question;
  const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
  const wordCount=text.split(/\s+/).length;
  // Never truncate a caveat or silently add padding to satisfy a length target.
- if(wordCount<45||wordCount>70)return {status:'needs_editorial_review',wordCount,reason:'Semantic labels exceed the concise composition budget.'};
+ if(wordCount>160)return {status:'needs_editorial_review',wordCount,reason:'Reading exceeds the safety ceiling; editorial shortening is required.'};
  return {status:'ready',mode,headline,experience,interpretation,proactiveQuestion,wordCount,evidence:m.evidence,classification:m.classification};
 }
 
 
 
 const semanticSources={
- thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',boundary:transferContexts.thoreau.limit}},
- smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',boundary:transferContexts.smith.limit}},
- epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',boundary:transferContexts.epictetus.limit}},
- descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',boundary:transferContexts.descartes.limit}}
+ thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
+ smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['dependency'],alternatives:[],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
+ epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',selection:{central:['agency'],alternatives:[],purpose:'Separate chosen action from external outcome'},boundary:'No path establishes forgiveness, indifference, or a reader’s character.'}},
+ descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}}
 };
 // Generate a two-stage commitment graph from options and subsequent information.
 // No philosopher or quotation identity is consulted by the constructor.
-function commitmentScenario({prompt,field,actions,development,initial=[]}){
- const options=actions.map(a=>({...a,sets:{[field]:a.commitment},next:'later',reveal:[development]}));
- const later=actions.map(a=>({...a,sets:{[field]:a.commitment},next:null}));
- return {start:'first',initial,nodes:{first:{prompt,options},later:{prompt:development,options:later}}};
+function commitmentScenario({prompt,field,actions,development,initial=[],domain=null,agency=null,assentField=null}){
+ const options=actions.map(a=>({...a,action:a.label,...(domain?{commitments:{[field]:a.commitment}}:{}),next:'later',reveal:[development]}));
+ const later=actions.map(a=>({...a,action:a.label,...(domain?{commitments:{[field]:a.commitment}}:{}),next:null}));
+ return {start:'first',initial,agency,assentField,commitmentDomains:domain?{[field]:domain}:null,nodes:{first:{prompt,options},later:{prompt:development,options:later}}};
 }
 const semanticCases={
  money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
  workshop:constructScenario(semanticSources.smith,{model:transferContexts.smith.model,initial:{amounts:[3,1],budgets:[4]}}),
- apology:constructScenario(semanticSources.epictetus,{scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer'},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
- evidence:constructScenario(semanticSources.descartes,{scenario:'A historical exhibition contains an uncertain attribution. Decide whether to endorse it as new evidence arrives.',model:commitmentScenario({prompt:'What can the label claim?',field:'assent',initial:['The attribution is disputed.'],development:'An independent archive contradicts the attribution; the dispute remains unresolved.',actions:[{id:'endorse',label:'Endorse the attribution',commitment:'assent'},{id:'suspend',label:'Suspend judgment',commitment:'withhold'}]}),initial:{path:['endorse','suspend']}})
+ apology:constructScenario(semanticSources.epictetus,{assumptions:['Choosing a response cannot determine another person’s forgiveness.'],scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',agency:{own:'whether and when to contact the friend',external:'the friend’s forgiveness'},initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer'},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
+ evidence:constructScenario(semanticSources.descartes,{assumptions:['The new archive is relevant but does not settle the disputed attribution.'],scenario:'A historical exhibition contains an uncertain attribution. Decide whether to endorse it as new evidence arrives.',model:commitmentScenario({prompt:'What can the label claim?',field:'assent',assentField:'assent',domain:{states:['assent','withhold'],oppositions:[['assent','withhold']]},initial:['The attribution is disputed.'],development:'An independent archive contradicts the attribution; the dispute remains unresolved.',actions:[{id:'endorse',label:'Endorse the attribution',commitment:'assent'},{id:'suspend',label:'Suspend judgment',commitment:'withhold'}]}),initial:{path:['endorse','suspend']}})
 };
 
 
