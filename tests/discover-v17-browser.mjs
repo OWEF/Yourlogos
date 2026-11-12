@@ -26,7 +26,10 @@ try {
   assert.ok(await page.locator('.intro-view').evaluate(el=>el===document.activeElement));
   await noOverflow();
   if(width===390)await page.screenshot({path:`design-review/v18-${id}-intro.png`,fullPage:true});
-  await page.locator('[data-enter]').click();
+  await page.keyboard.press('Escape');
+  assert.ok(await page.locator('[data-discover]').isVisible());
+  await page.locator('[data-discover]').click();
+  await page.locator('[data-enter]').focus();await page.keyboard.press('Enter');
   if(['money','workshop'].includes(id)) {
    const range=page.locator('[data-k-slider="amounts"]').first();
    const old=await range.inputValue();
@@ -35,6 +38,7 @@ try {
    await range.fill(old);await range.dispatchEvent('input');
    await page.locator('[data-test-allocation]').click();
    assert.ok(await page.locator('.reconsider').isVisible());
+   assert.ok(await page.locator('[data-run]').evaluate(el=>el===document.activeElement));
    if(id==='money'){
     await range.fill('4');await range.dispatchEvent('input');
     const last=page.locator('[data-k-slider="amounts"]').last();const oldLast=await last.inputValue();
@@ -53,6 +57,7 @@ try {
    await page.locator('[data-k-step="1"]').last().click();
   }
   await noOverflow();
+  for(const control of await page.locator('.case-body button,.case-body input').all()){const box=await control.boundingBox();assert.ok(box.height>=44&&box.width>=44);}
   if(width===390)await page.screenshot({path:`design-review/v18-${id}-interaction.png`,fullPage:true});
   await page.locator('[data-run]').click();
   assert.equal(await page.locator('.reading-panel').count(),3);

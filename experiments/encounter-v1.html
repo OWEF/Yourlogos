@@ -160,7 +160,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const semanticEdition=Boolean(document.querySelector('meta[name="semantic-discover"]'));
 const founderEdition=Boolean(document.querySelector('meta[name="expression-lab"]'));
-const currentContexts=semanticEdition?Object.fromEntries(Object.entries(semanticCases).map(([id,c])=>[id,{...c,id,model:{...c.model,initial:c.initial}}])):transferContexts;
+const currentContexts=semanticEdition?Object.fromEntries(Object.entries(semanticCases).map(([id,c])=>[id,{...c,id,model:{...c.model,...(c.mechanism==="tradeoff"?{initial:c.initial}:{})}}])):transferContexts;
 const slug=id=>currentContexts[id]||getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
@@ -320,8 +320,9 @@ function refreshCard(){render();}
 document.querySelector("#more-passages")?.addEventListener("change",ev=>{
  if(ev.target.value){active.mode=ev.target.value;render();}
 });
+document.addEventListener("keydown",ev=>{if(ev.key==="Escape"){const back=document.querySelector("[data-back]");if(back){ev.preventDefault();back.click();}}});
 document.addEventListener("click",ev=>{
- if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();return;}
+ if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();document.querySelector('[data-run]')?.focus();return;}
  if(ev.target.closest('[data-confirm-allocation]')){active.cases[active.mode].confirmed=true;render();return;}
  const step=ev.target.closest("[data-k-step]");
  if(step){

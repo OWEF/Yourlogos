@@ -48,7 +48,7 @@ test('commitment revisions require explicit semantic opposition',()=>{
  assert.equal(maintained.structure.semanticRevisions.length,0);
  assert.ok(maintained.structure.semanticEvents[1].relationships.includes('compatible_continuation'));
  const undeclared=structuredClone(semanticCases.evidence);undeclared.model.commitmentDomains.assent.oppositions=[];
- assert.equal(reasonSemantically(undeclared,undeclared.initial).structure.semanticRevisions.length,0);
+ assert.equal(reasonSemantically(undeclared,undeclared.initial).status,'incompatible');
 });
 test('selection records source centrality instead of global operation priority',()=>{
  const p=reasonSemantically(semanticCases.money,semanticCases.money.initial);
@@ -56,4 +56,14 @@ test('selection records source centrality instead of global operation priority',
  assert.equal(p.selectionTrace.find(x=>x.kind==='intention_gap').sourceFidelity,'observation_only');
  const c=structuredClone(semanticCases.money);delete c.semantic.selection;
  assert.equal(reasonSemantically(c,c.initial).status,'incompatible');
+});
+
+test('unrelated commitment revision cannot become a change of assent',()=>{
+ const c=structuredClone(semanticCases.evidence);
+ c.model.commitmentDomains.delivery={states:['post','call'],oppositions:[['post','call']]};
+ c.model.nodes.first.options[1].commitments.delivery='post';
+ c.model.nodes.later.options[1].commitments.delivery='call';
+ const p=reasonSemantically(c,{path:['suspend','suspend']});
+ assert.equal(p.meaning.kind,'assent');assert.equal(p.meaning.evidence.changes.length,0);
+ assert.match(p.meaning.text,/maintained/);assert.equal(p.structure.semanticRevisions.length,1);
 });

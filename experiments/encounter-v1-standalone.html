@@ -1430,7 +1430,7 @@ function reasonSemantically(context,input){
  }else{
   const last=structure.steps.at(-1);if(!last)return reject('No decision selected.');
   add('decision',`Your final choice was to ${last.label.toLowerCase()}.`,'necessary',{choice:last.choice});
-  const ledger={},changes=[],events=[];
+  const ledger={},changes=[],events=[],unresolved=[];
   for(const step of structure.steps){
    const option=context.model.nodes[step.node].options.find(o=>o.id===step.choice);
    const event={action:option.action||option.label,intention:option.intention||null,before:step.before,externalInformation:step.revealed,relationships:[]};
@@ -1439,7 +1439,7 @@ function reasonSemantically(context,input){
     if(prior!==undefined&&prior!==value){
      if(domain.oppositions?.some(pair=>pair.includes(prior)&&pair.includes(value))){
       const change={field,from:prior,to:value,at:events.length,evidenceAvailable:step.before};changes.push(change);event.relationships.push('genuine_revision');
-     }else event.relationships.push('unresolved_relationship');
+     }else {event.relationships.push('unresolved_relationship');unresolved.push({field,from:prior,to:value});}
     }else if(prior===value)event.relationships.push('compatible_continuation');
     ledger[field]=value;
    }
@@ -1452,7 +1452,8 @@ function reasonSemantically(context,input){
   if(structure.known.length>(context.model.initial||[]).length)add('information','Later information changes the basis for another decision without proving the earlier decision mistaken.','necessary',{steps:structure.steps});
   const control=context.model.agency;
   if(control?.external&&control?.own)add('agency',`You chose to ${events.map(e=>e.action.toLowerCase()).join(', then ')}; ${control.external} remains outside those choices.`, 'conditional',{action:last.label,own:control.own,external:control.external,events});
-  if(context.model.assentField&&Object.hasOwn(ledger,context.model.assentField))add('assent',changes.length?'You changed your stated position on the claim.':'You maintained your stated position on the claim.','necessary',{commitments:ledger,changes,events,position:ledger[context.model.assentField]});
+  const assentChanges=changes.filter(c=>c.field===context.model.assentField);
+  if(context.model.assentField&&Object.hasOwn(ledger,context.model.assentField)&&!unresolved.some(c=>c.field===context.model.assentField))add('assent',assentChanges.length?'You changed your stated position on the claim.':'You maintained your stated position on the claim.','necessary',{commitments:ledger,changes:assentChanges,events,position:ledger[context.model.assentField]});
   add('uncertainty','An unchosen route remains a possibility, not an observed outcome.','conditional',{steps:structure.steps});
 
  }
@@ -2274,7 +2275,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const semanticEdition=Boolean(document.querySelector('meta[name="semantic-discover"]'));
 const founderEdition=Boolean(document.querySelector('meta[name="expression-lab"]'));
-const currentContexts=semanticEdition?Object.fromEntries(Object.entries(semanticCases).map(([id,c])=>[id,{...c,id,model:{...c.model,initial:c.initial}}])):transferContexts;
+const currentContexts=semanticEdition?Object.fromEntries(Object.entries(semanticCases).map(([id,c])=>[id,{...c,id,model:{...c.model,...(c.mechanism==="tradeoff"?{initial:c.initial}:{})}}])):transferContexts;
 const slug=id=>currentContexts[id]||getMechanismCase(id);
 const unit=n=>String(n)+"h";
 const colors=["var(--gold)","var(--sage)","var(--rose)"];
@@ -2434,8 +2435,9 @@ function refreshCard(){render();}
 document.querySelector("#more-passages")?.addEventListener("change",ev=>{
  if(ev.target.value){active.mode=ev.target.value;render();}
 });
+document.addEventListener("keydown",ev=>{if(ev.key==="Escape"){const back=document.querySelector("[data-back]");if(back){ev.preventDefault();back.click();}}});
 document.addEventListener("click",ev=>{
- if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();return;}
+ if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();document.querySelector('[data-run]')?.focus();return;}
  if(ev.target.closest('[data-confirm-allocation]')){active.cases[active.mode].confirmed=true;render();return;}
  const step=ev.target.closest("[data-k-step]");
  if(step){
