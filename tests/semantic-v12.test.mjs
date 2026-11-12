@@ -67,3 +67,14 @@ test('unrelated commitment revision cannot become a change of assent',()=>{
  assert.equal(p.meaning.kind,'assent');assert.equal(p.meaning.evidence.changes.length,0);
  assert.match(p.meaning.text,/remained the same/);assert.equal(p.structure.semanticRevisions.length,1);
 });
+
+test('declared ownership and occurred events reject manufactured external outcomes and erased history',()=>{
+ const c=structuredClone(semanticCases.apology);
+ c.model.nodes.first.options[0].effects.forgiveness=true;
+ assert.equal(reasonSemantically(c,c.initial).status,'incompatible');
+ delete c.model.nodes.first.options[0].effects.forgiveness;
+ c.model.nodes.later.options[1].effects={apologyOffered:false};
+ assert.equal(reasonSemantically(c,c.initial).status,'incompatible');
+ delete c.model.nodes.later.options[1].effects;
+ assert.equal(reasonSemantically(c,c.initial).structure.occurred.apologyOffered,true);
+});

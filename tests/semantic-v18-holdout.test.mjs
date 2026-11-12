@@ -19,6 +19,7 @@ test('independent D1: convergent final action preserves different histories',()=
  c.model.nodes.first.options[1].label='Draft an apology privately';c.model.nodes.first.options[1].action='Draft an apology privately';
  const a=run(c,{path:['offer','space']}),b=run(c,{path:['space','space']});
  assert.equal(a.structure.semanticRevisions.length,0);assert.equal(b.structure.semanticRevisions.length,0);
+ assert.equal(a.structure.occurred.apologyOffered,true);assert.equal(b.structure.occurred.apologyOffered,undefined);
  assert.notDeepEqual(a.meaning.evidence.events,b.meaning.evidence.events);
  assert.notEqual(expressSemantic(a).headline,expressSemantic(b).headline);
 });

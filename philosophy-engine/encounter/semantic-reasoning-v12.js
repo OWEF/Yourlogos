@@ -12,8 +12,16 @@ export function validateTension(context){
  const s=context.semantic,m=context.model;
  if(!s?.relation||!s.concepts?.length||!s.boundary)return reject('Missing semantic warrant or interpretive boundary.');
  if(context.mechanism==='decision_map'){
+  if(m.agency&&m.variables?.[m.agency.externalVariable]?.owner!=='external')return reject('Agency requires a declared externally owned outcome.');
   for(const node of Object.values(m.nodes)){
    if(node.options.some(o=>!o.action && !o.label))return reject('An observable action is required.');
+   for(const o of node.options){
+    for(const [field,value] of Object.entries(o.effects||{})){
+     const variable=m.variables?.[field];
+     if(!variable||variable.owner!=='self')return reject('A chosen action cannot assign an external or undeclared variable.');
+     if(variable.kind==='event'&&value!==true)return reject('An occurred event cannot be erased by a later action.');
+    }
+   }
    for(const o of node.options)for(const [field,value] of Object.entries(o.commitments||{})){
     if(!m.commitmentDomains?.[field]?.states?.includes(value))return reject('Commitment state lacks a declared semantic domain.');
    }
@@ -48,10 +56,11 @@ export function reasonSemantically(context,input){
  }else{
   const last=structure.steps.at(-1);if(!last)return reject('No decision selected.');
   add('decision',`Your final choice was to ${last.label.toLowerCase()}.`,'necessary',{choice:last.choice});
-  const ledger={},changes=[],events=[],unresolved=[];
+  const ledger={},changes=[],events=[],unresolved=[],occurred={};
   for(const step of structure.steps){
    const option=context.model.nodes[step.node].options.find(o=>o.id===step.choice);
-   const event={action:option.action||option.label,intention:option.intention||null,before:step.before,externalInformation:step.revealed,relationships:[]};
+   Object.assign(occurred,option.effects||{});
+   const event={action:option.action||option.label,intention:option.intention||null,before:step.before,externalInformation:step.revealed,occurred:{...occurred},relationships:[]};
    for(const [field,value] of Object.entries(option.commitments||{})){
     const prior=ledger[field],domain=context.model.commitmentDomains[field];
     if(prior!==undefined&&prior!==value){
@@ -64,7 +73,7 @@ export function reasonSemantically(context,input){
    if(!Object.keys(option.commitments||{}).length)event.relationships.push('action_succession');
    events.push(event);
   }
-  structure.semanticEvents=events;structure.semanticRevisions=changes;
+  structure.semanticEvents=events;structure.semanticRevisions=changes;structure.occurred=occurred;
   if(changes.length)add('revision','You explicitly changed a commitment; this does not establish that the earlier decision was mistaken.','necessary',{changes,events});
   if(structure.locked.length)add('closure','An earlier act closed alternatives; editing the scenario does not make that act reversible within it.','necessary',{locked:structure.locked});
   if(structure.known.length>(context.model.initial||[]).length)add('information','Later information changes the basis for another decision without proving the earlier decision mistaken.','necessary',{steps:structure.steps});

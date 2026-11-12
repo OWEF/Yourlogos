@@ -1366,15 +1366,15 @@ const semanticSources={
 };
 // Generate a two-stage commitment graph from options and subsequent information.
 // No philosopher or quotation identity is consulted by the constructor.
-function commitmentScenario({prompt,field,actions,development,initial=[],domain=null,agency=null,assentField=null}){
+function commitmentScenario({prompt,field,actions,development,initial=[],domain=null,agency=null,assentField=null,variables={}}){
  const options=actions.map(a=>({...a,action:a.label,...(domain?{commitments:{[field]:a.commitment}}:{}),next:'later',reveal:[development]}));
  const later=actions.map(a=>({...a,action:a.label,...(domain?{commitments:{[field]:a.commitment}}:{}),next:null}));
- return {start:'first',initial,agency,assentField,commitmentDomains:domain?{[field]:domain}:null,nodes:{first:{prompt,options},later:{prompt:development,options:later}}};
+ return {start:'first',initial,agency,assentField,variables,commitmentDomains:domain?{[field]:domain}:null,nodes:{first:{prompt,options},later:{prompt:development,options:later}}};
 }
 const semanticCases={
  money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
  workshop:constructScenario(semanticSources.smith,{model:transferContexts.smith.model,initial:{amounts:[3,1],budgets:[4]}}),
- apology:constructScenario(semanticSources.epictetus,{assumptions:['Choosing a response cannot determine another person’s forgiveness.'],scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',agency:{own:'whether and when to contact the friend',external:'the friend’s forgiveness'},initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer'},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
+ apology:constructScenario(semanticSources.epictetus,{assumptions:['Choosing a response cannot determine another person’s forgiveness.'],scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',variables:{apologyOffered:{kind:'event',owner:'self'},forgiveness:{kind:'observation',owner:'external'}},agency:{externalVariable:'forgiveness',own:'whether and when to contact the friend',external:'the friend’s forgiveness'},initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer',effects:{apologyOffered:true}},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
  evidence:constructScenario(semanticSources.descartes,{assumptions:['The new archive is relevant but does not settle the disputed attribution.'],scenario:'A historical exhibition contains an uncertain attribution. Decide whether to endorse it as new evidence arrives.',model:commitmentScenario({prompt:'What can the label claim?',field:'assent',assentField:'assent',domain:{states:['assent','withhold'],oppositions:[['assent','withhold']]},initial:['The attribution is disputed.'],development:'An independent archive contradicts the attribution; the dispute remains unresolved.',actions:[{id:'endorse',label:'Endorse the attribution',commitment:'assent'},{id:'suspend',label:'Suspend judgment',commitment:'withhold'}]}),initial:{path:['endorse','suspend']}})
 };
 
@@ -1394,8 +1394,16 @@ function validateTension(context){
  const s=context.semantic,m=context.model;
  if(!s?.relation||!s.concepts?.length||!s.boundary)return reject('Missing semantic warrant or interpretive boundary.');
  if(context.mechanism==='decision_map'){
+  if(m.agency&&m.variables?.[m.agency.externalVariable]?.owner!=='external')return reject('Agency requires a declared externally owned outcome.');
   for(const node of Object.values(m.nodes)){
    if(node.options.some(o=>!o.action && !o.label))return reject('An observable action is required.');
+   for(const o of node.options){
+    for(const [field,value] of Object.entries(o.effects||{})){
+     const variable=m.variables?.[field];
+     if(!variable||variable.owner!=='self')return reject('A chosen action cannot assign an external or undeclared variable.');
+     if(variable.kind==='event'&&value!==true)return reject('An occurred event cannot be erased by a later action.');
+    }
+   }
    for(const o of node.options)for(const [field,value] of Object.entries(o.commitments||{})){
     if(!m.commitmentDomains?.[field]?.states?.includes(value))return reject('Commitment state lacks a declared semantic domain.');
    }
@@ -1430,10 +1438,11 @@ function reasonSemantically(context,input){
  }else{
   const last=structure.steps.at(-1);if(!last)return reject('No decision selected.');
   add('decision',`Your final choice was to ${last.label.toLowerCase()}.`,'necessary',{choice:last.choice});
-  const ledger={},changes=[],events=[],unresolved=[];
+  const ledger={},changes=[],events=[],unresolved=[],occurred={};
   for(const step of structure.steps){
    const option=context.model.nodes[step.node].options.find(o=>o.id===step.choice);
-   const event={action:option.action||option.label,intention:option.intention||null,before:step.before,externalInformation:step.revealed,relationships:[]};
+   Object.assign(occurred,option.effects||{});
+   const event={action:option.action||option.label,intention:option.intention||null,before:step.before,externalInformation:step.revealed,occurred:{...occurred},relationships:[]};
    for(const [field,value] of Object.entries(option.commitments||{})){
     const prior=ledger[field],domain=context.model.commitmentDomains[field];
     if(prior!==undefined&&prior!==value){
@@ -1446,7 +1455,7 @@ function reasonSemantically(context,input){
    if(!Object.keys(option.commitments||{}).length)event.relationships.push('action_succession');
    events.push(event);
   }
-  structure.semanticEvents=events;structure.semanticRevisions=changes;
+  structure.semanticEvents=events;structure.semanticRevisions=changes;structure.occurred=occurred;
   if(changes.length)add('revision','You explicitly changed a commitment; this does not establish that the earlier decision was mistaken.','necessary',{changes,events});
   if(structure.locked.length)add('closure','An earlier act closed alternatives; editing the scenario does not make that act reversible within it.','necessary',{locked:structure.locked});
   if(structure.known.length>(context.model.initial||[]).length)add('information','Later information changes the basis for another decision without proving the earlier decision mistaken.','necessary',{steps:structure.steps});
