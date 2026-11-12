@@ -1,0 +1,82 @@
+[
+  {
+    "id": "money",
+    "width": 320,
+    "status": "PASS"
+  },
+  {
+    "id": "workshop",
+    "width": 320,
+    "status": "PASS"
+  },
+  {
+    "id": "apology",
+    "width": 320,
+    "status": "PASS"
+  },
+  {
+    "id": "evidence",
+    "width": 320,
+    "status": "PASS"
+  },
+  {
+    "id": "money",
+    "width": 390,
+    "status": "PASS"
+  },
+  {
+    "id": "workshop",
+    "width": 390,
+    "status": "PASS"
+  },
+  {
+    "id": "apology",
+    "width": 390,
+    "status": "PASS"
+  },
+  {
+    "id": "evidence",
+    "width": 390,
+    "status": "PASS"
+  },
+  {
+    "id": "money",
+    "width": 430,
+    "status": "PASS"
+  },
+  {
+    "id": "workshop",
+    "width": 430,
+    "status": "PASS"
+  },
+  {
+    "id": "apology",
+    "width": 430,
+    "status": "PASS"
+  },
+  {
+    "id": "evidence",
+    "width": 430,
+    "status": "PASS"
+  },
+  {
+    "id": "money",
+    "width": 1024,
+    "status": "PASS"
+  },
+  {
+    "id": "workshop",
+    "width": 1024,
+    "status": "PASS"
+  },
+  {
+    "id": "apology",
+    "width": 1024,
+    "status": "PASS"
+  },
+  {
+    "id": "evidence",
+    "width": 1024,
+    "status": "PASS"
+  }
+]
