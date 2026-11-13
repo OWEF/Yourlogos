@@ -1,4 +1,5 @@
 import {mechanismFit,tradeoffStructure,decisionStructure} from './reasoning-kernel-v11.js';
+import {traceSourcePassage} from './source-passage-witness-v19.js';
 // Semantic consequences are data, never callbacks or quote-ID dispatch.
 const reject=reason=>({version:'meaning/1.2',status:'incompatible',reason});
 const stable=x=>JSON.stringify(Object.entries(x||{}).sort(([a],[b])=>a.localeCompare(b)));
@@ -13,8 +14,13 @@ export function validateTension(context){
  if(!s?.relation||!s.concepts?.length||!s.boundary)return reject('Missing semantic warrant or interpretive boundary.');
  if(context.mechanism==='tradeoff'&&m.comparison){
   const comparison=m.comparison;
-  if(comparison.kind!=='switching_generalists'||!Number.isSafeInteger(comparison.baselineMeasure)||
-   comparison.baselineMeasure<0||!Number.isSafeInteger(comparison.staffing)||comparison.staffing<1||
+  if(comparison.kind!=='switching_generalists'||Object.hasOwn(comparison,'baselineMeasure')||
+   !Number.isSafeInteger(comparison.staffing)||comparison.staffing<1||
+   !Number.isSafeInteger(comparison.minutesPerWorker)||comparison.minutesPerWorker<1||
+   !Number.isSafeInteger(comparison.switchingMinutesPerWorker)||comparison.switchingMinutesPerWorker<0||
+   comparison.switchingMinutesPerWorker>=comparison.minutesPerWorker||
+   !Number.isSafeInteger(comparison.minutesPerUnit)||comparison.minutesPerUnit<1||
+   !Number.isSafeInteger(comparison.staffing*comparison.minutesPerWorker)||
    !m.resources?.some(r=>r.id===comparison.resourceId&&r.type==='exact'&&r.min===comparison.staffing&&r.max===comparison.staffing)||
    m.metric?.op!=='minimum'||typeof comparison.explanation!=='string'||comparison.explanation.length<40)
    return reject('The hypothetical switching-team comparator is incomplete or lacks a comparable shared budget.');
@@ -46,7 +52,9 @@ export function validateTension(context){
    }
   }
  }
- return {status:'supported',fit};
+ const sourceTrace=traceSourcePassage(a,context.quote);
+ if(sourceTrace.status==='mismatch')return reject(sourceTrace.reason);
+ return {status:'supported',fit,sourceTrace};
 }
 
 /**
@@ -190,14 +198,17 @@ export function reasonSemantically(context,input){
  if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
  if(trade&&context.model.comparison){
   const c=context.model.comparison;
-  const delta=structure.measure-c.baselineMeasure;
+  const baseline=Math.floor(c.staffing*(c.minutesPerWorker-c.switchingMinutesPerWorker)/c.minutesPerUnit);
+  const delta=structure.measure-baseline;
   const reading=delta>0?'The specialized arrangement produces '+delta+' more modeled unit'+(delta===1?'':'s')+'.':
    delta===0?'The specialized allocation does not outperform the rotating team in this scenario.':
    'The specialized allocation produces '+Math.abs(delta)+' fewer modeled units under these assumptions.';
-  add('specialization_effect','The stipulated rotating team finishes '+c.baselineMeasure+
+  add('specialization_effect','The stipulated rotating team finishes '+baseline+
    ' units; your dedicated-stage assignment finishes '+structure.measure+' units. '+reading+
    ' Neither figure is historical evidence.','conditional',
-   {baseline:c.baselineMeasure,specialized:structure.measure,delta,staffing:c.staffing,explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
+   {baseline,specialized:structure.measure,delta,staffing:c.staffing,assignments:context.model.choices.map((choice,i)=>({id:choice.id,label:choice.label,amount:structure.amounts[i]})),
+    generalistCalculation:{staffing:c.staffing,minutesPerWorker:c.minutesPerWorker,switchingMinutesPerWorker:c.switchingMinutesPerWorker,minutesPerUnit:c.minutesPerUnit},
+    explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
  }
  const contract=context.semantic.selection;
  if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
@@ -216,11 +227,18 @@ export function reasonSemantically(context,input){
  const claimPremises=admission.claimPremiseIds?.[meaning.kind]||[];
  if(!Array.isArray(claimPremises)||!claimPremises.every(id=>context.premiseIds.includes(id)))
   return reject('The selected claim requires a scenario premise that was not declared.');
- return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,
+ const allowedSecondary=new Set(contract.secondaryObservations||[]);
+ const selectedSecondary=claims.find(c=>allowedSecondary.has(c.kind)&&c.kind!==meaning.kind&&
+  Object.keys(c.evidence||{}).length&&c.classification!=='unsupported');
+ const secondaryObservations=selectedSecondary?[selectedSecondary]:[];
+ const selectedChoices=trade?context.model.choices.map((c,i)=>({id:c.id,label:c.label,amount:structure.amounts[i]})):
+  structure.steps.map(step=>({id:step.choice,label:step.label,node:step.node}));
+ return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,secondaryObservations,selectedChoices,
   sourceAdmission:{sourceUrl:admission.sourceUrl,sourceWork:admission.sourceWork,centralClaim:admission.centralClaim,
    scenarioBridge:admission.scenarioBridge,requiredPremiseIds:[...admission.requiredPremiseIds],
    claimPremiseIds:[...claimPremises],
-   reviewStatus:admission.reviewStatus,independentlySourceVerified:false},
+   reviewStatus:admission.reviewStatus,independentlySourceVerified:false,
+   claimTraceStatus:tension.sourceTrace.status,passageExcerpt:tension.sourceTrace.excerpt||null},
   limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
