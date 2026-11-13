@@ -313,7 +313,7 @@ function render(){
    (currentContexts[id]?kernelControls(spec,state):id==="dillard"?tradeoffHtml(id):decisionHtml(id));
  const result=view?'<div class="flow-head"><button type="button" data-back="exercise" class="flow-back" aria-label="Back to your choices">← Back to choices</button></div>'+
    '<section class="result journey-finale" tabindex="-1" aria-label="Your Encounter result">'+
-   '<section class="reading-panel reading-self"><span class="section-label">Your Encounter with '+esc(spec.author)+'</span>'+
+   '<section class="reading-panel reading-self"><span class="section-label">Your Choices</span>'+
    '<h2>'+esc(view.headline)+'</h2><p>'+esc(view.experience)+'</p>'+
    (view.world?'<p class="memory-reference">'+esc(view.world.text)+'</p>':"")+
    contrastHtml(view.visual)+'</section>'+
