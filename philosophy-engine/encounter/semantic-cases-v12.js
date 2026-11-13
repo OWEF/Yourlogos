@@ -60,7 +60,7 @@ const sourceAdmissions={
   allowedClaimKinds:['conversion','transition']},
  smith:{premiseIds:['joint_required_stages','invented_shift_rates'],
   centralClaim:'Smith explains productivity gains from dividing and specializing labour, not simply a numerical bottleneck.',
-  scenarioBridge:'This invented rotating-team comparison assumes time is lost switching tasks. A balanced specialist assignment can outperform it, but the example does not prove specialization increases productivity outside its assumptions.',
+  scenarioBridge:'The invented rotating-team comparison models time lost switching. Its results do not prove specialization increases productivity outside the stated assumptions.',
   allowedClaimKinds:['specialization_effect','dependency','transition'],claimPremiseIds:{specialization_effect:['hypothetical_switching_baseline']}},
  epictetus:{premiseIds:['own_response_external_forgiveness'],
   centralClaim:'Epictetus distinguishes choices and judgments within rational agency from outcomes that depend on others.',
