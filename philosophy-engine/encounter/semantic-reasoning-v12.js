@@ -29,15 +29,81 @@ export function validateTension(context){
  }
  return {status:'supported',fit};
 }
+
+/**
+ * Apply a source-authored, explicitly announced hypothetical change.
+ * It can restrict an available budget or a choice capacity, never invent a
+ * user's motive or alter the first decision. It is not a claim of source truth.
+ */
+export function developedTradeoffModel(context,developmentId){
+ const d=context?.development,m=context?.model;
+ if(context?.mechanism!=='tradeoff'||!d?.id||d.id!==developmentId||
+    typeof d.label!=='string'||!d.label.trim()||d.kind!=='hypothetical_constraint'||
+    !m?.resources||!m?.choices)return null;
+ const resources=m.resources.map(r=>({...r})),choices=m.choices.map(c=>({...c}));
+ let tightened=0;
+ const resourceCaps=d.resourceCaps||{},choiceCaps=d.choiceCaps||{};
+ if(!Object.keys(resourceCaps).length&&!Object.keys(choiceCaps).length)return null;
+ for(const [id,cap] of Object.entries(resourceCaps)){
+  const r=resources.find(x=>x.id===id);
+  if(!r||!Number.isSafeInteger(cap)||cap<r.min||cap>=r.max||r.type!=='cap')return null;
+  r.max=cap;tightened++;
+ }
+ for(const [id,cap] of Object.entries(choiceCaps)){
+  const c=choices.find(x=>x.id===id);
+  if(!c||!Number.isSafeInteger(cap)||cap<0||cap>=c.max)return null;
+  c.max=cap;tightened++;
+ }
+ return tightened?{...m,resources,choices}:null;
+}
+
 export function reasonSemantically(context,input){
  const tension=validateTension(context);if(tension.status!=='supported')return tension;
  const trade=context.mechanism==='tradeoff';
- const structure=trade?tradeoffStructure(context.model,input):decisionStructure(context.model,input?.path);
+ let transition=null;
+ const isSecondMoment=input?.first!==undefined||input?.developmentId!==undefined;
+ if(isSecondMoment&&!trade)return reject('Second-moment allocation belongs to Trade-Off only.');
+ let structure;
+ if(isSecondMoment){
+  const developed=developedTradeoffModel(context,input?.developmentId);
+  const initial=tradeoffStructure(context.model,input?.first);
+  if(!developed||!initial)return reject('The first allocation or declared changed condition is invalid.');
+  structure=tradeoffStructure(developed,input);
+  if(!structure)return reject('The revised allocation does not fit the changed constraints.');
+  const oldChoiceStillFits=Boolean(tradeoffStructure(developed,{amounts:input.first.amounts,budgets:input.budgets}));
+  const deltaAmounts=structure.amounts.map((n,i)=>n-initial.amounts[i]);
+  const deltaSpent=structure.spent.map((n,i)=>n-initial.spent[i]);
+  const amountsChanged=deltaAmounts.some(Boolean);
+  transition={
+   development:{id:context.development.id,label:context.development.label,kind:context.development.kind},
+   initial:{amounts:[...initial.amounts],budgets:[...initial.budgets],spent:[...initial.spent],measure:initial.measure},
+   revised:{amounts:[...structure.amounts],budgets:[...structure.budgets],spent:[...structure.spent],measure:structure.measure},
+   deltaAmounts,deltaSpent,deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
+   amountsChanged,originalSelectionStillFeasible:oldChoiceStillFits,
+   reallocationRequired:!oldChoiceStillFits
+  };
+  structure.transition=transition;
+ }else{
+  structure=trade?tradeoffStructure(context.model,input):decisionStructure(context.model,input?.path);
+ }
  if(!structure||!trade&&structure.at!==null)return reject('Incomplete or infeasible selections.');
  const claims=[];
  const add=(kind,text,classification='conditional',evidence={})=>claims.push({kind,text,classification,evidence,assumptions:context.assumptions||[]});
  if(trade){
   const choices=context.model.choices;
+  if(transition){
+   const unit=context.model.metric?.unit;
+   const firstMeasure=transition.initial.measure,secondMeasure=transition.revised.measure;
+   const metrics=unit&&firstMeasure!==null&&secondMeasure!==null?
+    ' The modeled result moves from '+firstMeasure+' to '+secondMeasure+' '+unit+'.':'';
+   const decision=transition.amountsChanged?
+    (transition.originalSelectionStillFeasible?
+     'Your previous quantities would still fit; this new allocation is a further choice.':
+     'Your previous quantities no longer fit; the allocation had to be reconsidered.'):
+    'You kept your original quantities despite the new condition.';
+   add('transition','In this imagined scenario, '+context.development.label+' '+decision+metrics,
+    'conditional',{...transition});
+  }
   add('allocation',choices.map((c,i)=>`${input.amounts[i]} ${c.label}`).join(', '),'necessary',{amounts:input.amounts});
   const intentions=input.intentions||{};
   for(const [id,target] of Object.entries(intentions)){
@@ -88,8 +154,10 @@ export function reasonSemantically(context,input){
  if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
  const contract=context.semantic.selection;
  if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
- const selectionTrace=claims.map(c=>({kind:c.kind,sourceFidelityProvenance:'curated source contract, not independently proved',sourceFidelity:contract.central.includes(c.kind)?'central':contract.alternatives?.includes(c.kind)?'secondary':'observation_only',pathRelevant:Object.keys(c.evidence).length>0,evidentialWarrant:c.classification!=='unsupported',conceptualRelationship:context.semantic.relation,educationalPurpose:contract.purpose,uncertainty:c.assumptions}));
- const eligible=claims.filter(c=>contract.central.includes(c.kind)&&Object.keys(c.evidence).length);
+ if(transition&&!contract.changeCentral?.length)return reject('The changed condition lacks a source-authored philosophical warrant.');
+ const centralKinds=transition?contract.changeCentral:contract.central;
+ const selectionTrace=claims.map(c=>({kind:c.kind,sourceFidelityProvenance:'curated source contract, not independently proved',sourceFidelity:centralKinds.includes(c.kind)?'central':contract.alternatives?.includes(c.kind)?'secondary':'observation_only',pathRelevant:Object.keys(c.evidence).length>0,evidentialWarrant:c.classification!=='unsupported',conceptualRelationship:context.semantic.relation,educationalPurpose:contract.purpose,uncertainty:c.assumptions}));
+ const eligible=claims.filter(c=>centralKinds.includes(c.kind)&&Object.keys(c.evidence).length);
  const secondary=claims.filter(c=>contract.alternatives?.includes(c.kind)&&Object.keys(c.evidence).length);
  const candidates=eligible.length?eligible:secondary;
  if(candidates.length!==1)return reject(candidates.length?'Several source-relevant meanings require editorial disambiguation.':'No source-relevant consequence is warranted.');
@@ -98,7 +166,7 @@ export function reasonSemantically(context,input){
  return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
-const questions={intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
+const questions={transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
 export function expressSemantic(packet,mode='reflective'){
  if(packet?.version!=='meaning/1.2'||packet.status!=='ready'||!packet.claims.includes(packet.meaning)||!frames[mode])return null;
  const m=packet.meaning;
