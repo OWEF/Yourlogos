@@ -11,6 +11,17 @@ export function validateTension(context){
  if(fit.status==='unsupported')return reject(fit.reason);
  const s=context.semantic,m=context.model;
  if(!s?.relation||!s.concepts?.length||!s.boundary)return reject('Missing semantic warrant or interpretive boundary.');
+ const a=s.admission;
+ if(!a||a.sourceUrl!==context.source?.url||a.sourceWork!==context.source?.work||
+    a.mechanism!==context.mechanism||a.operation!==context.operation||
+    !a.centralClaim?.trim()||!a.scenarioBridge?.trim()||
+    !Array.isArray(a.allowedClaimKinds)||!a.allowedClaimKinds.length||
+    !Array.isArray(a.requiredPremiseIds)||!a.requiredPremiseIds.length||
+    !['curated_provisional','human_approved'].includes(a.reviewStatus)||
+    !Array.isArray(context.premiseIds)||
+    !a.requiredPremiseIds.every(x=>context.premiseIds.includes(x))||
+    !Array.isArray(context.assumptions)||!context.assumptions.length)
+   return reject('Source-to-scenario editorial admission or required premises are missing or inconsistent.');
  if(context.mechanism==='decision_map'){
   if(m.agency&&m.variables?.[m.agency.externalVariable]?.owner!=='external')return reject('Agency requires a declared externally owned outcome.');
   for(const node of Object.values(m.nodes)){
@@ -176,7 +187,14 @@ export function reasonSemantically(context,input){
  if(candidates.length!==1)return reject(candidates.length?'Several source-relevant meanings require editorial disambiguation.':'No source-relevant consequence is warranted.');
  const meaning=candidates[0];
  if(!meaning)return reject('No justified philosophical tension detected.');
- return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
+ const admission=context.semantic.admission;
+ if(!admission.allowedClaimKinds.includes(meaning.kind))
+  return reject('The selected inference lacks the declared source-to-scenario warrant.');
+ return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,
+  sourceAdmission:{sourceUrl:admission.sourceUrl,sourceWork:admission.sourceWork,centralClaim:admission.centralClaim,
+   scenarioBridge:admission.scenarioBridge,requiredPremiseIds:[...admission.requiredPremiseIds],
+   reviewStatus:admission.reviewStatus,independentlySourceVerified:false},
+  limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
 const questions={transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
