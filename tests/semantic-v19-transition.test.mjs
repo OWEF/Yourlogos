@@ -31,6 +31,18 @@ test('a real budget constraint distinguishes forced reallocation from a voluntar
  assert.equal(voluntary.structure.transition.reallocationRequired,false);
 });
 
+test('voluntarily tightening a budget must not be called forced by the external event',()=>{
+ const c=semanticCases.money;
+ const p=revised(c,{amounts:[1,1,1],budgets:[8]},[1,0,1],[4]);
+ assert.equal(p.status,'ready',JSON.stringify(p));
+ assert.equal(p.structure.transition.originalSelectionStillFeasible,true,
+  'the original six-token purchase fits the externally available six tokens');
+ assert.equal(p.structure.transition.reallocationRequired,false);
+ assert.equal(p.structure.transition.amountsChanged,true);
+ assert.match(p.meaning.text,/further choice/);
+ assert.doesNotMatch(p.meaning.text,/no longer fit/);
+});
+
 test('the same final allocation has a different explanation for a different first choice',()=>{
  const c=semanticCases.money;
  const revisedAmounts=[1,1,1],revisedBudgets=[6];
