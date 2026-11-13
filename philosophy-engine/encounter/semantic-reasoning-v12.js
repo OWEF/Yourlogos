@@ -211,9 +211,13 @@ export function reasonSemantically(context,input){
  const admission=context.semantic.admission;
  if(!admission.allowedClaimKinds.includes(meaning.kind))
   return reject('The selected inference lacks the declared source-to-scenario warrant.');
+ const claimPremises=admission.claimPremiseIds?.[meaning.kind]||[];
+ if(!Array.isArray(claimPremises)||!claimPremises.every(id=>context.premiseIds.includes(id)))
+  return reject('The selected claim requires a scenario premise that was not declared.');
  return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,
   sourceAdmission:{sourceUrl:admission.sourceUrl,sourceWork:admission.sourceWork,centralClaim:admission.centralClaim,
    scenarioBridge:admission.scenarioBridge,requiredPremiseIds:[...admission.requiredPremiseIds],
+   claimPremiseIds:[...claimPremises],
    reviewStatus:admission.reviewStatus,independentlySourceVerified:false},
   limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
