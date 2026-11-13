@@ -16,7 +16,9 @@ test('Smith source teaching compares a declared fictional generalist baseline wi
   assert.match(p.sourceAdmission.scenarioBridge,/invented rotating-team comparison/);
   const output=expressSemantic(p);
   assert.equal(output.status,'ready',JSON.stringify(output));
-  assert.match(output.experience,/fictional staffing/);
+  assert.match(output.experience,/invented rotating-team baseline/);
+  assert.match(output.experience,/hypothetical, not historical evidence/);
+  assert.doesNotMatch(output.experience,/finished units|same number of units/);
   assert.match(output.interpretation,/does not prove specialization increases productivity/);
   assert.ok(output.headline.split(/\s+/).length<=14);
  }
