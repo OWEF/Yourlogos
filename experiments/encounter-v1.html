@@ -170,7 +170,8 @@ const active={mode:"dillard", likes:{dillard:false,kierkegaard:false}, screen:{d
 }};
 for(const [id,c] of Object.entries(currentContexts)){
  active.screen[id]="entry";
- active.cases[id]=c.mechanism==="tradeoff"?{amounts:[...c.model.initial.amounts],budgets:[...c.model.initial.budgets]}:{path:[]};
+ active.cases[id]=c.mechanism==="tradeoff"?{amounts:[...c.model.initial.amounts],budgets:[...c.model.initial.budgets],
+  ...(c.initial?.repetitions?{repetitions:c.initial.repetitions}:{})}:{path:[]};
 }
 function kernelControls(spec,state){
  const m=spec.model;
@@ -195,7 +196,7 @@ function kernelControls(spec,state){
    '<p>'+consequence+'</p></div>'+
    '<button type="button" class="secondary" style="min-height:44px" data-reset-allocation>Change my first choice</button>':'';
   const status=effective.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ")+(first&&!facts?' · Revise to meet the changed condition.':'');
-  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!first?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!first?'See what changes':'Reveal the meaning')+'</button></div>';
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&spec.development&&!first?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&spec.development&&!first?'See what changes':'Reveal the meaning')+'</button></div>';
  }
  let html='<div class="case-body" tabindex="-1">';
  for(let i=0;i<=state.path.length;i++){
@@ -418,8 +419,12 @@ document.addEventListener("input",ev=>{
  const k=ev.target.closest("[data-k-slider]");
  if(k){
   const state=active.cases[active.mode],i=Number(k.dataset.i),kind=k.dataset.kSlider;
+  const previous=kind==='amounts'?[...state.amounts]:null;
   state[kind][i]=Number(k.value);
   const m=currentContexts[active.mode].model;
+  if(kind==='amounts'&&m.resources.length===1&&m.resources[0].type==='exact'&&m.choices.length===3&&
+    m.choices.every(c=>c.cost[0]===1))
+   state.amounts=reallocateVariableBudget(previous,i,Number(k.value));
   if(kind==="amounts"&&m.resources.length===1&&m.resources[0].type==="exact"&&m.choices.length===2&&m.choices.every(c=>c.cost[0]===1&&c.max>=state.budgets[0]))
    state.amounts[1-i]=state.budgets[0]-state.amounts[i];
   // Keep the active native range in place during touch dragging.

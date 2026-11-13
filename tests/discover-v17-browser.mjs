@@ -7,7 +7,7 @@ const browser=await chromium.launch({channel:'chrome',args:['--no-sandbox']});
 await mkdir('design-review',{recursive:true});
 const results=[];
 try {
- for(const width of [320,390,430,1024]) for(const id of ['money','workshop','apology','evidence']) {
+ for(const width of [320,390,430,1024]) for(const id of ['money','workshop','apology','evidence','dillard','kierkegaard']) {
   const page=await browser.newPage({viewport:{width,height:844},reducedMotion:'reduce'});
   const errors=[],requests=[];
   page.on('pageerror',e=>errors.push(e.message));
@@ -54,6 +54,13 @@ try {
     assert.equal(await page.locator('[data-k-slider="amounts"]').last().inputValue(),'2');
     assert.ok(await page.locator('[data-run]').isEnabled());
    }
+  } else if(id==='dillard'){
+   assert.equal(await page.locator('[data-test-allocation]').count(),0);
+   const range=page.locator('[data-k-slider="amounts"]').first();
+   await range.fill('0');await range.dispatchEvent('input');
+   const values=await page.locator('[data-k-slider="amounts"]').evaluateAll(els=>els.map(el=>Number(el.value)));
+   assert.equal(values.reduce((a,b)=>a+b,0),6,'a three-way evening must conserve its six half-hour slots');
+   assert.ok(await page.locator('[data-run]').isEnabled());
   } else {
    assert.equal(await page.locator('[data-run]').count(),0);
    await page.locator('[data-k-step="0"]').first().click();
@@ -63,6 +70,7 @@ try {
    assert.equal(await page.locator('[data-run]').count(),0);
    assert.equal(await page.locator('[data-k-step="1"][aria-pressed="true"]').count(),0);
    await page.locator('[data-k-step="1"]').last().click();
+   if(id==='kierkegaard')await page.locator('[data-k-step="2"]').first().click();
   }
   await noOverflow();
   for(const control of await page.locator('.case-body button,.case-body input').all()){const box=await control.boundingBox();assert.ok(box.height>=44&&box.width>=44);}
@@ -82,5 +90,5 @@ try {
   results.push({id,width,status:'PASS'});console.log(`PASS consumer ${id} ${width}`);
   await page.close();
  }
- assert.equal(results.length,16);
+ assert.equal(results.length,24);
 } finally {await writeFile('design-review/v18-browser-results.json',JSON.stringify(results,null,2));await browser.close();}
