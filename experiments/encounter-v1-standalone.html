@@ -1684,7 +1684,10 @@ function expressSemantic(packet,mode='reflective'){
  };
  const composed=compositions[mode];
  const experience=composed.experience;
- const interpretation=composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
+ const admission=packet.sourceAdmission;
+ const interpretation=admission?.centralClaim&&admission?.scenarioBridge?
+  admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' '):
+  composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
  const proactiveQuestion=composed.question;
  const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
  const wordCount=text.split(/\s+/).length;
