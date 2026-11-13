@@ -81,7 +81,8 @@ export function reasonSemantically(context,input){
   if(!developed||!initial)return reject('The first allocation or declared changed condition is invalid.');
   structure=tradeoffStructure(developed,input);
   if(!structure)return reject('The revised allocation does not fit the changed constraints.');
-  const oldChoiceStillFits=Boolean(tradeoffStructure(developed,{amounts:input.first.amounts,budgets:input.budgets}));
+  const externallyAvailable=initial.budgets.map((budget,i)=>Math.min(budget,developed.resources[i].max));
+  const oldChoiceStillFits=Boolean(tradeoffStructure(developed,{amounts:input.first.amounts,budgets:externallyAvailable}));
   const deltaAmounts=structure.amounts.map((n,i)=>n-initial.amounts[i]);
   const deltaSpent=structure.spent.map((n,i)=>n-initial.spent[i]);
   const amountsChanged=deltaAmounts.some(Boolean);
