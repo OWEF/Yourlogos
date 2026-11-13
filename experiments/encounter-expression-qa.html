@@ -2496,7 +2496,8 @@ function kernelControls(spec,state){
    m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
   const facts=tradeoffStructure(effective,state);
   const first=state.first;
-  const firstStillFits=first&&Boolean(tradeoffStructure(effective,{amounts:first.amounts,budgets:state.budgets}));
+  const firstStillFits=first&&Boolean(tradeoffStructure(effective,{amounts:first.amounts,
+   budgets:first.budgets.map((budget,i)=>Math.min(budget,effective.resources[i].max))}));
   const consequence=semanticEdition&&facts&&m.metric?'The revised arrangement corresponds to '+facts.measure+' '+esc(m.metric.unit)+'.':'';
   const firstSummary=first?m.choices.map((c,i)=>first.amounts[i]+' '+esc(c.label)).join(' · '):'';
   const reconsider=semanticEdition&&first?'<div class="reconsider" role="group" aria-label="The changed condition">'+
