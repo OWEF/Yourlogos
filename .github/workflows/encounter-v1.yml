@@ -9,6 +9,7 @@ on:
       - '**/*kernel*v11*'
       - '**/*semantic*v12*'
       - '**/*semantic*v18*'
+      - '**/*semantic*v19*'
       - '**/*discover*v17*'
       - 'world-memory.js'
       - 'philosophy-engine/encounter/expression-engine-v1.js'
@@ -30,7 +31,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
-      - run: node scripts/build-encounter-v1.mjs --check && node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs tests/kernel-v11.test.mjs tests/semantic-v12.test.mjs tests/semantic-v18-holdout.test.mjs
+      - run: node scripts/build-encounter-v1.mjs --check && node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs tests/kernel-v11.test.mjs tests/semantic-v12.test.mjs tests/semantic-v18-holdout.test.mjs tests/semantic-v19-transition.test.mjs
       - run: npm install --no-save --package-lock=false playwright-core@1.56.1
       - run: node tests/encounter-v1-browser.mjs
       - run: node tests/kernel-v11-browser.mjs
