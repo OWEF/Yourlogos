@@ -11,6 +11,7 @@ test('Smith source teaching compares a declared fictional generalist baseline wi
  for(const p of [weaker,balanced]){
   assert.equal(p.meaning.kind,'specialization_effect');
   assert.equal(p.meaning.evidence.baseline,1);
+  assert.deepEqual(p.sourceAdmission.claimPremiseIds,['hypothetical_switching_baseline']);
   assert.equal(p.meaning.evidence.staffing,4);
   assert.match(p.sourceAdmission.scenarioBridge,/invented rotating-team comparison/);
   const output=expressSemantic(p);
@@ -40,6 +41,13 @@ test('unverified or resource-mismatched generalist comparisons cannot be admitte
   assert.equal(p.status,'incompatible',JSON.stringify(clone.model.comparison));
  }
 });
+test('a self-consistent-looking comparator cannot claim specialization without its own premise',()=>{
+ const c=structuredClone(semanticCases.workshop);
+ c.premiseIds=c.premiseIds.filter(id=>id!=='hypothetical_switching_baseline');
+ assert.ok(c.model.comparison,'the numerical comparison still exists');
+ assert.equal(reasonSemantically(c,c.initial).status,'incompatible');
+});
+
 test('Smith model without comparator still makes only a limited dependency claim',()=>{
  const model={resources:[{id:'team',min:6,max:6,type:'exact'}],
  choices:[{id:'print',label:'printers',cost:[1],max:6},{id:'bind',label:'binders',cost:[1],max:6}],
