@@ -316,6 +316,90 @@ function meaningExperience(packet,m){
  }
  return m.text;
 }
+// A question is a function of a validated meaning AND the specific path.
+// No source IDs, personality inference, prior-history fallback or generic
+// philosophy question bank are consulted here.
+function pathQuestion(packet){
+ const m=packet.meaning, e=m.evidence||{}, path=packet.selectedChoices||[];
+ const clean=x=>String(x||'your choice').replace(/[.!?]+$/,'').trim();
+ const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
+ switch(m.kind){
+  case 'specialization_effect': {
+   const consequence=e.delta>0?'gain more finished work':e.delta===0?'show no productivity gain':'finish fewer units';
+   return 'With '+roles+', why does this invented division of labour '+consequence+'?';
+  }
+  case 'conversion':
+   return 'If the purchase costs '+e.measure+' '+e.unit+', what does that reveal about the life exchanged?';
+  case 'transition':{
+   const change=e.changedChoices?.[0];
+   return change?'When '+clean(change.label)+' shifted from '+change.from+' to '+change.to+
+    ', how did the new constraint affect '+clean(packet.semantic.concepts[1])+'?':
+    'You kept the allocation despite changed constraints; what remained within your choice about '+
+    clean(packet.semantic.concepts[1])+'?';
+  }
+  case 'agency':{
+   const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
+   return 'After '+first.toLowerCase()+' and then '+last.toLowerCase()+
+    ', which outcome still belonged to someone else?';
+  }
+  case 'assent':{
+   const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
+   return 'After '+first.toLowerCase()+' and then '+last.toLowerCase()+
+    ', what did your grounds justify accepting?';
+  }
+  case 'repetition':{
+   const first=e.cumulative?.[0],amount=first&&e.unitHours?first.units*e.unitHours:first?.units;
+   return 'Across '+e.repetitions+' imagined evenings with '+amount+' hours for '+clean(first?.label)+
+    ', what pattern of days emerges?';
+  }
+  case 'information':{
+   const first=clean(e.steps?.[0]?.label),event=clean(e.revelations?.[0]);
+   return 'After '+first.toLowerCase()+' before '+event.toLowerCase()+
+    ', what could you understand only in hindsight?';
+  }
+  case 'opportunity':{
+   const first=path[0],second=path[1];
+   return 'With '+(first?.amount??0)+' for '+clean(first?.label)+' and '+(second?.amount??0)+
+    ' for '+clean(second?.label)+', what competing use of finite time is displaced?';
+  }
+  case 'dependency':
+   return 'With '+e.measure+' finished units, which required stage would limit the next one?';
+  case 'revision':
+   return 'After the change in commitment, what could your first decision actually establish?';
+  case 'closure':
+   return 'After the earlier decision closed an option, what remained yours to choose?';
+  default: return null;
+ }
+}
+function readableSummary(packet){
+ if(!packet.selectedChoices?.length)return '';
+ const choices=packet.selectedChoices;
+ return packet.structure?.amounts?
+  'You selected '+choices.map(c=>c.amount+' '+c.label).join(', ')+'.':
+  '';
+}
+function boundedSecondary(packet){
+ const next=packet.secondaryObservations?.[0];
+ if(!next)return '';
+ if(next.kind==='intention_gap')return next.text;
+ if(next.kind==='revision')return 'The changed commitment is explicit; it does not make the earlier judgment wrong.';
+ if(next.kind==='closure')return 'An earlier action closed an option in this imagined path.';
+ if(next.kind==='complementarity')return 'A different assignment could increase output without extra workers.';
+ return '';
+}
+const words=s=>String(s||'').trim().split(/\s+/).filter(Boolean).length;
+/**
+ * Founder policy 2026-11-14: 80–120 words total across generated I, II, III;
+ * excludes literal philosopher quotation, fixed labels, accessibility controls
+ * and founder-only QA. Earlier 45–70 word overall goal is superseded.
+ * Never silently cut the source claim or caveats to game a count.
+ */
+export const ENCOUNTER_WORD_POLICY=Object.freeze({
+ sections:Object.freeze({idea:Object.freeze({min:10,max:48}),
+ philosopher:Object.freeze({min:18,max:65}),
+ question:Object.freeze({min:9,max:26})}),
+ total:Object.freeze({min:80,max:120}),exclude:['original quotation','fixed section labels','QA controls']
+});
 export function expressSemantic(packet,mode='reflective'){
  if(packet?.version!=='meaning/1.2'||packet.status!=='ready'||!packet.claims.includes(packet.meaning)||!frames[mode])return null;
  const m=packet.meaning;
