@@ -107,7 +107,10 @@ export function reasonSemantically(context,input){
    metricUnit:context.model.metric?.unit||null,
    initial:{amounts:[...initial.amounts],budgets:[...initial.budgets],spent:[...initial.spent],measure:initial.measure},
    revised:{amounts:[...structure.amounts],budgets:[...structure.budgets],spent:[...structure.spent],measure:structure.measure},
-   deltaAmounts,deltaSpent,deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
+   deltaAmounts,deltaSpent,changedChoices:context.model.choices.map((choice,i)=>({
+    label:choice.label,id:choice.id,from:initial.amounts[i],to:structure.amounts[i],delta:deltaAmounts[i]
+   })).filter(change=>change.delta!==0),
+   deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
    amountsChanged,originalSelectionStillFeasible:oldChoiceStillFits,
    reallocationRequired:!oldChoiceStillFits
   };
@@ -206,7 +209,7 @@ export function reasonSemantically(context,input){
   add('specialization_effect','The stipulated rotating team finishes '+baseline+
    ' units; your dedicated-stage assignment finishes '+structure.measure+' units. '+reading+
    ' Neither figure is historical evidence.','conditional',
-   {baseline,specialized:structure.measure,delta,staffing:c.staffing,assignments:context.model.choices.map((choice,i)=>({id:choice.id,label:choice.label,amount:structure.amounts[i]})),
+   {baseline,specialized:structure.measure,delta,staffing:c.staffing,assignments:context.model.choices.map((choice,i)=>({id:choice.id,label:choice.label,singular:choice.singular||null,amount:structure.amounts[i]})),
     generalistCalculation:{staffing:c.staffing,minutesPerWorker:c.minutesPerWorker,switchingMinutesPerWorker:c.switchingMinutesPerWorker,minutesPerUnit:c.minutesPerUnit},
     explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
  }
@@ -285,7 +288,7 @@ function meaningExperience(packet,m){
  }
  if(m.kind==='specialization_effect'){
   const quantity=n=>n+' '+(n===1?(e.singular||'unit'):(e.unit||'units'));
-  const roles=(e.assignments||[]).map(a=>a.amount+' '+a.label).join(' and ');
+  const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
   const difference=e.delta>0?'That gains '+e.delta+' finished '+(e.delta===1?'unit.':'units.'):
    e.delta===0?'That is no gain.':'That loses '+Math.abs(e.delta)+' finished '+(e.delta===-1?'unit.':'units.');
   return 'Your assignment: '+roles+'. The imagined rotating team finishes '+quantity(e.baseline)+
@@ -354,8 +357,9 @@ function pathQuestion(packet){
   }
   case 'information':{
    const first=clean(e.steps?.[0]?.label),event=clean(e.revelations?.[0]);
-   return 'After '+first.toLowerCase()+' before '+event.toLowerCase()+
-    ', what could you understand only in hindsight?';
+   const choice=first.replace(/^You\s+/i,'to ').toLowerCase();
+   return 'In the imagined route, you chose '+choice+' before '+event.toLowerCase()+
+    '; what becomes clearer when you look back?';
   }
   case 'opportunity':{
    const first=path[0],second=path[1];
@@ -416,12 +420,21 @@ export function expressSemantic(packet,mode='reflective'){
   challenging:{experience:`A distinction remains: ${concepts[0]} and ${concepts[1]} are not interchangeable.`,interpretation:`${packet.author} asks us to examine ${relationship}.`,question:`What would you overlook about ${anchor} if you considered only ${concepts[0]}?`}
  };
  const composed=compositions[mode];
- const experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
+ let experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
+ const secondary=boundedSecondary(packet);
+ if(secondary&&words(headline+' '+experience+' '+secondary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
+  experience+=' '+secondary;
+ if(['conversion','opportunity'].includes(m.kind)){
+  const summary=readableSummary(packet);
+  if(summary&&words(headline+' '+experience+' '+summary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
+   experience+=' '+summary;
+ }
  const admission=packet.sourceAdmission;
  const interpretation=admission?.centralClaim&&admission?.scenarioBridge?
-  admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' '):
+  admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' ')+
+   (admission.claimTraceStatus==='unverified'?' This source interpretation is unverified.':''):
   composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
- const proactiveQuestion=mode==='reflective'||mode==='challenging'?(questions[m.kind]||composed.question):composed.question;
+ const proactiveQuestion=pathQuestion(packet)||questions[m.kind]||composed.question;
  const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
  const wordCount=text.split(/\s+/).length;
  // Never truncate a caveat or silently add padding to satisfy a length target.
