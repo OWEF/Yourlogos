@@ -315,7 +315,7 @@ function meaningExperience(packet,m){
   const event=e.revelations?.[0]||'something new occurs';
   const later=event[0].toLowerCase()+event.slice(1);
   return choice(first?.label)+'. Later, in this imagined scenario, '+later+'. '+choice(last?.label)+
-   '. The unchosen outcome remains unknown.';
+   '. The outcome of the unchosen path is still unknown.';
  }
  return m.text;
 }
