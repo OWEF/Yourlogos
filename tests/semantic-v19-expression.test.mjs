@@ -57,6 +57,7 @@ test('an unchosen Kierkegaard route is never treated as an experienced future',(
  const p=reasonSemantically(semanticCases.kierkegaard,{path:['stay','missed','reflect']});
  const rendered=expressSemantic(p);
  assert.equal(rendered.status,'ready');
- assert.match(rendered.experience,/imagined route/);
- assert.match(rendered.experience,/no outcome of the unchosen path was observed/);
+ assert.match(rendered.experience,/imagined scenario/);
+ assert.doesNotMatch(rendered.experience,/chose to you |learn you /i);
+ assert.match(rendered.experience,/outcome of the unchosen path is still unknown/);
 });
