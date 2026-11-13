@@ -260,8 +260,17 @@ function meaningHeadline(kind,evidence={}){
    '” came first; '+(evidence.external||'the outcome')+' stayed outside your control.';
   case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
    'Your judgment and the claim’s truth are separate questions.';
-  case 'repetition': return 'Repeated evenings can form a pattern, not a prediction.';
-  case 'information': return 'Later knowledge cannot go back into the first choice.';
+  case 'repetition': {
+   const first=evidence.cumulative?.[0],hours=first&&evidence.unitHours?
+    first.units*evidence.unitHours:null;
+   return first&&hours!==null?'Across '+evidence.repetitions+' evenings, '+hours+' hours go to '+first.label+'.':
+    'Repeated evenings can form a pattern, not a prediction.';
+  }
+  case 'information': {
+   const first=evidence.steps?.[0]?.label,news=evidence.revelations?.[0];
+   return first&&news?first.replace(/[.!?]+$/,'')+'; then '+news[0].toLowerCase()+news.slice(1)+'.':
+    'Later knowledge cannot go back into the first choice.';
+  }
   default: return null;
  }
 }
@@ -275,11 +284,13 @@ function meaningExperience(packet,m){
   return 'A new condition appears: '+e.development.label+' '+feasibility+' '+quantities+measured;
  }
  if(m.kind==='specialization_effect'){
-  const quantity=n=>n+' '+(n===1?(e.singular||'finished unit'):(e.unit||'finished units'));
-  const difference=e.delta>0?'That is '+e.delta+' more under the assumed task-switching cost.':
-   e.delta===0?'There is no output gain from this split.':'This split completes less despite assigning specialist roles.';
-  return 'The invented rotating-team baseline completes '+quantity(e.baseline)+'. Your dedicated-stage assignment completes '+
-   quantity(e.specialized)+'. '+difference+' These rates are hypothetical, not historical evidence.';
+  const quantity=n=>n+' '+(n===1?(e.singular||'unit'):(e.unit||'units'));
+  const roles=(e.assignments||[]).map(a=>a.amount+' '+a.label).join(' and ');
+  const difference=e.delta>0?'That gains '+e.delta+' finished '+(e.delta===1?'unit.':'units.'):
+   e.delta===0?'That is no gain.':'That loses '+Math.abs(e.delta)+' finished '+(e.delta===-1?'unit.':'units.');
+  return 'Your assignment: '+roles+'. The imagined rotating team finishes '+quantity(e.baseline)+
+   '; your split finishes '+quantity(e.specialized)+'. '+difference+' All rates are invented.';
+
  }
  if(m.kind==='dependency'){
   const changed=e.alternative&&e.alternative.delta>0?
@@ -300,8 +311,8 @@ function meaningExperience(packet,m){
    'You chose to '+String(label||'act').toLowerCase();
   const event=e.revelations?.[0]||'something new occurs';
   const later=event[0].toLowerCase()+event.slice(1);
-  return choice(first?.label)+'. Later, in the imagined scenario, '+later+'. '+choice(last?.label)+
-   '. The outcome of the unchosen path is still unknown.';
+  return choice(first?.label)+'. Later, in this imagined route, '+later+'. '+choice(last?.label)+
+   '. The unchosen outcome remains unknown.';
  }
  return m.text;
 }
