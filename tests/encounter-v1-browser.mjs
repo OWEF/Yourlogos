@@ -50,7 +50,7 @@ try {
    assert.equal(await page.locator(".voice-grid").count(),qa?1:0);
    if (!qa) assert.equal(await result.locator(":scope > :last-child").getAttribute("class"),"reading-panel reading-question");
    assert.deepEqual(await result.locator(".section-label").allTextContents(),[
-    "Your Encounter with "+author,"Return to the philosopher","A question to carry forward"]);
+    "Your Choices","Return to the philosopher","A question to carry forward"]);
    assert.equal(await result.locator(".reading-source blockquote").count(),1);
    assert.equal(await result.locator(".reading-question .reflection").count(),1);
    assert.equal(await result.locator(".memory-reference").count(),qa?1:0);
