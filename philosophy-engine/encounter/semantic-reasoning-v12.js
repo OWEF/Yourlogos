@@ -134,12 +134,14 @@ export function reasonSemantically(context,input){
   }
   if(input.repetitions!==undefined){
    if(!Number.isSafeInteger(input.repetitions)||input.repetitions<2||input.repetitions>1000)return reject('Invalid repetition horizon.');
-   const cumulative=choices.map((c,i)=>({label:c.label,units:input.amounts[i]*input.repetitions}));
+   if(context.model.unitHours!==undefined&&(!Number.isFinite(context.model.unitHours)||context.model.unitHours<=0))
+    return reject('The scenario has an invalid time conversion.');
+   const cumulative=choices.map((c,i)=>({label:c.readingLabel||c.label,units:input.amounts[i]*input.repetitions}));
    const slots=context.model.unitLabel||'resource units';
    add('repetition','If this exact arrangement were repeated '+input.repetitions+' times, it would reserve '+
     cumulative.map(c=>c.units+' '+slots+' for '+c.label).join(', ')+
     '. This is a conditional pattern, not evidence that you will adopt it.', 'conditional',
-    {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions});
+    {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions,unitHours:context.model.unitHours||null});
   }
   const better=context.model.metric?.op==='minimum'?structure.alternatives.find(a=>a.delta>0):null;
   if(better)add('complementarity',`Reallocating one unit can increase the modeled result from ${structure.measure} to ${better.measure}.`,'conditional',better);
@@ -267,8 +269,11 @@ function meaningExperience(packet,m){
   return 'With your chosen assignment, the team finishes '+e.measure+' modeled '+(e.measure===1?'unit':'units')+'. Both stages are needed.'+changed;
  }
  if(m.kind==='repetition'){
+  const display=n=>e.unitHours?
+   (n*e.unitHours)+' '+(n*e.unitHours===1?'hour':'hours'):
+   n+' modeled units';
   return 'Across '+e.repetitions+' imagined evenings, the same plan would give '+
-   (e.cumulative||[]).map(c=>c.units+' half-hour slots to '+c.label).join(', ')+
+   (e.cumulative||[]).map(c=>display(c.units)+' for '+c.label).join(', ')+
    '. This does not establish your actual habits.';
  }
  if(m.kind==='information'){
