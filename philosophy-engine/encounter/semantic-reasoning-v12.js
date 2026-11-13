@@ -113,7 +113,12 @@ export function reasonSemantically(context,input){
   }
   if(input.repetitions!==undefined){
    if(!Number.isSafeInteger(input.repetitions)||input.repetitions<2||input.repetitions>1000)return reject('Invalid repetition horizon.');
-   add('repetition',`Repeating this allocation ${input.repetitions} times repeats its resource demands; it does not establish a habit.`, 'conditional',{totals:structure.spent.map(n=>n*input.repetitions)});
+   const cumulative=choices.map((c,i)=>({label:c.label,units:input.amounts[i]*input.repetitions}));
+   const slots=context.model.unitLabel||'resource units';
+   add('repetition','If this exact arrangement were repeated '+input.repetitions+' times, it would reserve '+
+    cumulative.map(c=>c.units+' '+slots+' for '+c.label).join(', ')+
+    '. This is a conditional pattern, not evidence that you will adopt it.', 'conditional',
+    {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions});
   }
   const better=context.model.metric?.op==='minimum'?structure.alternatives.find(a=>a.delta>0):null;
   if(better)add('complementarity',`Reallocating one unit can increase the modeled result from ${structure.measure} to ${better.measure}.`,'conditional',better);
@@ -142,7 +147,15 @@ export function reasonSemantically(context,input){
   structure.semanticEvents=events;structure.semanticRevisions=changes;structure.occurred=occurred;
   if(changes.length)add('revision','You explicitly changed a commitment; this does not establish that the earlier decision was mistaken.','necessary',{changes,events});
   if(structure.locked.length)add('closure','An earlier act closed alternatives; editing the scenario does not make that act reversible within it.','necessary',{locked:structure.locked});
-  if(structure.known.length>(context.model.initial||[]).length)add('information','Later information changes the basis for another decision without proving the earlier decision mistaken.','necessary',{steps:structure.steps});
+  if(structure.known.length>(context.model.initial||[]).length){
+   const first=structure.steps[0],last=structure.steps.at(-1);
+   const revelations=structure.steps.flatMap(step=>step.revealed||[]);
+   const report=revelations[0]||'new information';
+   const next=first===last?'the decision ended there':'you then chose to '+last.label.toLowerCase();
+   add('information','You first chose to '+first.label.toLowerCase()+'. Later in this imagined route, '+report[0].toLowerCase()+report.slice(1)+
+    '; '+next+'. That later perspective does not prove your original choice mistaken or disclose the unchosen future.',
+    'conditional',{steps:structure.steps,firstChoice:first.choice,lastChoice:last.choice,revelations});
+  }
   const control=context.model.agency;
   if(control?.external&&control?.own)add('agency',`You chose to ${events.map(e=>e.action.toLowerCase()).join(', then ')}; ${control.external} remains outside those choices.`, 'conditional',{action:last.label,own:control.own,external:control.external,events});
   const assentChanges=changes.filter(c=>c.field===context.model.assentField);
