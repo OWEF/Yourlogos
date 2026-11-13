@@ -209,7 +209,8 @@ function meaningHeadline(kind,evidence={}){
     'Your first allocation still works under the new condition.';
   case 'conversion': return 'This choice corresponds to '+evidence.measure+' '+evidence.unit+'.';
   case 'dependency': return 'The least-supplied stage limits what gets finished.';
-  case 'agency': return 'You can choose your action, not the other person’s answer.';
+  case 'agency': return (evidence.events?.[0]?.action||'Your first response')+
+   ' came first; '+(evidence.external||'the outcome')+' stayed outside your control.';
   case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
    'Your judgment and the claim’s truth are separate questions.';
   case 'repetition': return 'Repeated evenings can form a pattern, not a prediction.';
