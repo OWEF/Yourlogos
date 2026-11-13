@@ -50,6 +50,8 @@ test('repetition is neither a prediction of habit nor a claim about the particip
  const rendered=expressSemantic(p);
  assert.equal(rendered.status,'ready');
  assert.match(rendered.experience,/imagined evenings/);
+ assert.match(rendered.experience,/hours for writing your story/);
+ assert.doesNotMatch(rendered.experience,/half-hour slots/);
  assert.match(rendered.experience,/does not establish your actual habits/);
 });
 
