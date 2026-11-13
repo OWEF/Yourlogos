@@ -195,7 +195,7 @@ export function reasonSemantically(context,input){
   add('specialization_effect','The stipulated rotating team finishes '+c.baselineMeasure+
    ' units; your dedicated-stage assignment finishes '+structure.measure+' units. '+reading+
    ' Neither figure is historical evidence.','conditional',
-   {baseline:c.baselineMeasure,specialized:structure.measure,delta,staffing:c.staffing,explanation:c.explanation});
+   {baseline:c.baselineMeasure,specialized:structure.measure,delta,staffing:c.staffing,explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
  }
  const contract=context.semantic.selection;
  if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
@@ -222,7 +222,7 @@ export function reasonSemantically(context,input){
   limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
-const questions={specialization_effect:'Under the invented rates, what would have to change for specialized work to increase what the team finishes?',transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
+const questions={agency:'What could your response decide, and what still belonged to the other person?',assent:'What changed in your judgment without settling the claim’s truth?',specialization_effect:'Under the invented rates, what would have to change for specialized work to increase what the team finishes?',transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
 // The short heading is derived from validated consequences, never philosopher IDs.
 function meaningHeadline(kind,evidence={}){
  switch(kind){
@@ -232,9 +232,12 @@ function meaningHeadline(kind,evidence={}){
     'Your first allocation still works under the new condition.';
   case 'conversion': return 'This choice corresponds to '+evidence.measure+' '+evidence.unit+'.';
   case 'dependency': return 'The least-supplied stage limits what gets finished.';
-  case 'specialization_effect': return 'Dedicated stages finish '+evidence.specialized+' versus '+evidence.baseline+' in the invented comparison.';
-  case 'agency': return (evidence.events?.[0]?.action||'Your first response')+
-   ' came first; '+(evidence.external||'the outcome')+' stayed outside your control.';
+  case 'specialization_effect': return evidence.specialized>evidence.baseline?
+   'Balancing the specialized stages increases modeled output.':
+   evidence.specialized===evidence.baseline?'Specialization alone did not increase modeled output.':
+   'This specialized assignment produces less in the comparison.';
+  case 'agency': return '“'+(evidence.events?.[0]?.action||'Your first response')+
+   '” came first; '+(evidence.external||'the outcome')+' stayed outside your control.';
   case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
    'Your judgment and the claim’s truth are separate questions.';
   case 'repetition': return 'Repeated evenings can form a pattern, not a prediction.';
@@ -252,9 +255,11 @@ function meaningExperience(packet,m){
   return 'A new condition appears: '+e.development.label+' '+feasibility+' '+quantities+measured;
  }
  if(m.kind==='specialization_effect'){
-  const result=e.specialized>e.baseline?'more':e.specialized===e.baseline?'the same number of':'fewer';
-  return 'The imagined all-purpose team produces '+e.baseline+' finished units. Your specialized assignments produce '+
-   e.specialized+', or '+result+' units under the same fictional staffing. The comparison assumes a cost of switching tasks; it is not historical evidence.';
+  const quantity=n=>n+' '+(n===1?(e.singular||'finished unit'):(e.unit||'finished units'));
+  const difference=e.delta>0?'That is '+e.delta+' more under the assumed task-switching cost.':
+   e.delta===0?'There is no output gain from this split.':'This split completes less despite assigning specialist roles.';
+  return 'The invented rotating-team baseline completes '+quantity(e.baseline)+'. Your dedicated-stage assignment completes '+
+   quantity(e.specialized)+'. '+difference+' These rates are hypothetical, not historical evidence.';
  }
  if(m.kind==='dependency'){
   const changed=e.alternative&&e.alternative.delta>0?
@@ -268,10 +273,12 @@ function meaningExperience(packet,m){
  }
  if(m.kind==='information'){
   const steps=e.steps||[]; const first=steps[0],last=steps.at(-1);
-  return 'You first chose to '+(first?.label||'act').toLowerCase()+
-   '. Only later in the imagined route did you learn '+(e.revelations?.[0]||'something new').toLowerCase()+
-   '. You then chose to '+(last?.label||'respond').toLowerCase()+
-   '; no outcome of the unchosen path was observed.';
+  const choice=label=>label?.startsWith('You ')?'You chose to '+label.slice(4,5).toLowerCase()+label.slice(5):
+   'You chose to '+String(label||'act').toLowerCase();
+  const event=e.revelations?.[0]||'something new occurs';
+  const later=event[0].toLowerCase()+event.slice(1);
+  return choice(first?.label)+'. Later, in the imagined scenario, '+later+'. '+choice(last?.label)+
+   '. The outcome of the unchosen path is still unknown.';
  }
  return m.text;
 }
