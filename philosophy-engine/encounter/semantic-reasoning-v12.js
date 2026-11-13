@@ -88,6 +88,7 @@ export function reasonSemantically(context,input){
   const amountsChanged=deltaAmounts.some(Boolean);
   transition={
    development:{id:context.development.id,label:context.development.label,kind:context.development.kind},
+   metricUnit:context.model.metric?.unit||null,
    initial:{amounts:[...initial.amounts],budgets:[...initial.budgets],spent:[...initial.spent],measure:initial.measure},
    revised:{amounts:[...structure.amounts],budgets:[...structure.budgets],spent:[...structure.spent],measure:structure.measure},
    deltaAmounts,deltaSpent,deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
@@ -222,8 +223,8 @@ function meaningExperience(packet,m){
   const quantities=e.amountsChanged?'You changed the allocation.':'You kept the original quantities.';
   const feasibility=e.reallocationRequired?'The earlier plan no longer fit.':'The earlier plan could still fit.';
   const measured=e.initial?.measure!==null&&e.initial?.measure!==undefined&&e.revised?.measure!==null&&e.revised?.measure!==undefined&&packet.structure?.measure!==null?
-   ' The modeled result moves from '+e.initial.measure+' to '+e.revised.measure+' '+(packet.structure?.measure===1?'unit':'units')+'.':'';
-  return 'In this hypothetical change, '+e.development.label+' '+feasibility+' '+quantities+measured;
+   ' The modeled result moves from '+e.initial.measure+' to '+e.revised.measure+' '+(e.metricUnit||'modeled units')+'.':'';
+  return 'A new condition appears: '+e.development.label+' '+feasibility+' '+quantities+measured;
  }
  if(m.kind==='dependency'){
   const changed=e.alternative&&e.alternative.delta>0?
@@ -260,12 +261,12 @@ export function expressSemantic(packet,mode='reflective'){
   challenging:{experience:`A distinction remains: ${concepts[0]} and ${concepts[1]} are not interchangeable.`,interpretation:`${packet.author} asks us to examine ${relationship}.`,question:`What would you overlook about ${anchor} if you considered only ${concepts[0]}?`}
  };
  const composed=compositions[mode];
- const experience=meaningExperience(packet,m);
+ const experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
  const admission=packet.sourceAdmission;
  const interpretation=admission?.centralClaim&&admission?.scenarioBridge?
   admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' '):
   composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
- const proactiveQuestion=questions[m.kind]||composed.question;
+ const proactiveQuestion=mode==='reflective'||mode==='challenging'?(questions[m.kind]||composed.question):composed.question;
  const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
  const wordCount=text.split(/\s+/).length;
  // Never truncate a caveat or silently add padding to satisfy a length target.
