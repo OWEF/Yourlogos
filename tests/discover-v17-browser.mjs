@@ -38,7 +38,8 @@ try {
    await range.fill(old);await range.dispatchEvent('input');
    await page.locator('[data-test-allocation]').click();
    assert.ok(await page.locator('.reconsider').isVisible());
-   assert.ok(await page.locator('[data-run]').evaluate(el=>el===document.activeElement));
+   if(id==='money')assert.ok(await page.locator('[data-run]').evaluate(el=>el===document.activeElement));
+   else assert.ok(await page.locator('[data-k-slider="amounts"]').first().evaluate(el=>el===document.activeElement));
    assert.ok(await page.locator('.reconsider').innerText().then(x=>x.includes('A new condition in this imagined scenario')));
    if(id==='money'){
     await range.fill('4');await range.dispatchEvent('input');
