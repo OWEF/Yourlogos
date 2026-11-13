@@ -1361,10 +1361,10 @@ const transferContexts={
 
 const dillardSpec=getMechanismCase('dillard'),kierkegaardSpec=getMechanismCase('kierkegaard');
 const semanticSources={
- thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],changeCentral:['transition'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
- smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['specialization_effect'],changeCentral:['transition'],alternatives:['dependency'],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
- epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',selection:{central:['agency'],alternatives:[],purpose:'Separate chosen action from external outcome'},boundary:'No path establishes forgiveness, indifference, or a reader’s character.'}},
- descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}},
+ thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],changeCentral:['transition'],secondaryObservations:['intention_gap'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
+ smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['specialization_effect'],changeCentral:['transition'],secondaryObservations:['complementarity'],alternatives:['dependency'],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
+ epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',selection:{central:['agency'],secondaryObservations:['closure'],alternatives:[],purpose:'Separate chosen action from external outcome'},boundary:'No path establishes forgiveness, indifference, or a reader’s character.'}},
+ descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],secondaryObservations:['revision','closure'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}},
  dillard:{
   id:'dillard',author:dillardSpec.author,quote:dillardSpec.quote,
   source:{work:'The Writing Life (excerpt; source review pending)',url:dillardSpec.sourceUrl},
@@ -1373,8 +1373,8 @@ const semanticSources={
   relation:dillardSpec.sourceRelation,limit:dillardSpec.guard,
   semantic:{concepts:['one evening','a repeated schedule'],
    relation:'a hypothetical pattern of daily allocations accumulates across days without proving a person’s actual habits',
-   selection:{central:['repetition'],alternatives:[],purpose:'Understand how repeated days can shape a life'},
-   boundary:dillardSpec.guard}
+   selection:{central:['repetition'],secondaryObservations:[],alternatives:[],purpose:'Understand how repeated days can shape a life'},
+   boundary:'The repeated schedule is imagined, not a record of your life or a ranking of activities.'}
  },
  kierkegaard:{
   id:'kierkegaard',author:kierkegaardSpec.author,
@@ -1385,8 +1385,8 @@ const semanticSources={
   relation:kierkegaardSpec.sourceRelation,limit:kierkegaardSpec.guard,
   semantic:{concepts:['acting forward','understanding backward'],
    relation:'later perspective can illuminate what happened without providing the unchosen future or retroactive certainty',
-   selection:{central:['information'],alternatives:[],purpose:'Distinguish reasons available at choice time from later interpretation'},
-   boundary:kierkegaardSpec.guard}
+   selection:{central:['information'],secondaryObservations:[],alternatives:[],purpose:'Distinguish reasons available at choice time from later interpretation'},
+   boundary:'These later events are imagined; the unchosen future remains unknown.'}
  }
 };
 function recurringScheduleModel(spec){
@@ -1418,7 +1418,7 @@ const sourceAdmissions={
   allowedClaimKinds:['conversion','transition']},
  smith:{premiseIds:['joint_required_stages','invented_shift_rates'],
   centralClaim:'Smith explains productivity gains from dividing and specializing labour, not simply a numerical bottleneck.',
-  scenarioBridge:'This invented rotating-team comparison assumes time is lost switching tasks. A balanced specialist assignment can outperform it, but the example does not prove specialization increases productivity outside its assumptions.',
+  scenarioBridge:'The invented rotating-team comparison models time lost switching. Its results do not prove specialization increases productivity outside the stated assumptions.',
   allowedClaimKinds:['specialization_effect','dependency','transition'],claimPremiseIds:{specialization_effect:['hypothetical_switching_baseline']}},
  epictetus:{premiseIds:['own_response_external_forgiveness'],
   centralClaim:'Epictetus distinguishes choices and judgments within rational agency from outcomes that depend on others.',
@@ -1462,11 +1462,11 @@ const semanticCases={
  money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,development:{id:'essential-bill',kind:'hypothetical_constraint',label:'An essential bill limits the remaining furnishing budget to six $20 tokens.',resourceCaps:{money:6}},initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
  workshop:constructScenario(semanticSources.smith,{
   scenario:transferContexts.smith.scenario+' For comparison, imagine all four volunteers rotating between both tasks: with an invented time penalty for switching, they finish one booklet this shift.',
-  assumptions:[...transferContexts.smith.assumptions,'The all-purpose rotating team finishes one booklet only by stipulation, not observation.'],
+  assumptions:[...transferContexts.smith.assumptions,'The all-purpose rotating team loses thirty minutes per volunteer changing jobs; the one-booklet baseline is calculated from these invented times.'],
   premiseIds:[...semanticSources.smith.premiseIds,'hypothetical_switching_baseline'],
   model:{...transferContexts.smith.model,
-   comparison:{kind:'switching_generalists',baselineMeasure:1,staffing:4,resourceId:'team',
-    explanation:'With all four workers rotating between tasks, time lost to switching leaves one completed booklet in this invented baseline.'}},
+   comparison:{kind:'switching_generalists',staffing:4,resourceId:'team',minutesPerWorker:60,switchingMinutesPerWorker:30,minutesPerUnit:90,
+    explanation:'Each of four volunteers hypothetically has sixty minutes; switching costs thirty minutes each, and a complete booklet needs ninety total work minutes.'}},
   development:{id:'press-maintenance',kind:'hypothetical_constraint',label:'A safety inspection limits the press to two volunteers for this shift.',choiceCaps:{press:2}},
   initial:{amounts:[3,1],budgets:[4]}}),
  apology:constructScenario(semanticSources.epictetus,{assumptions:['Choosing a response cannot determine another person’s forgiveness.'],scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',variables:{apologyOffered:{kind:'event',owner:'self'},forgiveness:{kind:'observation',owner:'external'}},agency:{externalVariable:'forgiveness',own:'whether and when to contact the friend',external:'the friend’s forgiveness'},initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer',effects:{apologyOffered:true}},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
@@ -1476,7 +1476,48 @@ const semanticCases={
 };
 
 
+/* EXACT RESEARCH MODULE: philosophy-engine/encounter/source-passage-witness-v19.js */
+/**
+ * CZ-13 source-witness registry (editorially curated, NOT scholarly verification).
+ * This separate, quote-agnostic table binds a displayed excerpt and an exact
+ * human-proposed thesis. Its existence does not prove that thesis follows from
+ * the passage. Do not replace qualified primary-source review with this check.
+ *
+ * No quote-ID dispatch in the core; unknown sources may be rendered only as
+ * explicitly unverified proposals.
+ */
+const SOURCE_PASSAGE_WITNESSES=Object.freeze([
+ {url:'https://digitalthoreau.org/walden/fluid/text/01.html',
+  excerpt:'the cost of a thing is the amount of what I will call life which is required to be exchanged for it',
+  centralClaim:'Thoreau asks us to consider the life exchanged to obtain a possession, not merely its price.'},
+ {url:'https://www.d.umn.edu/cla/faculty/jhamlin/4111/Smith/SmithDV1.html',
+  excerpt:'Those ten persons, therefore, could make among them upwards of forty-eight thousand pins in a day.',
+  centralClaim:'Smith explains productivity gains from dividing and specializing labour, not simply a numerical bottleneck.'},
+ {url:'https://barryfvaughan.org/text/philtext/epictetus/enchiridion.html',
+  excerpt:'Some things are in our control and others not.',
+  centralClaim:'Epictetus distinguishes choices and judgments within rational agency from outcomes that depend on others.'},
+ {url:'https://en.wikisource.org/wiki/Discourse_on_the_Method/Part_2',
+  excerpt:'The first was never to accept anything for true which I did not clearly know to be such',
+  centralClaim:'Descartes cautions against assent that exceeds what is clearly and distinctly understood.'},
+ {url:'https://www.dltn.io/posts/annie-dillard-keep-a-daily-routine',
+  excerpt:'How we spend our days is, of course, how we spend our lives.',
+  centralClaim:'Dillard draws attention to the way the arrangement of days accumulates into a life.'},
+ {url:'https://homepage.divms.uiowa.edu/~jorgen/kierkegaardquotesource.html',
+  excerpt:'Life can only be understood backwards; but it must be lived forwards.',
+  centralClaim:'A life must be lived forward even though an account of it is formed retrospectively, never from outside time.'}
+]);
+const normalize=x=>String(x||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+function traceSourcePassage(admission,quote){
+ const witness=SOURCE_PASSAGE_WITNESSES.find(w=>w.url===admission?.sourceUrl);
+ if(!witness)return {status:'unverified',reason:'No independently curated source-passage witness for this source.'};
+ if(normalize(witness.excerpt)!==normalize(quote)||witness.centralClaim!==admission.centralClaim)
+  return {status:'mismatch',reason:'The claim or displayed excerpt differs from the independent source-passage witness.'};
+ return {status:'curated_passage_match',excerpt:witness.excerpt,independentlySourceVerified:false};
+}
+
+
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/semantic-reasoning-v12.js */
+
 
 // Semantic consequences are data, never callbacks or quote-ID dispatch.
 const reject=reason=>({version:'meaning/1.2',status:'incompatible',reason});
@@ -1492,8 +1533,13 @@ function validateTension(context){
  if(!s?.relation||!s.concepts?.length||!s.boundary)return reject('Missing semantic warrant or interpretive boundary.');
  if(context.mechanism==='tradeoff'&&m.comparison){
   const comparison=m.comparison;
-  if(comparison.kind!=='switching_generalists'||!Number.isSafeInteger(comparison.baselineMeasure)||
-   comparison.baselineMeasure<0||!Number.isSafeInteger(comparison.staffing)||comparison.staffing<1||
+  if(comparison.kind!=='switching_generalists'||Object.hasOwn(comparison,'baselineMeasure')||
+   !Number.isSafeInteger(comparison.staffing)||comparison.staffing<1||
+   !Number.isSafeInteger(comparison.minutesPerWorker)||comparison.minutesPerWorker<1||
+   !Number.isSafeInteger(comparison.switchingMinutesPerWorker)||comparison.switchingMinutesPerWorker<0||
+   comparison.switchingMinutesPerWorker>=comparison.minutesPerWorker||
+   !Number.isSafeInteger(comparison.minutesPerUnit)||comparison.minutesPerUnit<1||
+   !Number.isSafeInteger(comparison.staffing*comparison.minutesPerWorker)||
    !m.resources?.some(r=>r.id===comparison.resourceId&&r.type==='exact'&&r.min===comparison.staffing&&r.max===comparison.staffing)||
    m.metric?.op!=='minimum'||typeof comparison.explanation!=='string'||comparison.explanation.length<40)
    return reject('The hypothetical switching-team comparator is incomplete or lacks a comparable shared budget.');
@@ -1525,7 +1571,9 @@ function validateTension(context){
    }
   }
  }
- return {status:'supported',fit};
+ const sourceTrace=traceSourcePassage(a,context.quote);
+ if(sourceTrace.status==='mismatch')return reject(sourceTrace.reason);
+ return {status:'supported',fit,sourceTrace};
 }
 
 /**
@@ -1578,7 +1626,10 @@ function reasonSemantically(context,input){
    metricUnit:context.model.metric?.unit||null,
    initial:{amounts:[...initial.amounts],budgets:[...initial.budgets],spent:[...initial.spent],measure:initial.measure},
    revised:{amounts:[...structure.amounts],budgets:[...structure.budgets],spent:[...structure.spent],measure:structure.measure},
-   deltaAmounts,deltaSpent,deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
+   deltaAmounts,deltaSpent,changedChoices:context.model.choices.map((choice,i)=>({
+    label:choice.label,id:choice.id,from:initial.amounts[i],to:structure.amounts[i],delta:deltaAmounts[i]
+   })).filter(change=>change.delta!==0),
+   deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
    amountsChanged,originalSelectionStillFeasible:oldChoiceStillFits,
    reallocationRequired:!oldChoiceStillFits
   };
@@ -1669,14 +1720,17 @@ function reasonSemantically(context,input){
  if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
  if(trade&&context.model.comparison){
   const c=context.model.comparison;
-  const delta=structure.measure-c.baselineMeasure;
+  const baseline=Math.floor(c.staffing*(c.minutesPerWorker-c.switchingMinutesPerWorker)/c.minutesPerUnit);
+  const delta=structure.measure-baseline;
   const reading=delta>0?'The specialized arrangement produces '+delta+' more modeled unit'+(delta===1?'':'s')+'.':
    delta===0?'The specialized allocation does not outperform the rotating team in this scenario.':
    'The specialized allocation produces '+Math.abs(delta)+' fewer modeled units under these assumptions.';
-  add('specialization_effect','The stipulated rotating team finishes '+c.baselineMeasure+
+  add('specialization_effect','The stipulated rotating team finishes '+baseline+
    ' units; your dedicated-stage assignment finishes '+structure.measure+' units. '+reading+
    ' Neither figure is historical evidence.','conditional',
-   {baseline:c.baselineMeasure,specialized:structure.measure,delta,staffing:c.staffing,explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
+   {baseline,specialized:structure.measure,delta,staffing:c.staffing,assignments:context.model.choices.map((choice,i)=>({id:choice.id,label:choice.label,singular:choice.singular||null,amount:structure.amounts[i]})),
+    generalistCalculation:{staffing:c.staffing,minutesPerWorker:c.minutesPerWorker,switchingMinutesPerWorker:c.switchingMinutesPerWorker,minutesPerUnit:c.minutesPerUnit},
+    explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
  }
  const contract=context.semantic.selection;
  if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
@@ -1695,11 +1749,18 @@ function reasonSemantically(context,input){
  const claimPremises=admission.claimPremiseIds?.[meaning.kind]||[];
  if(!Array.isArray(claimPremises)||!claimPremises.every(id=>context.premiseIds.includes(id)))
   return reject('The selected claim requires a scenario premise that was not declared.');
- return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,
+ const allowedSecondary=new Set(contract.secondaryObservations||[]);
+ const selectedSecondary=claims.find(c=>allowedSecondary.has(c.kind)&&c.kind!==meaning.kind&&
+  Object.keys(c.evidence||{}).length&&c.classification!=='unsupported');
+ const secondaryObservations=selectedSecondary?[selectedSecondary]:[];
+ const selectedChoices=trade?context.model.choices.map((c,i)=>({id:c.id,label:c.label,amount:structure.amounts[i]})):
+  structure.steps.map(step=>({id:step.choice,label:step.label,node:step.node}));
+ return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,secondaryObservations,selectedChoices,
   sourceAdmission:{sourceUrl:admission.sourceUrl,sourceWork:admission.sourceWork,centralClaim:admission.centralClaim,
    scenarioBridge:admission.scenarioBridge,requiredPremiseIds:[...admission.requiredPremiseIds],
    claimPremiseIds:[...claimPremises],
-   reviewStatus:admission.reviewStatus,independentlySourceVerified:false},
+   reviewStatus:admission.reviewStatus,independentlySourceVerified:false,
+   claimTraceStatus:tension.sourceTrace.status,passageExcerpt:tension.sourceTrace.excerpt||null},
   limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
@@ -1721,8 +1782,17 @@ function meaningHeadline(kind,evidence={}){
    '” came first; '+(evidence.external||'the outcome')+' stayed outside your control.';
   case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
    'Your judgment and the claim’s truth are separate questions.';
-  case 'repetition': return 'Repeated evenings can form a pattern, not a prediction.';
-  case 'information': return 'Later knowledge cannot go back into the first choice.';
+  case 'repetition': {
+   const first=evidence.cumulative?.[0],hours=first&&evidence.unitHours?
+    first.units*evidence.unitHours:null;
+   return first&&hours!==null?'Across '+evidence.repetitions+' evenings, '+hours+' hours go to '+first.label+'.':
+    'Repeated evenings can form a pattern, not a prediction.';
+  }
+  case 'information': {
+   const first=evidence.steps?.[0]?.label,news=evidence.revelations?.[0];
+   return first&&news?first.replace(/[.!?]+$/,'')+'; then '+news[0].toLowerCase()+news.slice(1)+'.':
+    'Later knowledge cannot go back into the first choice.';
+  }
   default: return null;
  }
 }
@@ -1736,11 +1806,13 @@ function meaningExperience(packet,m){
   return 'A new condition appears: '+e.development.label+' '+feasibility+' '+quantities+measured;
  }
  if(m.kind==='specialization_effect'){
-  const quantity=n=>n+' '+(n===1?(e.singular||'finished unit'):(e.unit||'finished units'));
-  const difference=e.delta>0?'That is '+e.delta+' more under the assumed task-switching cost.':
-   e.delta===0?'There is no output gain from this split.':'This split completes less despite assigning specialist roles.';
-  return 'The invented rotating-team baseline completes '+quantity(e.baseline)+'. Your dedicated-stage assignment completes '+
-   quantity(e.specialized)+'. '+difference+' These rates are hypothetical, not historical evidence.';
+  const quantity=n=>n+' '+(n===1?(e.singular||'unit'):(e.unit||'units'));
+  const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
+  const difference=e.delta>0?'That gains '+e.delta+' finished '+(e.delta===1?'unit.':'units.'):
+   e.delta===0?'That is no gain.':'That loses '+Math.abs(e.delta)+' finished '+(e.delta===-1?'unit.':'units.');
+  return 'Your assignment: '+roles+'. The imagined rotating team finishes '+quantity(e.baseline)+
+   '; your split finishes '+quantity(e.specialized)+'. '+difference+' All rates are invented.';
+
  }
  if(m.kind==='dependency'){
   const changed=e.alternative&&e.alternative.delta>0?
@@ -1761,11 +1833,96 @@ function meaningExperience(packet,m){
    'You chose to '+String(label||'act').toLowerCase();
   const event=e.revelations?.[0]||'something new occurs';
   const later=event[0].toLowerCase()+event.slice(1);
-  return choice(first?.label)+'. Later, in the imagined scenario, '+later+'. '+choice(last?.label)+
-   '. The outcome of the unchosen path is still unknown.';
+  return choice(first?.label)+'. Later, in this imagined route, '+later+'. '+choice(last?.label)+
+   '. The unchosen outcome remains unknown.';
  }
  return m.text;
 }
+// A question is a function of a validated meaning AND the specific path.
+// No source IDs, personality inference, prior-history fallback or generic
+// philosophy question bank are consulted here.
+function pathQuestion(packet){
+ const m=packet.meaning, e=m.evidence||{}, path=packet.selectedChoices||[];
+ const clean=x=>String(x||'your choice').replace(/[.!?]+$/,'').trim();
+ const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
+ switch(m.kind){
+  case 'specialization_effect': {
+   const consequence=e.delta>0?'gain more finished work':e.delta===0?'show no productivity gain':'finish fewer units';
+   return 'With '+roles+', why does this invented division of labour '+consequence+'?';
+  }
+  case 'conversion':
+   return 'If the purchase costs '+e.measure+' '+e.unit+', what does that reveal about the life exchanged?';
+  case 'transition':{
+   const change=e.changedChoices?.[0];
+   return change?'When '+clean(change.label)+' shifted from '+change.from+' to '+change.to+
+    ', how did the new constraint affect '+clean(packet.semantic.concepts[1])+'?':
+    'You kept the allocation despite changed constraints; what remained within your choice about '+
+    clean(packet.semantic.concepts[1])+'?';
+  }
+  case 'agency':{
+   const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
+   return 'After '+first.toLowerCase()+' and then '+last.toLowerCase()+
+    ', which outcome still belonged to someone else?';
+  }
+  case 'assent':{
+   const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
+   return 'After '+first.toLowerCase()+' and then '+last.toLowerCase()+
+    ', what did your grounds justify accepting?';
+  }
+  case 'repetition':{
+   const first=e.cumulative?.[0],amount=first&&e.unitHours?first.units*e.unitHours:first?.units;
+   return 'Across '+e.repetitions+' imagined evenings with '+amount+' hours for '+clean(first?.label)+
+    ', what pattern of days emerges?';
+  }
+  case 'information':{
+   const first=clean(e.steps?.[0]?.label),event=clean(e.revelations?.[0]);
+   const choice=first.replace(/^You\s+/i,'to ').toLowerCase();
+   return 'In the imagined route, you chose '+choice+' before '+event.toLowerCase()+
+    '; what becomes clearer when you look back?';
+  }
+  case 'opportunity':{
+   const first=path[0],second=path[1];
+   return 'With '+(first?.amount??0)+' for '+clean(first?.label)+' and '+(second?.amount??0)+
+    ' for '+clean(second?.label)+', what competing use of finite time is displaced?';
+  }
+  case 'dependency':
+   return 'With '+e.measure+' finished units, which required stage would limit the next one?';
+  case 'revision':
+   return 'After the change in commitment, what could your first decision actually establish?';
+  case 'closure':
+   return 'After the earlier decision closed an option, what remained yours to choose?';
+  default: return null;
+ }
+}
+function readableSummary(packet){
+ if(!packet.selectedChoices?.length)return '';
+ const choices=packet.selectedChoices;
+ return packet.structure?.amounts?
+  'You selected '+choices.map(c=>c.amount+' '+c.label).join(', ')+'.':
+  '';
+}
+function boundedSecondary(packet){
+ const next=packet.secondaryObservations?.[0];
+ if(!next)return '';
+ if(next.kind==='intention_gap')return next.text;
+ if(next.kind==='revision')return 'The changed commitment is explicit; it does not make the earlier judgment wrong.';
+ if(next.kind==='closure')return 'An earlier action closed an option in this imagined path.';
+ if(next.kind==='complementarity')return 'A different assignment could increase output without extra workers.';
+ return '';
+}
+const words=s=>String(s||'').trim().split(/\s+/).filter(Boolean).length;
+/**
+ * Founder policy 2026-11-14: 80–120 words total across generated I, II, III;
+ * excludes literal philosopher quotation, fixed labels, accessibility controls
+ * and founder-only QA. Earlier 45–70 word overall goal is superseded.
+ * Never silently cut the source claim or caveats to game a count.
+ */
+const ENCOUNTER_WORD_POLICY=Object.freeze({
+ sections:Object.freeze({idea:Object.freeze({min:10,max:48}),
+ philosopher:Object.freeze({min:18,max:65}),
+ question:Object.freeze({min:9,max:26})}),
+ total:Object.freeze({min:80,max:120}),exclude:['original quotation','fixed section labels','QA controls']
+});
 function expressSemantic(packet,mode='reflective'){
  if(packet?.version!=='meaning/1.2'||packet.status!=='ready'||!packet.claims.includes(packet.meaning)||!frames[mode])return null;
  const m=packet.meaning;
@@ -1782,12 +1939,21 @@ function expressSemantic(packet,mode='reflective'){
   challenging:{experience:`A distinction remains: ${concepts[0]} and ${concepts[1]} are not interchangeable.`,interpretation:`${packet.author} asks us to examine ${relationship}.`,question:`What would you overlook about ${anchor} if you considered only ${concepts[0]}?`}
  };
  const composed=compositions[mode];
- const experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
+ let experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
+ const secondary=boundedSecondary(packet);
+ if(secondary&&words(headline+' '+experience+' '+secondary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
+  experience+=' '+secondary;
+ if(['conversion','opportunity'].includes(m.kind)){
+  const summary=readableSummary(packet);
+  if(summary&&words(headline+' '+experience+' '+summary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
+   experience+=' '+summary;
+ }
  const admission=packet.sourceAdmission;
  const interpretation=admission?.centralClaim&&admission?.scenarioBridge?
-  admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' '):
+  admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' ')+
+   (admission.claimTraceStatus==='unverified'?' This source interpretation is unverified.':''):
   composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
- const proactiveQuestion=mode==='reflective'||mode==='challenging'?(questions[m.kind]||composed.question):composed.question;
+ const proactiveQuestion=pathQuestion(packet)||questions[m.kind]||composed.question;
  const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
  const wordCount=text.split(/\s+/).length;
  // Never truncate a caveat or silently add padding to satisfy a length target.
