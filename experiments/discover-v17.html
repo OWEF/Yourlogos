@@ -1753,7 +1753,7 @@ function reasonSemantically(context,input){
  const selectedSecondary=claims.find(c=>allowedSecondary.has(c.kind)&&c.kind!==meaning.kind&&
   Object.keys(c.evidence||{}).length&&c.classification!=='unsupported');
  const secondaryObservations=selectedSecondary?[selectedSecondary]:[];
- const selectedChoices=trade?context.model.choices.map((c,i)=>({id:c.id,label:c.label,amount:structure.amounts[i]})):
+ const selectedChoices=trade?context.model.choices.map((c,i)=>({id:c.id,label:c.label,singular:c.singular||null,amount:structure.amounts[i]})):
   structure.steps.map(step=>({id:step.choice,label:step.label,node:step.node}));
  return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,secondaryObservations,selectedChoices,
   sourceAdmission:{sourceUrl:admission.sourceUrl,sourceWork:admission.sourceWork,centralClaim:admission.centralClaim,
@@ -1785,12 +1785,12 @@ function meaningHeadline(kind,evidence={}){
   case 'repetition': {
    const first=evidence.cumulative?.[0],hours=first&&evidence.unitHours?
     first.units*evidence.unitHours:null;
-   return first&&hours!==null?'Across '+evidence.repetitions+' evenings, '+hours+' hours go to '+first.label+'.':
+   return first&&hours!==null?'Across '+evidence.repetitions+' imagined evenings, '+hours+' hours go to '+first.label+'.':
     'Repeated evenings can form a pattern, not a prediction.';
   }
   case 'information': {
-   const first=evidence.steps?.[0]?.label,news=evidence.revelations?.[0];
-   return first&&news?first.replace(/[.!?]+$/,'')+'; then '+news[0].toLowerCase()+news.slice(1)+'.':
+   const news=evidence.revelations?.[0];
+   return news?'In this imagined route, '+news[0].toLowerCase()+news.slice(1).replace(/[.!?]+$/,'')+'.':
     'Later knowledge cannot go back into the first choice.';
   }
   default: return null;
@@ -1819,6 +1819,7 @@ function meaningExperience(packet,m){
    ' An allowed reassignment could raise that to '+e.alternative.measure+'.':'';
   return 'With your chosen assignment, the team finishes '+e.measure+' modeled '+(e.measure===1?'unit':'units')+'. Both stages are needed.'+changed;
  }
+ if(m.kind==='conversion')return 'This estimate uses the imagined wage, not your actual earnings.';
  if(m.kind==='repetition'){
   const display=n=>e.unitHours?
    (n*e.unitHours)+' '+(n*e.unitHours===1?'hour':'hours'):
@@ -1833,7 +1834,7 @@ function meaningExperience(packet,m){
    'You chose to '+String(label||'act').toLowerCase();
   const event=e.revelations?.[0]||'something new occurs';
   const later=event[0].toLowerCase()+event.slice(1);
-  return choice(first?.label)+'. Later, in this imagined scenario, '+later+'. '+choice(last?.label)+
+  return choice(first?.label)+'. Later in the imagined scenario, '+choice(last?.label)+
    '. The outcome of the unchosen path is still unknown.';
  }
  return m.text;
@@ -1848,7 +1849,7 @@ function pathQuestion(packet){
  switch(m.kind){
   case 'specialization_effect': {
    const consequence=e.delta>0?'gain more finished work':e.delta===0?'show no gain':'finish fewer units';
-   return 'With '+roles+', why does this invented division of labour '+consequence+'?';
+   return 'With '+roles+', why does this split produce '+(e.delta>0?'more finished booklets':e.delta===0?'the same number of finished booklets':'fewer finished booklets')+' than the invented rotating team?';
   }
   case 'conversion':
    return 'If the purchase costs '+e.measure+' '+e.unit+', what does that reveal about the life exchanged?';
@@ -1861,18 +1862,19 @@ function pathQuestion(packet){
   }
   case 'agency':{
    const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
-   return 'After '+first.toLowerCase()+' and then '+last.toLowerCase()+
-    ', which outcome still belonged to someone else?';
+   return 'You chose to '+first.toLowerCase()+', then to '+last.toLowerCase()+
+    '; whose judgment remained beyond your control?';
   }
   case 'assent':{
    const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
-   return 'After '+first.toLowerCase()+' and then '+last.toLowerCase()+
-    ', what did your grounds justify accepting?';
+   return 'You chose to '+first.toLowerCase()+', then to '+last.toLowerCase()+
+    '; what could the available evidence justify accepting?';
   }
   case 'repetition':{
-   const first=e.cumulative?.[0],amount=first&&e.unitHours?first.units*e.unitHours:first?.units;
-   return 'Across '+e.repetitions+' imagined evenings with '+amount+' hours for '+clean(first?.label)+
-    ', what pattern of days emerges?';
+   const first=e.cumulative?.[0],second=e.cumulative?.[1];
+   const hours=choice=>choice&&e.unitHours?choice.units*e.unitHours:choice?.units;
+   return 'Across '+e.repetitions+' imagined evenings with '+hours(first)+' hours for '+clean(first?.label)+
+    ' and '+hours(second)+' hours for '+clean(second?.label)+', what pattern of days emerges?';
   }
   case 'information':{
    const first=clean(e.steps?.[0]?.label),event=clean(e.revelations?.[0]);
@@ -1898,7 +1900,7 @@ function readableSummary(packet){
  if(!packet.selectedChoices?.length)return '';
  const choices=packet.selectedChoices;
  return packet.structure?.amounts?
-  'You selected '+choices.map(c=>c.amount+' '+c.label).join(', ')+'.':
+  'You selected '+choices.map(c=>c.amount+' '+(c.amount===1&&c.singular?c.singular:c.label)).join(', ')+'.':
   '';
 }
 function boundedSecondary(packet){
