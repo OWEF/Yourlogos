@@ -17,9 +17,11 @@ try {
   await noOverflow();
   await page.locator('[data-like]').click();
   assert.equal(await page.locator('[data-like]').getAttribute('aria-pressed'),'true');
+  assert.ok(await page.locator('.entry-view').isVisible(),'Like must not launch an Encounter');
   assert.ok(await page.locator('[data-discover]').isVisible());
   await page.locator('[data-discover]').click();
   assert.equal(await page.locator('.intro-quote').count(),1);
+  const originalQuote=await page.locator('.intro-quote').innerText();
   assert.equal(await page.locator('.intro-scenario').count(),1);
   assert.equal(await page.locator('[data-enter]').count(),1);
   assert.equal(await page.locator('select,pre,.founder-qa,.expression-lab').count(),0);
@@ -77,6 +79,13 @@ try {
   if(width===390)await page.screenshot({path:`design-review/v18-${id}-interaction.png`,fullPage:true});
   await page.locator('[data-run]').click();
   assert.equal(await page.locator('.reading-panel').count(),3);
+  assert.deepEqual(await page.locator('.reading-panel > .section-label').allTextContents(),
+   ['Your Choices','Return to the philosopher','A question to carry forward']);
+  assert.equal(await page.locator('.reading-source blockquote').innerText(),originalQuote,
+   'The original quotation must reappear in section II');
+  const finalQuestion=await page.locator('.reading-question .reflection').innerText();
+  assert.equal((finalQuestion.match(/\?/g)||[]).length,1,'Exactly one final question');
+  assert.equal(await page.locator('.journey-finale > .reading-panel').count(),3);
   assert.equal(await page.locator('select,pre,.founder-qa,.expression-lab,.memory-reference').count(),0);
   assert.ok(await page.locator('.reading-question').innerText());
   assert.equal(await page.locator('.journey-finale').evaluate(el=>el.lastElementChild.classList.contains('reading-question')),true);
