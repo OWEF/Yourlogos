@@ -33,8 +33,10 @@ export const semanticSources={
 };
 function recurringScheduleModel(spec){
  return {resources:[{id:'evening',label:'Half-hours in this evening',min:6,max:6,type:'exact'}],
-  choices:spec.categories.map((label,i)=>({id:'activity-'+i,label,cost:[1],max:6})),
-  unitLabel:'half-hour slots'};
+  choices:spec.categories.map((label,i)=>({id:'activity-'+i,label,
+   readingLabel:['writing your story','answering messages','resting and recharging'][i]||label,
+   cost:[1],max:6})),
+  unitLabel:'half-hour slots',unitHours:0.5};
 }
 function temporalDecisionModel(spec){
  const nodes={};
