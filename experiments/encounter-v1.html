@@ -150,7 +150,7 @@ body{background:#10120f;font-family:var(--sans)}main{max-width:760px;padding-bot
 <script type="module">
 import {transferContexts} from "../philosophy-engine/encounter/kernel-contexts-v11.js";
 import {semanticCases} from "../philosophy-engine/encounter/semantic-cases-v12.js";
-import {reasonSemantically} from "../philosophy-engine/encounter/semantic-reasoning-v12.js";
+import {reasonSemantically,developedTradeoffModel} from "../philosophy-engine/encounter/semantic-reasoning-v12.js";
 import {evaluateKernel,tradeoffStructure,decisionStructure} from "../philosophy-engine/encounter/reasoning-kernel-v11.js";
 import {getMechanismCase,optionsFor} from "../philosophy-engine/encounter/mechanism-transfer-cases-v02.js";
 import {reallocateVariableBudget} from "../philosophy-engine/encounter/mechanism-transfer-engine-v02.js";
@@ -177,14 +177,25 @@ function kernelControls(spec,state){
  if(spec.mechanism==="tradeoff"){
   const slider=(kind,index,label,max,min,value)=>`<label class="allocation-line"><span>${esc(label)}</span><output>${value}</output>
   <input aria-label="${esc(label)}" data-k-slider="${kind}" data-i="${index}" type="range" min="${min}" max="${max}" value="${value}"></label>`;
-  const spent=m.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
-  const controls=m.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
+  const afterModel=semanticEdition&&state.first?developedTradeoffModel(spec,state.developmentId):null;
+  const effective=afterModel||m;
+  const spent=effective.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
+  const controls=effective.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
    m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
-  const facts=tradeoffStructure(m,state);
-  const consequence=semanticEdition&&facts&&m.metric?'This arrangement means '+facts.measure+' '+esc(m.metric.unit)+'.':'';
-  const reconsider=semanticEdition&&state.firstAllocation?'<div class="reconsider"><p>'+consequence+'</p><p>Keep this arrangement, or move a share and notice what has to change.</p></div>':'';
-  const status=m.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ");
-  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!state.firstAllocation?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!state.firstAllocation?'Consider the cost':'Reveal the meaning')+'</button></div>';
+  const facts=tradeoffStructure(effective,state);
+  const first=state.first;
+  const firstStillFits=first&&Boolean(tradeoffStructure(effective,{amounts:first.amounts,budgets:state.budgets}));
+  const consequence=semanticEdition&&facts&&m.metric?'The revised arrangement corresponds to '+facts.measure+' '+esc(m.metric.unit)+'.':'';
+  const firstSummary=first?m.choices.map((c,i)=>first.amounts[i]+' '+esc(c.label)).join(' · '):'';
+  const reconsider=semanticEdition&&first?'<div class="reconsider" role="group" aria-label="The changed condition">'+
+   '<p><strong>A new condition in this imagined scenario:</strong> '+esc(spec.development.label)+'</p>'+
+   '<p><strong>Your initial choice:</strong> '+firstSummary+'</p>'+
+   '<p>'+(firstStillFits?'The earlier quantities remain feasible. You can keep or reconsider them.':
+    'The earlier quantities no longer fit. Revise the allocation to meet the new constraint.')+'</p>'+
+   '<p>'+consequence+'</p></div>'+
+   '<button type="button" class="secondary" style="min-height:44px" data-reset-allocation>Change my first choice</button>':'';
+  const status=effective.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ")+(first&&!facts?' · Revise to meet the changed condition.':'');
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!first?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!first?'See what changes':'Reveal the meaning')+'</button></div>';
  }
  let html='<div class="case-body" tabindex="-1">';
  for(let i=0;i<=state.path.length;i++){
@@ -322,7 +333,23 @@ document.querySelector("#more-passages")?.addEventListener("change",ev=>{
 });
 document.addEventListener("keydown",ev=>{if(ev.key==="Escape"){const back=document.querySelector("[data-back]");if(back){ev.preventDefault();back.click();}}});
 document.addEventListener("click",ev=>{
- if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();document.querySelector('[data-run]')?.focus();return;}
+ if(ev.target.closest('[data-test-allocation]')){
+  const state=active.cases[active.mode],spec=currentContexts[active.mode];
+  const developed=developedTradeoffModel(spec,spec.development?.id);
+  if(!developed||!tradeoffStructure(spec.model,state))return;
+  state.first={amounts:[...state.amounts],budgets:[...state.budgets]};
+  state.developmentId=spec.development.id;
+  state.budgets=state.budgets.map((n,i)=>Math.min(n,developed.resources[i].max));
+  state.result=null;render();
+  document.querySelector('[data-run]:not(:disabled), [data-k-slider="amounts"]')?.focus();return;
+ }
+ if(ev.target.closest('[data-reset-allocation]')){
+  const state=active.cases[active.mode];
+  if(!state.first)return;
+  state.amounts=[...state.first.amounts];state.budgets=[...state.first.budgets];
+  delete state.first;delete state.developmentId;state.result=null;
+  render();document.querySelector('[data-test-allocation]')?.focus();return;
+ }
  if(ev.target.closest('[data-confirm-allocation]')){active.cases[active.mode].confirmed=true;render();return;}
  const step=ev.target.closest("[data-k-step]");
  if(step){
@@ -404,9 +431,10 @@ document.addEventListener("input",ev=>{
   box.querySelector("[aria-live]").textContent=fresh.querySelector("[aria-live]").textContent;
   const action=box.querySelector('[data-run], [data-test-allocation]');
   action.disabled=fresh.querySelector('[data-run], [data-test-allocation]').disabled;
-  if(semanticEdition&&state.firstAllocation){state.confirmed=false;
+  if(semanticEdition&&state.first){
    box.querySelector('.reconsider').innerHTML=fresh.querySelector('.reconsider').innerHTML;
-   action.removeAttribute('data-test-allocation');action.setAttribute('data-run',active.mode);action.textContent='Reveal the meaning';}state.result=null;return;
+   action.removeAttribute('data-test-allocation');action.setAttribute('data-run',active.mode);action.textContent='Reveal the meaning';
+  }state.result=null;return;
  }
  const range=ev.target.closest("[data-range]");
  if(!range)return;
