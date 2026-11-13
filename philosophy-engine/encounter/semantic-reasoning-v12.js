@@ -1,4 +1,5 @@
 import {mechanismFit,tradeoffStructure,decisionStructure} from './reasoning-kernel-v11.js';
+import {traceSourcePassage} from './source-passage-witness-v19.js';
 // Semantic consequences are data, never callbacks or quote-ID dispatch.
 const reject=reason=>({version:'meaning/1.2',status:'incompatible',reason});
 const stable=x=>JSON.stringify(Object.entries(x||{}).sort(([a],[b])=>a.localeCompare(b)));
@@ -13,8 +14,13 @@ export function validateTension(context){
  if(!s?.relation||!s.concepts?.length||!s.boundary)return reject('Missing semantic warrant or interpretive boundary.');
  if(context.mechanism==='tradeoff'&&m.comparison){
   const comparison=m.comparison;
-  if(comparison.kind!=='switching_generalists'||!Number.isSafeInteger(comparison.baselineMeasure)||
-   comparison.baselineMeasure<0||!Number.isSafeInteger(comparison.staffing)||comparison.staffing<1||
+  if(comparison.kind!=='switching_generalists'||Object.hasOwn(comparison,'baselineMeasure')||
+   !Number.isSafeInteger(comparison.staffing)||comparison.staffing<1||
+   !Number.isSafeInteger(comparison.minutesPerWorker)||comparison.minutesPerWorker<1||
+   !Number.isSafeInteger(comparison.switchingMinutesPerWorker)||comparison.switchingMinutesPerWorker<0||
+   comparison.switchingMinutesPerWorker>=comparison.minutesPerWorker||
+   !Number.isSafeInteger(comparison.minutesPerUnit)||comparison.minutesPerUnit<1||
+   !Number.isSafeInteger(comparison.staffing*comparison.minutesPerWorker)||
    !m.resources?.some(r=>r.id===comparison.resourceId&&r.type==='exact'&&r.min===comparison.staffing&&r.max===comparison.staffing)||
    m.metric?.op!=='minimum'||typeof comparison.explanation!=='string'||comparison.explanation.length<40)
    return reject('The hypothetical switching-team comparator is incomplete or lacks a comparable shared budget.');
@@ -46,7 +52,9 @@ export function validateTension(context){
    }
   }
  }
- return {status:'supported',fit};
+ const sourceTrace=traceSourcePassage(a,context.quote);
+ if(sourceTrace.status==='mismatch')return reject(sourceTrace.reason);
+ return {status:'supported',fit,sourceTrace};
 }
 
 /**
@@ -99,7 +107,10 @@ export function reasonSemantically(context,input){
    metricUnit:context.model.metric?.unit||null,
    initial:{amounts:[...initial.amounts],budgets:[...initial.budgets],spent:[...initial.spent],measure:initial.measure},
    revised:{amounts:[...structure.amounts],budgets:[...structure.budgets],spent:[...structure.spent],measure:structure.measure},
-   deltaAmounts,deltaSpent,deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
+   deltaAmounts,deltaSpent,changedChoices:context.model.choices.map((choice,i)=>({
+    label:choice.label,id:choice.id,from:initial.amounts[i],to:structure.amounts[i],delta:deltaAmounts[i]
+   })).filter(change=>change.delta!==0),
+   deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
    amountsChanged,originalSelectionStillFeasible:oldChoiceStillFits,
    reallocationRequired:!oldChoiceStillFits
   };
@@ -190,14 +201,17 @@ export function reasonSemantically(context,input){
  if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
  if(trade&&context.model.comparison){
   const c=context.model.comparison;
-  const delta=structure.measure-c.baselineMeasure;
+  const baseline=Math.floor(c.staffing*(c.minutesPerWorker-c.switchingMinutesPerWorker)/c.minutesPerUnit);
+  const delta=structure.measure-baseline;
   const reading=delta>0?'The specialized arrangement produces '+delta+' more modeled unit'+(delta===1?'':'s')+'.':
    delta===0?'The specialized allocation does not outperform the rotating team in this scenario.':
    'The specialized allocation produces '+Math.abs(delta)+' fewer modeled units under these assumptions.';
-  add('specialization_effect','The stipulated rotating team finishes '+c.baselineMeasure+
+  add('specialization_effect','The stipulated rotating team finishes '+baseline+
    ' units; your dedicated-stage assignment finishes '+structure.measure+' units. '+reading+
    ' Neither figure is historical evidence.','conditional',
-   {baseline:c.baselineMeasure,specialized:structure.measure,delta,staffing:c.staffing,explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
+   {baseline,specialized:structure.measure,delta,staffing:c.staffing,assignments:context.model.choices.map((choice,i)=>({id:choice.id,label:choice.label,singular:choice.singular||null,amount:structure.amounts[i]})),
+    generalistCalculation:{staffing:c.staffing,minutesPerWorker:c.minutesPerWorker,switchingMinutesPerWorker:c.switchingMinutesPerWorker,minutesPerUnit:c.minutesPerUnit},
+    explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
  }
  const contract=context.semantic.selection;
  if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
@@ -216,11 +230,18 @@ export function reasonSemantically(context,input){
  const claimPremises=admission.claimPremiseIds?.[meaning.kind]||[];
  if(!Array.isArray(claimPremises)||!claimPremises.every(id=>context.premiseIds.includes(id)))
   return reject('The selected claim requires a scenario premise that was not declared.');
- return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,
+ const allowedSecondary=new Set(contract.secondaryObservations||[]);
+ const selectedSecondary=claims.find(c=>allowedSecondary.has(c.kind)&&c.kind!==meaning.kind&&
+  Object.keys(c.evidence||{}).length&&c.classification!=='unsupported');
+ const secondaryObservations=selectedSecondary?[selectedSecondary]:[];
+ const selectedChoices=trade?context.model.choices.map((c,i)=>({id:c.id,label:c.label,amount:structure.amounts[i]})):
+  structure.steps.map(step=>({id:step.choice,label:step.label,node:step.node}));
+ return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,secondaryObservations,selectedChoices,
   sourceAdmission:{sourceUrl:admission.sourceUrl,sourceWork:admission.sourceWork,centralClaim:admission.centralClaim,
    scenarioBridge:admission.scenarioBridge,requiredPremiseIds:[...admission.requiredPremiseIds],
    claimPremiseIds:[...claimPremises],
-   reviewStatus:admission.reviewStatus,independentlySourceVerified:false},
+   reviewStatus:admission.reviewStatus,independentlySourceVerified:false,
+   claimTraceStatus:tension.sourceTrace.status,passageExcerpt:tension.sourceTrace.excerpt||null},
   limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
@@ -242,8 +263,17 @@ function meaningHeadline(kind,evidence={}){
    '” came first; '+(evidence.external||'the outcome')+' stayed outside your control.';
   case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
    'Your judgment and the claim’s truth are separate questions.';
-  case 'repetition': return 'Repeated evenings can form a pattern, not a prediction.';
-  case 'information': return 'Later knowledge cannot go back into the first choice.';
+  case 'repetition': {
+   const first=evidence.cumulative?.[0],hours=first&&evidence.unitHours?
+    first.units*evidence.unitHours:null;
+   return first&&hours!==null?'Across '+evidence.repetitions+' evenings, '+hours+' hours go to '+first.label+'.':
+    'Repeated evenings can form a pattern, not a prediction.';
+  }
+  case 'information': {
+   const first=evidence.steps?.[0]?.label,news=evidence.revelations?.[0];
+   return first&&news?first.replace(/[.!?]+$/,'')+'; then '+news[0].toLowerCase()+news.slice(1)+'.':
+    'Later knowledge cannot go back into the first choice.';
+  }
   default: return null;
  }
 }
@@ -257,11 +287,13 @@ function meaningExperience(packet,m){
   return 'A new condition appears: '+e.development.label+' '+feasibility+' '+quantities+measured;
  }
  if(m.kind==='specialization_effect'){
-  const quantity=n=>n+' '+(n===1?(e.singular||'finished unit'):(e.unit||'finished units'));
-  const difference=e.delta>0?'That is '+e.delta+' more under the assumed task-switching cost.':
-   e.delta===0?'There is no output gain from this split.':'This split completes less despite assigning specialist roles.';
-  return 'The invented rotating-team baseline completes '+quantity(e.baseline)+'. Your dedicated-stage assignment completes '+
-   quantity(e.specialized)+'. '+difference+' These rates are hypothetical, not historical evidence.';
+  const quantity=n=>n+' '+(n===1?(e.singular||'unit'):(e.unit||'units'));
+  const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
+  const difference=e.delta>0?'That gains '+e.delta+' finished '+(e.delta===1?'unit.':'units.'):
+   e.delta===0?'That is no gain.':'That loses '+Math.abs(e.delta)+' finished '+(e.delta===-1?'unit.':'units.');
+  return 'Your assignment: '+roles+'. The invented rotating-team baseline finishes '+quantity(e.baseline)+
+   '; your split finishes '+quantity(e.specialized)+'. '+difference+' Rates are hypothetical, not historical evidence.';
+
  }
  if(m.kind==='dependency'){
   const changed=e.alternative&&e.alternative.delta>0?
@@ -282,11 +314,96 @@ function meaningExperience(packet,m){
    'You chose to '+String(label||'act').toLowerCase();
   const event=e.revelations?.[0]||'something new occurs';
   const later=event[0].toLowerCase()+event.slice(1);
-  return choice(first?.label)+'. Later, in the imagined scenario, '+later+'. '+choice(last?.label)+
-   '. The outcome of the unchosen path is still unknown.';
+  return choice(first?.label)+'. Later, in this imagined scenario, '+later+'. '+choice(last?.label)+
+   '. The unchosen outcome remains unknown.';
  }
  return m.text;
 }
+// A question is a function of a validated meaning AND the specific path.
+// No source IDs, personality inference, prior-history fallback or generic
+// philosophy question bank are consulted here.
+function pathQuestion(packet){
+ const m=packet.meaning, e=m.evidence||{}, path=packet.selectedChoices||[];
+ const clean=x=>String(x||'your choice').replace(/[.!?]+$/,'').trim();
+ const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
+ switch(m.kind){
+  case 'specialization_effect': {
+   const consequence=e.delta>0?'gain more finished work':e.delta===0?'show no gain':'finish fewer units';
+   return 'With '+roles+', why does this invented division of labour '+consequence+'?';
+  }
+  case 'conversion':
+   return 'If the purchase costs '+e.measure+' '+e.unit+', what does that reveal about the life exchanged?';
+  case 'transition':{
+   const change=e.changedChoices?.[0];
+   return change?'When '+clean(change.label)+' shifted from '+change.from+' to '+change.to+
+    ', how did the new constraint affect '+clean(packet.semantic.concepts[1])+'?':
+    'You kept the allocation despite changed constraints; what remained within your choice about '+
+    clean(packet.semantic.concepts[1])+'?';
+  }
+  case 'agency':{
+   const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
+   return 'After '+first.toLowerCase()+' and then '+last.toLowerCase()+
+    ', which outcome still belonged to someone else?';
+  }
+  case 'assent':{
+   const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
+   return 'After '+first.toLowerCase()+' and then '+last.toLowerCase()+
+    ', what did your grounds justify accepting?';
+  }
+  case 'repetition':{
+   const first=e.cumulative?.[0],amount=first&&e.unitHours?first.units*e.unitHours:first?.units;
+   return 'Across '+e.repetitions+' imagined evenings with '+amount+' hours for '+clean(first?.label)+
+    ', what pattern of days emerges?';
+  }
+  case 'information':{
+   const first=clean(e.steps?.[0]?.label),event=clean(e.revelations?.[0]);
+   const choice=first.replace(/^You\s+/i,'to ').toLowerCase();
+   return 'In the imagined route, you chose '+choice+' before '+event.toLowerCase()+
+    '; what becomes clearer when you look back?';
+  }
+  case 'opportunity':{
+   const first=path[0],second=path[1];
+   return 'With '+(first?.amount??0)+' for '+clean(first?.label)+' and '+(second?.amount??0)+
+    ' for '+clean(second?.label)+', what competing use of finite time is displaced?';
+  }
+  case 'dependency':
+   return 'With '+e.measure+' finished units, which required stage would limit the next one?';
+  case 'revision':
+   return 'After the change in commitment, what could your first decision actually establish?';
+  case 'closure':
+   return 'After the earlier decision closed an option, what remained yours to choose?';
+  default: return null;
+ }
+}
+function readableSummary(packet){
+ if(!packet.selectedChoices?.length)return '';
+ const choices=packet.selectedChoices;
+ return packet.structure?.amounts?
+  'You selected '+choices.map(c=>c.amount+' '+c.label).join(', ')+'.':
+  '';
+}
+function boundedSecondary(packet){
+ const next=packet.secondaryObservations?.[0];
+ if(!next)return '';
+ if(next.kind==='intention_gap')return next.text;
+ if(next.kind==='revision')return 'The changed commitment is explicit; it does not make the earlier judgment wrong.';
+ if(next.kind==='closure')return 'An earlier action closed an option in this imagined path.';
+ if(next.kind==='complementarity')return 'A different assignment could increase output without extra workers.';
+ return '';
+}
+const words=s=>String(s||'').trim().split(/\s+/).filter(Boolean).length;
+/**
+ * Founder policy 2026-11-14: 80–120 words total across generated I, II, III;
+ * excludes literal philosopher quotation, fixed labels, accessibility controls
+ * and founder-only QA. Earlier 45–70 word overall goal is superseded.
+ * Never silently cut the source claim or caveats to game a count.
+ */
+export const ENCOUNTER_WORD_POLICY=Object.freeze({
+ sections:Object.freeze({idea:Object.freeze({min:10,max:48}),
+ philosopher:Object.freeze({min:18,max:65}),
+ question:Object.freeze({min:9,max:26})}),
+ total:Object.freeze({min:80,max:120}),exclude:['original quotation','fixed section labels','QA controls']
+});
 export function expressSemantic(packet,mode='reflective'){
  if(packet?.version!=='meaning/1.2'||packet.status!=='ready'||!packet.claims.includes(packet.meaning)||!frames[mode])return null;
  const m=packet.meaning;
@@ -303,12 +420,21 @@ export function expressSemantic(packet,mode='reflective'){
   challenging:{experience:`A distinction remains: ${concepts[0]} and ${concepts[1]} are not interchangeable.`,interpretation:`${packet.author} asks us to examine ${relationship}.`,question:`What would you overlook about ${anchor} if you considered only ${concepts[0]}?`}
  };
  const composed=compositions[mode];
- const experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
+ let experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
+ const secondary=boundedSecondary(packet);
+ if(secondary&&words(headline+' '+experience+' '+secondary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
+  experience+=' '+secondary;
+ if(['conversion','opportunity'].includes(m.kind)){
+  const summary=readableSummary(packet);
+  if(summary&&words(headline+' '+experience+' '+summary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
+   experience+=' '+summary;
+ }
  const admission=packet.sourceAdmission;
  const interpretation=admission?.centralClaim&&admission?.scenarioBridge?
-  admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' '):
+  admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' ')+
+   (admission.claimTraceStatus==='unverified'?' This source interpretation is unverified.':''):
   composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
- const proactiveQuestion=mode==='reflective'||mode==='challenging'?(questions[m.kind]||composed.question):composed.question;
+ const proactiveQuestion=pathQuestion(packet)||questions[m.kind]||composed.question;
  const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
  const wordCount=text.split(/\s+/).length;
  // Never truncate a caveat or silently add padding to satisfy a length target.
