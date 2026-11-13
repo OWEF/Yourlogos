@@ -56,10 +56,10 @@ const sourceAdmissions={
   centralClaim:'Thoreau asks us to consider the life exchanged to obtain a possession, not merely its price.',
   scenarioBridge:'Only under the extra-shift wage assumption does a purchase convert into working hours.',
   allowedClaimKinds:['conversion','transition']},
- smith:{premiseIds:['joint_required_stages','invented_shift_rates','hypothetical_switching_baseline'],
+ smith:{premiseIds:['joint_required_stages','invented_shift_rates'],
   centralClaim:'Smith explains productivity gains from dividing and specializing labour, not simply a numerical bottleneck.',
   scenarioBridge:'This invented rotating-team comparison assumes time is lost switching tasks. A balanced specialist assignment can outperform it, but the example does not prove specialization increases productivity outside its assumptions.',
-  allowedClaimKinds:['specialization_effect','dependency','transition']},
+  allowedClaimKinds:['specialization_effect','dependency','transition'],claimPremiseIds:{specialization_effect:['hypothetical_switching_baseline']}},
  epictetus:{premiseIds:['own_response_external_forgiveness'],
   centralClaim:'Epictetus distinguishes choices and judgments within rational agency from outcomes that depend on others.',
   scenarioBridge:'Choosing whether to apologize is distinct from determining a friend’s forgiveness.',
@@ -86,7 +86,8 @@ for(const [id,entry] of Object.entries(sourceAdmissions)){
   mechanism:source.mechanism,operation:source.operation,
   centralClaim:entry.centralClaim,scenarioBridge:entry.scenarioBridge,
   requiredPremiseIds:[...entry.premiseIds],allowedClaimKinds:[...entry.allowedClaimKinds],
-  reviewStatus:'curated_provisional'
+  reviewStatus:'curated_provisional',
+  claimPremiseIds:entry.claimPremiseIds||{}
  };
 }
 
@@ -102,6 +103,7 @@ export const semanticCases={
  workshop:constructScenario(semanticSources.smith,{
   scenario:transferContexts.smith.scenario+' For comparison, imagine all four volunteers rotating between both tasks: with an invented time penalty for switching, they finish one booklet this shift.',
   assumptions:[...transferContexts.smith.assumptions,'The all-purpose rotating team finishes one booklet only by stipulation, not observation.'],
+  premiseIds:[...semanticSources.smith.premiseIds,'hypothetical_switching_baseline'],
   model:{...transferContexts.smith.model,
    comparison:{kind:'switching_generalists',baselineMeasure:1,staffing:4,resourceId:'team',
     explanation:'With all four workers rotating between tasks, time lost to switching leaves one completed booklet in this invented baseline.'}},
