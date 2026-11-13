@@ -11,6 +11,14 @@ export function validateTension(context){
  if(fit.status==='unsupported')return reject(fit.reason);
  const s=context.semantic,m=context.model;
  if(!s?.relation||!s.concepts?.length||!s.boundary)return reject('Missing semantic warrant or interpretive boundary.');
+ if(context.mechanism==='tradeoff'&&m.comparison){
+  const comparison=m.comparison;
+  if(comparison.kind!=='switching_generalists'||!Number.isSafeInteger(comparison.baselineMeasure)||
+   comparison.baselineMeasure<0||!Number.isSafeInteger(comparison.staffing)||comparison.staffing<1||
+   !m.resources?.some(r=>r.id===comparison.resourceId&&r.type==='exact'&&r.min===comparison.staffing&&r.max===comparison.staffing)||
+   m.metric?.op!=='minimum'||typeof comparison.explanation!=='string'||comparison.explanation.length<40)
+   return reject('The hypothetical switching-team comparator is incomplete or lacks a comparable shared budget.');
+ }
  const a=s.admission;
  if(!a||a.sourceUrl!==context.source?.url||a.sourceWork!==context.source?.work||
     a.mechanism!==context.mechanism||a.operation!==context.operation||
@@ -178,6 +186,17 @@ export function reasonSemantically(context,input){
 
  }
  if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
+ if(trade&&context.model.comparison){
+  const c=context.model.comparison;
+  const delta=structure.measure-c.baselineMeasure;
+  const reading=delta>0?'The specialized arrangement produces '+delta+' more modeled unit'+(delta===1?'':'s')+'.':
+   delta===0?'The specialized allocation does not outperform the rotating team in this scenario.':
+   'The specialized allocation produces '+Math.abs(delta)+' fewer modeled units under these assumptions.';
+  add('specialization_effect','The stipulated rotating team finishes '+c.baselineMeasure+
+   ' units; your dedicated-stage assignment finishes '+structure.measure+' units. '+reading+
+   ' Neither figure is historical evidence.','conditional',
+   {baseline:c.baselineMeasure,specialized:structure.measure,delta,staffing:c.staffing,explanation:c.explanation});
+ }
  const contract=context.semantic.selection;
  if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
  if(transition&&!contract.changeCentral?.length)return reject('The changed condition lacks a source-authored philosophical warrant.');
@@ -199,7 +218,7 @@ export function reasonSemantically(context,input){
   limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
-const questions={transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
+const questions={specialization_effect:'Under the invented rates, what would have to change for specialized work to increase what the team finishes?',transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
 // The short heading is derived from validated consequences, never philosopher IDs.
 function meaningHeadline(kind,evidence={}){
  switch(kind){
@@ -209,6 +228,7 @@ function meaningHeadline(kind,evidence={}){
     'Your first allocation still works under the new condition.';
   case 'conversion': return 'This choice corresponds to '+evidence.measure+' '+evidence.unit+'.';
   case 'dependency': return 'The least-supplied stage limits what gets finished.';
+  case 'specialization_effect': return 'Dedicated stages finish '+evidence.specialized+' versus '+evidence.baseline+' in the invented comparison.';
   case 'agency': return (evidence.events?.[0]?.action||'Your first response')+
    ' came first; '+(evidence.external||'the outcome')+' stayed outside your control.';
   case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
@@ -226,6 +246,11 @@ function meaningExperience(packet,m){
   const measured=e.initial?.measure!==null&&e.initial?.measure!==undefined&&e.revised?.measure!==null&&e.revised?.measure!==undefined&&packet.structure?.measure!==null?
    ' The modeled result moves from '+e.initial.measure+' to '+e.revised.measure+' '+(e.metricUnit||'modeled units')+'.':'';
   return 'A new condition appears: '+e.development.label+' '+feasibility+' '+quantities+measured;
+ }
+ if(m.kind==='specialization_effect'){
+  const result=e.specialized>e.baseline?'more':e.specialized===e.baseline?'the same number of':'fewer';
+  return 'The imagined all-purpose team produces '+e.baseline+' finished units. Your specialized assignments produce '+
+   e.specialized+', or '+result+' units under the same fictional staffing. The comparison assumes a cost of switching tasks; it is not historical evidence.';
  }
  if(m.kind==='dependency'){
   const changed=e.alternative&&e.alternative.delta>0?
