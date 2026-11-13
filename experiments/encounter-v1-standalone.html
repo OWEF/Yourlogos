@@ -1358,12 +1358,56 @@ const transferContexts={
 /* EXACT RESEARCH MODULE: philosophy-engine/encounter/semantic-cases-v12.js */
 
 
+
+const dillardSpec=getMechanismCase('dillard'),kierkegaardSpec=getMechanismCase('kierkegaard');
 const semanticSources={
  thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],changeCentral:['transition'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
  smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['dependency'],changeCentral:['transition'],alternatives:[],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
  epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',selection:{central:['agency'],alternatives:[],purpose:'Separate chosen action from external outcome'},boundary:'No path establishes forgiveness, indifference, or a reader’s character.'}},
- descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}}
+ descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}},
+ dillard:{
+  id:'dillard',author:dillardSpec.author,quote:dillardSpec.quote,
+  source:{work:'The Writing Life (excerpt; source review pending)',url:dillardSpec.sourceUrl},
+  scenario:dillardSpec.scenario,mechanism:'tradeoff',operations:['tradeoff'],operation:'scarcity',
+  assumptions:['Five identical evenings are a thought experiment, not observed behavior.'],
+  relation:dillardSpec.sourceRelation,limit:dillardSpec.guard,
+  semantic:{concepts:['one evening','a repeated schedule'],
+   relation:'a hypothetical pattern of daily allocations accumulates across days without proving a person’s actual habits',
+   selection:{central:['repetition'],alternatives:[],purpose:'Understand how repeated days can shape a life'},
+   boundary:dillardSpec.guard}
+ },
+ kierkegaard:{
+  id:'kierkegaard',author:kierkegaardSpec.author,
+  quote:'Life can only be understood backwards; but it must be lived forwards.',
+  source:{work:'Journal JJ:167 (shortened quotation; wording review pending)',url:kierkegaardSpec.sourceUrl},
+  scenario:kierkegaardSpec.scenario,mechanism:'decision_map',operations:['decision_map'],operation:'information',
+  assumptions:['Later branches are imagined events, not predictions of this user’s life.'],
+  relation:kierkegaardSpec.sourceRelation,limit:kierkegaardSpec.guard,
+  semantic:{concepts:['acting forward','understanding backward'],
+   relation:'later perspective can illuminate what happened without providing the unchosen future or retroactive certainty',
+   selection:{central:['information'],alternatives:[],purpose:'Distinguish reasons available at choice time from later interpretation'},
+   boundary:kierkegaardSpec.guard}
+ }
 };
+function recurringScheduleModel(spec){
+ return {resources:[{id:'evening',label:'Half-hours in this evening',min:6,max:6,type:'exact'}],
+  choices:spec.categories.map((label,i)=>({id:'activity-'+i,label,cost:[1],max:6})),
+  unitLabel:'half-hour slots'};
+}
+function temporalDecisionModel(spec){
+ const nodes={};
+ function expand(i,prior,name){
+  const stage=spec.steps[i],options=Array.isArray(stage.options)?stage.options:stage.options[prior];
+  if(!Array.isArray(options)||!options.length)throw Error('Invalid curated temporal choices');
+  nodes[name]={prompt:stage.prompt,options:options.map(o=>{
+   const next=i+1<spec.steps.length?name+'/'+o.id:null;
+   if(next)expand(i+1,o.id,next);
+   return {id:o.id,label:o.label,action:o.label,next,...(i===1?{reveal:[o.label]}:{})};
+  })};
+ }
+ expand(0,null,'first');
+ return {start:'first',initial:['The unchosen path remains unobserved'],nodes};
+}
 // Generate a two-stage commitment graph from options and subsequent information.
 // No philosopher or quotation identity is consulted by the constructor.
 function commitmentScenario({prompt,field,actions,development,initial=[],domain=null,agency=null,assentField=null,variables={}}){
@@ -1375,7 +1419,9 @@ const semanticCases={
  money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,development:{id:'essential-bill',kind:'hypothetical_constraint',label:'An essential bill limits the remaining furnishing budget to six $20 tokens.',resourceCaps:{money:6}},initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
  workshop:constructScenario(semanticSources.smith,{model:transferContexts.smith.model,development:{id:'press-maintenance',kind:'hypothetical_constraint',label:'A safety inspection limits the press to two volunteers for this shift.',choiceCaps:{press:2}},initial:{amounts:[3,1],budgets:[4]}}),
  apology:constructScenario(semanticSources.epictetus,{assumptions:['Choosing a response cannot determine another person’s forgiveness.'],scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',variables:{apologyOffered:{kind:'event',owner:'self'},forgiveness:{kind:'observation',owner:'external'}},agency:{externalVariable:'forgiveness',own:'whether and when to contact the friend',external:'the friend’s forgiveness'},initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer',effects:{apologyOffered:true}},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
- evidence:constructScenario(semanticSources.descartes,{assumptions:['The new archive is relevant but does not settle the disputed attribution.'],scenario:'A historical exhibition contains an uncertain attribution. Decide whether to endorse it as new evidence arrives.',model:commitmentScenario({prompt:'What can the label claim?',field:'assent',assentField:'assent',domain:{states:['assent','withhold'],oppositions:[['assent','withhold']]},initial:['The attribution is disputed.'],development:'An independent archive contradicts the attribution; the dispute remains unresolved.',actions:[{id:'endorse',label:'Endorse the attribution',commitment:'assent'},{id:'suspend',label:'Suspend judgment',commitment:'withhold'}]}),initial:{path:['endorse','suspend']}})
+ evidence:constructScenario(semanticSources.descartes,{assumptions:['The new archive is relevant but does not settle the disputed attribution.'],scenario:'A historical exhibition contains an uncertain attribution. Decide whether to endorse it as new evidence arrives.',model:commitmentScenario({prompt:'What can the label claim?',field:'assent',assentField:'assent',domain:{states:['assent','withhold'],oppositions:[['assent','withhold']]},initial:['The attribution is disputed.'],development:'An independent archive contradicts the attribution; the dispute remains unresolved.',actions:[{id:'endorse',label:'Endorse the attribution',commitment:'assent'},{id:'suspend',label:'Suspend judgment',commitment:'withhold'}]}),initial:{path:['endorse','suspend']}}),
+ dillard:constructScenario(semanticSources.dillard,{model:recurringScheduleModel(dillardSpec),initial:{amounts:[2,2,2],budgets:[6],repetitions:5}}),
+ kierkegaard:constructScenario(semanticSources.kierkegaard,{model:temporalDecisionModel(kierkegaardSpec),initial:{path:['change','risk','continue']}})
 };
 
 
@@ -1495,7 +1541,12 @@ function reasonSemantically(context,input){
   }
   if(input.repetitions!==undefined){
    if(!Number.isSafeInteger(input.repetitions)||input.repetitions<2||input.repetitions>1000)return reject('Invalid repetition horizon.');
-   add('repetition',`Repeating this allocation ${input.repetitions} times repeats its resource demands; it does not establish a habit.`, 'conditional',{totals:structure.spent.map(n=>n*input.repetitions)});
+   const cumulative=choices.map((c,i)=>({label:c.label,units:input.amounts[i]*input.repetitions}));
+   const slots=context.model.unitLabel||'resource units';
+   add('repetition','If this exact arrangement were repeated '+input.repetitions+' times, it would reserve '+
+    cumulative.map(c=>c.units+' '+slots+' for '+c.label).join(', ')+
+    '. This is a conditional pattern, not evidence that you will adopt it.', 'conditional',
+    {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions});
   }
   const better=context.model.metric?.op==='minimum'?structure.alternatives.find(a=>a.delta>0):null;
   if(better)add('complementarity',`Reallocating one unit can increase the modeled result from ${structure.measure} to ${better.measure}.`,'conditional',better);
@@ -1524,7 +1575,15 @@ function reasonSemantically(context,input){
   structure.semanticEvents=events;structure.semanticRevisions=changes;structure.occurred=occurred;
   if(changes.length)add('revision','You explicitly changed a commitment; this does not establish that the earlier decision was mistaken.','necessary',{changes,events});
   if(structure.locked.length)add('closure','An earlier act closed alternatives; editing the scenario does not make that act reversible within it.','necessary',{locked:structure.locked});
-  if(structure.known.length>(context.model.initial||[]).length)add('information','Later information changes the basis for another decision without proving the earlier decision mistaken.','necessary',{steps:structure.steps});
+  if(structure.known.length>(context.model.initial||[]).length){
+   const first=structure.steps[0],last=structure.steps.at(-1);
+   const revelations=structure.steps.flatMap(step=>step.revealed||[]);
+   const report=revelations[0]||'new information';
+   const next=first===last?'the decision ended there':'you then chose to '+last.label.toLowerCase();
+   add('information','You first chose to '+first.label.toLowerCase()+'. Later in this imagined route, '+report[0].toLowerCase()+report.slice(1)+
+    '; '+next+'. That later perspective does not prove your original choice mistaken or disclose the unchosen future.',
+    'conditional',{steps:structure.steps,firstChoice:first.choice,lastChoice:last.choice,revelations});
+  }
   const control=context.model.agency;
   if(control?.external&&control?.own)add('agency',`You chose to ${events.map(e=>e.action.toLowerCase()).join(', then ')}; ${control.external} remains outside those choices.`, 'conditional',{action:last.label,own:control.own,external:control.external,events});
   const assentChanges=changes.filter(c=>c.field===context.model.assentField);
@@ -2363,7 +2422,8 @@ const active={mode:"dillard", likes:{dillard:false,kierkegaard:false}, screen:{d
 }};
 for(const [id,c] of Object.entries(currentContexts)){
  active.screen[id]="entry";
- active.cases[id]=c.mechanism==="tradeoff"?{amounts:[...c.model.initial.amounts],budgets:[...c.model.initial.budgets]}:{path:[]};
+ active.cases[id]=c.mechanism==="tradeoff"?{amounts:[...c.model.initial.amounts],budgets:[...c.model.initial.budgets],
+  ...(c.initial?.repetitions?{repetitions:c.initial.repetitions}:{})}:{path:[]};
 }
 function kernelControls(spec,state){
  const m=spec.model;
@@ -2388,7 +2448,7 @@ function kernelControls(spec,state){
    '<p>'+consequence+'</p></div>'+
    '<button type="button" class="secondary" style="min-height:44px" data-reset-allocation>Change my first choice</button>':'';
   const status=effective.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ")+(first&&!facts?' · Revise to meet the changed condition.':'');
-  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!first?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!first?'See what changes':'Reveal the meaning')+'</button></div>';
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&spec.development&&!first?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&spec.development&&!first?'See what changes':'Reveal the meaning')+'</button></div>';
  }
  let html='<div class="case-body" tabindex="-1">';
  for(let i=0;i<=state.path.length;i++){
@@ -2611,8 +2671,12 @@ document.addEventListener("input",ev=>{
  const k=ev.target.closest("[data-k-slider]");
  if(k){
   const state=active.cases[active.mode],i=Number(k.dataset.i),kind=k.dataset.kSlider;
+  const previous=kind==='amounts'?[...state.amounts]:null;
   state[kind][i]=Number(k.value);
   const m=currentContexts[active.mode].model;
+  if(kind==='amounts'&&m.resources.length===1&&m.resources[0].type==='exact'&&m.choices.length===3&&
+    m.choices.every(c=>c.cost[0]===1))
+   state.amounts=reallocateVariableBudget(previous,i,Number(k.value));
   if(kind==="amounts"&&m.resources.length===1&&m.resources[0].type==="exact"&&m.choices.length===2&&m.choices.every(c=>c.cost[0]===1&&c.max>=state.budgets[0]))
    state.amounts[1-i]=state.budgets[0]-state.amounts[i];
   // Keep the active native range in place during touch dragging.
