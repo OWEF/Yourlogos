@@ -38,13 +38,21 @@ try {
    await range.fill(old);await range.dispatchEvent('input');
    await page.locator('[data-test-allocation]').click();
    assert.ok(await page.locator('.reconsider').isVisible());
-   assert.ok(await page.locator('[data-run]').evaluate(el=>el===document.activeElement));
+   if(id==='money')assert.ok(await page.locator('[data-run]').evaluate(el=>el===document.activeElement));
+   else assert.ok(await page.locator('[data-k-slider="amounts"]').first().evaluate(el=>el===document.activeElement));
+   assert.ok(await page.locator('.reconsider').innerText().then(x=>x.includes('A new condition in this imagined scenario')));
    if(id==='money'){
     await range.fill('4');await range.dispatchEvent('input');
     const last=page.locator('[data-k-slider="amounts"]').last();const oldLast=await last.inputValue();
     await last.fill('3');await last.dispatchEvent('input');
     assert.ok(await page.locator('[data-run]').isDisabled());
     await range.fill(old);await range.dispatchEvent('input');await last.fill(oldLast);await last.dispatchEvent('input');
+   }else{
+    // The newly declared press limit makes the first [3,1] assignment invalid.
+    assert.ok(await page.locator('[data-run]').isDisabled());
+    await range.fill('2');await range.dispatchEvent('input');
+    assert.equal(await page.locator('[data-k-slider="amounts"]').last().inputValue(),'2');
+    assert.ok(await page.locator('[data-run]').isEnabled());
    }
   } else {
    assert.equal(await page.locator('[data-run]').count(),0);

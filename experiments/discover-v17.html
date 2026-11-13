@@ -1359,8 +1359,8 @@ const transferContexts={
 
 
 const semanticSources={
- thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
- smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['dependency'],alternatives:[],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
+ thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],changeCentral:['transition'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
+ smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['dependency'],changeCentral:['transition'],alternatives:[],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
  epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',selection:{central:['agency'],alternatives:[],purpose:'Separate chosen action from external outcome'},boundary:'No path establishes forgiveness, indifference, or a reader’s character.'}},
  descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}}
 };
@@ -1372,8 +1372,8 @@ function commitmentScenario({prompt,field,actions,development,initial=[],domain=
  return {start:'first',initial,agency,assentField,variables,commitmentDomains:domain?{[field]:domain}:null,nodes:{first:{prompt,options},later:{prompt:development,options:later}}};
 }
 const semanticCases={
- money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
- workshop:constructScenario(semanticSources.smith,{model:transferContexts.smith.model,initial:{amounts:[3,1],budgets:[4]}}),
+ money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,development:{id:'essential-bill',kind:'hypothetical_constraint',label:'An essential bill limits the remaining furnishing budget to six $20 tokens.',resourceCaps:{money:6}},initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
+ workshop:constructScenario(semanticSources.smith,{model:transferContexts.smith.model,development:{id:'press-maintenance',kind:'hypothetical_constraint',label:'A safety inspection limits the press to two volunteers for this shift.',choiceCaps:{press:2}},initial:{amounts:[3,1],budgets:[4]}}),
  apology:constructScenario(semanticSources.epictetus,{assumptions:['Choosing a response cannot determine another person’s forgiveness.'],scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',variables:{apologyOffered:{kind:'event',owner:'self'},forgiveness:{kind:'observation',owner:'external'}},agency:{externalVariable:'forgiveness',own:'whether and when to contact the friend',external:'the friend’s forgiveness'},initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer',effects:{apologyOffered:true}},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
  evidence:constructScenario(semanticSources.descartes,{assumptions:['The new archive is relevant but does not settle the disputed attribution.'],scenario:'A historical exhibition contains an uncertain attribution. Decide whether to endorse it as new evidence arrives.',model:commitmentScenario({prompt:'What can the label claim?',field:'assent',assentField:'assent',domain:{states:['assent','withhold'],oppositions:[['assent','withhold']]},initial:['The attribution is disputed.'],development:'An independent archive contradicts the attribution; the dispute remains unresolved.',actions:[{id:'endorse',label:'Endorse the attribution',commitment:'assent'},{id:'suspend',label:'Suspend judgment',commitment:'withhold'}]}),initial:{path:['endorse','suspend']}})
 };
@@ -1411,15 +1411,81 @@ function validateTension(context){
  }
  return {status:'supported',fit};
 }
+
+/**
+ * Apply a source-authored, explicitly announced hypothetical change.
+ * It can restrict an available budget or a choice capacity, never invent a
+ * user's motive or alter the first decision. It is not a claim of source truth.
+ */
+function developedTradeoffModel(context,developmentId){
+ const d=context?.development,m=context?.model;
+ if(context?.mechanism!=='tradeoff'||!d?.id||d.id!==developmentId||
+    typeof d.label!=='string'||!d.label.trim()||d.kind!=='hypothetical_constraint'||
+    !m?.resources||!m?.choices)return null;
+ const resources=m.resources.map(r=>({...r})),choices=m.choices.map(c=>({...c}));
+ let tightened=0;
+ const resourceCaps=d.resourceCaps||{},choiceCaps=d.choiceCaps||{};
+ if(!Object.keys(resourceCaps).length&&!Object.keys(choiceCaps).length)return null;
+ for(const [id,cap] of Object.entries(resourceCaps)){
+  const r=resources.find(x=>x.id===id);
+  if(!r||!Number.isSafeInteger(cap)||cap<r.min||cap>=r.max||r.type!=='cap')return null;
+  r.max=cap;tightened++;
+ }
+ for(const [id,cap] of Object.entries(choiceCaps)){
+  const c=choices.find(x=>x.id===id);
+  if(!c||!Number.isSafeInteger(cap)||cap<0||cap>=c.max)return null;
+  c.max=cap;tightened++;
+ }
+ return tightened?{...m,resources,choices}:null;
+}
+
 function reasonSemantically(context,input){
  const tension=validateTension(context);if(tension.status!=='supported')return tension;
  const trade=context.mechanism==='tradeoff';
- const structure=trade?tradeoffStructure(context.model,input):decisionStructure(context.model,input?.path);
+ let transition=null;
+ const isSecondMoment=input?.first!==undefined||input?.developmentId!==undefined;
+ if(isSecondMoment&&!trade)return reject('Second-moment allocation belongs to Trade-Off only.');
+ let structure;
+ if(isSecondMoment){
+  const developed=developedTradeoffModel(context,input?.developmentId);
+  const initial=tradeoffStructure(context.model,input?.first);
+  if(!developed||!initial)return reject('The first allocation or declared changed condition is invalid.');
+  structure=tradeoffStructure(developed,input);
+  if(!structure)return reject('The revised allocation does not fit the changed constraints.');
+  const oldChoiceStillFits=Boolean(tradeoffStructure(developed,{amounts:input.first.amounts,budgets:input.budgets}));
+  const deltaAmounts=structure.amounts.map((n,i)=>n-initial.amounts[i]);
+  const deltaSpent=structure.spent.map((n,i)=>n-initial.spent[i]);
+  const amountsChanged=deltaAmounts.some(Boolean);
+  transition={
+   development:{id:context.development.id,label:context.development.label,kind:context.development.kind},
+   initial:{amounts:[...initial.amounts],budgets:[...initial.budgets],spent:[...initial.spent],measure:initial.measure},
+   revised:{amounts:[...structure.amounts],budgets:[...structure.budgets],spent:[...structure.spent],measure:structure.measure},
+   deltaAmounts,deltaSpent,deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
+   amountsChanged,originalSelectionStillFeasible:oldChoiceStillFits,
+   reallocationRequired:!oldChoiceStillFits
+  };
+  structure.transition=transition;
+ }else{
+  structure=trade?tradeoffStructure(context.model,input):decisionStructure(context.model,input?.path);
+ }
  if(!structure||!trade&&structure.at!==null)return reject('Incomplete or infeasible selections.');
  const claims=[];
  const add=(kind,text,classification='conditional',evidence={})=>claims.push({kind,text,classification,evidence,assumptions:context.assumptions||[]});
  if(trade){
   const choices=context.model.choices;
+  if(transition){
+   const unit=context.model.metric?.unit;
+   const firstMeasure=transition.initial.measure,secondMeasure=transition.revised.measure;
+   const metrics=unit&&firstMeasure!==null&&secondMeasure!==null?
+    ' The modeled result moves from '+firstMeasure+' to '+secondMeasure+' '+unit+'.':'';
+   const decision=transition.amountsChanged?
+    (transition.originalSelectionStillFeasible?
+     'Your previous quantities would still fit; this new allocation is a further choice.':
+     'Your previous quantities no longer fit; the allocation had to be reconsidered.'):
+    'You kept your original quantities despite the new condition.';
+   add('transition','In this imagined scenario, '+context.development.label+' '+decision+metrics,
+    'conditional',{...transition});
+  }
   add('allocation',choices.map((c,i)=>`${input.amounts[i]} ${c.label}`).join(', '),'necessary',{amounts:input.amounts});
   const intentions=input.intentions||{};
   for(const [id,target] of Object.entries(intentions)){
@@ -1470,8 +1536,10 @@ function reasonSemantically(context,input){
  if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
  const contract=context.semantic.selection;
  if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
- const selectionTrace=claims.map(c=>({kind:c.kind,sourceFidelityProvenance:'curated source contract, not independently proved',sourceFidelity:contract.central.includes(c.kind)?'central':contract.alternatives?.includes(c.kind)?'secondary':'observation_only',pathRelevant:Object.keys(c.evidence).length>0,evidentialWarrant:c.classification!=='unsupported',conceptualRelationship:context.semantic.relation,educationalPurpose:contract.purpose,uncertainty:c.assumptions}));
- const eligible=claims.filter(c=>contract.central.includes(c.kind)&&Object.keys(c.evidence).length);
+ if(transition&&!contract.changeCentral?.length)return reject('The changed condition lacks a source-authored philosophical warrant.');
+ const centralKinds=transition?contract.changeCentral:contract.central;
+ const selectionTrace=claims.map(c=>({kind:c.kind,sourceFidelityProvenance:'curated source contract, not independently proved',sourceFidelity:centralKinds.includes(c.kind)?'central':contract.alternatives?.includes(c.kind)?'secondary':'observation_only',pathRelevant:Object.keys(c.evidence).length>0,evidentialWarrant:c.classification!=='unsupported',conceptualRelationship:context.semantic.relation,educationalPurpose:contract.purpose,uncertainty:c.assumptions}));
+ const eligible=claims.filter(c=>centralKinds.includes(c.kind)&&Object.keys(c.evidence).length);
  const secondary=claims.filter(c=>contract.alternatives?.includes(c.kind)&&Object.keys(c.evidence).length);
  const candidates=eligible.length?eligible:secondary;
  if(candidates.length!==1)return reject(candidates.length?'Several source-relevant meanings require editorial disambiguation.':'No source-relevant consequence is warranted.');
@@ -1480,7 +1548,7 @@ function reasonSemantically(context,input){
  return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
-const questions={intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
+const questions={transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
 function expressSemantic(packet,mode='reflective'){
  if(packet?.version!=='meaning/1.2'||packet.status!=='ready'||!packet.claims.includes(packet.meaning)||!frames[mode])return null;
  const m=packet.meaning;
@@ -2302,14 +2370,25 @@ function kernelControls(spec,state){
  if(spec.mechanism==="tradeoff"){
   const slider=(kind,index,label,max,min,value)=>`<label class="allocation-line"><span>${esc(label)}</span><output>${value}</output>
   <input aria-label="${esc(label)}" data-k-slider="${kind}" data-i="${index}" type="range" min="${min}" max="${max}" value="${value}"></label>`;
-  const spent=m.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
-  const controls=m.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
+  const afterModel=semanticEdition&&state.first?developedTradeoffModel(spec,state.developmentId):null;
+  const effective=afterModel||m;
+  const spent=effective.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
+  const controls=effective.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
    m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
-  const facts=tradeoffStructure(m,state);
-  const consequence=semanticEdition&&facts&&m.metric?'This arrangement means '+facts.measure+' '+esc(m.metric.unit)+'.':'';
-  const reconsider=semanticEdition&&state.firstAllocation?'<div class="reconsider"><p>'+consequence+'</p><p>Keep this arrangement, or move a share and notice what has to change.</p></div>':'';
-  const status=m.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ");
-  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!state.firstAllocation?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!state.firstAllocation?'Consider the cost':'Reveal the meaning')+'</button></div>';
+  const facts=tradeoffStructure(effective,state);
+  const first=state.first;
+  const firstStillFits=first&&Boolean(tradeoffStructure(effective,{amounts:first.amounts,budgets:state.budgets}));
+  const consequence=semanticEdition&&facts&&m.metric?'The revised arrangement corresponds to '+facts.measure+' '+esc(m.metric.unit)+'.':'';
+  const firstSummary=first?m.choices.map((c,i)=>first.amounts[i]+' '+esc(c.label)).join(' · '):'';
+  const reconsider=semanticEdition&&first?'<div class="reconsider" role="group" aria-label="The changed condition">'+
+   '<p><strong>A new condition in this imagined scenario:</strong> '+esc(spec.development.label)+'</p>'+
+   '<p><strong>Your initial choice:</strong> '+firstSummary+'</p>'+
+   '<p>'+(firstStillFits?'The earlier quantities remain feasible. You can keep or reconsider them.':
+    'The earlier quantities no longer fit. Revise the allocation to meet the new constraint.')+'</p>'+
+   '<p>'+consequence+'</p></div>'+
+   '<button type="button" class="secondary" style="min-height:44px" data-reset-allocation>Change my first choice</button>':'';
+  const status=effective.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ")+(first&&!facts?' · Revise to meet the changed condition.':'');
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!first?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!first?'See what changes':'Reveal the meaning')+'</button></div>';
  }
  let html='<div class="case-body" tabindex="-1">';
  for(let i=0;i<=state.path.length;i++){
@@ -2447,7 +2526,23 @@ document.querySelector("#more-passages")?.addEventListener("change",ev=>{
 });
 document.addEventListener("keydown",ev=>{if(ev.key==="Escape"){const back=document.querySelector("[data-back]");if(back){ev.preventDefault();back.click();}}});
 document.addEventListener("click",ev=>{
- if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();document.querySelector('[data-run]')?.focus();return;}
+ if(ev.target.closest('[data-test-allocation]')){
+  const state=active.cases[active.mode],spec=currentContexts[active.mode];
+  const developed=developedTradeoffModel(spec,spec.development?.id);
+  if(!developed||!tradeoffStructure(spec.model,state))return;
+  state.first={amounts:[...state.amounts],budgets:[...state.budgets]};
+  state.developmentId=spec.development.id;
+  state.budgets=state.budgets.map((n,i)=>Math.min(n,developed.resources[i].max));
+  state.result=null;render();
+  (document.querySelector('[data-run]:not(:disabled)')||document.querySelector('[data-k-slider="amounts"]'))?.focus();return;
+ }
+ if(ev.target.closest('[data-reset-allocation]')){
+  const state=active.cases[active.mode];
+  if(!state.first)return;
+  state.amounts=[...state.first.amounts];state.budgets=[...state.first.budgets];
+  delete state.first;delete state.developmentId;state.result=null;
+  render();document.querySelector('[data-test-allocation]')?.focus();return;
+ }
  if(ev.target.closest('[data-confirm-allocation]')){active.cases[active.mode].confirmed=true;render();return;}
  const step=ev.target.closest("[data-k-step]");
  if(step){
@@ -2529,9 +2624,10 @@ document.addEventListener("input",ev=>{
   box.querySelector("[aria-live]").textContent=fresh.querySelector("[aria-live]").textContent;
   const action=box.querySelector('[data-run], [data-test-allocation]');
   action.disabled=fresh.querySelector('[data-run], [data-test-allocation]').disabled;
-  if(semanticEdition&&state.firstAllocation){state.confirmed=false;
+  if(semanticEdition&&state.first){
    box.querySelector('.reconsider').innerHTML=fresh.querySelector('.reconsider').innerHTML;
-   action.removeAttribute('data-test-allocation');action.setAttribute('data-run',active.mode);action.textContent='Reveal the meaning';}state.result=null;return;
+   action.removeAttribute('data-test-allocation');action.setAttribute('data-run',active.mode);action.textContent='Reveal the meaning';
+  }state.result=null;return;
  }
  const range=ev.target.closest("[data-range]");
  if(!range)return;
