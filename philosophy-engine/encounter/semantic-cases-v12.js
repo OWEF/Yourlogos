@@ -3,10 +3,10 @@ import {constructScenario} from './semantic-reasoning-v12.js';
 import {getMechanismCase} from './mechanism-transfer-cases-v02.js';
 const dillardSpec=getMechanismCase('dillard'),kierkegaardSpec=getMechanismCase('kierkegaard');
 export const semanticSources={
- thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],changeCentral:['transition'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
- smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['specialization_effect'],changeCentral:['transition'],alternatives:['dependency'],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
- epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',selection:{central:['agency'],alternatives:[],purpose:'Separate chosen action from external outcome'},boundary:'No path establishes forgiveness, indifference, or a reader’s character.'}},
- descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}},
+ thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],changeCentral:['transition'],secondaryObservations:['intention_gap'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
+ smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['specialization_effect'],changeCentral:['transition'],secondaryObservations:['complementarity'],alternatives:['dependency'],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
+ epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',selection:{central:['agency'],secondaryObservations:['closure'],alternatives:[],purpose:'Separate chosen action from external outcome'},boundary:'No path establishes forgiveness, indifference, or a reader’s character.'}},
+ descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],secondaryObservations:['revision','closure'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}},
  dillard:{
   id:'dillard',author:dillardSpec.author,quote:dillardSpec.quote,
   source:{work:'The Writing Life (excerpt; source review pending)',url:dillardSpec.sourceUrl},
@@ -15,8 +15,8 @@ export const semanticSources={
   relation:dillardSpec.sourceRelation,limit:dillardSpec.guard,
   semantic:{concepts:['one evening','a repeated schedule'],
    relation:'a hypothetical pattern of daily allocations accumulates across days without proving a person’s actual habits',
-   selection:{central:['repetition'],alternatives:[],purpose:'Understand how repeated days can shape a life'},
-   boundary:dillardSpec.guard}
+   selection:{central:['repetition'],secondaryObservations:[],alternatives:[],purpose:'Understand how repeated days can shape a life'},
+   boundary:'The repeated schedule is imagined, not a record of your life or a ranking of activities.'}
  },
  kierkegaard:{
   id:'kierkegaard',author:kierkegaardSpec.author,
@@ -27,8 +27,8 @@ export const semanticSources={
   relation:kierkegaardSpec.sourceRelation,limit:kierkegaardSpec.guard,
   semantic:{concepts:['acting forward','understanding backward'],
    relation:'later perspective can illuminate what happened without providing the unchosen future or retroactive certainty',
-   selection:{central:['information'],alternatives:[],purpose:'Distinguish reasons available at choice time from later interpretation'},
-   boundary:kierkegaardSpec.guard}
+   selection:{central:['information'],secondaryObservations:[],alternatives:[],purpose:'Distinguish reasons available at choice time from later interpretation'},
+   boundary:'These later events are imagined; the unchosen future remains unknown.'}
  }
 };
 function recurringScheduleModel(spec){
@@ -104,11 +104,11 @@ export const semanticCases={
  money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,development:{id:'essential-bill',kind:'hypothetical_constraint',label:'An essential bill limits the remaining furnishing budget to six $20 tokens.',resourceCaps:{money:6}},initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
  workshop:constructScenario(semanticSources.smith,{
   scenario:transferContexts.smith.scenario+' For comparison, imagine all four volunteers rotating between both tasks: with an invented time penalty for switching, they finish one booklet this shift.',
-  assumptions:[...transferContexts.smith.assumptions,'The all-purpose rotating team finishes one booklet only by stipulation, not observation.'],
+  assumptions:[...transferContexts.smith.assumptions,'The all-purpose rotating team loses thirty minutes per volunteer changing jobs; the one-booklet baseline is calculated from these invented times.'],
   premiseIds:[...semanticSources.smith.premiseIds,'hypothetical_switching_baseline'],
   model:{...transferContexts.smith.model,
-   comparison:{kind:'switching_generalists',baselineMeasure:1,staffing:4,resourceId:'team',
-    explanation:'With all four workers rotating between tasks, time lost to switching leaves one completed booklet in this invented baseline.'}},
+   comparison:{kind:'switching_generalists',staffing:4,resourceId:'team',minutesPerWorker:60,switchingMinutesPerWorker:30,minutesPerUnit:90,
+    explanation:'Each of four volunteers hypothetically has sixty minutes; switching costs thirty minutes each, and a complete booklet needs ninety total work minutes.'}},
   development:{id:'press-maintenance',kind:'hypothetical_constraint',label:'A safety inspection limits the press to two volunteers for this shift.',choiceCaps:{press:2}},
   initial:{amounts:[3,1],budgets:[4]}}),
  apology:constructScenario(semanticSources.epictetus,{assumptions:['Choosing a response cannot determine another person’s forgiveness.'],scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',variables:{apologyOffered:{kind:'event',owner:'self'},forgiveness:{kind:'observation',owner:'external'}},agency:{externalVariable:'forgiveness',own:'whether and when to contact the friend',external:'the friend’s forgiveness'},initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer',effects:{apologyOffered:true}},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
