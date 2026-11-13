@@ -291,8 +291,8 @@ function meaningExperience(packet,m){
   const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
   const difference=e.delta>0?'That gains '+e.delta+' finished '+(e.delta===1?'unit.':'units.'):
    e.delta===0?'That is no gain.':'That loses '+Math.abs(e.delta)+' finished '+(e.delta===-1?'unit.':'units.');
-  return 'Your assignment: '+roles+'. The imagined rotating team finishes '+quantity(e.baseline)+
-   '; your split finishes '+quantity(e.specialized)+'. '+difference+' All rates are invented.';
+  return 'Your assignment: '+roles+'. The invented rotating-team baseline finishes '+quantity(e.baseline)+
+   '; your split finishes '+quantity(e.specialized)+'. '+difference+' Rates are hypothetical, not historical evidence.';
 
  }
  if(m.kind==='dependency'){
@@ -314,7 +314,7 @@ function meaningExperience(packet,m){
    'You chose to '+String(label||'act').toLowerCase();
   const event=e.revelations?.[0]||'something new occurs';
   const later=event[0].toLowerCase()+event.slice(1);
-  return choice(first?.label)+'. Later, in this imagined route, '+later+'. '+choice(last?.label)+
+  return choice(first?.label)+'. Later, in this imagined scenario, '+later+'. '+choice(last?.label)+
    '. The unchosen outcome remains unknown.';
  }
  return m.text;
@@ -328,7 +328,7 @@ function pathQuestion(packet){
  const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
  switch(m.kind){
   case 'specialization_effect': {
-   const consequence=e.delta>0?'gain more finished work':e.delta===0?'show no productivity gain':'finish fewer units';
+   const consequence=e.delta>0?'gain more finished work':e.delta===0?'show no gain':'finish fewer units';
    return 'With '+roles+', why does this invented division of labour '+consequence+'?';
   }
   case 'conversion':
