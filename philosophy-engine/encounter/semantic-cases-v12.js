@@ -50,6 +50,46 @@ function temporalDecisionModel(spec){
  expand(0,null,'first');
  return {start:'first',initial:['The unchosen path remains unobserved'],nodes};
 }
+// Explicit editorial admission data: provisional, not philosophical proof.
+const sourceAdmissions={
+ thoreau:{premiseIds:['extra_labor_constant_wage'],
+  centralClaim:'Thoreau asks us to consider the life exchanged to obtain a possession, not merely its price.',
+  scenarioBridge:'Only under the extra-shift wage assumption does a purchase convert into working hours.',
+  allowedClaimKinds:['conversion','transition']},
+ smith:{premiseIds:['joint_required_stages','invented_shift_rates'],
+  centralClaim:'Smith explains productivity gains from dividing and specializing labour, not simply a numerical bottleneck.',
+  scenarioBridge:'The booklet example illustrates complementary required stages; it does not prove specialization increases productivity.',
+  allowedClaimKinds:['dependency','transition']},
+ epictetus:{premiseIds:['own_response_external_forgiveness'],
+  centralClaim:'Epictetus distinguishes choices and judgments within rational agency from outcomes that depend on others.',
+  scenarioBridge:'Choosing whether to apologize is distinct from determining a friend’s forgiveness.',
+  allowedClaimKinds:['agency']},
+ descartes:{premiseIds:['ordinary_documentary_evidence_not_certainty'],
+  centralClaim:'Descartes cautions against assent that exceeds what is clearly and distinctly understood.',
+  scenarioBridge:'A disputed archival record illustrates withholding assent, but ordinary documentary checking is not Cartesian certainty.',
+  allowedClaimKinds:['assent']},
+ dillard:{premiseIds:['repeated_schedule_hypothetical'],
+  centralClaim:'Dillard draws attention to the way the arrangement of days accumulates into a life.',
+  scenarioBridge:'Repeating a modeled evening changes the cumulative allocation, not the evidence about actual habits.',
+  allowedClaimKinds:['repetition']},
+ kierkegaard:{premiseIds:['later_events_imagined'],
+  centralClaim:'A life must be lived forward even though an account of it is formed retrospectively, never from outside time.',
+  scenarioBridge:'An imagined later event changes the basis for a next choice without revealing the unchosen future.',
+  allowedClaimKinds:['information']}
+};
+for(const [id,entry] of Object.entries(sourceAdmissions)){
+ const source=semanticSources[id];
+ if(!source?.source?.url||!source?.source?.work)throw Error('Missing source context for '+id);
+ source.premiseIds=[...entry.premiseIds];
+ source.semantic.admission={
+  sourceUrl:source.source.url,sourceWork:source.source.work,
+  mechanism:source.mechanism,operation:source.operation,
+  centralClaim:entry.centralClaim,scenarioBridge:entry.scenarioBridge,
+  requiredPremiseIds:[...entry.premiseIds],allowedClaimKinds:[...entry.allowedClaimKinds],
+  reviewStatus:'curated_provisional'
+ };
+}
+
 // Generate a two-stage commitment graph from options and subsequent information.
 // No philosopher or quotation identity is consulted by the constructor.
 export function commitmentScenario({prompt,field,actions,development,initial=[],domain=null,agency=null,assentField=null,variables={}}){
