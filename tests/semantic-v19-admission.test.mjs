@@ -44,7 +44,7 @@ test('a central claim without permission for its inferential kind is declined',(
  assert.equal(reasonSemantically(c,c.initial).status,'incompatible');
 });
 
-test('Smith's modeled complementarity is visibly distinguished from his wider productivity argument',()=>{
+test("Smith's modeled complementarity is visibly distinguished from his wider productivity argument",()=>{
  const p=reasonSemantically(semanticCases.workshop,semanticCases.workshop.initial);
  assert.equal(p.status,'ready');
  assert.match(p.sourceAdmission.centralClaim,/productivity gains/);
