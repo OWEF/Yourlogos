@@ -1359,8 +1359,8 @@ const transferContexts={
 
 
 const semanticSources={
- thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
- smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['dependency'],alternatives:[],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
+ thoreau:{...transferContexts.thoreau,semantic:{concepts:['price','life exchanged'],relation:'the temporal cost carried by a monetary choice',selection:{central:['conversion'],changeCentral:['transition'],alternatives:[],purpose:'Understand possessions through life exchanged'},boundary:transferContexts.thoreau.limit}},
+ smith:{...transferContexts.smith,semantic:{concepts:['divided tasks','joint production'],relation:'the dependence of completed work on coordinated contributions',selection:{central:['dependency'],changeCentral:['transition'],alternatives:[],purpose:'Understand joint production through dependence'},boundary:transferContexts.smith.limit}},
  epictetus:{...transferContexts.epictetus,semantic:{concepts:['our actions','external outcomes'],relation:'the limits of what a chosen action can settle',selection:{central:['agency'],alternatives:[],purpose:'Separate chosen action from external outcome'},boundary:'No path establishes forgiveness, indifference, or a reader’s character.'}},
  descartes:{...transferContexts.descartes,semantic:{concepts:['considering','assenting'],relation:'the need for grounds before accepting a claim',selection:{central:['assent'],alternatives:[],purpose:'Distinguish considering a claim from accepting it'},boundary:transferContexts.descartes.limit}}
 };
@@ -1372,8 +1372,8 @@ function commitmentScenario({prompt,field,actions,development,initial=[],domain=
  return {start:'first',initial,agency,assentField,variables,commitmentDomains:domain?{[field]:domain}:null,nodes:{first:{prompt,options},later:{prompt:development,options:later}}};
 }
 const semanticCases={
- money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
- workshop:constructScenario(semanticSources.smith,{model:transferContexts.smith.model,initial:{amounts:[3,1],budgets:[4]}}),
+ money:constructScenario(semanticSources.thoreau,{model:transferContexts.thoreau.model,development:{id:'essential-bill',kind:'hypothetical_constraint',label:'An essential bill limits the remaining furnishing budget to six $20 tokens.',resourceCaps:{money:6}},initial:{amounts:[1,0,1],budgets:[8],intentions:{lamp:1},repetitions:5}}),
+ workshop:constructScenario(semanticSources.smith,{model:transferContexts.smith.model,development:{id:'press-maintenance',kind:'hypothetical_constraint',label:'A safety inspection limits the press to two volunteers for this shift.',choiceCaps:{press:2}},initial:{amounts:[3,1],budgets:[4]}}),
  apology:constructScenario(semanticSources.epictetus,{assumptions:['Choosing a response cannot determine another person’s forgiveness.'],scenario:'You have hurt a friend. Decide whether to offer an apology; their response remains theirs.',model:commitmentScenario({prompt:'What will you do?',field:'response',variables:{apologyOffered:{kind:'event',owner:'self'},forgiveness:{kind:'observation',owner:'external'}},agency:{externalVariable:'forgiveness',own:'whether and when to contact the friend',external:'the friend’s forgiveness'},initial:['Your friend decides whether to forgive.'],development:'Your friend asks for space; forgiveness remains unknown.',actions:[{id:'offer',label:'Offer an apology',commitment:'offer',effects:{apologyOffered:true}},{id:'space',label:'Give space without another message',commitment:'defer'}]}),initial:{path:['offer','space']}}),
  evidence:constructScenario(semanticSources.descartes,{assumptions:['The new archive is relevant but does not settle the disputed attribution.'],scenario:'A historical exhibition contains an uncertain attribution. Decide whether to endorse it as new evidence arrives.',model:commitmentScenario({prompt:'What can the label claim?',field:'assent',assentField:'assent',domain:{states:['assent','withhold'],oppositions:[['assent','withhold']]},initial:['The attribution is disputed.'],development:'An independent archive contradicts the attribution; the dispute remains unresolved.',actions:[{id:'endorse',label:'Endorse the attribution',commitment:'assent'},{id:'suspend',label:'Suspend judgment',commitment:'withhold'}]}),initial:{path:['endorse','suspend']}})
 };
@@ -1411,15 +1411,81 @@ function validateTension(context){
  }
  return {status:'supported',fit};
 }
+
+/**
+ * Apply a source-authored, explicitly announced hypothetical change.
+ * It can restrict an available budget or a choice capacity, never invent a
+ * user's motive or alter the first decision. It is not a claim of source truth.
+ */
+function developedTradeoffModel(context,developmentId){
+ const d=context?.development,m=context?.model;
+ if(context?.mechanism!=='tradeoff'||!d?.id||d.id!==developmentId||
+    typeof d.label!=='string'||!d.label.trim()||d.kind!=='hypothetical_constraint'||
+    !m?.resources||!m?.choices)return null;
+ const resources=m.resources.map(r=>({...r})),choices=m.choices.map(c=>({...c}));
+ let tightened=0;
+ const resourceCaps=d.resourceCaps||{},choiceCaps=d.choiceCaps||{};
+ if(!Object.keys(resourceCaps).length&&!Object.keys(choiceCaps).length)return null;
+ for(const [id,cap] of Object.entries(resourceCaps)){
+  const r=resources.find(x=>x.id===id);
+  if(!r||!Number.isSafeInteger(cap)||cap<r.min||cap>=r.max||r.type!=='cap')return null;
+  r.max=cap;tightened++;
+ }
+ for(const [id,cap] of Object.entries(choiceCaps)){
+  const c=choices.find(x=>x.id===id);
+  if(!c||!Number.isSafeInteger(cap)||cap<0||cap>=c.max)return null;
+  c.max=cap;tightened++;
+ }
+ return tightened?{...m,resources,choices}:null;
+}
+
 function reasonSemantically(context,input){
  const tension=validateTension(context);if(tension.status!=='supported')return tension;
  const trade=context.mechanism==='tradeoff';
- const structure=trade?tradeoffStructure(context.model,input):decisionStructure(context.model,input?.path);
+ let transition=null;
+ const isSecondMoment=input?.first!==undefined||input?.developmentId!==undefined;
+ if(isSecondMoment&&!trade)return reject('Second-moment allocation belongs to Trade-Off only.');
+ let structure;
+ if(isSecondMoment){
+  const developed=developedTradeoffModel(context,input?.developmentId);
+  const initial=tradeoffStructure(context.model,input?.first);
+  if(!developed||!initial)return reject('The first allocation or declared changed condition is invalid.');
+  structure=tradeoffStructure(developed,input);
+  if(!structure)return reject('The revised allocation does not fit the changed constraints.');
+  const oldChoiceStillFits=Boolean(tradeoffStructure(developed,{amounts:input.first.amounts,budgets:input.budgets}));
+  const deltaAmounts=structure.amounts.map((n,i)=>n-initial.amounts[i]);
+  const deltaSpent=structure.spent.map((n,i)=>n-initial.spent[i]);
+  const amountsChanged=deltaAmounts.some(Boolean);
+  transition={
+   development:{id:context.development.id,label:context.development.label,kind:context.development.kind},
+   initial:{amounts:[...initial.amounts],budgets:[...initial.budgets],spent:[...initial.spent],measure:initial.measure},
+   revised:{amounts:[...structure.amounts],budgets:[...structure.budgets],spent:[...structure.spent],measure:structure.measure},
+   deltaAmounts,deltaSpent,deltaMetric:initial.measure===null||structure.measure===null?null:structure.measure-initial.measure,
+   amountsChanged,originalSelectionStillFeasible:oldChoiceStillFits,
+   reallocationRequired:!oldChoiceStillFits
+  };
+  structure.transition=transition;
+ }else{
+  structure=trade?tradeoffStructure(context.model,input):decisionStructure(context.model,input?.path);
+ }
  if(!structure||!trade&&structure.at!==null)return reject('Incomplete or infeasible selections.');
  const claims=[];
  const add=(kind,text,classification='conditional',evidence={})=>claims.push({kind,text,classification,evidence,assumptions:context.assumptions||[]});
  if(trade){
   const choices=context.model.choices;
+  if(transition){
+   const unit=context.model.metric?.unit;
+   const firstMeasure=transition.initial.measure,secondMeasure=transition.revised.measure;
+   const metrics=unit&&firstMeasure!==null&&secondMeasure!==null?
+    ' The modeled result moves from '+firstMeasure+' to '+secondMeasure+' '+unit+'.':'';
+   const decision=transition.amountsChanged?
+    (transition.originalSelectionStillFeasible?
+     'Your previous quantities would still fit; this new allocation is a further choice.':
+     'Your previous quantities no longer fit; the allocation had to be reconsidered.'):
+    'You kept your original quantities despite the new condition.';
+   add('transition','In this imagined scenario, '+context.development.label+' '+decision+metrics,
+    'conditional',{...transition});
+  }
   add('allocation',choices.map((c,i)=>`${input.amounts[i]} ${c.label}`).join(', '),'necessary',{amounts:input.amounts});
   const intentions=input.intentions||{};
   for(const [id,target] of Object.entries(intentions)){
@@ -1470,8 +1536,10 @@ function reasonSemantically(context,input){
  if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
  const contract=context.semantic.selection;
  if(!contract?.central?.length)return reject('No source-sensitive meaning warrant supplied.');
- const selectionTrace=claims.map(c=>({kind:c.kind,sourceFidelityProvenance:'curated source contract, not independently proved',sourceFidelity:contract.central.includes(c.kind)?'central':contract.alternatives?.includes(c.kind)?'secondary':'observation_only',pathRelevant:Object.keys(c.evidence).length>0,evidentialWarrant:c.classification!=='unsupported',conceptualRelationship:context.semantic.relation,educationalPurpose:contract.purpose,uncertainty:c.assumptions}));
- const eligible=claims.filter(c=>contract.central.includes(c.kind)&&Object.keys(c.evidence).length);
+ if(transition&&!contract.changeCentral?.length)return reject('The changed condition lacks a source-authored philosophical warrant.');
+ const centralKinds=transition?contract.changeCentral:contract.central;
+ const selectionTrace=claims.map(c=>({kind:c.kind,sourceFidelityProvenance:'curated source contract, not independently proved',sourceFidelity:centralKinds.includes(c.kind)?'central':contract.alternatives?.includes(c.kind)?'secondary':'observation_only',pathRelevant:Object.keys(c.evidence).length>0,evidentialWarrant:c.classification!=='unsupported',conceptualRelationship:context.semantic.relation,educationalPurpose:contract.purpose,uncertainty:c.assumptions}));
+ const eligible=claims.filter(c=>centralKinds.includes(c.kind)&&Object.keys(c.evidence).length);
  const secondary=claims.filter(c=>contract.alternatives?.includes(c.kind)&&Object.keys(c.evidence).length);
  const candidates=eligible.length?eligible:secondary;
  if(candidates.length!==1)return reject(candidates.length?'Several source-relevant meanings require editorial disambiguation.':'No source-relevant consequence is warranted.');
@@ -1480,7 +1548,7 @@ function reasonSemantically(context,input){
  return {version:'meaning/1.2',status:'ready',quote:context.quote,author:context.author,source:context.source,semantic:context.semantic,structure,claims,meaning,selectionTrace,limitations:[context.semantic.boundary],assumptions:context.assumptions||[]};
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
-const questions={intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
+const questions={transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
 function expressSemantic(packet,mode='reflective'){
  if(packet?.version!=='meaning/1.2'||packet.status!=='ready'||!packet.claims.includes(packet.meaning)||!frames[mode])return null;
  const m=packet.meaning;
@@ -2302,14 +2370,25 @@ function kernelControls(spec,state){
  if(spec.mechanism==="tradeoff"){
   const slider=(kind,index,label,max,min,value)=>`<label class="allocation-line"><span>${esc(label)}</span><output>${value}</output>
   <input aria-label="${esc(label)}" data-k-slider="${kind}" data-i="${index}" type="range" min="${min}" max="${max}" value="${value}"></label>`;
-  const spent=m.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
-  const controls=m.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
+  const afterModel=semanticEdition&&state.first?developedTradeoffModel(spec,state.developmentId):null;
+  const effective=afterModel||m;
+  const spent=effective.resources.map((r,i)=>m.choices.reduce((n,c,j)=>n+c.cost[i]*state.amounts[j],0));
+  const controls=effective.resources.map((r,i)=>r.min===r.max?"":slider("budgets",i,r.label,r.max,r.min,state.budgets[i])).join("")+
    m.choices.map((c,i)=>slider("amounts",i,c.label,c.max,0,state.amounts[i])).join("");
-  const facts=tradeoffStructure(m,state);
-  const consequence=semanticEdition&&facts&&m.metric?'This arrangement means '+facts.measure+' '+esc(m.metric.unit)+'.':'';
-  const reconsider=semanticEdition&&state.firstAllocation?'<div class="reconsider"><p>'+consequence+'</p><p>Keep this arrangement, or move a share and notice what has to change.</p></div>':'';
-  const status=m.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ");
-  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!state.firstAllocation?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!state.firstAllocation?'Consider the cost':'Reveal the meaning')+'</button></div>';
+  const facts=tradeoffStructure(effective,state);
+  const first=state.first;
+  const firstStillFits=first&&Boolean(tradeoffStructure(effective,{amounts:first.amounts,budgets:state.budgets}));
+  const consequence=semanticEdition&&facts&&m.metric?'The revised arrangement corresponds to '+facts.measure+' '+esc(m.metric.unit)+'.':'';
+  const firstSummary=first?m.choices.map((c,i)=>first.amounts[i]+' '+esc(c.label)).join(' · '):'';
+  const reconsider=semanticEdition&&first?'<div class="reconsider" role="group" aria-label="The changed condition">'+
+   '<p><strong>A new condition in this imagined scenario:</strong> '+esc(spec.development.label)+'</p>'+
+   '<p><strong>Your initial choice:</strong> '+firstSummary+'</p>'+
+   '<p>'+(firstStillFits?'The earlier quantities remain feasible. You can keep or reconsider them.':
+    'The earlier quantities no longer fit. Revise the allocation to meet the new constraint.')+'</p>'+
+   '<p>'+consequence+'</p></div>'+
+   '<button type="button" class="secondary" style="min-height:44px" data-reset-allocation>Change my first choice</button>':'';
+  const status=effective.resources.map((r,i)=>esc(r.label)+" · "+spent[i]+" / "+state.budgets[i]+(r.type==="exact"?" required":" maximum")).join(" · ")+(first&&!facts?' · Revise to meet the changed condition.':'');
+  return '<div class="case-body" tabindex="-1">'+controls+'<p aria-live="polite">'+status+'</p>'+reconsider+'<button class="primary" '+(semanticEdition&&!first?'data-test-allocation':'data-run="'+spec.id+'"')+' '+(facts?"":"disabled")+'>'+(semanticEdition&&!first?'See what changes':'Reveal the meaning')+'</button></div>';
  }
  let html='<div class="case-body" tabindex="-1">';
  for(let i=0;i<=state.path.length;i++){
@@ -2407,14 +2486,306 @@ function render(){
   }else view=expressConsequence(state.result);
  }
  const source='<span class="micro-label">'+esc(spec.author)+'</span>';
- const entry='<section class="entry-view" aria-label="Quotation"><img class="intro-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDADUlKC8oITUvKy88OTU/UIVXUElJUKN1e2GFwarLyL6qurfV8P//1eL/5re6////////////zv//////////////2wBDATk8PFBGUJ1XV53/3Lrc////////////////////////////////////////////////////////////////////wgARCAGQAZADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAAfOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUiwAAAAAAANQgAAAAAAAAAAAAAAAAAAAAHTmKveM9c4l7Ty5r1c+NSzps87rkw0MqIKAAAAAAAAAAAAAAAA16PN6c3HD0cqxRCibZX2zl3jy49vnqcr6DyzUSAWCywCgAAAAAAABSAAGoihd7XPXGo6TMNGTPTI6ZU8vs59Dzcu/GsrEShKIsAoAAAAAABZoyBpuM3vteOpI1mqy1C3nY1clupoWgkLz6E807c65rAESwCgAAAAAAFg6646l9F8/WLhazqCy6MTYmrYihqU1c2yyjE6SXjz9PE4zeakoksQKAAAAAWACkGp6IuRUoVRKJpQAUCLc01c2qhEsl5cvXzPNN5qSxIKAAAAWUSwWUjVN7uc0Zq6QqaChZQQaIAAqUtzSiyElce/E5894qCwAAABrNE7ZObpo5drJaglx0EzoupoCKloIpk0lBSUBk59fF2r0rIxcw5c+vKoLAAAFgsDtvz9ZdwgSmdYLpkauhZk1ZYWUA48LNTfq8fWPSJShjcPDVs9lll5898zONZqCwAAAACzWRqeiIRZnpTOrCoJqSNWVVlATxN51JvPSPWWWUArhPRIGTHD0cDMubAoAAAAC3I71iXcYN65aOjEjpnGlnTOi0EsFlM8fRTz+i1KBKJULAefryWc9ZsktTIoAAAABZTpz3zjvnHVYshA3rNVrOo0oyohRZSpbACQrFl6TOrOHP2eeuWdQixIKAAAGjO+tlxrWo53pkzKWSwhDXTkOt52Ot88r0ONjpMc66zkTreNO15bVnWBvO41rKzbNPJnpypCwAAAaGiXdJbiZSyLKkNZC7zpdMZjozg6RkrKypDTOi1F6d8WOiDnh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" alt="">'+source+
+ const entry='<section class="entry-view" aria-label="Quotation"><img class="intro-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDADUlKC8oITUvKy88OTU/UIVXUElJ
+UKN1e2GFwarLyL6qurfV8P//1eL/5re6////////////zv//////////////
+2wBDATk8PFBGUJ1XV53/3Lrc////////////////////////////////////
+////////////////////////////////wgARCAGQAZADASIAAhEBAxEB/8QA
+GAABAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAWAQEBAQAAAAAAAAAAAAAAAAAA
+AQL/2gAMAwEAAhADEAAAAfOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUiwAAAAA
+AANQgAAAAAAAAAAAAAAAAAAAAHTmKveM9c4l7Ty5r1c+NSzps87rkw0MqIKA
+AAAAAAAAAAAAAAA16PN6c3HD0cqxRCibZX2zl3jy49vnqcr6DyzUSAWCywCg
+AAAAAAABSAAGoihd7XPXGo6TMNGTPTI6ZU8vs59Dzcu/GsrEShKIsAoAAAAA
+ABZoyBpuM3vteOpI1mqy1C3nY1clupoWgkLz6E807c65rAESwCgAAAAAAFg6
+646l9F8/WLhazqCy6MTYmrYihqU1c2yyjE6SXjz9PE4zeakoksQKAAAAAWAC
+kGp6IuRUoVRKJpQAUCLc01c2qhEsl5cvXzPNN5qSxIKAAAAWUSwWUjVN7uc0
+Zq6QqaChZQQaIAAqUtzSiyElce/E5894qCwAAABrNE7ZObpo5drJaglx0Ezo
+upoCKloIpk0lBSUBk59fF2r0rIxcw5c+vKoLAAAFgsDtvz9ZdwgSmdYLpkau
+hZk1ZYWUA48LNTfq8fWPSJShjcPDVs9lll5898zONZqCwAAAACzWRqeiIRZn
+pTOrCoJqSNWVVlATxN51JvPSPWWWUArhPRIGTHD0cDMubAoAAAAC3I71iXcY
+N65aOjEjpnGlnTOi0EsFlM8fRTz+i1KBKJULAefryWc9ZsktTIoAAAABZTpz
+3zjvnHVYshA3rNVrOo0oyohRZSpbACQrFl6TOrOHP2eeuWdQixIKAAAGjO+t
+lxrWo53pkzKWSwhDXTkOt52Ot88r0ONjpMc66zkTreNO15bVnWBvO41rKzbN
+PJnpypCwAAAaGiXdJbiZSyLKkNZC7zpdMZjozg6RkrKypDTOi1F6d8WOiDnh
+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
+" alt="">'+source+
    '<blockquote class="entry-quote">'+esc(quote)+'</blockquote>'+
    '<div class="encounter-actions" role="group" aria-label="Choose what to do with this quotation">'+
    '<button type="button" data-like="'+id+'" aria-pressed="'+active.likes[id]+'">'+(active.likes[id]?"♥ Liked":"♡ Like")+'</button>'+
    '<button type="button" data-discover="'+id+'">Discover</button></div></section>';
  const intro='<div class="flow-head"><button type="button" data-back="entry" class="flow-back" aria-label="Back to quotation">← Back</button></div>'+
    '<section class="intro-view" tabindex="-1" aria-label="Introducing the quotation and scenario">'+
-   '<div class="intro-content"><img class="intro-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDADUlKC8oITUvKy88OTU/UIVXUElJUKN1e2GFwarLyL6qurfV8P//1eL/5re6////////////zv//////////////2wBDATk8PFBGUJ1XV53/3Lrc////////////////////////////////////////////////////////////////////wgARCAGQAZADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAAfOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUiwAAAAAAANQgAAAAAAAAAAAAAAAAAAAAHTmKveM9c4l7Ty5r1c+NSzps87rkw0MqIKAAAAAAAAAAAAAAAA16PN6c3HD0cqxRCibZX2zl3jy49vnqcr6DyzUSAWCywCgAAAAAAABSAAGoihd7XPXGo6TMNGTPTI6ZU8vs59Dzcu/GsrEShKIsAoAAAAAABZoyBpuM3vteOpI1mqy1C3nY1clupoWgkLz6E807c65rAESwCgAAAAAAFg6646l9F8/WLhazqCy6MTYmrYihqU1c2yyjE6SXjz9PE4zeakoksQKAAAAAWACkGp6IuRUoVRKJpQAUCLc01c2qhEsl5cvXzPNN5qSxIKAAAAWUSwWUjVN7uc0Zq6QqaChZQQaIAAqUtzSiyElce/E5894qCwAAABrNE7ZObpo5drJaglx0EzoupoCKloIpk0lBSUBk59fF2r0rIxcw5c+vKoLAAAFgsDtvz9ZdwgSmdYLpkauhZk1ZYWUA48LNTfq8fWPSJShjcPDVs9lll5898zONZqCwAAAACzWRqeiIRZnpTOrCoJqSNWVVlATxN51JvPSPWWWUArhPRIGTHD0cDMubAoAAAAC3I71iXcYN65aOjEjpnGlnTOi0EsFlM8fRTz+i1KBKJULAefryWc9ZsktTIoAAAABZTpz3zjvnHVYshA3rNVrOo0oyohRZSpbACQrFl6TOrOHP2eeuWdQixIKAAAGjO+tlxrWo53pkzKWSwhDXTkOt52Ot88r0ONjpMc66zkTreNO15bVnWBvO41rKzbNPJnpypCwAAAaGiXdJbiZSyLKkNZC7zpdMZjozg6RkrKypDTOi1F6d8WOiDnh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" alt="">'+source+
+   '<div class="intro-content"><img class="intro-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDADUlKC8oITUvKy88OTU/UIVXUElJ
+UKN1e2GFwarLyL6qurfV8P//1eL/5re6////////////zv//////////////
+2wBDATk8PFBGUJ1XV53/3Lrc////////////////////////////////////
+////////////////////////////////wgARCAGQAZADASIAAhEBAxEB/8QA
+GAABAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAWAQEBAQAAAAAAAAAAAAAAAAAA
+AQL/2gAMAwEAAhADEAAAAfOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUiwAAAAA
+AANQgAAAAAAAAAAAAAAAAAAAAHTmKveM9c4l7Ty5r1c+NSzps87rkw0MqIKA
+AAAAAAAAAAAAAAA16PN6c3HD0cqxRCibZX2zl3jy49vnqcr6DyzUSAWCywCg
+AAAAAAABSAAGoihd7XPXGo6TMNGTPTI6ZU8vs59Dzcu/GsrEShKIsAoAAAAA
+ABZoyBpuM3vteOpI1mqy1C3nY1clupoWgkLz6E807c65rAESwCgAAAAAAFg6
+646l9F8/WLhazqCy6MTYmrYihqU1c2yyjE6SXjz9PE4zeakoksQKAAAAAWAC
+kGp6IuRUoVRKJpQAUCLc01c2qhEsl5cvXzPNN5qSxIKAAAAWUSwWUjVN7uc0
+Zq6QqaChZQQaIAAqUtzSiyElce/E5894qCwAAABrNE7ZObpo5drJaglx0Ezo
+upoCKloIpk0lBSUBk59fF2r0rIxcw5c+vKoLAAAFgsDtvz9ZdwgSmdYLpkau
+hZk1ZYWUA48LNTfq8fWPSJShjcPDVs9lll5898zONZqCwAAAACzWRqeiIRZn
+pTOrCoJqSNWVVlATxN51JvPSPWWWUArhPRIGTHD0cDMubAoAAAAC3I71iXcY
+N65aOjEjpnGlnTOi0EsFlM8fRTz+i1KBKJULAefryWc9ZsktTIoAAAABZTpz
+3zjvnHVYshA3rNVrOo0oyohRZSpbACQrFl6TOrOHP2eeuWdQixIKAAAGjO+t
+lxrWo53pkzKWSwhDXTkOt52Ot88r0ONjpMc66zkTreNO15bVnWBvO41rKzbN
+PJnpypCwAAAaGiXdJbiZSyLKkNZC7zpdMZjozg6RkrKypDTOi1F6d8WOiDnh
+he14djSaPJnWbILAAAG82NWVek1wlkjWdM0KiKMigANLmJZSpol1teHfWgI1
+5+/NeV6YL1zsms05+f0+W5CgAALZDd5o3goBYN2s2TXOoLBozq4ixalUtnSX
+Vsi2UVVk1TGO2IVSVmp5O/C5CgAAAAAAAOuco1lTLSrEhFoaiGi9MblqVbZo
+tEqC41xOt4WXXGrHHUsjpmsgAAAA0g1JTLcMumo57kLJAWpSE3TN3FzrnlPR
+ry6X0vNY73zj0zzq78YNa4jdxE9G/L2XpzYjGbNQAAACoAALcjTNKkNSUusj
+Vyi8ygAAAABQAgus2LEVCwAAAAAAACwAFgqCoAAAAAAAAAFgqAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAD//xAAnEAABAwQDAAIDAAMBAAAAAAABAAIREBIgMCExQDJQAyJBE0Jw
+gP/aAAgBAQABBQL/AJhB+tDURFAykq4L9CrfrAIoXKcLlaiIUUj6VvacYGTX
+RS0JzYp8vpAhyniVBw4UKEw1c2KObP0slclBiDRThQFwrYNHdf1OH7fQRUBS
+prNZwgCj+/UcgCVYuAp2yrQiyn89YYUGgKVOMKFOUKKyUSHI8ejpcFWBcBSp
+U1lTtijhPrkq45RSd5HPpHKAtz78Jb6QIHpLfO0I7Z3HlQEfFGPervwO4J2h
+HECKlDyl6aZqUeR/NgUK1WK3H+7JGh3SDqvV36k8bQ7MobHuoJQMjF/xo3pP
+6/13gjSBt/GecT1RvSd4DUCV1jG5vyyc1BtCndb+wgJXWnrQ4QaMH7aSUeR4
+JQwnG7SRKtKtKaI1OX88UzjKmkKPJK4RNY43OQocRUeIiURHk7CGQ6oPADOD
+hFY22lWL/GrCFGYOqVcpUqVKlXUGJ2xjKuU1kY3K5TS5Xq5ThKldq1QaDF/y
+8FynDuo3gYFTBkYHvedEq5TSd8pxmneBEHcetwRyhQmiMO6Sm1C/Jvced08U
+nCFEYHqh7GH5PjslF06TlGYyNShg/wCPqhdZjUcHGEfh6etA1mrnQu0/r0c6
+Qdbu5o7sI8lWFRrhQoUHGCopOiFbSaypUqVKlc0mn6oAVKO65cKBSdcwprKl
+XFXFXFXFXFXFXFTSTQGFKlT4p1z/AO2v/8QAFhEAAwAAAAAAAAAAAAAAAAAA
+EXCA/9oACAEDAQE/AbqKH//EABoRAAICAwAAAAAAAAAAAAAAAAARARBQcID/
+2gAIAQIBAT8B6/jFoQrWgv/EACMQAAEDAwQCAwAAAAAAAAAAACEBMVAAEBEg
+MEBgYXAigJD/2gAIAQEABj8C9YNGvc6fitGSJoLRSW8xgWMex0NYRLUU3BCF
+aCRWeSZLPNPfBx881+viJfYWyQ+EsNa3S6x6RKax9Dnp6f1gJjPZF6Z55GOg
+v+J//8QAKhAAAgEDBAICAgICAwAAAAAAAAERECExIEFRYTBxQJFQgaGxcPCA
+0fH/2gAIAQEAAT8h/wAWuvcIfH4yXZPAxriTbhCFyFCxCPYgyxvJA1d5OhzM
+CPxLzYiUQsXY3eXoWy0XqSb/AGkPtbkhckvwuGnuHrm9EyjoyZawKVgSXX+4
+1Dh6nf5rQ5GWA2DW2x1R7Hm1I+iOT+i/B6Gyd1Bbjisy2BOHJFlZ/CrkCTbS
+zlR6E9p9kLgjgvofGMIixNLvQmSZehKYUi9/l7au1i3bJX/oQPrAkZ+y5Ms+
+h2FCsSoE5ZejfX5eWiCYx9mFX7Ev/VSJDbIE4yJ8D7pmiEiTFDcN2cjUH9Pk
+O6/lXrcY69mUuxohypFWjGyw5E256FREHsTMZJHsKTgD5Ew+Qm2sL1sUl2xb
+SHSYlnsaIlwSy/IpIIIIEtL4UhQyZUfXyIksuzuoJNKfqZIJLsQsjohapJ0t
+UhVrHx0pG9liiPAQnY7uj4QlWHlgXXhWlmSHGBr4r4okXh/Q3NVbRM+Odc97
+BqM/DWa7zCwNNVeuRkRp6LyyIkuhuwIRC8qux5qsk9hJTGXomXWhand15Xmq
+3Fv5mQl9CTeDNeRuj7FiJM3Fd0XwLsIcOGOjQ0LKPysifAzLlEVkxhVbFeh8
+UWKPW1ZQTnGtod1T9hG1LEjI90SYxfyOkmc6ZJmjEYhKqu9UH8lMz2CpvCmn
+1UxCB48ycdnpErmsUZsMsXq3NkYWpuXNE2sEEedSSy5qkeoeRZaHZQN+bKrm
+sQrFXLIYkXurl4EoWp40fzNd2foNbuoVS/AJexUkQJQsOkcohLbRBKCcvXI1
+kTq/iiuXMDUZ86doFzv7IRZRNbCQTTIpI9iHdiWtSwxo2n0Jm32JXRPGp5cF
+0/0vgrJgvQqMVxWqS2I2Oi+FF7jv3ZJVwk9/MsofCGhyesUYr+yGdCPM3VCQ
+P9NM+dyt7qjubaY0DX80jcZEYaM5YqpFvImbCfhQWAhLdfsjVA7mSBLW1VEy
+VRqtxs8aCdGpUMSHHlQSSwSSJlmRqQbxSVyh8g4jKFcgusEifA2eWJk12eg1
+4G70kU9g3ew1bGDCskmTyJaXwokkkcexbmi2puQOw3WdEksjkm9CqsOg7Koa
+WfjWlttb5FHZEBtsjeWxtyhsmbonRJAkSZcCUKKIcCVREkKiuSCrNvJYG0Tq
+21q5nZDUggsRNEiF3VEvMiKEvOguPEWmTotceBYSSVRdiQlsd2JEtoyiRAmj
+R/Z4lSURGaSpFMNS5DdUI6QkI30IxgSIEvpXfDFkSircvRPe3scJbOlHoSNS
+MukCCrA7Zk+JO5JI80Sbwf7cHbyZolSOTIgvFsrhxLLtLyNCfEJxXOSF7Poj
+A6RSyzngyWNh65JJJHmPBJbib3Zf+pZdjXBKcC4Rstn4oPYhwOrQ1baUVuWW
+WEOWjJMYII6JkuRSstMhWC0hYXOYZf8A1Chz9EqZaZLZk2cMwSN5kxuXZUl3
+KPYJpYQ2JJ059FkRzRoGzqmROodh2HYdh2EuWS+RI3Y23kc1dh/ATjWkSJpI
+4fipqiayP/lR/9oADAMBAAIAAwAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD
+iAAAAAAQQAQgAAAAAAAAAAAARygAAAASO/zsff8AzIAEIAAAAAA8gAAAABr4
+vHSiocbvvX8AAAAAwAAAAF7LsvHTv3qAHTT3AAAAAEAAQEnAvRcv2osQBZ+L
+XIAAAU8sAEYrRoMFLXHtRjnVafoAAAA8sAYvB2aYxV5TTgJej9LoAAAAoQA4
+XmGwVp5DH/br1VrMoAAAMElJAqKIoXJ/H/7jbMhl8oAAQk8obFAk0tLr3gLH
+3OjHDKoAAAAA87k5k8vMqDInbiAmhLHgAAAAAU5VxXGMFUoCPCSmbUI3AAAA
+EEIHNXbNzerbKZx9qecQDAAAAo0t9MAqcLkqcjPAk7lmsJAAA42sSfX/AEJ6
+w4bjxP0uPGKpQAEJwNELM/wAICagyMFwKILDwAAEIY8MBA4EBDyEEJ69NE16
+HQAACAAAAEB71S3G073nEXkRs0/KAADPEELE65yJ3zF+CskILN8MqAEMPCIA
+EINHBY2BIAMIEBTU/iAAAEAAAHGNLHKAAAAAAEMMJLIAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/
+xAAgEQADAAMAAwADAQAAAAAAAAAAAREQIDAhMUBBUFFg/9oACAEDAQE/EP3s
+PCLiEJ8aH9MIQmX8MxdaRMj+C8U8Tolymb/ecPXd7wguyw90yE4rd8Eu69jH
+8M3fFnsnKYaLwSIetbmlKUuZwg3oijZS6wvBYbiLmbwmZxpcpDz6ytLBecUf
+K4nJY/I/PKHja4UqKilKIn0L/T//xAAfEQADAAMBAQEAAwAAAAAAAAAAAREQ
+IDBAITFBUGD/2gAIAQIBAT8Q/vGU+smKUvjYvTSvzXE2+oT7wm0Fhrs2Lz0/
+e63pR/ezwt2UvF6vC4N+BC8NLsuKPzncJ8WyspcsmUiE1vCiWjIJEJrScHhK
+snK7raEzRZ/fKmLyeP4F8ReFKfSazCiiEwgxeh/6f//EACwQAQACAgEDBAIC
+AgIDAQAAAAEAESExQRBRYSAwcYGRoUCx0fDB4VBg8YD/2gAIAQEAAT8Q/wDb
+alf+RI+6AcNnfoC6F+J/8yJbR9dNxxv+aS/bTGvazmVofZzDQWsKvJ24iGvo
+E+SOIP2wzl7mJjj5HMOARO5mKNkqVKlSv45H2y7K3GXNV/cwfLt6M1/wCbsr
+sdTeJUAHl2QN3p0MQyEKQaW0J2j9jEC6s7mSVK9IRKle+R9sgv8AP0QA/wAJ
+60z77O3mAu2M21Q2OGOsj/WJbSPiHJRxJqHYKTZE9BhuJVu4R3/LQxsYNa+u
+SCDtFMHMxy4EAKyneNW1rzC5ah3MOX6oDuHuwypMvMTL/wDEH8RBKckym7Nd
+ohDY3MD4n5O0TC9pXRhGEfdI+zfqFoPuYAWK5PwyZo7u+UUqy1rEX3NyZUr7
+djmDC7o7IpiFiG2N5EohywwAcQGDRv0sGo/xKqzzr1Cq6DzKO34MTs2+YqWB
+2C7lAoQ7BUQ3CnX5RCWWnhgW8/Ms8ZedSypwxlcu2/MGIVOHEuvyFuEJFbFM
+SVERp6kYF4/h4M7Y6grQWwzqy/6lNee6JWj5QRf0QGkvu7jxAfUVtiGJgrO8
+B2zFecoJwy6SqgxLmNmjRBBmUcWkyeS+RgM/EcMVUlJsYl27q9D/ABDgfHg9
+TBTbdf1M2lHmM99rX4hP9EZ5YC9FSid2PMC0JxFkTnSJ5/M2eYMELFEvWKRD
+VMo5L7QZoqCLDuOZhgl+E1N3drOIn8a8fY7w8T2hmaUdtQjiPIZnYPzF8sC9
+q+II0AfOYFbXNpLtfnHnslrl+Z98ObiVlIeEXtDqglJco7vE4p+vEwhjvyQ2
+Nn+iJE6vvvoEqCFnd+oE2fSCoAK+JggPA/5iX8QBqIP93K8EHfMALfzG+PsY
+F2H4h6BqCh6VmeYGcYe0qhk38ROYkej7hGHouZaDbMGj+3RSvs9pday5dxNz
+Ait/JKcsCXRccjAaJlgUQK9ZXeLj0i8woU5IyvP+nQSMY+6ReqoBxv56XZcB
+uYjrt2f9xn4hiLjHwQaG4Q7sC8uCLtWu8NY9kYQPTPeHmJTZzBuBZLduGOkC
+PmJExH3axeiPTV1sQOw7veWqlR1Ml8GoFdDLwfuXSiFXl9OTSPqIMGX0Sypc
+LTbL+4BuDhMyi4qtrH3DQR5HBg6sAupY6J3uEIpvwR7EutZeWXLUDUABiKBb
+iWuX6IKKhlr0ho478wAKDHsEGDLmHynmDHPEfozLJpj7jpSi3D6EaFsEWZfq
+W4MEJQUhyRpDO2jUyXg6rt8e+4xIcvMpU0S0f7hwMO0R3DhlK5qyDfzH3CpD
+bMNIT5icY+YL/khuL+4YUQeIi7gSgx+YczojHaCXR8Q1AXFwQwV6kaA9rgC0
+J3H1oZsggg0y0vcm10Sk7wSACGOD4OY+2CpphEMP7S5XWh5lvhFxBVu8VEzV
+lzfEDli/iOx4MQyvpdXU8v8AjpW8Nb8Qycdzs+oX8XQlyeehYPMw8yExB9sf
+bvpzgHZlIP2lmg/DLlK1zE8txaI8sCgRZqAW37Qa0V0uc3L2mKCGvRdZ7RnW
+1vpe2SymWPE/vpUqVKnj0kp53AlCjCFYJQaYgLGG/uYkI+6NjTnrRLBy9oCp
++XljGBSSzRGbW+6Ylh4iSvygy2jD0C0dxmuuDRXqdZXe4OYjd7YTJPiXB7Mc
+RY+7gDweYiNJTGEfb2gUaS0KvLT+pXg+mCLCMVZXeZ4me4giXOuCHpuVrhyS
+oEu3GT2iutGIOQsxEDo9uYx92hLTEMEPhKrchUXzLO8aczSvEAn5dEG2Au3z
+MA3KCEr06SJp7RXg7w/hnnCUsyu3v6MrBdc8QusgPh9GszCG638wVFw4Ix98
+WDuxoK4CGCVfMTEsGeWBs8RVxifCKJa/6hBnfiAszDMEr1BAh6rlxaLdRdgA
+d4ikE7aIzt40GiMZRbND3sW8kYO5mUfZAEtWtQ6PMDQ12jTzUqp8ghBS24rL
+mRCKiSpUqBAh1uXLlEHNsEZYVnxHc54MSMYy1U5O3u1KgAZwMqtwNAo7IhcS
+JKtjGIuKypRR0ypUqV1JcuXLly4wYtB8wS1cHOMwXkiCUljLfJ/URXEq+QjN
+yAZV4jtSvb2wtonbh5aiNh9T/So5bPCbjTr8Mwpzcp7xy4wdpUqpdTICx3KB
+Zk79YdEiRizYMe0/MH7fiHe/UHyE/CAWiaBXlhbvL5hAsNwxO5LhNoYzLY1G
+Pt2bxCcAhB0KBaCB0LO3PuFOmX6lpV+ohbB3jE1eDnoHKkgOwZ2DD+DsRA3A
+FftAuF/TDGFfmblx2JZ3mYNQZA5nEL9TO0Hvc2r+YphHZ6XCkLTj+Ix9mpV8
+w63EMfnFO3qXNMW0rvOZQ1bxUuMJSrlTFCy3RPKUFuCUS1ihtv4nhgly5fQJ
+gzDvQndYc94wKMHYh0PEYdQoGxMkqrHOuqznU88NxjD2DzCEqVL2jgl+m6nE
+c7+Y+yeeYcxUv4PncFrQb2y/gTvL3a+WYfyHaK5ly5c8JZ4ndYg0YgpDbCAa
+IRwNmU1sH7g05u/Mag5cwgUa6ECOkqMjsYxlqHHrNwhCBGI3V4gNZnmYlj6X
+Y+/WpBrYwLwMy8QT02PL4glepnysbKBuAC5e3qqF7FxW6HBBQjTuWJHGIa6b
+wb72GPs7QYQgTHDwHUahkldBfESh+PWVbUj+Yi9k8kKaJWxx08lC3t/mOGZ8
+EYUy7ldCYfHUpI0ZteIcMrpgzX7TSCXuBcyjQsKq6Ox6VTAuYfMdxad+nHoA
+y6xdcssxx2lSoDtMqAg28vLAqJu/b0Cae5iJcbTGgqVKgRAu1e0vb2RYPMyH
+mfM8S49BRbDFNVVy8fUv99KlQXfByzeMD+5jd2EqvzCECCJ8ZiBRGksr56al
+THni8eYqu8fwzDco0NMYBZcNI89EKCviIYlPJjTtWhiqt6I+DvPiFC8D+5dq
+CjglJc2GXFxCBAnECujKCFBdQOgUFgs7EuyWuZQXOX+Iumu0u9MpIoA4ckpL
+v4ahYx/QSzTL3YregAtIqzDy/wBMwztbmB28wlsL4e81LhCEsD0Bmk7EBYUc
+5H5jpOwlBoCOy+oioK+IgtqeWMZ/BH2T4SnJgn+Jl3b+4Jdn4zETfUL1G6EP
+MCL+sl6u+7mNs9NwA3l7TK8ymGT3gnNME6tBNtfuWahnQHzmHK0+YZ0yw2hE
+m4XbWU7yneMNS0tcBMxXLeodw/lAzpfCjas3lYVAn7iSyH5hhRR8EVXEb299
+CD0R8RoovnC79EOT9oLQEXyRTtjhUp7Su/Sgy4gOJiAwBbC8WGIZnfab9o7H
+S/BNIBPj/E8h+J5j8RwHUs11HkLMt/snnfmaD8kGpXLGa5ITZl0d+3YeWLfo
+TRgHeJjinoMyxQ2zxPuWNseBDHRQvmKrbv3aJR6BlxY+1fb2chuW7stegjSG
+PmX0K2/dJcuPQ3Llxj/BJg16CXDvLlxf4dy5fR/kXL/j3L//ABf/AP/Z
+" alt="">'+source+
    '<blockquote class="intro-quote">'+esc(quote)+'</blockquote>'+
    '<p class="intro-scenario">'+esc(spec.scenario)+'</p>'+
    '<button type="button" data-enter="'+id+'" class="primary intro-cta">'+
@@ -2447,7 +2818,23 @@ document.querySelector("#more-passages")?.addEventListener("change",ev=>{
 });
 document.addEventListener("keydown",ev=>{if(ev.key==="Escape"){const back=document.querySelector("[data-back]");if(back){ev.preventDefault();back.click();}}});
 document.addEventListener("click",ev=>{
- if(ev.target.closest('[data-test-allocation]')){const state=active.cases[active.mode];state.firstAllocation=[...state.amounts];render();document.querySelector('[data-run]')?.focus();return;}
+ if(ev.target.closest('[data-test-allocation]')){
+  const state=active.cases[active.mode],spec=currentContexts[active.mode];
+  const developed=developedTradeoffModel(spec,spec.development?.id);
+  if(!developed||!tradeoffStructure(spec.model,state))return;
+  state.first={amounts:[...state.amounts],budgets:[...state.budgets]};
+  state.developmentId=spec.development.id;
+  state.budgets=state.budgets.map((n,i)=>Math.min(n,developed.resources[i].max));
+  state.result=null;render();
+  document.querySelector('[data-run]:not(:disabled), [data-k-slider="amounts"]')?.focus();return;
+ }
+ if(ev.target.closest('[data-reset-allocation]')){
+  const state=active.cases[active.mode];
+  if(!state.first)return;
+  state.amounts=[...state.first.amounts];state.budgets=[...state.first.budgets];
+  delete state.first;delete state.developmentId;state.result=null;
+  render();document.querySelector('[data-test-allocation]')?.focus();return;
+ }
  if(ev.target.closest('[data-confirm-allocation]')){active.cases[active.mode].confirmed=true;render();return;}
  const step=ev.target.closest("[data-k-step]");
  if(step){
@@ -2529,9 +2916,10 @@ document.addEventListener("input",ev=>{
   box.querySelector("[aria-live]").textContent=fresh.querySelector("[aria-live]").textContent;
   const action=box.querySelector('[data-run], [data-test-allocation]');
   action.disabled=fresh.querySelector('[data-run], [data-test-allocation]').disabled;
-  if(semanticEdition&&state.firstAllocation){state.confirmed=false;
+  if(semanticEdition&&state.first){
    box.querySelector('.reconsider').innerHTML=fresh.querySelector('.reconsider').innerHTML;
-   action.removeAttribute('data-test-allocation');action.setAttribute('data-run',active.mode);action.textContent='Reveal the meaning';}state.result=null;return;
+   action.removeAttribute('data-test-allocation');action.setAttribute('data-run',active.mode);action.textContent='Reveal the meaning';
+  }state.result=null;return;
  }
  const range=ev.target.closest("[data-range]");
  if(!range)return;
