@@ -266,7 +266,7 @@ function meaningHeadline(kind,evidence={}){
   case 'repetition': {
    const first=evidence.cumulative?.[0],hours=first&&evidence.unitHours?
     first.units*evidence.unitHours:null;
-   return first&&hours!==null?'Across '+evidence.repetitions+' imagined evenings, '+hours+' hours go to '+first.label+'.':
+   return first&&hours!==null?'Your repeated plan reserves '+hours+' hours for '+first.label+' across '+evidence.repetitions+' imagined evenings.':
     'Repeated evenings can form a pattern, not a prediction.';
   }
   case 'information': {
@@ -315,7 +315,8 @@ function meaningExperience(packet,m){
    'You chose to '+String(label||'act').toLowerCase();
   const event=e.revelations?.[0]||'something new occurs';
   const later=event[0].toLowerCase()+event.slice(1);
-  return choice(first?.label)+'. Later in the imagined scenario, '+choice(last?.label)+
+  const following=choice(last?.label);
+  return choice(first?.label)+'. Later in the imagined scenario, '+following[0].toLowerCase()+following.slice(1)+
    '. The outcome of the unchosen path is still unknown.';
  }
  return m.text;
@@ -330,7 +331,7 @@ function pathQuestion(packet){
  switch(m.kind){
   case 'specialization_effect': {
    const consequence=e.delta>0?'gain more finished work':e.delta===0?'show no gain':'finish fewer units';
-   return 'With '+roles+', why does this split produce '+(e.delta>0?'more finished booklets':e.delta===0?'the same number of finished booklets':'fewer finished booklets')+' than the invented rotating team?';
+   return 'With '+roles+', why does this split produce '+(e.delta>0?'more finished booklets':e.delta===0?'the same number of finished booklets':'fewer finished booklets')+(e.delta===0?' as':' than')+' the invented rotating team?';
   }
   case 'conversion':
    return 'If the purchase costs '+e.measure+' '+e.unit+', what does that reveal about the life exchanged?';
