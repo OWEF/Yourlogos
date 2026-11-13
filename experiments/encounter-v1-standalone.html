@@ -2534,7 +2534,7 @@ document.addEventListener("click",ev=>{
   state.developmentId=spec.development.id;
   state.budgets=state.budgets.map((n,i)=>Math.min(n,developed.resources[i].max));
   state.result=null;render();
-  document.querySelector('[data-run]:not(:disabled), [data-k-slider="amounts"]')?.focus();return;
+  (document.querySelector('[data-run]:not(:disabled)')||document.querySelector('[data-k-slider="amounts"]'))?.focus();return;
  }
  if(ev.target.closest('[data-reset-allocation]')){
   const state=active.cases[active.mode];
