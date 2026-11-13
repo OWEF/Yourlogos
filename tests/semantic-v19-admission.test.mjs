@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {semanticCases} from '../philosophy-engine/encounter/semantic-cases-v12.js';
-import {reasonSemantically,validateTension} from '../philosophy-engine/encounter/semantic-reasoning-v12.js';
+import {reasonSemantically,validateTension,expressSemantic} from '../philosophy-engine/encounter/semantic-reasoning-v12.js';
 
 test('every admitted source exposes a provisionally curated—not independently verified—warrant',()=>{
  for(const [id,c] of Object.entries(semanticCases)){
@@ -14,6 +14,21 @@ test('every admitted source exposes a provisionally curated—not independently 
   assert.ok(p.sourceAdmission.centralClaim.length>25);
   assert.ok(p.sourceAdmission.scenarioBridge.length>25);
  }
+});
+
+test('readers actually see the source thesis and an explicitly bounded analogy',()=>{
+ for(const [id,c] of Object.entries(semanticCases)){
+  const packet=reasonSemantically(c,c.initial);
+  const reading=expressSemantic(packet);
+  assert.equal(reading.status,'ready',id+': '+JSON.stringify(reading));
+  assert.ok(reading.interpretation.includes(packet.sourceAdmission.centralClaim),id+' lacked source thesis');
+  assert.ok(reading.interpretation.includes(packet.sourceAdmission.scenarioBridge),id+' lacked scenario bridge');
+  assert.ok(reading.interpretation.includes(packet.limitations[0]),id+' lacked limitation');
+ }
+ const smith=expressSemantic(reasonSemantically(semanticCases.workshop,semanticCases.workshop.initial));
+ assert.match(smith.interpretation,/does not prove specialization increases productivity/);
+ const descartes=expressSemantic(reasonSemantically(semanticCases.evidence,semanticCases.evidence.initial));
+ assert.match(descartes.interpretation,/not Cartesian certainty/);
 });
 
 test('missing, wrong or silently replaced source contracts are rejected',()=>{
