@@ -199,11 +199,56 @@ export function reasonSemantically(context,input){
 }
 const frames={reflective:'Consider the distinction.',surprising:'Notice what changes.',playful:'Turn the situation around.',challenging:'Test the distinction carefully.'};
 const questions={transition:'Which part of the difference came from the changed conditions, and which part from your own revised choice?',intention_gap:'What would need to change for the allocation to meet the intention?',revision:'What could you reasonably have known before the later evidence arrived?',complementarity:'Which dependency makes the alternative possible?',closure:'Which earlier commitment limited the later alternatives?',information:'What changes when you separate earlier reasons from later knowledge?',conversion:'What becomes visible when the same choice is described in another measure?',repetition:'What would repeating this arrangement preserve or crowd out?',opportunity:'Which competing claim would bear the cost of a change?',uncertainty:'What remains unsettled after you have chosen?'};
+// The short heading is derived from validated consequences, never philosopher IDs.
+function meaningHeadline(kind,evidence={}){
+ switch(kind){
+  case 'transition':
+   return evidence.amountsChanged?
+    evidence.reallocationRequired?'The new constraint ruled out your first plan.':'You changed a plan that still could have worked.':
+    'Your first allocation still works under the new condition.';
+  case 'conversion': return 'This choice corresponds to '+evidence.measure+' '+evidence.unit+'.';
+  case 'dependency': return 'The least-supplied stage limits what gets finished.';
+  case 'agency': return 'You can choose your action, not the other person’s answer.';
+  case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
+   'Your judgment and the claim’s truth are separate questions.';
+  case 'repetition': return 'Repeated evenings can form a pattern, not a prediction.';
+  case 'information': return 'Later knowledge cannot go back into the first choice.';
+  default: return null;
+ }
+}
+function meaningExperience(packet,m){
+ const e=m.evidence||{};
+ if(m.kind==='transition'){
+  const quantities=e.amountsChanged?'You changed the allocation.':'You kept the original quantities.';
+  const feasibility=e.reallocationRequired?'The earlier plan no longer fit.':'The earlier plan could still fit.';
+  const measured=e.initial?.measure!==null&&e.initial?.measure!==undefined&&e.revised?.measure!==null&&e.revised?.measure!==undefined&&packet.structure?.measure!==null?
+   ' The modeled result moves from '+e.initial.measure+' to '+e.revised.measure+' '+(packet.structure?.measure===1?'unit':'units')+'.':'';
+  return 'In this hypothetical change, '+e.development.label+' '+feasibility+' '+quantities+measured;
+ }
+ if(m.kind==='dependency'){
+  const changed=e.alternative&&e.alternative.delta>0?
+   ' An allowed reassignment could raise that to '+e.alternative.measure+'.':'';
+  return 'With your chosen assignment, the team finishes '+e.measure+' modeled '+(e.measure===1?'unit':'units')+'. Both stages are needed.'+changed;
+ }
+ if(m.kind==='repetition'){
+  return 'Across '+e.repetitions+' imagined evenings, the same plan would give '+
+   (e.cumulative||[]).map(c=>c.units+' half-hour slots to '+c.label).join(', ')+
+   '. This does not establish your actual habits.';
+ }
+ if(m.kind==='information'){
+  const steps=e.steps||[]; const first=steps[0],last=steps.at(-1);
+  return 'You first chose to '+(first?.label||'act').toLowerCase()+
+   '. Only later in the imagined route did you learn '+(e.revelations?.[0]||'something new').toLowerCase()+
+   '. You then chose to '+(last?.label||'respond').toLowerCase()+
+   '; no outcome of the unchosen path was observed.';
+ }
+ return m.text;
+}
 export function expressSemantic(packet,mode='reflective'){
  if(packet?.version!=='meaning/1.2'||packet.status!=='ready'||!packet.claims.includes(packet.meaning)||!frames[mode])return null;
  const m=packet.meaning;
  if(!['necessary','conditional'].includes(m.classification))return null;
- const headline=m.classification==='conditional'?'Under the scenario assumptions, '+m.text[0].toLowerCase()+m.text.slice(1):m.text;
+ const headline=meaningHeadline(m.kind,m.evidence)||m.text;
  const concepts=packet.semantic.concepts;
  const evidence=m.evidence;
  const anchor={conversion:`${evidence.measure} ${evidence.unit}`,dependency:`${evidence.measure} completed ${evidence.measure===1?'unit':'units'}`,agency:evidence.external,assent:`your decision to ${evidence.events?.at(-1)?.action.toLowerCase()}`,revision:'the explicitly changed commitment'}[m.kind]||'this consequence';
@@ -215,12 +260,12 @@ export function expressSemantic(packet,mode='reflective'){
   challenging:{experience:`A distinction remains: ${concepts[0]} and ${concepts[1]} are not interchangeable.`,interpretation:`${packet.author} asks us to examine ${relationship}.`,question:`What would you overlook about ${anchor} if you considered only ${concepts[0]}?`}
  };
  const composed=compositions[mode];
- const experience=composed.experience;
+ const experience=meaningExperience(packet,m);
  const admission=packet.sourceAdmission;
  const interpretation=admission?.centralClaim&&admission?.scenarioBridge?
   admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' '):
   composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
- const proactiveQuestion=composed.question;
+ const proactiveQuestion=questions[m.kind]||composed.question;
  const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
  const wordCount=text.split(/\s+/).length;
  // Never truncate a caveat or silently add padding to satisfy a length target.
