@@ -36,7 +36,7 @@ function recurringScheduleModel(spec){
   choices:spec.categories.map((label,i)=>({id:'activity-'+i,label,
    readingLabel:['writing your story','answering messages','resting and recharging'][i]||label,
    cost:[1],max:6})),
-  unitLabel:'half-hour slots',unitHours:0.5};
+  unitLabel:'half-hour slots',unitHours:0.5,repetitionPeriod:'evening'};
 }
 function temporalDecisionModel(spec){
  const nodes={};
