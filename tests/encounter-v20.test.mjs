@@ -2,7 +2,7 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {semanticCases} from "../philosophy-engine/encounter/semantic-cases-v12.js";
 import {reasonSemantically,expressSemantic} from "../philosophy-engine/encounter/semantic-reasoning-v12.js";
-import {adaptEncounterEvidence,selectEmotionStrategy,V20_WORD_POLICY} from "../philosophy-engine/encounter/emotion-strategy-v20.js";
+import {adaptEncounterEvidence,selectEmotionStrategy,V20_WORD_POLICY,SOURCE_WORK_IDENTITY_V20} from "../philosophy-engine/encounter/emotion-strategy-v20.js";
 import {renderEncounterV20,encounterV20,validateEncounterV20,withPartialScheduleCapacity} from "../philosophy-engine/encounter/encounter-v20.js";
 
 export const SIX_PATHS=[
@@ -401,4 +401,43 @@ test("CZ-123 independent: silent apology remains an unperformed action, not infe
  const words=out.sections.map(s=>s.text).join(" ");
  assert.match(words,/No offered apology is recorded/i);
  assert.doesNotMatch(words,/you apologized|you sent|forgave you|they forgive you/i);
+});
+
+test("CZ-127 work contract: versioned source-linked variants and passage labels are admitted",()=>{
+ assert.equal(SOURCE_WORK_IDENTITY_V20.version,"source-work-identity/2.0.0");
+ for(const [key,input,sourceTitle,admittedTitle] of [
+  ["dillard",{amounts:[6,0,0],budgets:[6],repetitions:5},
+    "The Writing Life","The Writing Life (excerpt; source review pending)"],
+  ["apology",{path:["offer","space"]},
+    "Enchiridion","Enchiridion · §1, Elizabeth Carter translation"],
+  ["kierkegaard",{path:["change","risk","continue"]},
+    "Journal JJ:167","Journal JJ:167 (shortened quotation; wording review pending)"],
+  ["dillard",{amounts:[6,0,0],budgets:[6],repetitions:5},
+    "The Writing Life (1989), scheduling passage","The Writing Life (excerpt)"]
+ ]){
+  const p=structuredClone(reasonSemantically(semanticCases[key],input));
+  assert.equal(p.status,"ready",key);
+  p.source.work=sourceTitle;
+  p.sourceAdmission.sourceWork=admittedTitle;
+  assert.equal(adaptEncounterEvidence(p).status,"ready",key+" "+JSON.stringify({sourceTitle,admittedTitle}));
+  assert.equal(renderEncounterV20(p).status,"ready",key+" accepted work metadata");
+ }
+});
+test("CZ-127 work contract: unsupported or spoofed work labels fail closed on either field",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ for(const [field,value] of [
+  ["source","The Wealth of Nations"],
+  ["sourceAdmission","The Wealth of Nations"],
+  ["source","The Writing Life (scholarly verified)"],
+  ["sourceAdmission","The Writing Life (human approved)"],
+  ["source",""],
+  ["sourceAdmission",null],
+  ["source",42]
+ ]){
+  const bad=structuredClone(p);
+  if(field==="source")bad.source.work=value;
+  else bad.sourceAdmission.sourceWork=value;
+  assert.equal(adaptEncounterEvidence(bad).status,"incompatible",field+" "+value);
+  assert.equal(renderEncounterV20(bad).status,"needs_editorial_review",field+" "+value);
+ }
 });
