@@ -3,7 +3,7 @@
  * Deliberately leaves v1.9.6 expressSemantic() and generated bundles untouched.
  */
 import {reasonSemantically} from "./semantic-reasoning-v12.js";
-import {adaptEncounterEvidence,selectEmotionStrategy,V20_WORD_POLICY} from "./emotion-strategy-v20.js";
+import {adaptEncounterEvidence,selectEmotionStrategy,V20_WORD_POLICY,isCuratedEveningPilot} from "./emotion-strategy-v20.js";
 /**
  * v2-only scenario capability switch. The frozen v1.9.6 Dillard research model
  * requires exact allocation; here "cap" means six available half-hour slots,
@@ -29,6 +29,21 @@ const toAction=s=>clean(String(s||"").replace(/^You\s+/i,""));
 function choiceText(x){
  const e=x.grounded;
  if(x.kind==="repetition"){
+  if(!isCuratedEveningPilot(x)){
+    const period=e.period||"cycle",periods=e.periodPlural||"cycles";
+    const active=e.cumulative.filter(a=>a.units>0);
+    const amount=active.map(a=>fHours(a.units*e.unitHours)+" for "+a.label).join("; ");
+    if(!active.length)return "Across "+e.repetitions+" imagined "+periods+
+      ", no modeled activity receives time. Each "+period+" has "+
+      fHours(e.perIntervalCapacity*e.unitHours)+" available, all unallocated. "+
+      "This represents "+fHours(e.totalUnallocated*e.unitHours)+
+      " unallocated across the repetitions, not your real life.";
+    return "Across "+e.repetitions+" imagined "+periods+", the plan assigns "+
+      amount+". Each "+period+" has "+fHours(e.perIntervalCapacity*e.unitHours)+
+      " available: "+fHours(e.perIntervalAllocated*e.unitHours)+" assigned and "+
+      fHours(e.perIntervalUnallocated*e.unitHours)+
+      " unallocated. This is hypothetical, not your actual routine.";
+  }
   const intervals=e.period?e.repetitions+" imagined "+e.periodPlural:e.repetitions+" imagined cycles";
   const assigned=e.cumulative.filter(a=>a.units>0);
   if(e.perIntervalUnallocated>0){
@@ -61,6 +76,12 @@ function choiceText(x){
 function teachingText(x){
  const e=x.grounded;
  if(x.kind==="repetition"){
+  if(!isCuratedEveningPilot(x)){
+    const period=e.period||"cycle";
+    return "Dillard draws attention to how ordinary days build a life. "+
+     "Here, a repeated "+period+" is an imagined way to allocate time, not a report of anyone's habits. "+
+     "The model shows assigned hours and any unallocated space. It cannot say what fills those gaps or which activity matters most.";
+  }
   const writing=e.cumulative[0].units,rest=e.cumulative[2]?.units||0;
   const total=e.totalAllocated,available=e.totalCapacity;
   if(total===0)return "Dillard reminds us that a life is made from ordinary days. Here, the model assigns none of the available time to its activities. An empty plan cannot tell us what happens during those hours, let alone what somebody actually values.";
@@ -92,6 +113,19 @@ function teachingText(x){
 function lastThing(x,brief){
  const id=brief.rhetorical_angle.id;
  switch(id){
+  case "repetition-evidence-only":{
+   const e=x.grounded,active=e.cumulative.filter(a=>a.units>0);
+   const periods=e.periodPlural||"cycles";
+   if(!active.length)return "These imagined "+periods+
+     " leave all the modeled time open. An empty allocation is not an empty life.";
+   if(active.length===1)return e.totalUnallocated>0?
+     active[0].label+" has a recurring place in these imagined "+periods+
+       ". The open hours remain unwritten.":
+     active[0].label+" takes the modeled time in these imagined "+periods+
+       ". That is one arrangement, not a whole life.";
+   return "These imagined "+periods+
+    " hold several commitments. Their arrangement is a pattern, not a verdict on anyone's life.";
+  }
   case "schedule-booked":return "Your story got the entire three-hour slot, five imagined evenings in a row. At that rate, the calendar needs a bookmark.";
   case "full-evening-image":return "Five imagined evenings of writing form a longer chapter. The other activities have no assigned place in that block.";
   case "rest-is-part-of-day":return "No footnote, no apology: in this imagined timetable, rest gets a full chapter of its own.";
