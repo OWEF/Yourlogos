@@ -443,8 +443,8 @@ function pathQuestion(packet){
    const ev=e.events||[],first=ev[0]?.intention,late=ev[1]?.intention,last=ev.at(-1)?.intention;
    if(!first||!late||!last)return null;
    const response=String(ev.at(-1)?.action||'act').replace(/^You\s+/i,'').toLowerCase();
-   return 'Since '+late.toLowerCase()+', how does choosing to '+response+
-    ' change your retrospective understanding?';
+   return 'After learning that '+late.toLowerCase()+', what does choosing to '+response+
+    ' reveal about your earlier decision?';
   }
   case 'transition':
    if(e.reallocationRequired)return 'Which consequence arose from the new constraint rather than from your preferred allocation?';
