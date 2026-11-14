@@ -73,3 +73,22 @@ test('v1.9.1 RED: stable source thesis receives a distinct path-grounded explana
  assert.notEqual(zero.interpretation,paid.interpretation,
   'Section II cannot consist solely of identical source-level boilerplate');
 });
+
+
+test('v1.9.1 adversarial: Kierkegaard hindsight uses the later event, never pre-existing uncertainty',()=>{
+ const p=reasonSemantically(semanticCases.kierkegaard,{path:['stay','missed','reflect']});
+ assert.equal(p.status,'ready');
+ const reading=expressSemantic(p);
+ assert.equal(reading.status,'ready');
+ assert.match(reading.interpretation,/keep wondering about the offer/i);
+ assert.match(reading.proactiveQuestion,/keep wondering about the offer/i);
+ assert.doesNotMatch(reading.interpretation,/later situation.*cannot see the other future/i);
+});
+
+test('v1.9.1 adversarial: Dillard uncertainty is stated without repeating the same habit disclaimer',()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[0,3,3],budgets:[6],repetitions:5});
+ const reading=expressSemantic(p);
+ assert.equal(reading.status,'ready');
+ const notes=(reading.interpretation.match(/(?:not records of actual habits|not a record of your life)/gi)||[]);
+ assert.ok(notes.length<=1,'repeated habit disclaimers bury the philosophical explanation');
+});
