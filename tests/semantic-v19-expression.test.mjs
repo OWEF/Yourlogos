@@ -394,3 +394,77 @@ test('v1.9.4 P0-2 RED: partial-capacity repetition separates allocated, availabl
  assert.doesNotMatch(result.headline+' '+result.interpretation,/fills the entire imagined interval|fills the modeled pattern/i);
  assert.match(result.experience,/unallocat|unused/i);
 });
+
+
+// CZ-13 v1.9.5 QA reproductions committed BEFORE any implementation edit.
+// These become known RED-first regressions; NOT unseen independently authored holdouts.
+test('v1.9.5 A RED: fractional time formatting is readable, accurate and never rounds small nonzero amounts to zero',()=>{
+ const scenarios=[0.1,0.2,0.25,0.5,0.00000001];
+ for(const unitHours of scenarios){
+  const c=structuredClone(semanticCases.dillard);
+  c.model.unitHours=unitHours;
+  const p=reasonSemantically(c,{amounts:[1,2,3],budgets:[6],repetitions:3});
+  assert.equal(p.status,'ready',p.reason);
+  const out=expressSemantic(p);assert.equal(out.status,'ready',out.reason);
+  console.log('CZ13-195-TIME-RED '+JSON.stringify({unitHours,reading:{idea:out.headline+' '+out.experience,interpretation:out.interpretation,question:out.proactiveQuestion,words:out.wordCount}}));
+  assert.doesNotMatch(out.experience,/\d+\.\d{12,}/,'binary floating point tails must not reach participants');
+  const displayed=[3,6,9].map(x=>x*unitHours);
+  for(const value of displayed){
+   const preferred=Number(value.toPrecision(12)).toString();
+   assert.ok(out.experience.includes(preferred+' hour'),'must show nonzero exact-scale time '+preferred+' in '+out.experience);
+  }
+  assert.match(out.experience,/does not establish your actual habits/i);
+ }
+});
+test('v1.9.5 B RED: six-activity readings obey the founder 80–120 total AND individual section bounds',()=>{
+ const c=structuredClone(semanticCases.dillard);
+ const names=['writing your story','answering messages','resting and recharging','gardening','walking','cooking'];
+ const base=c.model.choices[0];
+ c.model.choices=names.map((name,i)=>({...base,id:'activity-'+i,label:name,readingLabel:name,cost:[1],max:6}));
+ const p=reasonSemantically(c,{amounts:[1,1,1,1,1,1],budgets:[6],repetitions:5});
+ assert.equal(p.status,'ready',p.reason);
+ const out=expressSemantic(p);assert.ok(out,'expression must provide result');
+ console.log('CZ13-195-WORD-RED '+JSON.stringify({reading:{idea:(out.headline||'')+' '+(out.experience||''),interpretation:out.interpretation,question:out.proactiveQuestion,words:out.wordCount,status:out.status,reason:out.reason}}));
+ if(out.status==='ready'){
+  const count=s=>s.trim().split(/\s+/).filter(Boolean).length;
+  const total=count(out.headline+' '+out.experience+' '+out.interpretation+' '+out.proactiveQuestion);
+  const sections=[count(out.headline+' '+out.experience),count(out.interpretation),count(out.proactiveQuestion)];
+  assert.equal(total,out.wordCount);
+  assert.ok(total>=80&&total<=120,'READY must never violate total word policy; saw '+total);
+  assert.ok(sections[0]>=10&&sections[0]<=48,'Section I exceeded bounds: '+sections[0]);
+  assert.ok(sections[1]>=18&&sections[1]<=65,'Section II exceeded bounds: '+sections[1]);
+  assert.ok(sections[2]>=9&&sections[2]<=26,'Section III exceeded bounds: '+sections[2]);
+ }else{
+  assert.equal(out.status,'needs_editorial_review');
+  assert.match(out.reason,/word|section|policy|length/i);
+ }
+});
+test('v1.9.5 policy sweep: 3–6 activities, original source caveats and predecessor fixes remain protected',()=>{
+ const names=['writing your story','answering messages','resting and recharging','gardening','walking','cooking'];
+ let checked=0;
+ for(let n=3;n<=6;n++){
+  const c=structuredClone(semanticCases.dillard);
+  const base=c.model.choices[0];
+  c.model.choices=names.slice(0,n).map((label,i)=>({...base,id:'activity-'+i,label,readingLabel:label,cost:[1],max:6}));
+  for(const amounts of [Array.from({length:n},(_,i)=>i===0?6:0),
+                        Array.from({length:n},(_,i)=>i===0?0:i===n-1?6:0),
+                        Array.from({length:n},(_,i)=>i<6%n?Math.floor(6/n)+1:Math.floor(6/n))]){
+   const p=reasonSemantically(c,{amounts,budgets:[6],repetitions:5});
+   assert.equal(p.status,'ready',p.reason);
+   const out=expressSemantic(p);assert.ok(out);
+   assert.ok(['ready','needs_editorial_review'].includes(out.status));
+   if(out.status==='ready'){
+    const count=s=>s.trim().split(/\s+/).filter(Boolean).length;
+    const sections=[count(out.headline+' '+out.experience),count(out.interpretation),count(out.proactiveQuestion)];
+    assert.ok(out.wordCount>=80&&out.wordCount<=120,'unexpected READY length '+out.wordCount);
+    assert.ok(sections[0]>=10&&sections[0]<=48);
+    assert.ok(sections[1]>=18&&sections[1]<=65);
+    assert.ok(sections[2]>=9&&sections[2]<=26);
+    assert.match(out.interpretation,/does not rank any activity/i);
+    assert.match(out.experience,/does not establish your actual habits/i);
+   }else assert.match(out.reason,/word|section|policy|length/i);
+   checked++;
+  }
+ }
+ assert.equal(checked,12);
+});
