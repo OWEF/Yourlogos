@@ -65,3 +65,5 @@ if(process.argv.includes("--check")){
  writeFileSync(path,html);writeFileSync(comparison,JSON.stringify(samples,null,2)+"\n");
 }
 for(const x of samples)process.stdout.write("CZ127-EXAMPLE "+JSON.stringify({id:x.id,from:x.original.words,to:x.candidate.wordCount,strategy:x.candidate.brief.strategy,source:x.candidate.source_review,last:x.candidate.sections[2].text})+"\n");
+
+for(const x of samples)process.stdout.write("CZ127-FULL "+JSON.stringify({id:x.id,path:x.path,v196:x.original,candidate:{sections:x.candidate.sections,brief:x.candidate.brief,wordCount:x.candidate.wordCount,sectionWordCounts:x.candidate.sectionWordCounts,source_review:x.candidate.source_review}})+"\n");
