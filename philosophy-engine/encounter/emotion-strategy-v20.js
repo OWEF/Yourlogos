@@ -57,7 +57,7 @@ export const SOURCE_WORK_IDENTITY_V20=Object.freeze({
   })
  })
 });
-const normalizeWorkLabel=v=>typeof v==="string"?v.normalize("NFKC").replace(/\\s+/g," ").trim():null;
+const normalizeWorkLabel=v=>typeof v==="string"?v.normalize("NFKC").replace(/\s+/g," ").trim():null;
 function recognizedWorkLabel(identity,work){
  const value=normalizeWorkLabel(work);
  return !!value && identity.allowedWorkLabels.some(x=>normalizeWorkLabel(x)===value);
