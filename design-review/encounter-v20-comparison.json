@@ -760,7 +760,7 @@
       "sections": [
         {
           "label": "Your Choice",
-          "text": "Across 5 imagined evenings: 5 hours for writing your story; 0 hours for answering messages; 0 hours for resting and recharging. Each evening leaves 2 hours unallocated (10 hours over 5 intervals). This is an imagined plan, not your actual routine.",
+          "text": "In each of 5 imagined evenings, the plan assigns 1 hour for writing your story. 2 hours remain unallocated. Across the 5 intervals: 5 hours for writing your story; 10 hours unallocated. This is an imagined schedule, not a report of your life.",
           "evidence_ids": [
             "meaning:central",
             "choice:0"
@@ -768,7 +768,7 @@
         },
         {
           "label": "Back to the Philosopher",
-          "text": "Dillard asks us to look at what ordinary days accumulate. Here, only 1 hour per evening goes to writing; 2 hours stays unassigned. Repeating this pattern shows only where the modeled time goes, not what the unassigned hours become or what you truly value.",
+          "text": "Dillard asks us to look at what ordinary days accumulate. Here, only 1 hour per evening goes to writing; 2 hours remain unassigned. Repeating this pattern shows only where the modeled time goes, not what the unassigned hours become or what you truly value.",
           "evidence_ids": [
             "source:central",
             "source:bridge",
@@ -787,9 +787,9 @@
         }
       ],
       "status": "ready",
-      "wordCount": 100,
+      "wordCount": 102,
       "sectionWordCounts": [
-        41,
+        43,
         44,
         15
       ],
@@ -961,7 +961,7 @@
       "sections": [
         {
           "label": "Your Choice",
-          "text": "Across 5 imagined evenings: 0 hours for writing your story; 0 hours for answering messages; 7.5 hours for resting and recharging. Each evening leaves 1.5 hours unallocated (7.5 hours over 5 intervals). This is an imagined plan, not your actual routine.",
+          "text": "In each of 5 imagined evenings, the plan assigns 1.5 hours for resting and recharging. 1.5 hours remain unallocated. Across the 5 intervals: 7.5 hours for resting and recharging; 7.5 hours unallocated. This is an imagined schedule, not a report of your life.",
           "evidence_ids": [
             "meaning:central",
             "choice:0"
@@ -988,9 +988,9 @@
         }
       ],
       "status": "ready",
-      "wordCount": 102,
+      "wordCount": 104,
       "sectionWordCounts": [
-        41,
+        43,
         45,
         16
       ],
@@ -1162,7 +1162,7 @@
       "sections": [
         {
           "label": "Your Choice",
-          "text": "Across 5 imagined evenings: 0 hours for writing your story; 0 hours for answering messages; 0 hours for resting and recharging. Each evening leaves 3 hours unallocated (15 hours over 5 intervals). This is an imagined plan, not your actual routine.",
+          "text": "In each of 5 imagined evenings, no modeled activity receives time. 3 hours remain unallocated. Across the 5 intervals: 15 hours unallocated. This is an imagined schedule, not a report of your life.",
           "evidence_ids": [
             "meaning:central",
             "choice:0"
@@ -1189,9 +1189,9 @@
         }
       ],
       "status": "ready",
-      "wordCount": 97,
+      "wordCount": 89,
       "sectionWordCounts": [
-        41,
+        33,
         40,
         16
       ],
