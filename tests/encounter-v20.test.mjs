@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {semanticCases} from "../philosophy-engine/encounter/semantic-cases-v12.js";
 import {reasonSemantically,expressSemantic} from "../philosophy-engine/encounter/semantic-reasoning-v12.js";
 import {adaptEncounterEvidence,selectEmotionStrategy,V20_WORD_POLICY} from "../philosophy-engine/encounter/emotion-strategy-v20.js";
-import {renderEncounterV20,encounterV20,validateEncounterV20} from "../philosophy-engine/encounter/encounter-v20.js";
+import {renderEncounterV20,encounterV20,validateEncounterV20,withPartialScheduleCapacity} from "../philosophy-engine/encounter/encounter-v20.js";
 
 export const SIX_PATHS=[
  ["dillard-full","dillard",{amounts:[6,0,0],budgets:[6],repetitions:5},"playful"],
@@ -143,6 +143,11 @@ test("CZ-127 RED editorial: later-route knowledge reads as grammatical plain Eng
 });
 
 test("CZ-127 corrective RED: partial slot allocation never becomes whole available evening",()=>{
+ const partial=withPartialScheduleCapacity(semanticCases.dillard);
+ assert.equal(semanticCases.dillard.model.resources[0].type,"exact","frozen scenario untouched");
+ assert.equal(partial.model.resources[0].type,"cap","explicit v2 adapter enables unused capacity");
+ assert.equal(reasonSemantically(semanticCases.dillard,{amounts:[2,0,0],budgets:[6],repetitions:5}).status,
+  "incompatible","the original v1 scenario must retain its exact-allocation contract");
  const cases=[
   {amounts:[2,0,0],allocated:2,unused:4,hours:"1 hour",unallocated:"2 hours",expect:"writing"},
   {amounts:[0,0,3],allocated:3,unused:3,hours:"1.5 hours",unallocated:"1.5 hours",expect:"rest"},
@@ -150,7 +155,7 @@ test("CZ-127 corrective RED: partial slot allocation never becomes whole availab
   {amounts:[6,0,0],allocated:6,unused:0,hours:"3 hours",unallocated:null,expect:"writing"}
  ];
  for(const c of cases){
-  const packet=reasonSemantically(semanticCases.dillard,{amounts:c.amounts,budgets:[6],repetitions:5});
+  const packet=reasonSemantically(partial,{amounts:c.amounts,budgets:[6],repetitions:5});
   assert.equal(packet.status,"ready",JSON.stringify(c));
   const e=packet.meaning.evidence;
   assert.equal(e.perIntervalCapacity,6);
