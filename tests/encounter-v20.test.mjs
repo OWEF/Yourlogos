@@ -132,3 +132,12 @@ test("CZ-127 RED: validator rejects an unselected rhetorical angle with borrowed
  forged.brief.rhetorical_angle.id="space-not-outcome";
  assert.equal(validateEncounterV20(p,forged).status,"needs_editorial_review");
 });
+
+test("CZ-127 RED editorial: later-route knowledge reads as grammatical plain English",()=>{
+ for(const path of [["change","risk","continue"],["stay","missed","reflect"]]){
+  const out=encounterV20(semanticCases.kierkegaard,{path});
+  assert.equal(out.status,"ready");
+  assert.match(out.sections[1].text,/Later in the imagined route, a new detail appears:/);
+  assert.doesNotMatch(out.sections[1].text,/only becomes known after the first decision/);
+ }
+});
