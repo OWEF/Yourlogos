@@ -367,9 +367,9 @@ function meaningBridge(packet){
    return 'Writing shares the imagined routine with competing activities rather than filling it.';
   }
   case 'information':{
-   const first=e.events?.[0]?.intention,late=e.events?.[1]?.intention;
-   if(!first||!late)return null;
-   return 'The later situation — '+late.toLowerCase()+' — adds hindsight unavailable when you chose.';
+   const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
+   if(!later)return null;
+   return 'The imagined later moment — '+later[0].toLowerCase()+later.slice(1)+' — was not yet observed at the first decision.';
   }
   case 'transition':
    if(e.reallocationRequired)return 'Because the old plan no longer fit, changing it answered a new constraint.';
@@ -440,11 +440,11 @@ function pathQuestion(packet){
    return 'What would keep writing’s smaller place deliberate if these imagined evenings continued?';
   }
   case 'information':{
-   const ev=e.events||[],first=ev[0]?.intention,late=ev[1]?.intention,last=ev.at(-1)?.intention;
-   if(!first||!late||!last)return null;
-   const response=String(ev.at(-1)?.action||'act').replace(/^You\s+/i,'').toLowerCase();
-   return 'After learning that '+late.toLowerCase()+', what does choosing to '+response+
-    ' reveal about your earlier decision?';
+   const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
+   const last=String(e.steps?.at(-1)?.label||'').replace(/^You\s+/i,'').toLowerCase();
+   if(!later||!last)return null;
+   return 'When '+later[0].toLowerCase()+later.slice(1)+', what does choosing to '+last+
+    ' clarify about your earlier decision?';
   }
   case 'transition':
    if(e.reallocationRequired)return 'Which consequence arose from the new constraint rather than from your preferred allocation?';
