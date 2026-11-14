@@ -26,3 +26,26 @@ The existing eleven-path proof HTML and comparison JSON are intentionally byte-i
 Independent CZ-123 re-review must inspect the exact HEAD SHA, rerun Node and browser tests plus source parity, verify author-mismatch rejection and scenario variations, and separately assess source scholarship, genuine novice-reader reactions and real Safari/VoiceOver. Engineering CI is not founder acceptance.
 
 NO MERGE. NO DEPLOY. NO PRODUCTION RELEASE.
+
+
+## CZ-123 independent work-title holdouts: versioned v2 metadata contract
+
+Test-only PR #177 added six independent tests to the existing suite. Its failure, [Actions 43629006899](https://github.com/OWEF/Yourlogos/actions/runs/43629006899), found 134/136 passing and two cases still falsely READY:
+1. Dillard packet with `source.work = "The Wealth of Nations"`.
+2. Dillard packet with `sourceAdmission.sourceWork = "The Wealth of Nations"`.
+
+All six original independent tests were copied unchanged into PR #176; the correction is confined to the v2 evidence-admission layer and test coverage. RED commit `e41804c70a2b29b3be069c7cbd1327feba6f1b13` reproduced 134/136 in the PR #176 CI. Two supplementary work-identity tests separately cover legitimate variants and unsupported/spoofed work labels.
+
+The source-linked contract `SOURCE_WORK_IDENTITY_V20.version = "source-work-identity/2.0.0"` binds source URL, author, meaning kind, canonical work, and an explicit list of accepted work-title / excerpt-metadata labels. Both existing packet fields must independently identify the admitted work. They may use **different authorized labels for the same work**. Whitespace and Unicode compatibility forms are normalized; arbitrary titles, foreign works, missing values, or unverifiable claims of scholarly approval are rejected.
+
+| Existing curated URL identity | Canonical work | Explicitly accepted work-title / excerpt metadata |
+| --- | --- | --- |
+| Annie Dillard | The Writing Life | The Writing Life; The Writing Life (excerpt); The Writing Life (excerpt; source review pending); The Writing Life (1989), scheduling passage; The Writing Life — scheduling excerpt |
+| Epictetus | Enchiridion | Enchiridion; The Enchiridion; Enchiridion · §1; Enchiridion · §1, Elizabeth Carter translation; Enchiridion (§1; Elizabeth Carter translation) |
+| Søren Kierkegaard | Journal JJ:167 | Journal JJ:167; Journal JJ:167 (shortened quotation); Journal JJ:167 (wording review pending); Journal JJ:167 (shortened quotation; wording review pending); Journal JJ:167 (1843), shortened variant |
+
+This is a **provisional editorial identity contract**, NOT independent primary-source scholarship, approval of a historical attribution, or a newly published source dataset. A future legitimate label not currently recognized must be explicitly reviewed and added to the versioned contract; the renderer abstains rather than guessing.
+
+This remediation does not modify the frozen v1.9.6 reasoning kernel, source witness, approved claim content, expression text, existing eleven output paths or word policy. The committed HTML and JSON remain intentionally unchanged and are regenerated and checked for source parity in CI. CZ-121 scholarly attribution, CZ-125 actual reader trials, CZ-126 physical Safari/VoiceOver and CZ-123 independent exact-SHA acceptance remain separate gates.
+
+NO MERGE / NO DEPLOY / NO PRODUCTION RELEASE.
