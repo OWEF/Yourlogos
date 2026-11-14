@@ -1888,7 +1888,7 @@ function meaningBridge(packet){
   case 'information':{
    const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
    if(!later)return null;
-   return 'The imagined later moment — '+later[0].toLowerCase()+later.slice(1)+' — was not yet observed at the first decision.';
+   return 'Only afterward does this imagined route show that '+later[0].toLowerCase()+later.slice(1)+'.';
   }
   case 'transition':
    if(e.reallocationRequired)return 'Because the old plan no longer fit, changing it answered a new constraint.';
