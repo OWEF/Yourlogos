@@ -92,3 +92,108 @@ test('v1.9.1 adversarial: Dillard uncertainty is stated without repeating the sa
  const notes=(reading.interpretation.match(/(?:not records of actual habits|not a record of your life)/gi)||[]);
  assert.ok(notes.length<=1,'repeated habit disclaimers bury the philosophical explanation');
 });
+
+
+// CZ-13 v1.9.2 adversarial RED fixtures: implementation-authored regression tests,
+// never a substitute for independently authored, post-freeze blind holdouts.
+test('v1.9.2 A: a different admitted conversion source must not inherit purchases, Thoreau or wages',()=>{
+ const c=structuredClone(semanticCases.money);
+ c.id='effort-conversion'; c.author='Editorial Converter'; c.quote='Every choice carries an effort cost.';
+ c.source={work:'Illustrative conversion editorial fixture',url:'https://example.org/editorial-conversion'};
+ c.scenario='Choose how many repairs, service calls and checks fit an assumed effort budget.';
+ c.assumptions=['Units of effort are hypothetical, not measured personal time.'];
+ c.semantic.boundary='Hypothetical effort is not observed personal labor or moral worth.';
+ c.semantic.admission.sourceUrl=c.source.url;
+ c.semantic.admission.sourceWork=c.source.work;
+ c.semantic.admission.centralClaim='The illustrative text relates counted activities to modeled effort.';
+ c.semantic.admission.scenarioBridge='Each activity has an assumed effort rate; this is not observed reality.';
+ c.model.metric.unit='effort units';
+ c.model.choices[0].label='equipment repairs';c.model.choices[0].singular='equipment repair';
+ c.model.choices[1].label='inspection calls';c.model.choices[1].singular='inspection call';
+ c.model.choices[2].label='safety checks';c.model.choices[2].singular='safety check';
+ const p=reasonSemantically(c,{amounts:[1,0,1],budgets:[8]});
+ assert.equal(p.status,'ready',p.reason);
+ const o=expressSemantic(p);
+ assert.equal(o.status,'ready',o.reason);
+ const all=[o.headline,o.experience,o.interpretation,o.proactiveQuestion].join(' ');
+ assert.doesNotMatch(all,/Thoreau|purchase|wage|earnings|working hours|reading lamp/i);
+ assert.match(o.proactiveQuestion,/effort|allocation|activity|choice/i);
+});
+
+test('v1.9.2 B: repeated contact does not create forgiveness or person-specific agency claims',()=>{
+ const c=structuredClone(semanticCases.apology);
+ c.scenario='You may contact an independent selection committee about an application.';
+ c.assumptions=['A request cannot determine the committee selection.'];
+ c.semantic.boundary='No request determines the selection outcome or character of an applicant.';
+ c.semantic.admission.scenarioBridge='Requesting consideration and controlling selection are different matters.';
+ c.model.agency={externalVariable:'selection',own:'whether to contact the committee',external:'the committee selection decision'};
+ c.model.variables={requestSent:{kind:'event',owner:'self'},selection:{kind:'observation',owner:'external'}};
+ c.model.initial=['The committee chooses independently.'];
+ for(const [i,node] of [c.model.nodes.first,c.model.nodes.later].entries()){
+  node.prompt=i?'A response has not arrived.':'How will you proceed?';
+  node.options=[{id:'contact',label:'Contact the committee',action:'Contact the committee',next:i?null:'later',effects:{requestSent:true},commitments:{response:'contact'}},
+   {id:'wait',label:'Wait without contacting',action:'Wait without contacting',next:i?null:'later',commitments:{response:'wait'}}];
+ }
+ const p=reasonSemantically(c,{path:['contact','contact']});
+ assert.equal(p.status,'ready',p.reason);
+ const o=expressSemantic(p);
+ assert.equal(o.status,'ready',o.reason);
+ assert.doesNotMatch([o.headline,o.experience,o.interpretation,o.proactiveQuestion].join(' '),/forgiv|friend|apolog|other person/i);
+ assert.match(o.proactiveQuestion,/committee|selection|request|contact|external/i);
+});
+
+test('v1.9.2 C: stage bottleneck comes from capacities, not identical worker counts',()=>{
+ const c=structuredClone(semanticCases.workshop);
+ c.scenario='Four workers build devices across fabrication and inspection stages; all rates are invented.';
+ c.model.choices[0]={...c.model.choices[0],label:'fabricators',singular:'fabricator'};
+ c.model.choices[1]={...c.model.choices[1],label:'inspectors',singular:'inspector'};
+ c.model.metric.weights=[3,1]; c.model.metric.unit='finished devices'; c.model.metric.singular='finished device';
+ const p=reasonSemantically(c,{amounts:[2,2],budgets:[4]});
+ assert.equal(p.status,'ready',p.reason);
+ const o=expressSemantic(p);
+ assert.equal(o.status,'ready',o.reason);
+ assert.match(o.interpretation+' '+o.proactiveQuestion,/inspectors|inspection/i);
+ assert.doesNotMatch(o.proactiveQuestion,/Smith|booklet|press operator/i);
+ const n=reasonSemantically(c,{amounts:[1,3],budgets:[4]});
+ assert.equal(n.status,'ready',n.reason);
+ const v=expressSemantic(n);
+ assert.equal(v.status,'ready',v.reason);
+ assert.doesNotMatch(v.proactiveQuestion,/thinner stage|equal workers|press operator/i);
+ const dep=structuredClone(c);delete dep.model.comparison;
+ const dp=reasonSemantically(dep,{amounts:[2,2],budgets:[4]});
+ assert.equal(dp.status,'ready',dp.reason);
+ assert.equal(dp.meaning.kind,'dependency');
+ assert.match(expressSemantic(dp).proactiveQuestion,/inspectors|inspection/i);
+});
+
+test('v1.9.2 D: a non-writing repeated schedule cannot invent a story or writing goal',()=>{
+ const c=structuredClone(semanticCases.dillard);
+ c.id='rhythms'; c.author='Editorial Routine Source';c.quote='Repeated intervals shape what gets sustained.';
+ c.source={work:'Illustrative recurrence editorial fixture',url:'https://example.org/editorial-recurrence'};
+ c.scenario='Allocate time among training, visiting family and resting.';
+ c.semantic.admission.sourceUrl=c.source.url;
+ c.semantic.admission.sourceWork=c.source.work;
+ c.semantic.admission.centralClaim='The illustrative passage proposes that repeated routines preserve activity patterns.';
+ c.semantic.admission.scenarioBridge='Five identical imagined evenings model recurrence rather than real behavior.';
+ const names=['training','visiting family','resting'];
+ c.model.choices.forEach((x,i)=>{x.label=names[i];x.readingLabel=names[i]});
+ const p=reasonSemantically(c,{amounts:[0,3,3],budgets:[6],repetitions:5});
+ assert.equal(p.status,'ready',p.reason);
+ const o=expressSemantic(p);assert.equal(o.status,'ready',o.reason);
+ const all=[o.headline,o.experience,o.interpretation,o.proactiveQuestion].join(' ');
+ assert.doesNotMatch(all,/Dillard|writing|story|messages|replies/i);
+ assert.match(o.proactiveQuestion,/train|family|rest|schedule|pattern|routine/i);
+});
+
+test('v1.9.2 E: contradictory source metadata refuses with an explicit reason',()=>{
+ const mismatched=structuredClone(semanticCases.money);
+ mismatched.semantic.admission.centralClaim='The quotation asserts all purchases are categorically immoral.';
+ const denied=reasonSemantically(mismatched,mismatched.initial);
+ assert.equal(denied.status,'incompatible');
+ assert.match(denied.reason,/claim|source|passage|mismatch/i);
+ const incomplete=structuredClone(semanticCases.workshop);
+ incomplete.semantic.admission.requiredPremiseIds.push('premise-never-supplied');
+ const denial=reasonSemantically(incomplete,incomplete.initial);
+ assert.equal(denial.status,'incompatible');
+ assert.match(denial.reason,/premise|admission|missing/i);
+});
