@@ -380,8 +380,8 @@ function meaningBridge(packet){
    // order. Describe that order, never treat a selection as an accomplished act.
    if(first.action===last.action)
     return 'You selected '+first.action+' at both moments; repeating a decision does not confirm that it occurred or determine '+external+'.';
-   return 'Your chosen response shifted from '+first.action+' to '+last.action+
-    '; the sequence records decisions, not confirmed acts or control over '+external+'.';
+   return 'You selected “'+first.action+'” then “'+last.action+
+    '”; neither selection confirms an act or determines '+external+'.';
   }
   case 'assent':
    if(e.changes?.length&&e.position==='withhold')
@@ -460,8 +460,8 @@ function pathQuestion(packet){
    if(!first?.action||!last?.action)return null;
    if(first.action===last.action)
     return 'What does selecting '+first.action+' again clarify about your choices without confirming an act or deciding '+external+'?';
-   return 'What changes when you select '+last.action+' after '+first.action+
-    ', without proving that either choice was carried out or that '+external+' was decided?';
+   return 'How does choosing “'+last.action+'” after “'+first.action+
+    '” alter your decision without determining '+external+'?';
   }
   case 'assent':
    if(e.changes?.length&&e.position==='withhold')
@@ -485,7 +485,8 @@ function pathQuestion(packet){
    }
    const absent=a.activities.filter(x=>x.units===0);
    const present=a.activities.filter(x=>x.units>0);
-   const joining=xs=>xs.map(x=>x.label).join(' and ');
+   const joining=xs=>xs.length<3?xs.map(x=>x.label).join(' and '):
+    xs.slice(0,-1).map(x=>x.label).join(', ')+', and '+xs.at(-1).label;
    const ranked=[...present].sort((x,y)=>y.units-x.units);
    if(absent.length){
     const missing=joining(absent);
@@ -493,8 +494,8 @@ function pathQuestion(packet){
      return 'With '+missing+' absent, what does repeatedly allocating time only to '+
       present[0].label+' sustain or exclude?';
     if(present.every(x=>x.units===present[0].units))
-     return 'With '+missing+' absent while '+joining(present)+
-      ' share time, what does the repeated pattern preserve?';
+     return 'With '+missing+' absent and '+joining(present)+
+      ' sharing time, what does the repeated pattern preserve?';
     return 'With '+missing+' absent and '+ranked[0].label+
      ' receiving the larger share, what does the repeated pattern preserve?';
    }
