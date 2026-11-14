@@ -444,8 +444,9 @@ function pathQuestion(packet){
   case 'information':{
    const ev=e.events||[],first=ev[0]?.intention,late=ev[1]?.intention,last=ev.at(-1)?.intention;
    if(!first||!late||!last)return null;
-   return 'Given '+late.toLowerCase()+', what could '+last.toLowerCase()+
-    ' clarify about '+first.toLowerCase()+' without revealing the other future?';
+   const response=String(ev.at(-1)?.action||'act').replace(/^You\s+/i,'').toLowerCase();
+   return 'Since '+late.toLowerCase()+', how does choosing to '+response+
+    ' change your retrospective understanding?';
   }
   case 'transition':
    if(e.reallocationRequired)return 'Which consequence arose from the new constraint rather than from your preferred allocation?';
