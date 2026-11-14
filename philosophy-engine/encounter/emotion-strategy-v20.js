@@ -9,6 +9,30 @@ const SOURCE_CLAIMS = Object.freeze({
   agency: "Epictetus distinguishes choices and judgments within rational agency from outcomes that depend on others.",
   information: "A life must be lived forward even though an account of it is formed retrospectively, never from outside time."
 });
+/**
+ * v2-only provisional editorial identity ledger: independent of the incoming
+ * meaning/1.2 packet, keyed by its curated source URL. Not scholarly approval.
+ * The legacy reasoning kernel and shared source witness remain untouched.
+ */
+const SOURCE_IDENTITIES = Object.freeze({
+  "https://www.dltn.io/posts/annie-dillard-keep-a-daily-routine":
+    Object.freeze({author:"Annie Dillard",kind:"repetition"}),
+  "https://barryfvaughan.org/text/philtext/epictetus/enchiridion.html":
+    Object.freeze({author:"Epictetus",kind:"agency"}),
+  "https://homepage.divms.uiowa.edu/~jorgen/kierkegaardquotesource.html":
+    Object.freeze({author:"Søren Kierkegaard",kind:"information"})
+});
+const PILOT_ACTIVITY_LABELS=Object.freeze([
+ "writing your story","answering messages","resting and recharging"
+]);
+export function isCuratedEveningPilot(x){
+ const e=x?.grounded;
+ return x?.kind==="repetition" && e?.period==="evening" &&
+  e?.periodPlural==="evenings" &&
+  Array.isArray(e.cumulative) && e.cumulative.length===PILOT_ACTIVITY_LABELS.length &&
+  e.cumulative.every((v,i)=>v.label===PILOT_ACTIVITY_LABELS[i]);
+}
+
 export const V20_WORD_POLICY = Object.freeze({
   total: {min:80,max:120},
   sections: [{min:10,max:48},{min:18,max:65},{min:9,max:26}],
@@ -31,6 +55,10 @@ export function adaptEncounterEvidence(packet) {
       !Array.isArray(packet.limitations) || !packet.limitations.length ||
       !e || typeof e !== "object")
     return {status:"incompatible",reason:"Missing or incompatible provisional editorial/source contract."};
+  const identity=SOURCE_IDENTITIES[source.sourceUrl];
+  if(!identity || identity.kind!==kind || packet.author!==identity.author ||
+      typeof packet.author!=="string" || !packet.author.trim())
+    return {status:"incompatible",reason:"Author does not match the provisional source-linked editorial identity."};
   if (traceSourcePassage(source,packet.quote).status!=="curated_passage_match")
     return {status:"incompatible",reason:"Displayed quotation no longer matches the curated source witness."};
   if (kind==="repetition" && (!Array.isArray(e.cumulative) || e.cumulative.length<2 ||
@@ -104,6 +132,12 @@ function opportunities(x) {
     evidence_ids:["meaning:central","choice:0","source:central"]
   });
   if(x.kind==="repetition"){
+    if(!isCuratedEveningPilot(x)){
+      // Never project curated writing/rest/evening rhetoric onto a generic
+      // meaning/1.2 recurrence. Actual labels and period drive its copy.
+      add("repetition-evidence-only","contemplative","grounded_allocation",true,14);
+      return c;
+    }
     add("schedule-booked","playful","calendar_image",full && total>0 && writing===total && rest===0,15);
     add("full-evening-image","contemplative","repeated_page",full && total>0 && writing===total,13);
     add("rest-is-part-of-day","warm","gentle_reversal",full && total>0 && rest===total,15);
