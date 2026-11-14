@@ -68,7 +68,7 @@ const sourceAdmissions={
   allowedClaimKinds:['agency']},
  descartes:{premiseIds:['ordinary_documentary_evidence_not_certainty'],
   centralClaim:'Descartes cautions against assent that exceeds what is clearly and distinctly understood.',
-  scenarioBridge:'Ordinary archival evidence illustrates assent but does not establish clear-and-distinct knowledge.',
+  scenarioBridge:'Ordinary archival evidence may prompt assent but is not Cartesian certainty.',
   allowedClaimKinds:['assent']},
  dillard:{premiseIds:['repeated_schedule_hypothetical'],
   centralClaim:'Dillard draws attention to the way the arrangement of days accumulates into a life.',
