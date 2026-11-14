@@ -141,3 +141,89 @@ test("CZ-127 RED editorial: later-route knowledge reads as grammatical plain Eng
   assert.doesNotMatch(out.sections[1].text,/only becomes known after the first decision/);
  }
 });
+
+test("CZ-127 corrective RED: partial slot allocation never becomes whole available evening",()=>{
+ const cases=[
+  {amounts:[2,0,0],allocated:2,unused:4,hours:"1 hour",unallocated:"2 hours",expect:"writing"},
+  {amounts:[0,0,3],allocated:3,unused:3,hours:"1.5 hours",unallocated:"1.5 hours",expect:"rest"},
+  {amounts:[0,0,0],allocated:0,unused:6,hours:"3 hours",unallocated:"3 hours",expect:"none"},
+  {amounts:[6,0,0],allocated:6,unused:0,hours:"3 hours",unallocated:null,expect:"writing"}
+ ];
+ for(const c of cases){
+  const packet=reasonSemantically(semanticCases.dillard,{amounts:c.amounts,budgets:[6],repetitions:5});
+  assert.equal(packet.status,"ready",JSON.stringify(c));
+  const e=packet.meaning.evidence;
+  assert.equal(e.perIntervalCapacity,6);
+  assert.equal(e.perIntervalAllocated,c.allocated);
+  assert.equal(e.perIntervalUnallocated,c.unused);
+  const a=adaptEncounterEvidence(packet);
+  assert.equal(a.status,"ready");
+  assert.equal(a.allocation.per_interval_available_slots,6);
+  assert.equal(a.allocation.per_interval_allocated_slots,c.allocated);
+  assert.equal(a.allocation.per_interval_unallocated_slots,c.unused);
+  assert.equal(a.allocation.total_available_slots,30);
+  const brief=selectEmotionStrategy(packet),output=renderEncounterV20(packet);
+  assert.equal(output.status,"ready",JSON.stringify(output));
+  assert.match(output.sections[0].text,new RegExp(c.unallocated?"unallocated":"all three hours","i"));
+  if(c.unallocated){
+   assert.match(output.sections[0].text,new RegExp(c.unallocated.replace(".","\\.")));
+   assert.doesNotMatch(output.sections.slice(1).map(s=>s.text).join(" "),/whole evening|whole timetable|entire evening|fills the modeled block|all of the available time/i);
+   assert.notEqual(brief.rhetorical_angle.id,"schedule-booked");
+   assert.notEqual(brief.rhetorical_angle.id,"rest-is-part-of-day");
+  } else {
+   assert.equal(brief.rhetorical_angle.id,"schedule-booked");
+  }
+  assert.match(output.sections[0].text,/imagined/i);
+ }
+});
+test("CZ-127 corrective RED: author identity and provenance changes invalidate READY",()=>{
+ const packet=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ const original=renderEncounterV20(packet);
+ assert.equal(original.status,"ready");
+ for(const [field,value] of [
+  ["author","Another Philosopher"],["quote","Invented source"],["source_url","https://invalid.example/source"],
+  ["source_warrant","Different supposed warrant"],["source_review","independently_verified"]
+ ]){
+  const altered=structuredClone(original);altered[field]=value;
+  assert.doesNotThrow(()=>validateEncounterV20(packet,altered),field);
+  assert.equal(validateEncounterV20(packet,altered).status,"needs_editorial_review",field);
+ }
+});
+test("CZ-127 corrective RED: malformed strategy brief never throws; returns editorial-review",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ const original=renderEncounterV20(p);assert.equal(original.status,"ready");
+ const defects=[
+  {title:"missing entire brief",change:x=>delete x.brief},
+  {title:"null",change:x=>x.brief=null},
+  {title:"string",change:x=>x.brief="playful"},
+  {title:"empty object",change:x=>x.brief={}},
+  {title:"missing evidence list",change:x=>delete x.brief.grounded_evidence_ids},
+  {title:"null evidence list",change:x=>x.brief.grounded_evidence_ids=null},
+  {title:"wrong evidence list type",change:x=>x.brief.grounded_evidence_ids="meaning:central"},
+  {title:"null rhetorical angle",change:x=>x.brief.rhetorical_angle=null},
+  {title:"null selection trace",change:x=>x.brief.selection_trace=null},
+  {title:"missing prohibited claims",change:x=>delete x.brief.prohibited_claims},
+  {title:"typed strategy object",change:x=>x.brief.strategy={id:"playful"}},
+  {title:"incorrect evidence entry",change:x=>x.brief.grounded_evidence_ids=[15]},
+  {title:"missing source warrant",change:x=>delete x.brief.source_warrant_id}
+ ];
+ for(const d of defects){
+  const altered=structuredClone(original);d.change(altered);
+  assert.doesNotThrow(()=>validateEncounterV20(p,altered),d.title);
+  assert.equal(validateEncounterV20(p,altered).status,"needs_editorial_review",d.title);
+ }
+});
+test("CZ-127 corrective RED: endings do not narrate a ledger back to the reader",()=>{
+ const paths=[
+  ["dillard",{amounts:[0,0,6],budgets:[6],repetitions:5}],
+  ["dillard",{amounts:[3,1,2],budgets:[6],repetitions:5}],
+  ["apology",{path:["space","space"]}],
+  ["kierkegaard",{path:["stay","missed","reflect"]}]
+ ];
+ for(const [k,input] of paths){
+  const out=encounterV20(semanticCases[k],input);
+  assert.equal(out.status,"ready",k);
+  const ending=out.sections[2].text;
+  assert.doesNotMatch(ending,/selected response|entire timetable|gets another page|you cannot visit the future/i,k+": "+ending);
+ }
+});
