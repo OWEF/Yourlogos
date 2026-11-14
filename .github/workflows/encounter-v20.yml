@@ -1,0 +1,44 @@
+name: CZ-127 Encounter v2.0 isolated proof
+on:
+  pull_request:
+    paths:
+      - "philosophy-engine/encounter/encounter-v20.js"
+      - "philosophy-engine/encounter/emotion-strategy-v20.js"
+      - "scripts/build-encounter-v20.mjs"
+      - "tests/encounter-v20*"
+      - ".github/workflows/encounter-v20.yml"
+      - "docs/encounter-v20-*"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  encounter-v20-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Exact-source proof and original 108-test regression suite
+        run: |
+          node --check philosophy-engine/encounter/emotion-strategy-v20.js
+          node --check philosophy-engine/encounter/encounter-v20.js
+          node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs tests/kernel-v11.test.mjs tests/semantic-v12.test.mjs tests/semantic-v18-holdout.test.mjs tests/semantic-v19-transition.test.mjs tests/semantic-v19-transfer.test.mjs tests/semantic-v19-admission.test.mjs tests/semantic-v19-expression.test.mjs tests/semantic-v19-smith-source.test.mjs tests/semantic-v19-frozen-holdout.test.mjs tests/semantic-v19-reasoning-lane.test.mjs tests/cz13-acceptance-matrix.test.mjs tests/encounter-v20.test.mjs
+          node scripts/build-encounter-v1.mjs --check
+          node scripts/build-encounter-v20.mjs
+          node scripts/build-encounter-v20.mjs --check
+      - name: Install Chromium test dependency
+        run: npm install --no-save --package-lock=false playwright-core@1.56.1
+      - name: Mobile browser research journeys
+        run: |
+          node tests/encounter-v20-browser.mjs
+          node tests/encounter-v1-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cz127-encounter-v20-proof
+          path: |
+            experiments/encounter-v20-proof.html
+            design-review/encounter-v20-comparison.json
+          if-no-files-found: warn
