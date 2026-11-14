@@ -109,8 +109,8 @@ Exact full text, original baseline text and structured traces are generated into
 | Dillard [3,1,2] ×5 | 110 | 105 | contemplative | One evening holds several different things. Repeat it, and each gets another page. |
 | Epictetus offer→space | 93 | 104 | provocative | You can offer the apology. You cannot reach over and write the other person's answer. |
 | Epictetus space→space | 113 | 102 | warm | Giving space is a selected response. The other person's reply is still their own. |
-| Kierkegaard move→hard hours→continue | 114 | 115 | contemplative | The hard hours entered the story after the decision. The other path remains unread. |
-| Kierkegaard stay→wonder→reflect | 116 | 115 | provocative | You can revisit the choice. You cannot visit the future you never chose. |
+| Kierkegaard move→hard hours→continue | 114 | 113 | contemplative | The hard hours entered the story after the decision. The other path remains unread. |
+| Kierkegaard stay→wonder→reflect | 116 | 113 | provocative | You can revisit the choice. You cannot visit the future you never chose. |
 
 These descriptions are candidate copy, NOT founder-approved golds, and their emotional effects have not been validated with humans. Some endings remain safe but predictable, and v2 does not substantially reduce word count relative to 80–120. This is a serious editorial product gap even when automated tests pass.
 
@@ -119,7 +119,7 @@ These descriptions are candidate copy, NOT founder-approved golds, and their emo
 1. Forged quotation and missing contrasting eligible tone on same Dillard full-writing path: committed two failing independent assertions after the first implementation. RED workflow for commit 25c7e4bb7c4be7e25d5776fcad10565e7e38a59a: 116/118 passed, two failed. Subsequent source-witness revalidation and alternative contemplative angle restored green.
 2. Unsafe final-line insertion with retained evidence IDs and swapped creative brief: RED commit a5b8f68f49d0453546342bca917e5bc0f30e2314; 118/120 passed, two failed. Corrected by validating the exact composer output and recomputing the deterministic creative brief. These are test-authored negative reproductions, NOT unseen independent holdouts.
 
-No legacy source, kernel, witness registry or v1.9.6 test was weakened to make either pass. Final exact-SHA green results are to be verified in PR #176 workflow following the last source/document commit.
+3. Full generated-text editorial review caught an ungrammatical Kierkegaard sentence in Section II on both tested paths. RED commit 0f90948ce61e1e30b68882eaa4c4452dcaa36ab4: 120/121 passed, one failed. Shared grammatical repair then passed. This is a readability correction, not a change to philosophical evidence or the source claim.\n\nNo legacy source, kernel, witness registry or v1.9.6 test was weakened to make these tests pass. Final exact-SHA green results are to be verified in PR #176 workflow following the last source/document commit.
 
 Reproduce locally in a checkout of the PR branch:
 
