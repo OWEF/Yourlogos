@@ -16,7 +16,7 @@ export const semanticSources={
   semantic:{concepts:['one evening','a repeated schedule'],
    relation:'a hypothetical pattern of daily allocations accumulates across days without proving a person’s actual habits',
    selection:{central:['repetition'],secondaryObservations:[],alternatives:[],purpose:'Understand how repeated days can shape a life'},
-   boundary:'The repeated schedule is imagined, not a record of your life or a ranking of activities.'}
+   boundary:'This modeled allocation does not rank any activity as inherently better than another.'}
  },
  kierkegaard:{
   id:'kierkegaard',author:kierkegaardSpec.author,
