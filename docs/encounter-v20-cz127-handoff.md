@@ -156,3 +156,61 @@ No subscriptions or model inference; deterministic JavaScript. No database chang
 Implementation caveat: this is a bounded seven-path **isolated research proof**, not a replacement for the full three-stage interactive production Encounter. It uses the old source admission and an explicitly small curated rhetorical opportunity set. It cannot generalize humor quality, solve original-source scholarship, establish human enjoyment, or certify actual iPhone accessibility. Future UI integration, expanded Atlas publication and shorter word policy each need separate review and approval.
 
 Implementation verdict: PARTIAL overall / isolated engineering proof ready for independent candidate review IF exact final CI is green. Production: NOT AUTHORIZED.
+
+
+---
+
+## 9. CZ-127 P0 independent QA corrective round — v2-only, exact-case boundary
+
+**Original QA reference:** `7e94d38cc0b4d86f803b58aec410e4710ca43587` (initial proof). All corrective changes remain stacked in draft PR #176 and DO NOT change `reasoning-kernel-v11.js`, `semantic-reasoning-v12.js`, `semantic-cases-v12.js`, the original 80–120 word limit or production application state.
+
+### 9.1 RED-first defects and fixes
+
+- RED `71f7086454593135c244aa0ad47fb2c95cd6b009`: **121 passed / 4 failed** of 125 Node assertions. The four deliberate failing test groups were (1) available versus allocated slots, (2) forged output author, (3) null/malformed strategy-brief exceptions, (4) descriptive, emotionally flat endings.
+- **Important frozen contract:** the original Dillard scenario uses `type:"exact"` for its six half-hour slots. The original kernel correctly rejects [2,0,0], [0,0,3], [0,0,0] with budgets [6]. A new v2-only `withPartialScheduleCapacity()` returns a fresh cloned scenario using the existing kernel's supported `type:"cap"`, without modifying or weakening the original context. Original strict scenario remains strict.
+- In the v2 evidence adapter, explicit fields `allocation.per_interval_available_slots`, `allocation.per_interval_allocated_slots`, `allocation.per_interval_unallocated_slots`, and corresponding total slots distinguish the scenario's full allowance from assigned uses. All three amounts must reconcile across recurrence, arithmetic and the unchanged kernel's `structure`; inconsistent packets are rejected.
+- The deterministic strategy policy now gates whole-evening metaphors on `totalAllocated === totalCapacity`, with separate partial-writing, partial-rest and zero-allocation angles; unallocated does not imply any particular hidden activity.
+- The output validator requires exact author match together with quote/source URL/warrant/provisional review status. All nested fields of the Emotion Strategy creative brief are type-checked before any evidence-ID lookup; missing/null/typed-wrong data is declined with `needs_editorial_review`, never a TypeError.
+- Sections II/III were rewritten for a more legible source-grounded explanation and distinct closing images. All outputs continue to be bounded to three sections and the frozen word policy; free-form input or model-generated copy is not introduced.
+
+### 9.2 Four-capacity numerical regressions (five **imagined** evenings)
+
+| Allocation (slots per evening) | Available / allocated / free each evening | Hours each evening | Five-evening totals | Valid ending class |
+| --- | --- | --- | --- | --- |
+| [2,0,0] | 6 / 2 / 4 | 1h writing, 2h unallocated | 5h writing; 10h unallocated | partial-writing-window (not whole evening) |
+| [0,0,3] | 6 / 3 / 3 | 1.5h rest, 1.5h unallocated | 7.5h rest; 7.5h unallocated | partial-rest-window (not whole timetable) |
+| [0,0,0] | 6 / 0 / 6 | 3h unallocated | 15h unallocated | repetition-neutral |
+| [6,0,0] | 6 / 6 / 0 | 3h writing, 0h unallocated | 15h writing | schedule-booked full-evening control |
+
+For each partial example, genuine original v1.9.6 output is **NOT APPLICABLE**, rather than being silently generated under a different original scenario. The v1.9.6 seven-path baseline comparison remains exact and unchanged. The generated comparison archive includes eleven full paths: seven original + four capacity tests.
+
+### 9.3 Editorial alternative catalogue — NOT production strings
+
+These are bounded **candidate closing-line alternatives**, not added runtime claims or interchangeable style labels. Each is paired with the same path-specific hypothetical evidence, a provisional source warrant and its intended (not proven) emotional effect. Word counts use the existing whitespace-separated word counter. An independent editor must evaluate accuracy and genuine reader impact.
+
+| Path / option | Proposed tone | Words | Evidence IDs | Intended effect | Candidate last line |
+| --- | --- | ---: | --- | --- | --- |
+| Dillard: full writing · 1 | playful | 17 | `meaning:central, choice:0, source:central` | Understated calendar humor | “Five evenings, one standing appointment: your story. The imaginary calendar might as well come with a bookmark.” |
+| Dillard: full writing · 2 | playful | 20 | `meaning:central, choice:0, source:central` | Absurd but bounded reservation metaphor | “Your story has booked every seat at the evening table. Across five imagined nights, even the clock knows the plot.” |
+| Dillard: full rest · 1 | warm | 17 | `meaning:central, choice:0, source:central` | Rest as an activity rather than a deficit | “For once, rest isn't squeezed into the margins. In this imagined evening, it gets the whole page.” |
+| Dillard: full rest · 2 | warm | 17 | `meaning:central, choice:0, source:central` | Quiet worth without diagnosing motivation | “A whole evening of rest is still an evening with a shape. It doesn't need a punchline.” |
+| Dillard: balanced · 1 | contemplative | 18 | `meaning:central, choice:0, source:central` | The plurality of time uses becomes image | “Writing, messages, and rest share the imaginary evening. No single one can claim to be the whole story.” |
+| Dillard: balanced · 2 | playful | 17 | `meaning:central, choice:0, source:central` | Everyday ensemble rather than heroic winner | “No star of the show tonight: writing, messages, and rest all have lines in this imaginary scene.” |
+| Epictetus: space without apology · 1 | warm | 18 | `meaning:central, choice:0, source:central` | Silence is not a verdict on another person | “The empty line is not an ending. In this imagined exchange, the other person still owns their reply.” |
+| Epictetus: space without apology · 2 | provocative | 18 | `meaning:central, choice:0, source:central` | Selected restraint cannot determine another's understanding | “You can choose not to send another message. You can't choose what the silence means to someone else.” |
+| Kierkegaard: move, harder hours · 1 | contemplative | 21 | `meaning:central, choice:0, imagined:0, source:central` | Future cannot provide advance spoilers | “The hard hours show up after the choice. It is a little late for the job offer to include a spoiler.” |
+| Kierkegaard: move, harder hours · 2 | contemplative | 18 | `meaning:central, choice:0, imagined:0, source:central` | Separates chosen lived route from unknowable other route | “The job gave you harder hours after you arrived. The route you didn't take still has no timetable.” |
+| Kierkegaard: stay, wonder · 1 | provocative | 19 | `meaning:central, choice:0, imagined:0, source:central` | Unlived alternatives escape ordinary friction | “The road not taken has no potholes in this story. That is not evidence it would have been smoother.” |
+| Kierkegaard: stay, wonder · 2 | contemplative | 18 | `meaning:central, choice:0, imagined:0, source:central` | Unwritten chapter versus later interpretation | “You can keep rereading the offer. The unchosen job will never send this imaginary story a progress report.” |
+
+The educational sections still derive from the curated source admission and retain explicit hypothetical boundaries; these closing-line alternatives **cannot be promoted by substituting them into the output** without updating the bounded composer and rerunning source/word tests. Human response, novelty and retention have not been demonstrated.
+
+### 9.4 Actual seven-path before/after and expanded proof
+
+The canonical 11-path full-text output, exact v1.9.6 baseline where supported, each v2 Section I/II/III, individual word counts, selected strategy, selection_trace, grounded evidence IDs and provisional source status are in the *source-generated* `design-review/encounter-v20-comparison.json`, committed with the matching `experiments/encounter-v20-proof.html`. `scripts/build-encounter-v20.mjs --check` must pass **before** any rebuild in CI, detecting stale checked-in artifacts. Browser checks cover all eleven path choices at four viewports (44 journeys) plus original Encounter browser regression. Run `node scripts/build-encounter-v20.mjs --check` and the existing test commands from section 6.
+
+**Internal editorial observations:** Dillard's new payoff is more concrete and shorter; rest has no insinuation of laziness; Epictetus's silence is not treated as accomplished communication or proof of forgiveness; Kierkegaard's late information is distinguished from counterfactual fact. The still finite curated angles can become predictable across more unseen inputs and are not a generalized emotional storytelling system. Some messages still spend substantial words explaining model boundaries, so founder-led acceptance of a future shorter (suggested 60–95 words) editorial policy should be a separate versioned decision, not a silent replacement.
+
+**Next gate:** CZ-123 independent reviewer must run fresh unseen tests, read the actual 11-path HTML/JSON, assess all source claims and character/agency boundaries, and issue a separate PASS/FAIL. CZ-121 scholarly source confirmation, CZ-125 genuine novice readers + 24-hour recall, CZ-126 physical Safari/VoiceOver and founder approval remain **UNVERIFIED**.
+
+**Release:** DRAFT / NO MERGE / NO DEPLOY / NO DATABASE OR USER-DATA CHANGE / NO PAID INFERENCE.
