@@ -375,7 +375,7 @@ function meaningBridge(packet){
     return 'An earlier action stays performed even if the next decision changes; '+external+' remains external.';
    if(acted(first))return 'Repeating your action still cannot determine '+external+'.';
    if(acted(last))return 'The later action changes your conduct, but not '+external+'.';
-   return 'Waiting is an available choice without determining '+external+'.';
+   return 'The recorded choices do not establish control over '+external+'.';
   }
   case 'assent':
    if(e.changes?.length&&e.position==='withhold')
@@ -451,7 +451,7 @@ function pathQuestion(packet){
     return 'What can your later action change without undoing the one already performed?';
    if(acted(last))
     return 'How does acting now differ from earlier restraint while '+external+' remains independent?';
-   return 'Can choosing to wait exercise agency without determining '+external+'?';
+   return 'What remains yours to choose without deciding '+external+'?';
   }
   case 'assent':
    if(e.changes?.length&&e.position==='withhold')
