@@ -24,6 +24,7 @@ const count=s=>s.trim().split(/\s+/).filter(Boolean).length;
 const fHours=n=>Number(n.toPrecision(12))+" "+(Number(n.toPrecision(12))===1?"hour":"hours");
 const clean=x=>String(x||"").replace(/[.!?]+$/,"");
 const lower=x=>x?x[0].toLowerCase()+x.slice(1):"";
+const capitalize=x=>x?x[0].toUpperCase()+x.slice(1):"";
 const toAction=s=>clean(String(s||"").replace(/^You\s+/i,""));
 
 function choiceText(x){
@@ -119,9 +120,9 @@ function lastThing(x,brief){
    if(!active.length)return "These imagined "+periods+
      " leave all the modeled time open. An empty allocation is not an empty life.";
    if(active.length===1)return e.totalUnallocated>0?
-     active[0].label+" has a recurring place in these imagined "+periods+
+     capitalize(active[0].label)+" has a recurring place in these imagined "+periods+
        ". The open hours remain unwritten.":
-     active[0].label+" takes the modeled time in these imagined "+periods+
+     capitalize(active[0].label)+" takes the modeled time in these imagined "+periods+
        ". That is one arrangement, not a whole life.";
    return "These imagined "+periods+
     " hold several commitments. Their arrangement is a pattern, not a verdict on anyone's life.";
