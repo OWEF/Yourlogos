@@ -324,7 +324,9 @@ function meaningExperience(packet,m,compact=false){
  }
  if(m.kind==='specialization_effect'){
   const quantity=n=>n+' '+(n===1?(e.singular||'unit'):(e.unit||'units'));
-  const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
+  const assigned=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label));
+  const roles=assigned.length<3?assigned.join(' and '):
+   assigned.slice(0,-1).join(', ')+', and '+assigned.at(-1);
   return 'Your assignment: '+roles+'. The invented rotating-team baseline produces '+quantity(e.baseline)+
    '; your split produces '+quantity(e.specialized)+'. Rates are hypothetical, not historical evidence.';
 
@@ -507,10 +509,13 @@ function pathQuestion(packet){
    const limiting=a.limiting.map(s=>s.label).join(' and ');
    if(a.minimum===0)
     return 'What change could restore the missing contribution from '+limiting+' to the joint process?';
-   if(!a.allEqual)
-    return 'How might changing '+limiting+' capacity affect joint output without proving historical productivity gains?';
-   if(e.delta<=0)
-    return 'What might establish gains from specializing these equally supplied stages?';
+   if(!a.allEqual){
+    if(e.delta<0)return 'Could increasing '+limiting+' capacity reverse this modeled production loss?';
+    if(e.delta===0)return 'With no gain, could increasing '+limiting+' capacity make a difference?';
+    return 'Could increasing '+limiting+' capacity yield more completed modeled output?';
+   }
+   if(e.delta<0)return 'Why does this arrangement produce fewer modeled units?';
+   if(e.delta===0)return 'With equal modeled output, what further evidence could show a gain?';
    return 'Does this modeled gain establish why productivity increased, or only that output was greater?';
   }
   case 'agency':{
