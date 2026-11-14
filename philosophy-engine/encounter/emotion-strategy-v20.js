@@ -37,10 +37,19 @@ export function adaptEncounterEvidence(packet) {
       !e.cumulative.every(x=>x && typeof x.label==="string" && Number.isSafeInteger(x.units) && x.units>=0) ||
       !Number.isSafeInteger(e.repetitions) || e.repetitions<2 ||
       !Number.isFinite(e.unitHours) || e.unitHours<=0 ||
-      !Number.isSafeInteger(e.totalAllocated) || !Number.isSafeInteger(e.totalUnallocated) ||
+      !["perIntervalCapacity","perIntervalAllocated","perIntervalUnallocated",
+         "totalCapacity","totalAllocated","totalUnallocated"].every(k=>Number.isSafeInteger(e[k])&&e[k]>=0) ||
       e.totalAllocated!==e.cumulative.reduce((n,x)=>n+x.units,0) ||
-      e.totalAllocated+e.totalUnallocated!==e.totalCapacity))
-    return {status:"incompatible",reason:"Invalid modeled recurrence evidence."};
+      e.perIntervalCapacity!==e.perIntervalAllocated+e.perIntervalUnallocated ||
+      e.totalCapacity!==e.totalAllocated+e.totalUnallocated ||
+      e.totalCapacity!==e.perIntervalCapacity*e.repetitions ||
+      e.totalAllocated!==e.perIntervalAllocated*e.repetitions ||
+      e.totalUnallocated!==e.perIntervalUnallocated*e.repetitions ||
+      !Number.isSafeInteger(e.perIntervalCapacity*e.repetitions) ||
+      packet.structure?.budgets?.[0]!==e.perIntervalCapacity ||
+      packet.structure?.spent?.[0]!==e.perIntervalAllocated ||
+      packet.structure?.slack?.[0]!==e.perIntervalUnallocated))
+    return {status:"incompatible",reason:"Invalid modeled recurrence: available, allocated and unallocated slots must reconcile."};
   if (kind==="agency" && (!Array.isArray(e.events) || e.events.length<2 ||
       !e.events.every(x=>typeof x.action==="string" && x.occurred && typeof x.occurred==="object") ||
       typeof e.external!=="string" || !e.external))
@@ -66,6 +75,16 @@ export function adaptEncounterEvidence(packet) {
     quote:packet.quote,author:packet.author,source:copy(packet.source),
     warrant_id:"source:central",evidence:atoms,selected_choices:copy(packet.selectedChoices),
     grounded:copy(e),limitations:[...packet.limitations],
+    ...(kind==="repetition"?{allocation:{
+      per_interval_available_slots:e.perIntervalCapacity,
+      per_interval_allocated_slots:e.perIntervalAllocated,
+      per_interval_unallocated_slots:e.perIntervalUnallocated,
+      total_available_slots:e.totalCapacity,
+      total_allocated_slots:e.totalAllocated,
+      total_unallocated_slots:e.totalUnallocated,
+      unit_hours:e.unitHours,
+      imagined_repetitions:e.repetitions
+    }}:{}),
     source_verification:"provisional_not_scholarly_verified",
     prohibited_claims:["actual_user_history","user_emotion_or_motive","guaranteed_outcome","actual_friend_response","unchosen_future_as_fact"],
     tension_id:"meaning:"+kind
@@ -76,7 +95,8 @@ function opportunities(x) {
   const e=x.grounded,c=[];
   const offer=e.events?.some(v=>v.occurred?.apologyOffered===true);
   const initialOffer=e.events?.[0]?.occurred?.apologyOffered===true;
-  const total=e.totalAllocated;
+  const total=e.totalAllocated,available=e.totalCapacity;
+  const full=total===available,partial=total<available;
   const writing=e.cumulative?.[0]?.units,rest=e.cumulative?.[2]?.units;
   const add=(id,strategy,operator,applicable,score)=>c.push({
     id,strategy,operator,applicable,score,
@@ -84,12 +104,16 @@ function opportunities(x) {
     evidence_ids:["meaning:central","choice:0","source:central"]
   });
   if(x.kind==="repetition"){
-    add("schedule-booked","playful","calendar_image",total>0 && writing===total && rest===0,15);
-    add("full-evening-image","contemplative","repeated_page",total>0 && writing===total,13);
-    add("rest-is-part-of-day","warm","gentle_reversal",total>0 && rest===total,15);
-    add("full-but-no-writing","warm","absence_contrast",total>0 && writing===0 && rest!==total,15);
-    add("shared-calendar","contemplative","coexisting_uses",writing>0 && writing<total,13);
-    add("repetition-neutral","contemplative","quiet_pattern",total===0,12);
+    add("schedule-booked","playful","calendar_image",full && total>0 && writing===total && rest===0,15);
+    add("full-evening-image","contemplative","repeated_page",full && total>0 && writing===total,13);
+    add("rest-is-part-of-day","warm","gentle_reversal",full && total>0 && rest===total,15);
+    add("full-but-no-writing","warm","absence_contrast",full && total>0 && writing===0 && rest!==total,15);
+    add("shared-calendar","contemplative","coexisting_uses",full && writing>0 && writing<total,13);
+    add("partial-writing-window","contemplative","bounded_open_time",partial && writing>0 && writing===total,15);
+    add("partial-rest-window","warm","rest_with_open_time",partial && rest>0 && rest===total,15);
+    add("partial-shared-window","contemplative","partial_timetable",partial && total>0 && writing>0 && writing<total,13);
+    add("partial-other-window","contemplative","unclaimed_capacity",partial && total>0 && writing===0 && rest===0,12);
+    add("repetition-neutral","contemplative","quiet_pattern",total===0,15);
   }else if(x.kind==="agency"){
     add("apology-not-reply","provocative","agency_reversal",initialOffer,15);
     add("space-not-outcome","warm","unwritten_answer",!offer,15);
