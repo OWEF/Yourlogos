@@ -217,3 +217,25 @@ test('v1.9.2 editorial RED: repeated schedules exclude absent activities without
  assert.doesNotMatch(text,/gives its selected activities a regular place/i);
  assert.match(text,/including omissions|absent|excluded|not assigned|no place/i);
 });
+
+
+test('v1.9.2 adversarial agency: missing event effects do not imply that chosen actions were waiting',()=>{
+ const c=structuredClone(semanticCases.apology);
+ c.scenario='Two active steps in an application process; neither step guarantees selection.';
+ c.semantic.boundary='The applicant’s selected activities cannot determine an independent selection decision.';
+ c.semantic.admission.scenarioBridge='The chosen acts and the committee’s decision have different owners.';
+ c.model.agency={externalVariable:'selection',own:'attend and submit',external:'the independent selection decision'};
+ c.model.variables={selection:{kind:'observation',owner:'external'}};
+ c.model.initial=['The committee selects independently.'];
+ for(const node of Object.values(c.model.nodes)){
+  for(const opt of node.options){
+   opt.label=opt.id==='offer'?'Attend the hearing':'Submit supporting documents';
+   opt.action=opt.label; delete opt.effects;
+  }
+ }
+ const packet=reasonSemantically(c,{path:['offer','space']});
+ assert.equal(packet.status,'ready',packet.reason);
+ const out=expressSemantic(packet);assert.equal(out.status,'ready',out.reason);
+ assert.doesNotMatch(out.interpretation+' '+out.proactiveQuestion,/\bwaiting\b|\bchoosing to wait\b/i);
+ assert.match(out.interpretation+' '+out.proactiveQuestion,/decision|agency|external|independent/i);
+});
