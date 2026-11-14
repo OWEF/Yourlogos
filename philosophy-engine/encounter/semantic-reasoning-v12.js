@@ -147,12 +147,32 @@ export function reasonSemantically(context,input){
    if(!Number.isSafeInteger(input.repetitions)||input.repetitions<2||input.repetitions>1000)return reject('Invalid repetition horizon.');
    if(context.model.unitHours!==undefined&&(!Number.isFinite(context.model.unitHours)||context.model.unitHours<=0))
     return reject('The scenario has an invalid time conversion.');
+   if(context.model.resources?.length!==1||choices.some(c=>c.cost?.length!==1||c.cost[0]!==1))
+    return reject('Repetition requires one shared time-slot resource with unit-cost activities.');
+   // Interval identity belongs to the scenario model, never its philosopher/quote.
+   const periods={evening:'evenings',morning:'mornings',afternoon:'afternoons',week:'weeks',
+    day:'days',session:'sessions',month:'months',night:'nights',shift:'shifts',
+    cycle:'cycles',block:'blocks',weekday:'weekdays',weekend:'weekends'};
+   const period=context.model.repetitionPeriod??null;
+   if(period!==null&&(!Object.hasOwn(periods,period)||typeof period!=='string'))
+    return reject('Invalid repetition period.');
    const cumulative=choices.map((c,i)=>({label:c.readingLabel||c.label,units:input.amounts[i]*input.repetitions}));
+   const perIntervalCapacity=structure.budgets[0],perIntervalAllocated=structure.spent[0],
+    perIntervalUnallocated=structure.slack[0];
+   const safe=[perIntervalCapacity,perIntervalAllocated,perIntervalUnallocated,
+    ...cumulative.map(c=>c.units),perIntervalCapacity*input.repetitions,
+    perIntervalAllocated*input.repetitions,perIntervalUnallocated*input.repetitions];
+   if(!safe.every(Number.isSafeInteger))return reject('Repetition capacity exceeds safe integer bounds.');
    const slots=context.model.unitLabel||'resource units';
-   add('repetition','If this exact arrangement were repeated '+input.repetitions+' times, it would reserve '+
-    cumulative.map(c=>c.units+' '+slots+' for '+c.label).join(', ')+
-    '. This is a conditional pattern, not evidence that you will adopt it.', 'conditional',
-    {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions,unitHours:context.model.unitHours||null});
+   add('repetition','If this arrangement were repeated '+input.repetitions+' times, it would assign '+
+    cumulative.map(c=>c.units+' '+slots+' to '+c.label).join(', ')+
+    ', with '+perIntervalUnallocated*input.repetitions+' '+slots+' unallocated. This remains hypothetical.', 'conditional',
+    {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions,
+     period,periodPlural:period===null?'cycles':periods[period],unitLabel:slots,
+     unitHours:context.model.unitHours||null,perIntervalCapacity,perIntervalAllocated,
+     perIntervalUnallocated,totalCapacity:perIntervalCapacity*input.repetitions,
+     totalAllocated:perIntervalAllocated*input.repetitions,
+     totalUnallocated:perIntervalUnallocated*input.repetitions});
   }
   const better=context.model.metric?.op==='minimum'?structure.alternatives.find(a=>a.delta>0):null;
   if(better)add('complementarity',`Reallocating one unit can increase the modeled result from ${structure.measure} to ${better.measure}.`,'conditional',better);
@@ -265,11 +285,14 @@ function meaningHeadline(kind,evidence={}){
   case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
    'Your judgment and the claim’s truth are separate questions.';
   case 'repetition': {
-   const c=evidence.cumulative||[],total=c.reduce((n,x)=>n+x.units,0),first=c[0];
-   if(!first||!Number.isFinite(total))return 'Repeated intervals form a hypothetical pattern.';
-   if(first.units===0)return 'One activity is absent from this repeated allocation.';
-   if(first.units===total)return 'One activity fills the entire imagined interval.';
-   if(first.units>=total/2)return 'One activity receives much of the modeled time.';
+   const a=repeatedActivityEvidence(evidence);if(!a)return null;
+   if(a.total===0)return 'No modeled activity receives assigned time.';
+   if(a.unallocated>0&&a.activities.filter(x=>x.units>0).length===1)
+    return 'One activity takes the assigned time; some capacity stays unused.';
+   if(a.unallocated>0)return 'This repeated schedule leaves available time unallocated.';
+   if(a.first.units===0)return 'One activity is absent from this repeated allocation.';
+   if(a.first.units===a.total)return 'One activity fills the entire imagined interval.';
+   if(a.first.units>=a.total/2)return 'One activity receives much of the modeled time.';
    return 'Several activities share this imagined schedule.';
   }
   case 'information': {
@@ -306,8 +329,13 @@ function meaningExperience(packet,m){
   const display=n=>e.unitHours?
    (n*e.unitHours)+' '+(n*e.unitHours===1?'hour':'hours'):
    n+' modeled units';
-  return 'Across '+e.repetitions+' imagined evenings, the same plan would give '+
-   (e.cumulative||[]).map(c=>display(c.units)+' for '+c.label).join(', ')+
+  const interval=e.period===null?e.repetitions+' repeated cycles':
+   e.repetitions+' imagined '+e.periodPlural;
+  const allocations=(e.cumulative||[]).map(c=>display(c.units)+' for '+c.label).join(', ');
+  if(e.perIntervalUnallocated>0)
+   return 'Across '+interval+', '+allocations+'. '+display(e.totalUnallocated)+
+    ' remain unallocated. This does not establish your actual habits.';
+  return 'Across '+interval+', the same plan would give '+allocations+
    '. This does not establish your actual habits.';
  }
  if(m.kind==='information'){
@@ -342,8 +370,17 @@ function repeatedActivityEvidence(e){
    !Number.isSafeInteger(x.units)||x.units<0)||!Number.isSafeInteger(e.repetitions)||
    e.repetitions<2)return null;
  const total=a.reduce((n,x)=>n+x.units,0);
- if(!Number.isSafeInteger(total)||!total)return null;
- return {first:a[0],activities:a,total};
+ if(![total,e.totalCapacity,e.totalAllocated,e.totalUnallocated,
+  e.perIntervalCapacity,e.perIntervalAllocated,e.perIntervalUnallocated].every(
+    x=>Number.isSafeInteger(x)&&x>=0)||
+   total!==e.totalAllocated||e.totalAllocated+e.totalUnallocated!==e.totalCapacity||
+   e.perIntervalCapacity!==e.perIntervalAllocated+e.perIntervalUnallocated||
+   e.totalCapacity!==e.perIntervalCapacity*e.repetitions||
+   e.totalUnallocated!==e.perIntervalUnallocated*e.repetitions||
+   typeof e.periodPlural!=='string'||!e.periodPlural)return null;
+ return {first:a[0],activities:a,total,capacity:e.totalCapacity,unallocated:e.totalUnallocated,
+  perIntervalCapacity:e.perIntervalCapacity,perIntervalAllocated:e.perIntervalAllocated,
+  perIntervalUnallocated:e.perIntervalUnallocated};
 }
 function meaningBridge(packet){
  const m=packet.meaning,e=m.evidence||{},secondary=packet.secondaryObservations||[];
@@ -392,7 +429,14 @@ function meaningBridge(packet){
   case 'repetition':{
    const a=repeatedActivityEvidence(e);
    if(!a)return null;
+   if(a.total===0)return 'No activity receives modeled time; unallocated capacity tells us nothing about what happens instead.';
    const firstLabel=a.first.label[0].toUpperCase()+a.first.label.slice(1);
+   if(a.unallocated>0){
+    const active=a.activities.filter(x=>x.units>0);
+    if(active.length===1)return 'Only '+active[0].label+
+     ' receives assigned time; the remaining capacity is not accounted for by the modeled activities.';
+    return 'The selected activities use only part of the available time; the unallocated portion remains unspecified.';
+   }
    if(a.first.units===0)return firstLabel+' has no place in these imagined repeated intervals.';
    if(a.first.units===a.total)return firstLabel+' fills the modeled pattern; other activities receive no allocation.';
    const absent=a.activities.filter(x=>x.units===0);
@@ -491,6 +535,15 @@ function pathQuestion(packet){
    const joining=xs=>xs.length<3?xs.map(x=>x.label).join(' and '):
     xs.slice(0,-1).map(x=>x.label).join(', ')+', and '+xs.at(-1).label;
    const ranked=[...present].sort((x,y)=>y.units-x.units);
+   if(a.total===0)
+    return 'With all the modeled time unallocated, what remains unknown about how these intervals would actually be spent?';
+   if(a.unallocated>0){
+    if(present.length===1)return 'With '+present[0].label+
+     ' the only selected activity, what remains unspecified about the unused capacity?';
+    if(absent.length)return 'With '+joining(absent)+
+     ' absent and some capacity unallocated, what does repeating this partial pattern preserve?';
+    return 'With some time unallocated, what does repeating this partial allocation preserve or leave open?';
+   }
    if(absent.length){
     const missing=joining(absent);
     if(present.length===1)
