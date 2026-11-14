@@ -314,3 +314,83 @@ test('v1.9.3 P0-2 RED: repeated allocation is neutral across activity order unle
  assert.match(goal.proactiveQuestion,/stated|declared|target|intention|planned/i);
  assert.notEqual(goal.proactiveQuestion,absent.proactiveQuestion,'a declared intention changes the warranted reflection');
 });
+
+
+// CZ-13 v1.9.4 independent QA reproductions, committed red before engine edits.
+// They become known regressions and must not be presented as independent blind holdouts.
+test('v1.9.4 P0-1 RED: explicit weekly recurrence uses machine-readable validated periods',()=>{
+ const c=structuredClone(semanticCases.dillard);
+ c.model.repetitionPeriod='week';
+ c.model.unitHours=2; // Six two-hour blocks in each hypothetical week
+ c.model.resources[0].label='Two-hour blocks available in a week';
+ const p=reasonSemantically(c,{amounts:[2,2,2],budgets:[6],repetitions:5});
+ assert.equal(p.status,'ready',p.reason);
+ const o=expressSemantic(p);assert.equal(o.status,'ready',o.reason);
+ console.log('CZ13-194-BEFORE-WEEK '+JSON.stringify({packet:p.meaning.evidence,idea:o.headline+' '+o.experience,philosopher:o.interpretation,question:o.proactiveQuestion,words:o.wordCount}));
+ assert.equal(p.meaning.evidence.period,'week');
+ assert.match(o.experience,/5 imagined weeks/);
+ assert.doesNotMatch(o.experience,/evenings|mornings|sessions/);
+ assert.match(o.experience,/20 hours/);
+ assert.ok(o.wordCount>=80&&o.wordCount<=120);
+ const unknown=structuredClone(c);delete unknown.model.repetitionPeriod;
+ const q=reasonSemantically(unknown,{amounts:[2,2,2],budgets:[6],repetitions:5});
+ assert.equal(q.status,'ready',q.reason);
+ const neutral=expressSemantic(q);assert.equal(neutral.status,'ready',neutral.reason);
+ assert.match(neutral.experience,/repeated cycles|imagined cycles/i);
+ assert.doesNotMatch(neutral.experience,/evenings|weeks|sessions/i);
+ const invalid=structuredClone(c);invalid.model.repetitionPeriod='unverified_custom_period';
+ const denial=reasonSemantically(invalid,{amounts:[2,2,2],budgets:[6],repetitions:5});
+ assert.equal(denial.status,'incompatible','Invalid period cannot silently acquire a label');
+});
+
+test('v1.9.4 P0-2 RED: partial-capacity repetition separates allocated, available and unused slots',()=>{
+ const c=structuredClone(semanticCases.dillard);
+ c.model.resources[0]={...c.model.resources[0],type:'cap',min:0,max:6};
+ c.model.repetitionPeriod='session';
+ const testCase=(amounts,tag,intentions=null)=>{
+  const p=reasonSemantically(c,{amounts,budgets:[6],repetitions:5,...(intentions?{intentions}:{})});
+  assert.equal(p.status,'ready',tag+' '+p.reason);
+  const o=expressSemantic(p);assert.equal(o.status,'ready',tag+' '+o.reason);
+  console.log('CZ13-194-BEFORE-CAP '+JSON.stringify({tag,amounts,packet:p.meaning.evidence,idea:o.headline+' '+o.experience,philosopher:o.interpretation,question:o.proactiveQuestion,words:o.wordCount}));
+  assert.ok(o.wordCount>=80&&o.wordCount<=120,tag+' words: '+o.wordCount);
+  assert.equal((o.proactiveQuestion.match(/\?/g)||[]).length,1,tag);
+  return {p,o};
+ };
+ const partial=testCase([2,0,0],'partial');
+ assert.equal(partial.p.meaning.evidence.perIntervalCapacity,6);
+ assert.equal(partial.p.meaning.evidence.perIntervalAllocated,2);
+ assert.equal(partial.p.meaning.evidence.perIntervalUnallocated,4);
+ assert.equal(partial.p.meaning.evidence.repetitions,5);
+ assert.doesNotMatch(partial.o.headline+' '+partial.o.interpretation,/fills the entire imagined interval|fills the modeled pattern/i);
+ assert.match(partial.o.experience,/unallocat|unused/i);
+ assert.match(partial.o.proactiveQuestion,/unallocat|unused|left open|not assigned/i);
+ const zero=testCase([0,0,0],'zero');
+ assert.equal(zero.p.meaning.evidence.perIntervalAllocated,0);
+ assert.equal(zero.p.meaning.evidence.perIntervalUnallocated,6);
+ assert.doesNotMatch([zero.o.headline,zero.o.interpretation,zero.o.proactiveQuestion].join(' '),/fills|rest as|leisure|spending your time/i);
+ const full=testCase([6,0,0],'full');
+ assert.equal(full.p.meaning.evidence.perIntervalUnallocated,0);
+ assert.match(full.o.headline+' '+full.o.interpretation,/fills the entire|fills the modeled pattern/i);
+ assert.doesNotMatch(full.o.experience,/unallocated|unused/i);
+ const target=testCase([2,0,0],'explicit-target',{[c.model.choices[1].id]:2});
+ assert.match(target.o.proactiveQuestion,/stated|target|intention/i);
+ assert.notEqual(target.o.proactiveQuestion,partial.o.proactiveQuestion);
+ // 28 exact-capacity compositions; all must respect the 80–120 word and single-question rules.
+ let cases=0;
+ for(let a=0;a<=6;a++)for(let b=0;b<=6-a;b++){
+  const d=6-a-b, input={amounts:[a,b,d],budgets:[6],repetitions:5};
+  const p=reasonSemantically(semanticCases.dillard,input);
+  assert.equal(p.status,'ready','exact '+JSON.stringify(input)+' '+p.reason);
+  const o=expressSemantic(p);assert.equal(o.status,'ready','exact '+JSON.stringify(input)+' '+o.reason);
+  assert.ok(o.wordCount>=80&&o.wordCount<=120,JSON.stringify(input)+' words '+o.wordCount);
+  assert.equal((o.proactiveQuestion.match(/\?/g)||[]).length,1);
+  cases++;
+ }
+ assert.equal(cases,28);
+ const reorder=structuredClone(c);reorder.model.choices.reverse();
+ const p=reasonSemantically(reorder,{amounts:[0,0,2],budgets:[6],repetitions:5});
+ assert.equal(p.status,'ready',p.reason);
+ const result=expressSemantic(p);assert.equal(result.status,'ready',result.reason);
+ assert.doesNotMatch(result.headline+' '+result.interpretation,/fills the entire imagined interval|fills the modeled pattern/i);
+ assert.match(result.experience,/unallocat|unused/i);
+});
