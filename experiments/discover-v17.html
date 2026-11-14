@@ -1914,6 +1914,9 @@ function meaningBridge(packet){
    const firstLabel=a.first.label[0].toUpperCase()+a.first.label.slice(1);
    if(a.first.units===0)return firstLabel+' has no place in these imagined repeated intervals.';
    if(a.first.units===a.total)return firstLabel+' fills the modeled pattern; other activities receive no allocation.';
+   const absent=a.activities.filter(x=>x.units===0);
+   if(absent.length)return firstLabel+' receives modeled time, while '+
+    absent.map(x=>x.label).join(' and ')+' receives no allocation in these imagined intervals.';
    if(a.first.units>=a.total/2)return firstLabel+' has a prominent place while other activities remain present.';
    return firstLabel+' receives a modeled share alongside the other activities.';
   }
