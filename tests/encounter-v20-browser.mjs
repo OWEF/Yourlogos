@@ -10,10 +10,10 @@ try {
   page.on("request",r=>{if(/^https?:/.test(r.url()))network.push(r.url());});
   await page.goto(file);
   const tabs=page.locator("#menu button");
-  assert.equal(await tabs.count(),7);
+  assert.equal(await tabs.count(),11);
   assert.equal(await page.locator("#content .column").count(),2);
   assert.equal(await page.locator("#content .section").count(),6);
-  for(let i=0;i<7;i++){
+  for(let i=0;i<11;i++){
    await tabs.nth(i).click();
    assert.equal(await tabs.nth(i).getAttribute("aria-pressed"),"true");
    assert.equal(await page.locator("#content .section").count(),6);
@@ -27,4 +27,4 @@ try {
   await page.close();
  }
 } finally {await browser.close()}
-process.stdout.write("CZ127-BROWSER 28/28 path×viewport screenshot-free interaction/parity journeys passed (simulated Chromium, NOT iPhone Safari).\n");
+process.stdout.write("CZ127-BROWSER 44/44 path×viewport screenshot-free interaction/parity journeys passed (simulated Chromium, NOT iPhone Safari).\n");
