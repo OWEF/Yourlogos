@@ -318,3 +318,87 @@ test("CZ-127 scenario RED: a renamed selected choice with stale canonical readin
  assert.equal(adaptEncounterEvidence(packet).status,"incompatible");
  assert.equal(renderEncounterV20(packet).status,"needs_editorial_review");
 });
+
+
+// Independent CZ-123 adversarial test-only lane, authored after CZ-127 freeze.
+// These cases are intentionally NOT copied from implementation-team tests.
+test("CZ-123 independent: an inconsistent philosophical work title cannot enter READY",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ assert.equal(renderEncounterV20(p).status,"ready");
+ const forged=structuredClone(p);
+ forged.source.work="The Wealth of Nations"; // quote, URL, central claim remain Dillard
+ assert.equal(adaptEncounterEvidence(forged).status,"incompatible",
+   "source-work title must be bound to the admitted source, not trusted as arbitrary packet metadata");
+ assert.equal(renderEncounterV20(forged).status,"needs_editorial_review");
+});
+
+test("CZ-123 independent: altered source-admission work also fails closed",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ const forged=structuredClone(p);
+ forged.sourceAdmission.sourceWork="The Wealth of Nations";
+ assert.equal(adaptEncounterEvidence(forged).status,"incompatible");
+ assert.equal(renderEncounterV20(forged).status,"needs_editorial_review");
+});
+
+test("CZ-123 independent: new renamed allocations cannot inherit curatorial pilot words",()=>{
+ for(const [period,amounts] of [
+   ["week",[0,3,1]],["session",[1,0,4]],["week",[0,0,0]]
+ ]){
+  const c=withPartialScheduleCapacity(semanticCases.dillard);
+  c.model.repetitionPeriod=period;
+  c.model.choices=c.model.choices.map((v,i)=>({...v,
+    label:["Train","Care for family","Rest"][i],
+    readingLabel:["training","caring for family","resting"][i]}));
+  const p=reasonSemantically(c,{amounts,budgets:[6],repetitions:5});
+  assert.equal(p.status,"ready",period+" "+JSON.stringify(amounts));
+  const out=renderEncounterV20(p);
+  assert.ok(["ready","needs_editorial_review"].includes(out.status),JSON.stringify(out));
+  if(out.status==="ready"){
+    const full=out.sections.map(s=>s.text).join(" ");
+    assert.doesNotMatch(full,/your story|writing|answering messages|evening/i);
+    assert.match(full,new RegExp(period));
+    assert.equal(out.brief.rhetorical_angle.id,"repetition-evidence-only");
+  }
+ }
+});
+
+test("CZ-123 independent: tiny fractional unit hours stay meaningful without floating artifacts",()=>{
+ const c=withPartialScheduleCapacity(semanticCases.dillard);
+ c.model.unitHours=0.1;
+ c.model.repetitionPeriod="week";
+ c.model.choices=c.model.choices.map((v,i)=>({...v,
+  label:["Train","Care for family","Rest"][i],
+  readingLabel:["training","caring for family","resting"][i]}));
+ const p=reasonSemantically(c,{amounts:[1,0,0],budgets:[6],repetitions:5});
+ assert.equal(p.status,"ready",p.reason);
+ const out=renderEncounterV20(p);
+ assert.ok(["ready","needs_editorial_review"].includes(out.status),JSON.stringify(out));
+ if(out.status==="ready"){
+  const full=out.sections.map(s=>s.text).join(" ");
+  assert.match(full,/0\.5 hours? for training/);
+  assert.match(full,/0\.1 hour/);
+  assert.doesNotMatch(full,/0\.6000000000000001|0\.5000000000000001/);
+ }
+});
+
+test("CZ-123 independent: forged author and forged quote cannot be rescued by a tone override",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ for(const mutation of [
+  obj=>{obj.author="Adam Smith"},
+  obj=>{obj.author=""},
+  obj=>{obj.quote="How we spend our days is whatever we feel like."},
+  obj=>{obj.source.url="https://example.org/forged"}
+ ]){
+  const bad=structuredClone(p);
+  mutation(bad);
+  assert.equal(renderEncounterV20(bad,{tone:"playful"}).status,"needs_editorial_review");
+ }
+});
+
+test("CZ-123 independent: silent apology remains an unperformed action, not inferred forgiveness",()=>{
+ const out=encounterV20(semanticCases.apology,{path:["space","space"]});
+ assert.equal(out.status,"ready");
+ const words=out.sections.map(s=>s.text).join(" ");
+ assert.match(words,/No offered apology is recorded/i);
+ assert.doesNotMatch(words,/you apologized|you sent|forgave you|they forgive you/i);
+});
