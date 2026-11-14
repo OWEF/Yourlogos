@@ -63,3 +63,13 @@ test('an unchosen Kierkegaard route is never treated as an experienced future',(
  assert.doesNotMatch(rendered.experience,/chose to you |learn you /i);
  assert.match(rendered.experience,/outcome of the unchosen path is still unknown/);
 });
+
+
+test('v1.9.1 RED: stable source thesis receives a distinct path-grounded explanation',()=>{
+ const source=semanticCases.money;
+ const zero=expressSemantic(reasonSemantically(source,{amounts:[0,0,0],budgets:[8]}));
+ const paid=expressSemantic(reasonSemantically(source,{amounts:[1,2,1],budgets:[8]}));
+ assert.equal(zero.status,'ready');assert.equal(paid.status,'ready');
+ assert.notEqual(zero.interpretation,paid.interpretation,
+  'Section II cannot consist solely of identical source-level boilerplate');
+});
