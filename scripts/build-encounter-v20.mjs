@@ -79,4 +79,4 @@ for(const x of samples)process.stdout.write("CZ127-EXAMPLE "+JSON.stringify({id:
 for(const x of samples)process.stdout.write("CZ127-FULL "+JSON.stringify({id:x.id,path:x.path,v196:x.original,candidate:{sections:x.candidate.sections,brief:x.candidate.brief,wordCount:x.candidate.wordCount,sectionWordCounts:x.candidate.sectionWordCounts,source_review:x.candidate.source_review}})+"\n");
 
 // Exact generated artifacts are also recorded for a reproducible, reviewable branch HTML/JSON check-in.
-if(!process.argv.includes("--check"))process.stdout.write("CZ127-ARTIFACT "+JSON.stringify({html,comparison:JSON.stringify(samples,null,2)+"\\n"})+"\\n");
+if(!process.argv.includes("--check"))process.stdout.write("CZ127-ARTIFACT "+JSON.stringify({html,comparison:JSON.stringify(samples,null,2)+"\n"})+"\n");
