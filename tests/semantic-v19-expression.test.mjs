@@ -197,3 +197,23 @@ test('v1.9.2 E: contradictory source metadata refuses with an explicit reason',(
  assert.equal(denial.status,'incompatible');
  assert.match(denial.reason,/premise|admission|missing/i);
 });
+
+
+test('v1.9.2 editorial RED: repeated actions and deficits are phrased grammatically across sources',()=>{
+ const conv=reasonSemantically(semanticCases.money,{amounts:[1,0,1],budgets:[8],intentions:{lamp:2}});
+ assert.equal(conv.status,'ready',conv.reason);
+ assert.match(expressSemantic(conv).proactiveQuestion,/If your allocation for reading lamps falls short/i);
+ assert.doesNotMatch(expressSemantic(conv).proactiveQuestion,/reading lamps falls short/i);
+ const e=reasonSemantically(semanticCases.apology,{path:['offer','offer']});
+ assert.equal(e.status,'ready',e.reason);
+ assert.match(expressSemantic(e).proactiveQuestion,/choosing to offer an apology again/i);
+ assert.doesNotMatch(expressSemantic(e).proactiveQuestion,/repeating offer an apology/i);
+});
+test('v1.9.2 editorial RED: repeated schedules exclude absent activities without contradicting their source bridge',()=>{
+ const e=reasonSemantically(semanticCases.dillard,{amounts:[0,3,3],budgets:[6],repetitions:5});
+ assert.equal(e.status,'ready',e.reason);
+ const text=expressSemantic(e).interpretation;
+ assert.match(text,/Writing your story has no place/);
+ assert.doesNotMatch(text,/gives its selected activities a regular place/i);
+ assert.match(text,/including omissions|absent|excluded|not assigned|no place/i);
+});
