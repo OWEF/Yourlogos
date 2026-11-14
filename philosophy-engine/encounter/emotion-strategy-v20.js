@@ -14,14 +14,54 @@ const SOURCE_CLAIMS = Object.freeze({
  * meaning/1.2 packet, keyed by its curated source URL. Not scholarly approval.
  * The legacy reasoning kernel and shared source witness remain untouched.
  */
-const SOURCE_IDENTITIES = Object.freeze({
-  "https://www.dltn.io/posts/annie-dillard-keep-a-daily-routine":
-    Object.freeze({author:"Annie Dillard",kind:"repetition"}),
-  "https://barryfvaughan.org/text/philtext/epictetus/enchiridion.html":
-    Object.freeze({author:"Epictetus",kind:"agency"}),
-  "https://homepage.divms.uiowa.edu/~jorgen/kierkegaardquotesource.html":
-    Object.freeze({author:"Søren Kierkegaard",kind:"information"})
+/**
+ * Source-work editorial identity contract, version 2.0.0. Only these three
+ * already-admitted pilot sources are included (no dataset expansion).
+ * A title and a review/excerpt label may differ between the two existing
+ * packet fields while still identifying the same work. Each allowed form is
+ * explicitly documented; all other texts fail closed. This is NOT scholarly
+ * source verification or a promotion of any provisional review status.
+ */
+export const SOURCE_WORK_IDENTITY_V20=Object.freeze({
+ version:"source-work-identity/2.0.0",
+ sources:Object.freeze({
+  "https://www.dltn.io/posts/annie-dillard-keep-a-daily-routine":Object.freeze({
+   author:"Annie Dillard",kind:"repetition",canonicalWork:"The Writing Life",
+   allowedWorkLabels:Object.freeze([
+    "The Writing Life",
+    "The Writing Life (excerpt)",
+    "The Writing Life (excerpt; source review pending)",
+    "The Writing Life (1989), scheduling passage",
+    "The Writing Life — scheduling excerpt"
+   ])
+  }),
+  "https://barryfvaughan.org/text/philtext/epictetus/enchiridion.html":Object.freeze({
+   author:"Epictetus",kind:"agency",canonicalWork:"Enchiridion",
+   allowedWorkLabels:Object.freeze([
+    "Enchiridion",
+    "The Enchiridion",
+    "Enchiridion · §1",
+    "Enchiridion · §1, Elizabeth Carter translation",
+    "Enchiridion (§1; Elizabeth Carter translation)"
+   ])
+  }),
+  "https://homepage.divms.uiowa.edu/~jorgen/kierkegaardquotesource.html":Object.freeze({
+   author:"Søren Kierkegaard",kind:"information",canonicalWork:"Journal JJ:167",
+   allowedWorkLabels:Object.freeze([
+    "Journal JJ:167",
+    "Journal JJ:167 (shortened quotation)",
+    "Journal JJ:167 (wording review pending)",
+    "Journal JJ:167 (shortened quotation; wording review pending)",
+    "Journal JJ:167 (1843), shortened variant"
+   ])
+  })
+ })
 });
+const normalizeWorkLabel=v=>typeof v==="string"?v.normalize("NFKC").replace(/\\s+/g," ").trim():null;
+function recognizedWorkLabel(identity,work){
+ const value=normalizeWorkLabel(work);
+ return !!value && identity.allowedWorkLabels.some(x=>normalizeWorkLabel(x)===value);
+}
 const PILOT_ACTIVITY_LABELS=Object.freeze([
  "writing your story","answering messages","resting and recharging"
 ]);
@@ -63,10 +103,13 @@ export function adaptEncounterEvidence(packet) {
       !Array.isArray(packet.limitations) || !packet.limitations.length ||
       !e || typeof e !== "object")
     return {status:"incompatible",reason:"Missing or incompatible provisional editorial/source contract."};
-  const identity=SOURCE_IDENTITIES[source.sourceUrl];
+  const identity=SOURCE_WORK_IDENTITY_V20.sources[source.sourceUrl];
   if(!identity || identity.kind!==kind || packet.author!==identity.author ||
       typeof packet.author!=="string" || !packet.author.trim())
     return {status:"incompatible",reason:"Author does not match the provisional source-linked editorial identity."};
+  if(!recognizedWorkLabel(identity,packet.source?.work) ||
+     !recognizedWorkLabel(identity,source.sourceWork))
+    return {status:"incompatible",reason:"Source-work metadata is missing or not admitted by the versioned source-identity contract."};
   if (traceSourcePassage(source,packet.quote).status!=="curated_passage_match")
     return {status:"incompatible",reason:"Displayed quotation no longer matches the curated source witness."};
   if(kind==="repetition" && Array.isArray(e.cumulative) &&
