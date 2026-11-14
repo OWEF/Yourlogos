@@ -63,6 +63,7 @@ function lastThing(x,brief){
  const id=brief.rhetorical_angle.id;
  switch(id){
   case "schedule-booked":return "Your story has booked the whole evening. No other activity got a reservation in that block.";
+  case "full-evening-image":return "Five copies of that evening form a longer chapter. The other slots stay blank.";
   case "rest-is-part-of-day":return "Rest did not disappear from the timetable. This time, it is the whole timetable.";
   case "full-but-no-writing":return "The story has an empty page. The evening was anything but empty.";
   case "shared-calendar":return "One evening holds several different things. Repeat it, and each gets another page.";
