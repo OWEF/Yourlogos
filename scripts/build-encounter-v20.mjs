@@ -1,26 +1,36 @@
 import {readFileSync,writeFileSync,mkdirSync} from "node:fs";
 import {semanticCases} from "../philosophy-engine/encounter/semantic-cases-v12.js";
 import {reasonSemantically,expressSemantic} from "../philosophy-engine/encounter/semantic-reasoning-v12.js";
-import {renderEncounterV20} from "../philosophy-engine/encounter/encounter-v20.js";
+import {renderEncounterV20,withPartialScheduleCapacity} from "../philosophy-engine/encounter/encounter-v20.js";
 
 export const cases=[
  {id:"dillard-full",source:"dillard",path:{amounts:[6,0,0],budgets:[6],repetitions:5}},
  {id:"dillard-rest",source:"dillard",path:{amounts:[0,0,6],budgets:[6],repetitions:5}},
  {id:"dillard-shared",source:"dillard",path:{amounts:[3,1,2],budgets:[6],repetitions:5}},
+ {id:"dillard-partial-writing",source:"dillard",partial:true,path:{amounts:[2,0,0],budgets:[6],repetitions:5}},
+ {id:"dillard-partial-rest",source:"dillard",partial:true,path:{amounts:[0,0,3],budgets:[6],repetitions:5}},
+ {id:"dillard-unallocated",source:"dillard",partial:true,path:{amounts:[0,0,0],budgets:[6],repetitions:5}},
+ {id:"dillard-cap-control",source:"dillard",partial:true,path:{amounts:[6,0,0],budgets:[6],repetitions:5}},
  {id:"epictetus-offer",source:"apology",path:{path:["offer","space"]}},
  {id:"epictetus-space",source:"apology",path:{path:["space","space"]}},
  {id:"kierkegaard-move",source:"kierkegaard",path:{path:["change","risk","continue"]}},
  {id:"kierkegaard-stay",source:"kierkegaard",path:{path:["stay","missed","reflect"]}}
 ];
 const samples=cases.map(c=>{
- const p=reasonSemantically(semanticCases[c.source],c.path);
+ const context=c.partial?withPartialScheduleCapacity(semanticCases[c.source]):semanticCases[c.source];
+ const p=reasonSemantically(context,c.path);
  if(p.status!=="ready")throw Error(c.id+": reasoner "+p.reason);
- const previous=expressSemantic(p),next=renderEncounterV20(p);
- if(previous.status!=="ready"||next.status!=="ready")
+ const previous=c.partial?null:expressSemantic(p),next=renderEncounterV20(p);
+ if((previous&&previous.status!=="ready")||next.status!=="ready")
   throw Error(c.id+": v1/v2 output not ready "+JSON.stringify({previous,next}));
- return {...c,author:p.author,quote:p.quote,original:{sections:[
+ const original=previous?{status:"ready",sections:[
   previous.headline+" "+previous.experience,previous.interpretation,previous.proactiveQuestion
- ],words:previous.wordCount},candidate:next};
+ ],words:previous.wordCount}:{status:"not_applicable",sections:[
+  "Frozen v1.9.6 Dillard uses an exact-allocation scenario; unused-capacity inputs are incompatible.",
+  "No genuine v1.9.6 outcome is available for this partial-capacity scenario.",
+  "A v1.9.6 output is not invented for this comparison."
+ ],words:null};
+ return {...c,author:p.author,quote:p.quote,original,candidate:next};
 });
 const script=[
  "const samples=JSON.parse(document.getElementById('samples').textContent);",
@@ -32,7 +42,7 @@ const script=[
  " const heading=document.createElement('h2');heading.textContent=sample.author+' · '+sample.id;content.append(heading);",
  " const q=document.createElement('blockquote');q.textContent=sample.quote;content.append(q);",
  " const layout=document.createElement('div');layout.className='comparison';",
- " for(const [label,sections] of [['v1.9.6 · baseline',sample.original.sections],['v2.0 · candidate',sample.candidate.sections.map(s=>s.text)]]){",
+ " for(const [label,sections] of [[sample.original.status==='not_applicable'?'v1.9.6 · exact-only (N/A)':'v1.9.6 · baseline',sample.original.sections],['v2.0 · candidate',sample.candidate.sections.map(s=>s.text)]]){",
  "  const column=document.createElement('section');column.className='column';",
  "  const title=document.createElement('h3');title.textContent=label;column.append(title);",
  "  for(let j=0;j<3;j++){const part=document.createElement('article');part.className='section';",
@@ -67,3 +77,6 @@ if(process.argv.includes("--check")){
 for(const x of samples)process.stdout.write("CZ127-EXAMPLE "+JSON.stringify({id:x.id,from:x.original.words,to:x.candidate.wordCount,strategy:x.candidate.brief.strategy,source:x.candidate.source_review,last:x.candidate.sections[2].text})+"\n");
 
 for(const x of samples)process.stdout.write("CZ127-FULL "+JSON.stringify({id:x.id,path:x.path,v196:x.original,candidate:{sections:x.candidate.sections,brief:x.candidate.brief,wordCount:x.candidate.wordCount,sectionWordCounts:x.candidate.sectionWordCounts,source_review:x.candidate.source_review}})+"\n");
+
+// Exact generated artifacts are also recorded for a reproducible, reviewable branch HTML/JSON check-in.
+if(!process.argv.includes("--check"))process.stdout.write("CZ127-ARTIFACT "+JSON.stringify({html,comparison:JSON.stringify(samples,null,2)+"\\n"})+"\\n");
