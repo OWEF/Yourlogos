@@ -285,7 +285,7 @@ test("CZ-127 scenario RED: renamed weekly activities must never inherit writing 
  assert.match(output.sections[0].text,/2 hours.*unallocated/i);
  process.stdout.write("CZ127-VARIANT "+JSON.stringify({id:"renamed-weekly",status:output.status,
   strategy:output.brief.strategy,sections:output.sections.map(y=>y.text),
-  evidence:packet.meaning.evidence.cumulative,period:packet.meaning.evidence.period})+"\\n");
+  evidence:packet.meaning.evidence.cumulative,period:packet.meaning.evidence.period})+"\n");
 });
 test("CZ-127 scenario RED: reordered session activities cannot inherit positional writing/rest assumptions",()=>{
  const session=withPartialScheduleCapacity(semanticCases.dillard);
@@ -305,7 +305,7 @@ test("CZ-127 scenario RED: reordered session activities cannot inherit positiona
  assert.doesNotMatch(output.sections[2].text,/your story|calendar needs a bookmark|other two hours/i);
  process.stdout.write("CZ127-VARIANT "+JSON.stringify({id:"reordered-session",status:output.status,
   strategy:output.brief.strategy,sections:output.sections.map(y=>y.text),
-  evidence:packet.meaning.evidence.cumulative,period:packet.meaning.evidence.period})+"\\n");
+  evidence:packet.meaning.evidence.cumulative,period:packet.meaning.evidence.period})+"\n");
 });
 
 test("CZ-127 scenario RED: a renamed selected choice with stale canonical reading label must abstain",()=>{
