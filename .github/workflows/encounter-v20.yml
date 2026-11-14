@@ -8,6 +8,8 @@ on:
       - "tests/encounter-v20*"
       - ".github/workflows/encounter-v20.yml"
       - "docs/encounter-v20-*"
+      - "experiments/encounter-v20-proof.html"
+      - "design-review/encounter-v20-comparison.json"
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,6 +28,7 @@ jobs:
           node --check philosophy-engine/encounter/encounter-v20.js
           node --test tests/scenario-transfer-v02.test.mjs tests/encounter-v1.test.mjs tests/kernel-v11.test.mjs tests/semantic-v12.test.mjs tests/semantic-v18-holdout.test.mjs tests/semantic-v19-transition.test.mjs tests/semantic-v19-transfer.test.mjs tests/semantic-v19-admission.test.mjs tests/semantic-v19-expression.test.mjs tests/semantic-v19-smith-source.test.mjs tests/semantic-v19-frozen-holdout.test.mjs tests/semantic-v19-reasoning-lane.test.mjs tests/cz13-acceptance-matrix.test.mjs tests/encounter-v20.test.mjs
           node scripts/build-encounter-v1.mjs --check
+          node scripts/build-encounter-v20.mjs --check
           node scripts/build-encounter-v20.mjs
           node scripts/build-encounter-v20.mjs --check
       - name: Install Chromium test dependency
