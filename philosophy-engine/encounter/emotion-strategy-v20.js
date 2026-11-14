@@ -25,6 +25,14 @@ const SOURCE_IDENTITIES = Object.freeze({
 const PILOT_ACTIVITY_LABELS=Object.freeze([
  "writing your story","answering messages","resting and recharging"
 ]);
+/** The original Dillard display labels are editorial aliases, not arbitrary
+ * position-based names. Reject stale aliases if a selected action is renamed. */
+const PILOT_SELECTED_LABEL_BY_READING=Object.freeze({
+ "writing your story":"Write your story",
+ "answering messages":"Answer messages",
+ "resting and recharging":"Rest and recharge"
+});
+
 export function isCuratedEveningPilot(x){
  const e=x?.grounded;
  return x?.kind==="repetition" && e?.period==="evening" &&
@@ -61,6 +69,11 @@ export function adaptEncounterEvidence(packet) {
     return {status:"incompatible",reason:"Author does not match the provisional source-linked editorial identity."};
   if (traceSourcePassage(source,packet.quote).status!=="curated_passage_match")
     return {status:"incompatible",reason:"Displayed quotation no longer matches the curated source witness."};
+  if(kind==="repetition" && Array.isArray(e.cumulative) &&
+     e.cumulative.some((slot,i)=>Object.hasOwn(PILOT_SELECTED_LABEL_BY_READING,slot?.label) &&
+       packet.selectedChoices[i]?.label!==PILOT_SELECTED_LABEL_BY_READING[slot.label]))
+    return {status:"incompatible",reason:"Selected activity and its curated reading label disagree."};
+
   if (kind==="repetition" && (!Array.isArray(e.cumulative) || e.cumulative.length<2 ||
       !e.cumulative.every(x=>x && typeof x.label==="string" && Number.isSafeInteger(x.units) && x.units>=0) ||
       !Number.isSafeInteger(e.repetitions) || e.repetitions<2 ||
