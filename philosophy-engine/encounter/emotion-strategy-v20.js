@@ -1,3 +1,4 @@
+import {traceSourcePassage} from "./source-passage-witness-v19.js";
 /**
  * CZ-127 Encounter v2.0 isolated research proof.
  * This module consumes meaning/1.2 as an immutable authority. It neither reads
@@ -24,12 +25,14 @@ export function adaptEncounterEvidence(packet) {
   const kind=packet.meaning.kind, source=packet.sourceAdmission, e=packet.meaning.evidence;
   if (!Object.hasOwn(SOURCE_CLAIMS,kind) ||
       !source || source.centralClaim !== SOURCE_CLAIMS[kind] ||
-      !source.scenarioBridge || !source.sourceUrl ||
+      !source.scenarioBridge || !source.sourceUrl || source.sourceUrl!==packet.source?.url ||
       !["curated_passage_match","unverified"].includes(source.claimTraceStatus) ||
       !Array.isArray(packet.selectedChoices) || !packet.selectedChoices.length ||
       !Array.isArray(packet.limitations) || !packet.limitations.length ||
       !e || typeof e !== "object")
     return {status:"incompatible",reason:"Missing or incompatible provisional editorial/source contract."};
+  if (traceSourcePassage(source,packet.quote).status!=="curated_passage_match")
+    return {status:"incompatible",reason:"Displayed quotation no longer matches the curated source witness."};
   if (kind==="repetition" && (!Array.isArray(e.cumulative) || e.cumulative.length<2 ||
       !e.cumulative.every(x=>x && typeof x.label==="string" && Number.isSafeInteger(x.units) && x.units>=0) ||
       !Number.isSafeInteger(e.repetitions) || e.repetitions<2 ||
@@ -82,6 +85,7 @@ function opportunities(x) {
   });
   if(x.kind==="repetition"){
     add("schedule-booked","playful","calendar_image",total>0 && writing===total && rest===0,15);
+    add("full-evening-image","contemplative","repeated_page",total>0 && writing===total,13);
     add("rest-is-part-of-day","warm","gentle_reversal",total>0 && rest===total,15);
     add("full-but-no-writing","warm","absence_contrast",total>0 && writing===0 && rest!==total,15);
     add("shared-calendar","contemplative","coexisting_uses",writing>0 && writing<total,13);
