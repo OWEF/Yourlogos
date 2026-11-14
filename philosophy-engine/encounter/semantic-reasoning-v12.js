@@ -435,7 +435,7 @@ function pathQuestion(packet){
    if(e.delta<0)
     return 'Which modeled constraint would need changing before these specialized roles could produce more?';
    if(e.delta===0)
-    return 'What further evidence is needed before claiming that assigning specialist roles improves productivity?';
+    return 'With no modeled gain, what additional evidence could justify claiming that specialized roles improve productivity?';
    if(a.allEqual)
     return 'Does this modeled gain establish why productivity increased, or only that output was greater?';
    return 'How might changing the capacity of '+limiting+' affect this modeled productivity gain?';
@@ -463,8 +463,17 @@ function pathQuestion(packet){
   case 'repetition':{
    const a=repeatedActivityEvidence(e);if(!a)return null;
    const focus=a.first.label;
-   if(a.first.units===0)
-    return 'What would need to change for '+focus+' to have a regular place in this pattern?';
+   if(a.first.units===0){
+    const others=a.activities.slice(1).filter(x=>x.units>0);
+    if(!others.length)return null;
+    if(others.length===1)return 'If '+others[0].label+' fills every interval, what would have to yield to include '+focus+'?';
+    if(others.length===2&&others[0].units===others[1].units)
+     return 'If '+others[0].label+' and '+others[1].label+' share the interval equally, what could make room for '+focus+'?';
+    const ranked=[...others].sort((x,y)=>y.units-x.units),major=ranked[0],minor=ranked.at(-1);
+    if(minor.units<=1)
+     return 'If '+minor.label+' has only a brief place, why might '+focus+' still stay absent when the interval repeats?';
+    return 'When '+major.label+' takes the larger share, what would secure a recurring place for '+focus+'?';
+   }
    if(a.first.units===a.total)
     return 'What would have to make room for the other activities if '+focus+' filled every interval?';
    if(a.first.units>=a.total/2)
