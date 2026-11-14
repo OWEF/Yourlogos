@@ -104,13 +104,13 @@ Exact full text, original baseline text and structured traces are generated into
 
 | Path | v1.9.6 words | v2.0 words | Auto strategy | v2 final observation (editorial candidate) |
 | --- | ---: | ---: | --- | --- |
-| Dillard [6,0,0] ×5 | 113 | 106 | playful | Your story has booked the whole evening. No other activity got a reservation in that block. |
-| Dillard [0,0,6] ×5 | 113 | 104 | warm | Rest did not disappear from the timetable. This time, it is the whole timetable. |
-| Dillard [3,1,2] ×5 | 110 | 105 | contemplative | One evening holds several different things. Repeat it, and each gets another page. |
+| Dillard [6,0,0] ×5 | 113 | 102 | playful | Your story got the entire three-hour slot, five imagined evenings in a row. At that rate, the calendar needs a bookmark. |
+| Dillard [0,0,6] ×5 | 113 | 96 | warm | No footnote, no apology: in this imagined timetable, rest gets a full chapter of its own. |
+| Dillard [3,1,2] ×5 | 110 | 97 | contemplative | A story, some messages, a little rest. This imagined evening isn't a solo; it's a small ensemble. |
 | Epictetus offer→space | 93 | 104 | provocative | You can offer the apology. You cannot reach over and write the other person's answer. |
-| Epictetus space→space | 113 | 102 | warm | Giving space is a selected response. The other person's reply is still their own. |
-| Kierkegaard move→hard hours→continue | 114 | 113 | contemplative | The hard hours entered the story after the decision. The other path remains unread. |
-| Kierkegaard stay→wonder→reflect | 116 | 113 | provocative | You can revisit the choice. You cannot visit the future you never chose. |
+| Epictetus space→space | 113 | 108 | warm | Not every silence is a verdict. In this imagined exchange, the other person still gets to choose what comes next. |
+| Kierkegaard move→hard hours→continue | 114 | 117 | contemplative | The difficult hours arrived after the job started. The offer didn't come with a preview of that chapter. |
+| Kierkegaard stay→wonder→reflect | 116 | 117 | provocative | The job you didn't take gets no bad Mondays in this story. Unwritten futures enjoy that privilege. |
 
 These descriptions are candidate copy, NOT founder-approved golds, and their emotional effects have not been validated with humans. Some endings remain safe but predictable, and v2 does not substantially reduce word count relative to 80–120. This is a serious editorial product gap even when automated tests pass.
 
@@ -204,6 +204,11 @@ These are bounded **candidate closing-line alternatives**, not added runtime cla
 | Kierkegaard: stay, wonder · 2 | contemplative | 18 | `meaning:central, choice:0, imagined:0, source:central` | Unwritten chapter versus later interpretation | “You can keep rereading the offer. The unchosen job will never send this imaginary story a progress report.” |
 
 The educational sections still derive from the curated source admission and retain explicit hypothetical boundaries; these closing-line alternatives **cannot be promoted by substituting them into the output** without updating the bounded composer and rerunning source/word tests. Human response, novelty and retention have not been demonstrated.
+
+### 9.3a Follow-up readability RED→GREEN
+
+- After the 125/125 corrective tests passed, a full generated-output inspection found the grammatically incorrect partial sentence “2 hours stays unassigned”, and Section I did not make the per-evening assigned duration obvious. RED `d685a4cb5bb0ad85bdde4c7f1b8ac2b696bf1953`: **125/126 PASS, 1 FAIL**. Scope-limited correction `9c85dc487451cd9dd8dc7f0dd6e9db01fa253b6c` now presents **each evening** (1h writing + 2h free; 1.5h rest + 1.5h free; or 3h all free), plus exact five-evening totals and a hypothetical-life qualification. The same kernel/source/word policy remains frozen.
+- Following regeneration, **126/126 Node** and **44/44 Chromium path×viewport journeys** passed in the isolated research workflow; strict checked-in HTML/JSON **pre-build** parity is restored for the final exact-SHA run. The frozen original Encounter browser regression and other workflow gates are independently verified on the final SHA rather than inferred from earlier versions.
 
 ### 9.4 Actual seven-path before/after and expanded proof
 
