@@ -304,9 +304,11 @@ test('v1.9.3 P0-2 RED: repeated allocation is neutral across activity order unle
  const p=reasonSemantically(reversed,{amounts:[3,3,0],budgets:[6],repetitions:5});
  assert.equal(p.status,'ready',p.reason);
  const rev=expressSemantic(p);assert.equal(rev.status,'ready',rev.reason);
+ console.log('CZ13-P0-REPETITION '+JSON.stringify({name:'reversed',idea:rev.headline+' '+rev.experience,philosopher:rev.interpretation,question:rev.proactiveQuestion,words:rev.wordCount}));
  assert.doesNotMatch(rev.proactiveQuestion,/make room|give way|yield|should|ought|prioriti[sz]/i);
  assert.match(rev.proactiveQuestion,/running|caring|resting|pattern|repeated|preserv|exclud/i);
  const goal=evaluate([0,3,3],{[c.model.choices[0].id]:2});
+ console.log('CZ13-P0-REPETITION '+JSON.stringify({name:'explicit-target',idea:goal.headline+' '+goal.experience,philosopher:goal.interpretation,question:goal.proactiveQuestion,words:goal.wordCount}));
  assert.match(goal.proactiveQuestion,/stated|declared|target|intention|planned/i);
  assert.notEqual(goal.proactiveQuestion,absent.proactiveQuestion,'a declared intention changes the warranted reflection');
 });
