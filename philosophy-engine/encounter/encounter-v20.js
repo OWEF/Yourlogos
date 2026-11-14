@@ -97,6 +97,12 @@ export function validateEncounterV20(packet,output) {
  if(output.brief?.source_warrant_id!=="source:central"||
     output.brief.grounded_evidence_ids.some(id=>!validIds.has(id)))
   return {status:"needs_editorial_review",reason:"Creative brief has invalid evidence references."};
+ const expectedBrief=selectEmotionStrategy(packet,{tone:output.brief?.selection_trace?.requested_tone??undefined});
+ if(expectedBrief.status!=="ready"||JSON.stringify(expectedBrief)!==JSON.stringify(output.brief))
+  return {status:"needs_editorial_review",reason:"Creative brief differs from evidence-grounded deterministic selection."};
+ if(output.sections[0].text!==choiceText(x)||output.sections[1].text!==teachingText(x)||
+    output.sections[2].text!==lastThing(x,output.brief))
+  return {status:"needs_editorial_review",reason:"Generated copy differs from evidence-grounded approved composer; human rewriting needs editorial review."};
  const counts=output.sections.map(s=>count(s.text)),total=counts.reduce((a,b)=>a+b,0);
  const valid=total>=V20_WORD_POLICY.total.min&&total<=V20_WORD_POLICY.total.max &&
    counts.every((n,i)=>n>=V20_WORD_POLICY.sections[i].min&&n<=V20_WORD_POLICY.sections[i].max);
