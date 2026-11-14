@@ -375,7 +375,13 @@ function meaningBridge(packet){
     return 'An earlier action stays performed even if the next decision changes; '+external+' remains external.';
    if(acted(first))return 'Repeating your action still cannot determine '+external+'.';
    if(acted(last))return 'The later action changes your conduct, but not '+external+'.';
-   return 'The recorded choices do not establish control over '+external+'.';
+   if(!first?.action||!last?.action)return null;
+   // Without declared occurrence effects, selected actions still form a meaningful
+   // order. Describe that order, never treat a selection as an accomplished act.
+   if(first.action===last.action)
+    return 'You selected '+first.action+' at both moments; repeating a decision does not confirm that it occurred or determine '+external+'.';
+   return 'Your chosen response shifted from '+first.action+' to '+last.action+
+    '; the sequence records decisions, not confirmed acts or control over '+external+'.';
   }
   case 'assent':
    if(e.changes?.length&&e.position==='withhold')
@@ -390,7 +396,7 @@ function meaningBridge(packet){
    if(a.first.units===0)return firstLabel+' has no place in these imagined repeated intervals.';
    if(a.first.units===a.total)return firstLabel+' fills the modeled pattern; other activities receive no allocation.';
    if(a.first.units>=a.total/2)return firstLabel+' has a prominent place while other activities remain present.';
-   return firstLabel+' receives a smaller share alongside the other modeled activities.';
+   return firstLabel+' receives a modeled share alongside the other activities.';
   }
   case 'information':{
    const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
@@ -451,7 +457,11 @@ function pathQuestion(packet){
     return 'What can your later action change without undoing the one already performed?';
    if(acted(last))
     return 'How does acting now differ from earlier restraint while '+external+' remains independent?';
-   return 'What remains yours to choose without deciding '+external+'?';
+   if(!first?.action||!last?.action)return null;
+   if(first.action===last.action)
+    return 'What does selecting '+first.action+' again clarify about your choices without confirming an act or deciding '+external+'?';
+   return 'What changes when you select '+last.action+' after '+first.action+
+    ', without proving that either choice was carried out or that '+external+' was decided?';
   }
   case 'assent':
    if(e.changes?.length&&e.position==='withhold')
@@ -463,23 +473,41 @@ function pathQuestion(packet){
    return 'What would justify maintaining assent when the available grounds remain disputed?';
   case 'repetition':{
    const a=repeatedActivityEvidence(e);if(!a)return null;
-   const focus=a.first.label;
-   if(a.first.units===0){
-    const others=a.activities.slice(1).filter(x=>x.units>0);
-    if(!others.length)return null;
-    if(others.length===1)return 'If '+others[0].label+' fills every interval, what would have to yield to include '+focus+'?';
-    if(others.length===2&&others[0].units===others[1].units)
-     return 'If '+others[0].label+' and '+others[1].label+' share the interval equally, what could make room for '+focus+'?';
-    const ranked=[...others].sort((x,y)=>y.units-x.units),major=ranked[0],minor=ranked.at(-1);
-    if(minor.units<=1)
-     return 'If '+minor.label+' has only a brief place, why might '+focus+' still stay absent when the interval repeats?';
-    return 'When '+major.label+' takes the larger share, what would secure a recurring place for '+focus+'?';
+   // An intention is evidence only when the participant explicitly supplied a
+   // target that was validated by the generic allocation parser.
+   const gap=packet.claims?.find(c=>c.kind==='intention_gap'&&
+    c.classification==='necessary'&&c.evidence?.id);
+   if(gap){
+    const named=packet.selectedChoices?.find(c=>c.id===gap.evidence.id);
+    if(!named)return null;
+    return 'How does your stated target for '+named.label+
+     ' compare with the pattern you selected across these imagined intervals?';
    }
-   if(a.first.units===a.total)
-    return 'What would have to make room for the other activities if '+focus+' filled every interval?';
-   if(a.first.units>=a.total/2)
-    return 'What boundary might keep '+focus+' sustainable alongside other recurring demands?';
-   return 'What competing demand would have to yield for '+focus+' to receive more room?';
+   const absent=a.activities.filter(x=>x.units===0);
+   const present=a.activities.filter(x=>x.units>0);
+   const joining=xs=>xs.map(x=>x.label).join(' and ');
+   const ranked=[...present].sort((x,y)=>y.units-x.units);
+   if(absent.length){
+    const missing=joining(absent);
+    if(present.length===1)
+     return 'With '+missing+' absent, what does repeatedly allocating time only to '+
+      present[0].label+' sustain or exclude?';
+    if(present.every(x=>x.units===present[0].units))
+     return 'With '+missing+' absent while '+joining(present)+
+      ' share time, what does the repeated pattern preserve?';
+    return 'With '+missing+' absent and '+ranked[0].label+
+     ' receiving the larger share, what does the repeated pattern preserve?';
+   }
+   if(a.activities.every(x=>x.units===a.activities[0].units))
+    return 'With '+joining(a.activities)+' allotted equal time, what does repeating this balance preserve?';
+   if(ranked[0].units>a.total/2)
+    return 'When '+ranked[0].label+
+     ' receives most modeled time, what do the other activities retain in this repeated pattern?';
+   if(ranked[0].units===ranked[1].units)
+    return 'With '+joining(ranked.slice(0,2))+
+     ' sharing the largest allocation, what does repeating this pattern preserve?';
+   return 'With '+ranked[0].label+' receiving the largest share, what does the recurring allocation leave for '+
+    ranked.at(-1).label+'?';
   }
   case 'information':{
    const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
