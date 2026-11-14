@@ -30,14 +30,21 @@ function choiceText(x){
  const e=x.grounded;
  if(x.kind==="repetition"){
   const intervals=e.period?e.repetitions+" imagined "+e.periodPlural:e.repetitions+" imagined cycles";
+  const assigned=e.cumulative.filter(a=>a.units>0);
+  if(e.perIntervalUnallocated>0){
+   const each=assigned.map(a=>fHours((a.units/e.repetitions)*e.unitHours)+" for "+a.label).join("; ");
+   const totals=assigned.map(a=>fHours(a.units*e.unitHours)+" for "+a.label).join("; ");
+   return "In each of "+intervals+", "+
+     (assigned.length?"the plan assigns "+each:"no modeled activity receives time")+". "+
+     fHours(e.perIntervalUnallocated*e.unitHours)+" remain unallocated. Across the "+
+     e.repetitions+" intervals: "+(assigned.length?totals+"; ":"")+
+     fHours(e.totalUnallocated*e.unitHours)+" unallocated. "+
+     "This is an imagined schedule, not a report of your life.";
+  }
   const amounts=e.cumulative.map(a=>fHours(a.units*e.unitHours)+" for "+a.label).join("; ");
-  const remaining=e.perIntervalUnallocated>0?
-   "Each evening leaves "+fHours(e.perIntervalUnallocated*e.unitHours)+
-    " unallocated ("+fHours(e.totalUnallocated*e.unitHours)+" over "+e.repetitions+" intervals). ":
-   "All "+(e.perIntervalCapacity*e.unitHours===3?"three hours":fHours(e.perIntervalCapacity*e.unitHours))+
-    " of each evening are allocated. ";
-  return "Across "+intervals+": "+amounts+". "+remaining+
-    "This is an imagined plan, not your actual routine.";
+  return "Across "+intervals+": "+amounts+". All "+
+   (e.perIntervalCapacity*e.unitHours===3?"three hours":fHours(e.perIntervalCapacity*e.unitHours))+
+   " of each evening are allocated. This is an imagined plan, not your actual routine.";
  }
  if(x.kind==="agency"){
   const first=x.selected_choices[0]?.label||e.events[0].action;
@@ -60,7 +67,7 @@ function teachingText(x){
   if(total<available){
    if(writing===total)return "Dillard asks us to look at what ordinary days accumulate. Here, only "+
      fHours(e.perIntervalAllocated*e.unitHours)+" per evening goes to writing; "+
-     fHours(e.perIntervalUnallocated*e.unitHours)+" stays unassigned. Repeating this pattern shows only where the modeled time goes, not what the unassigned hours become or what you truly value.";
+     fHours(e.perIntervalUnallocated*e.unitHours)+" remain unassigned. Repeating this pattern shows only where the modeled time goes, not what the unassigned hours become or what you truly value.";
    if(rest===total)return "Dillard reminds us that life is made from ordinary days. Here, rest has a modeled place, but some of the evening is still unallocated. Those open hours have no assigned activity in this scenario; they aren't secretly more rest, writing, or a verdict about priorities.";
    return "Dillard draws attention to how our days accumulate. This imagined plan reserves some time for chosen activities while leaving other hours unassigned. Repetition can reveal a modeled pattern, but it does not tell us what fills the gaps, or which activity matters most.";
   }
