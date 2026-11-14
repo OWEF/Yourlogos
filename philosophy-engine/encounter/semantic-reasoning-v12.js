@@ -188,7 +188,7 @@ export function reasonSemantically(context,input){
    const next=first===last?'the decision ended there':'you then chose to '+last.label.toLowerCase();
    add('information','You first chose to '+first.label.toLowerCase()+'. Later in this imagined route, '+report[0].toLowerCase()+report.slice(1)+
     '; '+next+'. That later perspective does not prove your original choice mistaken or disclose the unchosen future.',
-    'conditional',{steps:structure.steps,firstChoice:first.choice,lastChoice:last.choice,revelations});
+    'conditional',{steps:structure.steps,events,firstChoice:first.choice,lastChoice:last.choice,revelations});
   }
   const control=context.model.agency;
   if(control?.external&&control?.own)add('agency',`You chose to ${events.map(e=>e.action.toLowerCase()).join(', then ')}; ${control.external} remains outside those choices.`, 'conditional',{action:last.label,own:control.own,external:control.external,events});
@@ -289,10 +289,8 @@ function meaningExperience(packet,m){
  if(m.kind==='specialization_effect'){
   const quantity=n=>n+' '+(n===1?(e.singular||'unit'):(e.unit||'units'));
   const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
-  const difference=e.delta>0?'That gains '+e.delta+' finished '+(e.delta===1?'unit.':'units.'):
-   e.delta===0?'That is no gain.':'That loses '+Math.abs(e.delta)+' finished '+(e.delta===-1?'unit.':'units.');
   return 'Your assignment: '+roles+'. The invented rotating-team baseline finishes '+quantity(e.baseline)+
-   '; your split finishes '+quantity(e.specialized)+'. '+difference+' Rates are hypothetical, not historical evidence.';
+   '; your split finishes '+quantity(e.specialized)+'. Rates are hypothetical, not historical evidence.';
 
  }
  if(m.kind==='dependency'){
@@ -404,7 +402,7 @@ function pathQuestion(packet){
    if(e.delta===0)
     return 'If specialized roles show no gain, which additional mechanism in Smith’s argument still needs evidence?';
    if(assignments.length===2&&assignments[0].amount===assignments[1].amount)
-    return 'Does this balanced split demonstrate improved dexterity or machinery, or only the modeled result?';
+    return 'Does this modeled gain show Smith’s dexterity or machinery mechanisms, or only coordinated completion?';
    return 'Despite a modeled gain, which stage now limits the next finished booklet?';
   }
   case 'agency':{
