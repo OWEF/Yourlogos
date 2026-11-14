@@ -119,3 +119,16 @@ test("CZ-127 RED: two genuinely eligible tones change the rhetoric on the same v
  assert.notEqual(playful.sections[2].text,contemplative.sections[2].text);
  assert.equal(playful.sections[1].text,contemplative.sections[1].text);
 });
+
+test("CZ-127 RED: validator rejects a fabricated user fact even if evidence IDs are retained",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ const forged=structuredClone(renderEncounterV20(p));
+ forged.sections[2].text+=" Your real friends are disappointed in you.";
+ assert.equal(validateEncounterV20(p,forged).status,"needs_editorial_review");
+});
+test("CZ-127 RED: validator rejects an unselected rhetorical angle with borrowed evidence",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ const forged=structuredClone(renderEncounterV20(p));
+ forged.brief.rhetorical_angle.id="space-not-outcome";
+ assert.equal(validateEncounterV20(p,forged).status,"needs_editorial_review");
+});
