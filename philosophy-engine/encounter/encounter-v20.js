@@ -4,6 +4,21 @@
  */
 import {reasonSemantically} from "./semantic-reasoning-v12.js";
 import {adaptEncounterEvidence,selectEmotionStrategy,V20_WORD_POLICY} from "./emotion-strategy-v20.js";
+/**
+ * v2-only scenario capability switch. The frozen v1.9.6 Dillard research model
+ * requires exact allocation; here "cap" means six available half-hour slots,
+ * some or all of which may remain intentionally unassigned. The kernel and
+ * source/editorial contracts are unchanged, and the original object is untouched.
+ */
+export function withPartialScheduleCapacity(context){
+ if(context?.mechanism!=="tradeoff"||
+    !context.semantic?.selection?.central?.includes("repetition")||
+    context.model?.resources?.length!==1||
+    context.model.resources[0].type!=="exact")
+  throw new TypeError("Only the declared exact-capacity recurrence research scenario can be adapted.");
+ return {...context,model:{...context.model,
+  resources:context.model.resources.map(r=>({...r,type:"cap"}))}};
+}
 const LABELS=["Your Choice","Back to the Philosopher","One Last Thing…"];
 const count=s=>s.trim().split(/\s+/).filter(Boolean).length;
 const fHours=n=>Number(n.toPrecision(12))+" "+(Number(n.toPrecision(12))===1?"hour":"hours");
@@ -50,7 +65,7 @@ function teachingText(x){
    return "Dillard draws attention to how our days accumulate. This imagined plan reserves some time for chosen activities while leaving other hours unassigned. Repetition can reveal a modeled pattern, but it does not tell us what fills the gaps, or which activity matters most.";
   }
   if(writing===total)return "Dillard suggests that a life takes shape through ordinary days. Here, writing claims every modeled hour across repeated imagined evenings. Repeating a choice gives it a place in the pattern, but this thought experiment cannot say whether writing matters more than anything else.";
-  if(rest===total)return "Dillard writes about how ordinary days make up a life. Here, the imagined evening makes space entirely for rest. Repetition gives that quiet time a recurring place; the model cannot judge its worth or tell us how anyone actually spends their days.";
+  if(rest===total)return "Dillard writes about how ordinary days make up a life. Here, the imagined evening makes space entirely for rest. Repetition gives that quiet time a recurring place; the model cannot judge its worth or tell us how anyone really spends their days.";
   return "Dillard shows how ordinary days can accumulate into a life. This imagined plan repeats time for writing, messages and rest instead of giving it all to one thing. It describes a possible pattern without measuring anyone's worth or revealing your actual habits.";
  }
  if(x.kind==="agency"){
@@ -79,7 +94,7 @@ function lastThing(x,brief){
   case "apology-not-reply":return "You can offer the apology. You cannot reach over and write the other person's answer.";
   case "space-not-outcome":return "Not every silence is a verdict. In this imagined exchange, the other person still gets to choose what comes next.";
   case "later-apology":return "You can change what you offer next. You still cannot choose someone else's response.";
-  case "stay-unlived":return "The job you didn't take never gets a bad Monday in this story. That's what an unwritten future can get away with.";
+  case "stay-unlived":return "The job you didn't take gets no bad Mondays in this story. Unwritten futures enjoy that privilege.";
   case "move-hours":return "The difficult hours arrived after the job started. The offer didn't come with a preview of that chapter.";
   case "move-friends":return "The choice came first. Missing old friends arrived in the next imagined chapter.";
   case "other-tomorrow":return "A choice opens one page, not the page that was left unread.";
