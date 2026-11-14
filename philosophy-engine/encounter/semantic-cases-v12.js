@@ -46,7 +46,7 @@ function temporalDecisionModel(spec){
   nodes[name]={prompt:stage.prompt,options:options.map(o=>{
    const next=i+1<spec.steps.length?name+'/'+o.id:null;
    if(next)expand(i+1,o.id,next);
-   return {id:o.id,label:o.label,action:o.label,next,...(i===1?{reveal:[o.label]}:{})};
+   return {id:o.id,label:o.label,action:o.label,intention:o.detail||null,next,...(i===1?{reveal:[o.label]}:{})};
   })};
  }
  expand(0,null,'first');
@@ -56,11 +56,11 @@ function temporalDecisionModel(spec){
 const sourceAdmissions={
  thoreau:{premiseIds:['extra_labor_constant_wage'],
   centralClaim:'Thoreau asks us to consider the life exchanged to obtain a possession, not merely its price.',
-  scenarioBridge:'Only under the extra-shift wage assumption does a purchase convert into working hours.',
+  scenarioBridge:'Working hours here depend on an imagined extra-shift wage.',
   allowedClaimKinds:['conversion','transition']},
  smith:{premiseIds:['joint_required_stages','invented_shift_rates'],
   centralClaim:'Smith explains productivity gains from dividing and specializing labour, not simply a numerical bottleneck.',
-  scenarioBridge:'The invented rotating-team comparison models time lost switching. It does not prove specialization increases productivity outside the stated assumptions.',
+  scenarioBridge:'The invented rotating team assumes switching costs; it cannot prove real productivity gains.',
   allowedClaimKinds:['specialization_effect','dependency','transition'],claimPremiseIds:{specialization_effect:['hypothetical_switching_baseline']}},
  epictetus:{premiseIds:['own_response_external_forgiveness'],
   centralClaim:'Epictetus distinguishes choices and judgments within rational agency from outcomes that depend on others.',
@@ -68,15 +68,15 @@ const sourceAdmissions={
   allowedClaimKinds:['agency']},
  descartes:{premiseIds:['ordinary_documentary_evidence_not_certainty'],
   centralClaim:'Descartes cautions against assent that exceeds what is clearly and distinctly understood.',
-  scenarioBridge:'A disputed archival record illustrates withholding assent, but ordinary documentary checking is not Cartesian certainty.',
+  scenarioBridge:'Ordinary archival evidence illustrates assent but does not establish clear-and-distinct knowledge.',
   allowedClaimKinds:['assent']},
  dillard:{premiseIds:['repeated_schedule_hypothetical'],
   centralClaim:'Dillard draws attention to the way the arrangement of days accumulates into a life.',
-  scenarioBridge:'Repeating a modeled evening changes the cumulative allocation, not the evidence about actual habits.',
+  scenarioBridge:'Repetition is imagined; these are not records of actual habits.',
   allowedClaimKinds:['repetition']},
  kierkegaard:{premiseIds:['later_events_imagined'],
   centralClaim:'A life must be lived forward even though an account of it is formed retrospectively, never from outside time.',
-  scenarioBridge:'An imagined later event changes the basis for a next choice without revealing the unchosen future.',
+  scenarioBridge:'Later imagined events inform choices without revealing alternative futures.',
   allowedClaimKinds:['information']}
 };
 for(const [id,entry] of Object.entries(sourceAdmissions)){
