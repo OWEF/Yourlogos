@@ -305,6 +305,8 @@ test('v1.9.3 P0-2 RED: repeated allocation is neutral across activity order unle
  assert.equal(p.status,'ready',p.reason);
  const rev=expressSemantic(p);assert.equal(rev.status,'ready',rev.reason);
  console.log('CZ13-P0-REPETITION '+JSON.stringify({name:'reversed',idea:rev.headline+' '+rev.experience,philosopher:rev.interpretation,question:rev.proactiveQuestion,words:rev.wordCount}));
+ assert.doesNotMatch(rev.interpretation,/other activities remain present|alongside the other activities/i,'absent activity must not be described as still present');
+ assert.match(rev.interpretation,/running.*(?:no allocation|absent|no time|excluded)|(?:absent|excluded).*running/i,'zero allocation must be explicitly recognized');
  assert.doesNotMatch(rev.proactiveQuestion,/make room|give way|yield|should|ought|prioriti[sz]/i);
  assert.match(rev.proactiveQuestion,/running|caring|resting|pattern|repeated|preserv|exclud/i);
  const goal=evaluate([0,3,3],{[c.model.choices[0].id]:2});
