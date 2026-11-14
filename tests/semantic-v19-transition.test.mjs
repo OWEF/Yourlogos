@@ -95,3 +95,33 @@ test('first decision remains immutable after evaluation',()=>{
  assert.deepEqual(p.structure.transition.initial.amounts,[1,2,1]);
  assert.deepEqual(p.structure.transition.revised.amounts,[1,1,1]);
 });
+
+
+test('CZ-13 v1.9.1: identical first decision under two different authored constraints distinguishes forced change from continuity',()=>{
+ const first={amounts:[1,2,1],budgets:[8]};
+ const budgetCrisis=semanticCases.money;
+ const constrained=reasonSemantically(budgetCrisis,{
+  first,developmentId:budgetCrisis.development.id,amounts:[1,1,1],budgets:[6]
+ });
+ const supplyChange=structuredClone(semanticCases.money);
+ supplyChange.development={
+  id:'repair-cap',kind:'hypothetical_constraint',
+  label:'A temporary supply rule allows at most two chair repairs.',
+  choiceCaps:{repair:2}
+ };
+ const unchanged=reasonSemantically(supplyChange,{
+  first,developmentId:supplyChange.development.id,amounts:[1,2,1],budgets:[8]
+ });
+ for(const packet of [constrained,unchanged])assert.equal(packet.status,'ready',packet.reason);
+ assert.equal(constrained.structure.transition.reallocationRequired,true);
+ assert.equal(constrained.structure.transition.amountsChanged,true);
+ assert.equal(unchanged.structure.transition.originalSelectionStillFeasible,true);
+ assert.equal(unchanged.structure.transition.amountsChanged,false);
+ const a=expressSemantic(constrained),b=expressSemantic(unchanged);
+ assert.equal(a.status,'ready',a.reason);
+ assert.equal(b.status,'ready',b.reason);
+ assert.notEqual(a.interpretation,b.interpretation);
+ assert.notEqual(a.proactiveQuestion,b.proactiveQuestion);
+ assert.match(a.experience,/essential bill/i);
+ assert.match(b.experience,/supply rule/i);
+});

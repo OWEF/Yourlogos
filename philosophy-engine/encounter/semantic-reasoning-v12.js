@@ -188,7 +188,7 @@ export function reasonSemantically(context,input){
    const next=first===last?'the decision ended there':'you then chose to '+last.label.toLowerCase();
    add('information','You first chose to '+first.label.toLowerCase()+'. Later in this imagined route, '+report[0].toLowerCase()+report.slice(1)+
     '; '+next+'. That later perspective does not prove your original choice mistaken or disclose the unchosen future.',
-    'conditional',{steps:structure.steps,firstChoice:first.choice,lastChoice:last.choice,revelations});
+    'conditional',{steps:structure.steps,events,firstChoice:first.choice,lastChoice:last.choice,revelations});
   }
   const control=context.model.agency;
   if(control?.external&&control?.own)add('agency',`You chose to ${events.map(e=>e.action.toLowerCase()).join(', then ')}; ${control.external} remains outside those choices.`, 'conditional',{action:last.label,own:control.own,external:control.external,events});
@@ -289,10 +289,8 @@ function meaningExperience(packet,m){
  if(m.kind==='specialization_effect'){
   const quantity=n=>n+' '+(n===1?(e.singular||'unit'):(e.unit||'units'));
   const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
-  const difference=e.delta>0?'That gains '+e.delta+' finished '+(e.delta===1?'unit.':'units.'):
-   e.delta===0?'That is no gain.':'That loses '+Math.abs(e.delta)+' finished '+(e.delta===-1?'unit.':'units.');
   return 'Your assignment: '+roles+'. The invented rotating-team baseline finishes '+quantity(e.baseline)+
-   '; your split finishes '+quantity(e.specialized)+'. '+difference+' Rates are hypothetical, not historical evidence.';
+   '; your split finishes '+quantity(e.specialized)+'. Rates are hypothetical, not historical evidence.';
 
  }
  if(m.kind==='dependency'){
@@ -321,61 +319,146 @@ function meaningExperience(packet,m){
  }
  return m.text;
 }
-// A question is a function of a validated meaning AND the specific path.
-// No source IDs, personality inference, prior-history fallback or generic
-// philosophy question bank are consulted here.
-function pathQuestion(packet){
- const m=packet.meaning, e=m.evidence||{}, path=packet.selectedChoices||[];
- const clean=x=>String(x||'your choice').replace(/[.!?]+$/,'').trim();
- const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
+// A bounded source-to-experience bridge. All branches read the already validated
+// meaning/1.2 consequence, never source IDs or a text-generated premise.
+function meaningBridge(packet){
+ const m=packet.meaning,e=m.evidence||{},items=packet.selectedChoices||[];
+ const secondary=packet.secondaryObservations||[];
  switch(m.kind){
-  case 'specialization_effect': {
-   const consequence=e.delta>0?'gain more finished work':e.delta===0?'show no gain':'finish fewer units';
-   return 'With '+roles+', why does this split produce '+(e.delta>0?'more finished booklets':e.delta===0?'the same number of finished booklets':'fewer finished booklets')+(e.delta===0?' as':' than')+' the invented rotating team?';
-  }
   case 'conversion':
-   return 'If the purchase costs '+e.measure+' '+e.unit+', what does that reveal about the life exchanged?';
-  case 'transition':{
-   const change=e.changedChoices?.[0];
-   return change?'When '+clean(change.label)+' shifted from '+change.from+' to '+change.to+
-    ', how did the new constraint affect '+clean(packet.semantic.concepts[1])+'?':
-    'You kept the allocation despite changed constraints; what remained within your choice about '+
-    clean(packet.semantic.concepts[1])+'?';
+   if(e.measure===0)return 'No purchase was modeled, so this path required no additional work hours.';
+   if(secondary.some(x=>x.kind==='intention_gap'))
+    return 'The unmet target sits alongside the modeled life-time cost of your purchases.';
+   if(packet.structure?.slack?.every(x=>x===0))
+    return 'The full allowance is committed, exposing modeled working time without judging its worth.';
+   return 'These purchases have a modeled time cost beyond their monetary price.';
+  case 'specialization_effect':{
+   const missing=e.assignments?.find(a=>a.amount===0);
+   if(missing)return 'With no '+missing.label+', an indispensable stage is absent: specialist labels alone complete nothing.';
+   if(e.delta<0)return 'Here divided roles finish less than the hypothetical rotating arrangement.';
+   if(e.delta===0)return 'Here dedicated roles only match rotation; a productivity benefit remains unshown.';
+   if(e.assignments?.length===2&&e.assignments[0].amount===e.assignments[1].amount)
+    return 'With both stages staffed equally, their coordination yields a modeled gain, not historical evidence.';
+   return 'Both stages contribute, but the thinner stage still constrains further completion.';
   }
   case 'agency':{
-   const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
-   return 'You chose to '+first.toLowerCase()+', then to '+last.toLowerCase()+
-    '; whose judgment remained beyond your control?';
+   const events=e.events||[],started=Object.values(events[0]?.occurred||{}).some(Boolean);
+   const ended=Object.values(events.at(-1)?.occurred||{}).some(Boolean);
+   if(started&&events[0]?.action!==events.at(-1)?.action)
+    return 'An earlier action remains performed even when your later choice is restraint.';
+   if(started)return 'Repeating an action does not make the other person’s decision yours.';
+   if(ended)return 'Your later action changes your conduct, not the other person’s decision.';
+   return 'Refraining is also your action; it does not determine the external response.';
   }
   case 'assent':{
-   const first=clean(e.events?.[0]?.action),last=clean(e.events?.at(-1)?.action);
-   return 'You chose to '+first.toLowerCase()+', then to '+last.toLowerCase()+
-    '; what could the available evidence justify accepting?';
+   if(e.changes?.length&&e.position==='withhold')
+    return 'Withdrawing assent after new evidence leaves the disputed claim unresolved.';
+   if(e.changes?.length)
+    return 'New assent remains a judgment, not proof of the disputed claim.';
+   if(e.position==='withhold')
+    return 'Continued suspension preserves the distinction between evidence and certainty.';
+   return 'Maintaining assent does not make the disputed record clearly known.';
   }
   case 'repetition':{
-   const first=e.cumulative?.[0],second=e.cumulative?.[1];
-   const hours=choice=>choice&&e.unitHours?choice.units*e.unitHours:choice?.units;
-   return 'Across '+e.repetitions+' imagined evenings with '+hours(first)+' hours for '+clean(first?.label)+
-    ' and '+hours(second)+' hours for '+clean(second?.label)+', what pattern of days emerges?';
+   const vals=(e.cumulative||[]).map(x=>x.units||0),writing=vals[0]||0,total=vals.reduce((a,b)=>a+b,0);
+   if(!writing)return 'The imagined repetition gives the story no scheduled place at all.';
+   if(writing===total)return 'Writing fills every modeled evening; the pattern excludes other activities here.';
+   if(writing>=total/2)return 'Writing has a substantial place in these modeled days alongside other claims.';
+   return 'Writing shares the imagined routine with competing activities rather than filling it.';
   }
   case 'information':{
-   const first=clean(e.steps?.[0]?.label),event=clean(e.revelations?.[0]);
-   const choice=first.replace(/^You\s+/i,'to ').toLowerCase();
-   return 'In the imagined route, you chose '+choice+' before '+event.toLowerCase()+
-    '; what becomes clearer when you look back?';
+   const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
+   if(!later)return null;
+   return 'Only afterward does this imagined route show that '+later[0].toLowerCase()+later.slice(1)+'.';
   }
-  case 'opportunity':{
-   const first=path[0],second=path[1];
-   return 'With '+(first?.amount??0)+' for '+clean(first?.label)+' and '+(second?.amount??0)+
-    ' for '+clean(second?.label)+', what competing use of finite time is displaced?';
-  }
+  case 'transition':
+   if(e.reallocationRequired)return 'Because the old plan no longer fit, changing it answered a new constraint.';
+   if(e.amountsChanged)return 'Because the old plan still fit, revising it was an additional choice.';
+   return 'Keeping the plan shows that a changed constraint need not change every choice.';
   case 'dependency':
-   return 'With '+e.measure+' finished units, which required stage would limit the next one?';
+   return 'Finishing work depends on every indispensable stage, not specialist titles alone.';
+  case 'opportunity':
+   return 'Allocating limited time here means that another feasible use goes without it.';
+  default:return null;
+ }
+}
+// Philosophical questions are conditioned on consequence shape, not only
+// quantities or replaced labels. They preserve the source's uncertainty.
+function pathQuestion(packet){
+ const m=packet.meaning,e=m.evidence||{},path=packet.selectedChoices||[];
+ switch(m.kind){
+  case 'conversion':
+   if(e.measure===0)return 'If no modeled working time was exchanged, when would Thoreau’s cost-of-life test become relevant?';
+   if((packet.secondaryObservations||[]).some(x=>x.kind==='intention_gap'))
+    return 'If a purchase falls short of your own target, what could justify its time cost?';
+   if(packet.structure?.slack?.every(x=>x===0))
+    return 'When the whole budget is spent, which alternative use of that working time remains unseen?';
+   return 'What would make the modeled hours behind these purchases worth exchanging?';
+  case 'specialization_effect':{
+   const assignments=e.assignments||[];
+   if(assignments.some(x=>x.amount===0))
+    return 'If one indispensable stage receives no workers, what has specialization failed to coordinate?';
+   if(e.delta<0)return 'What does producing less show about specialization without coordination?';
+   if(e.delta===0)
+    return 'If specialized roles show no gain, which additional mechanism in Smith’s argument still needs evidence?';
+   if(assignments.length===2&&assignments[0].amount===assignments[1].amount)
+    return 'Does this modeled gain show Smith’s dexterity or machinery mechanisms, or only coordinated completion?';
+   return 'Despite a modeled gain, which stage now limits the next finished booklet?';
+  }
+  case 'agency':{
+   const events=e.events||[],first=events[0],last=events.at(-1);
+   const happened=ev=>Object.values(ev?.occurred||{}).some(Boolean);
+   if(happened(first)&&first?.action===last?.action)
+    return 'Does repeating your action expand control over forgiveness, or merely repeat what you can choose?';
+   if(happened(first))
+    return 'After an action already occurred, what can later restraint change without undoing it?';
+   if(happened(last))
+    return 'What did acting later place within your control that earlier restraint did not?';
+   return 'Can choosing not to act exercise agency without determining the other person’s response?';
+  }
+  case 'assent':
+   if(e.changes?.length&&e.position==='withhold')
+    return 'What did the conflicting evidence justify revising without proving the original claim false?';
+   if(e.changes?.length)
+    return 'What additional grounds could justify moving from suspension to assent?';
+   if(e.position==='withhold')
+    return 'Why might continued suspension be more faithful to limited evidence than confident acceptance?';
+   return 'What would justify maintaining assent when the records still conflict?';
+  case 'repetition':{
+   const vals=(e.cumulative||[]).map(x=>x.units||0),writing=vals[0]||0,total=vals.reduce((a,b)=>a+b,0);
+   const msgs=vals[1]||0,rest=vals[2]||0;
+   if(writing===0&&msgs===0)
+    return 'If rest filled every imagined evening, how could writing enter the pattern without dismissing rest?';
+   if(writing===0&&msgs===rest)
+    return 'If messages and rest divide each evening, what would need rearranging for writing to recur?';
+   if(writing===0)
+    return 'When other activities leave no scheduled writing, what would stop a pause becoming a pattern?';
+   if(writing===total)
+    return 'What would need room elsewhere for such a writing-only schedule to be repeatable?';
+   if(writing>=total/2)
+    return 'Which boundary around competing demands would make this substantial writing time sustainable?';
+   return 'What would keep writing’s smaller place deliberate if these imagined evenings continued?';
+  }
+  case 'information':{
+   const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
+   const last=String(e.steps?.at(-1)?.label||'').replace(/^You\s+/i,'').toLowerCase();
+   if(!later||!last)return null;
+   return 'When '+later[0].toLowerCase()+later.slice(1)+', what does choosing to '+last+
+    ' clarify about your earlier decision?';
+  }
+  case 'transition':
+   if(e.reallocationRequired)return 'Which consequence arose from the new constraint rather than from your preferred allocation?';
+   if(e.amountsChanged)return 'When the old plan remained possible, what does your revision reveal about choosing again?';
+   return 'If the original allocation still fits, what does keeping it reveal about a new constraint?';
+  case 'opportunity':
+   return 'Which activity would have to surrender time if you increased the other one?';
+  case 'dependency':
+   return 'What makes having specialist roles insufficient when one required stage is missing?';
   case 'revision':
-   return 'After the change in commitment, what could your first decision actually establish?';
+   return 'What could you reasonably know before the later evidence changed your position?';
   case 'closure':
-   return 'After the earlier decision closed an option, what remained yours to choose?';
-  default: return null;
+   return 'Which already completed action cannot be undone by changing your later response?';
+  default:return null;
  }
 }
 function readableSummary(packet){
@@ -433,11 +516,15 @@ export function expressSemantic(packet,mode='reflective'){
    experience+=' '+summary;
  }
  const admission=packet.sourceAdmission;
+ const bridge=meaningBridge(packet);
+ if(admission?.centralClaim&&admission?.scenarioBridge&&!bridge)
+  return {status:'needs_editorial_review',reason:'No supported source-to-experience bridge for this meaning.'};
  const interpretation=admission?.centralClaim&&admission?.scenarioBridge?
-  admission.centralClaim+' '+admission.scenarioBridge+' '+packet.limitations.join(' ')+
+  admission.centralClaim+' '+admission.scenarioBridge+' '+bridge+' '+packet.limitations.join(' ')+
    (admission.claimTraceStatus==='unverified'?' This source interpretation is unverified.':''):
   composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
- const proactiveQuestion=pathQuestion(packet)||questions[m.kind]||composed.question;
+ const proactiveQuestion=pathQuestion(packet);
+ if(!proactiveQuestion)return {status:'needs_editorial_review',reason:'No grounded final question available for this meaning.'};
  const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
  const wordCount=text.split(/\s+/).length;
  // Never truncate a caveat or silently add padding to satisfy a length target.

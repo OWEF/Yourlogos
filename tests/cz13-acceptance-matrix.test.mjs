@@ -63,3 +63,45 @@ test('all six scenarios have a real question grounded in the chosen route',()=>{
   assert.ok(new Set(questions).size>=2,id+' question must not be constant across decisions');
  }
 });
+
+
+// CZ-13 v1.9.1 independent QA: adversarial checks written before expression repairs.
+// These are engineering regressions, NOT independent blinded readers or scholarly signoff.
+test('v1.9.1 RED: Section II connects distinct evidenced consequences to the source',()=>{
+ const cases=[
+  ['money', [{amounts:[0,0,0],budgets:[8]},{amounts:[1,0,1],budgets:[8]}]],
+  ['workshop',[[0,4],[3,1],[2,2]].map(amounts=>({amounts,budgets:[4]}))],
+  ['apology',[['offer','space'],['space','space'],['space','offer']].map(path=>({path}))],
+  ['evidence',[['endorse','endorse'],['suspend','suspend'],['endorse','suspend']].map(path=>({path}))],
+  ['dillard',[[0,3,3],[3,1,2],[6,0,0]].map(amounts=>({amounts,budgets:[6],repetitions:5}))],
+  ['kierkegaard',[['change','risk','continue'],['change','surprise','adapt'],['stay','missed','reflect']].map(path=>({path}))]
+ ];
+ for(const [name,inputs] of cases){
+  const variants=inputs.map(input=>{
+   const packet=reasonSemantically(semanticCases[name],input);
+   assert.equal(packet.status,'ready',name+' '+JSON.stringify(input));
+   const output=expressSemantic(packet);
+   assert.equal(output.status,'ready',name+' '+JSON.stringify(output));
+   assert.ok(output.interpretation.includes(packet.sourceAdmission.centralClaim));
+   assert.ok(output.interpretation.includes(packet.limitations[0]));
+   return output.interpretation;
+  });
+  assert.equal(new Set(variants).size,inputs.length,name+': Section II must explain materially different paths');
+ }
+});
+
+test('v1.9.1 RED: the final questions examine significance rather than repeating numbers or choices',()=>{
+ const out=(name,input)=>{
+  const packet=reasonSemantically(semanticCases[name],input);
+  assert.equal(packet.status,'ready');
+  const result=expressSemantic(packet);
+  assert.equal(result.status,'ready');
+  return result.proactiveQuestion;
+ };
+ assert.doesNotMatch(out('money',{amounts:[0,0,0],budgets:[8]}),/purchase costs 0/i);
+ assert.doesNotMatch(out('workshop',{amounts:[0,4],budgets:[4]}),/why does this split produce fewer/i);
+ assert.doesNotMatch(out('apology',{path:['offer','space']}),/whose judgment remained beyond your control/i);
+ assert.doesNotMatch(out('evidence',{path:['endorse','suspend']}),/what could the available evidence justify accepting/i);
+ assert.doesNotMatch(out('dillard',{amounts:[0,3,3],budgets:[6],repetitions:5}),/what pattern of days emerges/i);
+ assert.doesNotMatch(out('kierkegaard',{path:['stay','missed','reflect']}),/what becomes clearer when you look back/i);
+});
