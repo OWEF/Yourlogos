@@ -468,3 +468,19 @@ test('v1.9.5 policy sweep: 3–6 activities, original source caveats and predece
  }
  assert.equal(checked,12);
 });
+
+
+test('v1.9.5 protected editorial qualifications are never truncated to make an invalid reading READY',()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[2,2,2],budgets:[6],repetitions:5});
+ assert.equal(p.status,'ready',p.reason);
+ // Inject a deliberately uncompressible, safety-critical source qualification
+ // *after* reasoning to isolate the Expression Engine length gate itself.
+ const original=p.sourceAdmission.centralClaim;
+ p.sourceAdmission.centralClaim=original+' '+Array.from({length:28},(_,i)=>
+   'Qualification '+(i+1)+' must remain visible.').join(' ');
+ const result=expressSemantic(p);
+ assert.equal(result.status,'needs_editorial_review');
+ assert.match(result.reason,/word|section|policy/i);
+ assert.ok(result.sectionWordCounts.philosopher>65||result.wordCount>120,
+  'overflow must be explicitly measured, never silently truncated');
+});
