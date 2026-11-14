@@ -269,6 +269,7 @@ test('v1.9.3 P0-1 RED: effect-free agency differentiates all four ordered decisi
   assert.equal((o.proactiveQuestion.match(/\?/g)||[]).length,1);
   assert.doesNotMatch([o.interpretation,o.proactiveQuestion].join(' '),/already performed|was sent|was made|irreversible|confirmed contact|forgiveness/i);
   assert.match(o.interpretation,/committee|selection|external/i);
+  console.log('CZ13-P0-AGENCY '+JSON.stringify({path,idea:o.headline+' '+o.experience,philosopher:o.interpretation,question:o.proactiveQuestion,words:o.wordCount}));
   output.push(o);
  }
  assert.equal(new Set(output.map(x=>x.interpretation)).size,4,'Section II must reflect continuing, changing and delaying choices');
@@ -291,6 +292,7 @@ test('v1.9.3 P0-2 RED: repeated allocation is neutral across activity order unle
  const absent=evaluate([0,3,3]);
  const balanced=evaluate([2,2,2]);
  const majority=evaluate([0,1,5]);
+ for(const [name,out] of [['absent',absent],['balanced',balanced],['majority',majority]])console.log('CZ13-P0-REPETITION '+JSON.stringify({name,idea:out.headline+' '+out.experience,philosopher:out.interpretation,question:out.proactiveQuestion,words:out.wordCount}));
  for(const out of [absent,balanced,majority]){
   assert.doesNotMatch(out.proactiveQuestion,/make room|give way|yield|secure a place|have to include|sacrifice|should|ought|prioriti[sz]/i);
   assert.match(out.proactiveQuestion,/pattern|repeated|recurr|preserv|exclud|sustain|possible/i);
