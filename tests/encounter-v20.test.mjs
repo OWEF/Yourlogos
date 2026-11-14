@@ -248,3 +248,56 @@ test("CZ-127 corrective RED: per-evening partial schedule is explicit and ordina
   assert.doesNotMatch(out.sections[1].text,/hours stays unassigned/i);
  }
 });
+
+test("CZ-127 source identity RED: Dillard packet refuses Adam Smith and empty authors before READY",()=>{
+ const packet=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ assert.equal(packet.status,"ready");
+ assert.equal(renderEncounterV20(packet).status,"ready");
+ for(const author of ["Adam Smith",""]){
+  const forged=structuredClone(packet);
+  forged.author=author;
+  assert.equal(forged.quote,packet.quote);
+  assert.equal(forged.sourceAdmission.sourceUrl,packet.sourceAdmission.sourceUrl);
+  assert.equal(forged.sourceAdmission.centralClaim,packet.sourceAdmission.centralClaim);
+  assert.equal(adaptEncounterEvidence(forged).status,"incompatible",JSON.stringify(author));
+  assert.equal(renderEncounterV20(forged).status,"needs_editorial_review",JSON.stringify(author));
+  assert.equal(selectEmotionStrategy(forged).status,"needs_editorial_review",JSON.stringify(author));
+ }
+});
+test("CZ-127 scenario RED: renamed weekly activities must never inherit writing or evening language",()=>{
+ const weekly=withPartialScheduleCapacity(semanticCases.dillard);
+ weekly.model.choices=weekly.model.choices.map((c,i)=>({
+  ...c,label:["Train","Visit family","Rest"][i],
+  readingLabel:["training","visiting family","resting"][i]
+ }));
+ weekly.model.repetitionPeriod="week";
+ const input={amounts:[2,0,0],budgets:[6],repetitions:5};
+ const packet=reasonSemantically(weekly,input);
+ assert.equal(packet.status,"ready");
+ assert.deepEqual(packet.meaning.evidence.cumulative.map(x=>x.label),["training","visiting family","resting"]);
+ assert.equal(packet.meaning.evidence.period,"week");
+ const output=renderEncounterV20(packet);
+ assert.equal(output.status,"ready",JSON.stringify(output));
+ const all=output.sections.map(x=>x.text).join(" ");
+ assert.match(all,/training/i);
+ assert.match(all,/week/i);
+ assert.doesNotMatch(all,/writing|your story|messages|evening/i);
+ assert.match(output.sections[0].text,/2 hours.*unallocated/i);
+});
+test("CZ-127 scenario RED: reordered session activities cannot inherit positional writing/rest assumptions",()=>{
+ const session=withPartialScheduleCapacity(semanticCases.dillard);
+ session.model.choices=[session.model.choices[2],session.model.choices[0],session.model.choices[1]]
+  .map((c,i)=>({...c,id:"activity-"+i,label:["Rest","Train","Visit family"][i],
+    readingLabel:["resting","training","visiting family"][i]}));
+ session.model.repetitionPeriod="session";
+ const packet=reasonSemantically(session,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ assert.equal(packet.status,"ready");
+ assert.equal(packet.meaning.evidence.period,"session");
+ const output=renderEncounterV20(packet);
+ assert.equal(output.status,"ready",JSON.stringify(output));
+ const all=output.sections.map(x=>x.text).join(" ");
+ assert.match(all,/resting/i);
+ assert.match(all,/sessions/i);
+ assert.doesNotMatch(all,/writing|your story|answering messages|evening/i);
+ assert.doesNotMatch(output.sections[2].text,/your story|calendar needs a bookmark|other two hours/i);
+});
