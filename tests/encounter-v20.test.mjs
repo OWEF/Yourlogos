@@ -232,3 +232,19 @@ test("CZ-127 corrective RED: endings do not narrate a ledger back to the reader"
   assert.doesNotMatch(ending,/selected response|entire timetable|gets another page|you cannot visit the future/i,k+": "+ending);
  }
 });
+
+test("CZ-127 corrective RED: per-evening partial schedule is explicit and ordinary English",()=>{
+ const partial=withPartialScheduleCapacity(semanticCases.dillard);
+ for(const [amounts,activity,unused,cumulative] of [
+  [[2,0,0],"1 hour for writing your story","2 hours","5 hours"],
+  [[0,0,3],"1.5 hours for resting and recharging","1.5 hours","7.5 hours"],
+  [[0,0,0],"no modeled activity receives time","3 hours","15 hours"]
+ ]){
+  const out=encounterV20(partial,{amounts,budgets:[6],repetitions:5});
+  assert.equal(out.status,"ready",JSON.stringify(out));
+  assert.match(out.sections[0].text,new RegExp(activity.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"i"));
+  assert.match(out.sections[0].text,new RegExp(unused.replace(".","\\.")));
+  assert.match(out.sections[0].text,new RegExp(cumulative.replace(".","\\.")));
+  assert.doesNotMatch(out.sections[1].text,/hours stays unassigned/i);
+ }
+});
