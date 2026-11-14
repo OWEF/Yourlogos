@@ -36,7 +36,7 @@ function recurringScheduleModel(spec){
   choices:spec.categories.map((label,i)=>({id:'activity-'+i,label,
    readingLabel:['writing your story','answering messages','resting and recharging'][i]||label,
    cost:[1],max:6})),
-  unitLabel:'half-hour slots',unitHours:0.5};
+  unitLabel:'half-hour slots',unitHours:0.5,repetitionPeriod:'evening'};
 }
 function temporalDecisionModel(spec){
  const nodes={};
@@ -72,7 +72,7 @@ const sourceAdmissions={
   allowedClaimKinds:['assent']},
  dillard:{premiseIds:['repeated_schedule_hypothetical'],
   centralClaim:'Dillard draws attention to the way the arrangement of days accumulates into a life.',
-  scenarioBridge:'Repetition is imagined; these are not records of actual habits.',
+  scenarioBridge:'An imagined repeated allocation can include some activities and exclude others across days.',
   allowedClaimKinds:['repetition']},
  kierkegaard:{premiseIds:['later_events_imagined'],
   centralClaim:'A life must be lived forward even though an account of it is formed retrospectively, never from outside time.',

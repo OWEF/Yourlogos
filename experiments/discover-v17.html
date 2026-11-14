@@ -1394,7 +1394,7 @@ function recurringScheduleModel(spec){
   choices:spec.categories.map((label,i)=>({id:'activity-'+i,label,
    readingLabel:['writing your story','answering messages','resting and recharging'][i]||label,
    cost:[1],max:6})),
-  unitLabel:'half-hour slots',unitHours:0.5};
+  unitLabel:'half-hour slots',unitHours:0.5,repetitionPeriod:'evening'};
 }
 function temporalDecisionModel(spec){
  const nodes={};
@@ -1430,7 +1430,7 @@ const sourceAdmissions={
   allowedClaimKinds:['assent']},
  dillard:{premiseIds:['repeated_schedule_hypothetical'],
   centralClaim:'Dillard draws attention to the way the arrangement of days accumulates into a life.',
-  scenarioBridge:'Repetition is imagined; these are not records of actual habits.',
+  scenarioBridge:'An imagined repeated allocation can include some activities and exclude others across days.',
   allowedClaimKinds:['repetition']},
  kierkegaard:{premiseIds:['later_events_imagined'],
   centralClaim:'A life must be lived forward even though an account of it is formed retrospectively, never from outside time.',
@@ -1666,12 +1666,35 @@ function reasonSemantically(context,input){
    if(!Number.isSafeInteger(input.repetitions)||input.repetitions<2||input.repetitions>1000)return reject('Invalid repetition horizon.');
    if(context.model.unitHours!==undefined&&(!Number.isFinite(context.model.unitHours)||context.model.unitHours<=0))
     return reject('The scenario has an invalid time conversion.');
+   if(context.semantic.selection?.central?.includes('repetition')&&
+    (context.model.resources?.length!==1||choices.some(c=>c.cost?.length!==1||c.cost[0]!==1)))
+    return reject('Repetition requires one shared time-slot resource with unit-cost activities.');
+   // Interval identity belongs to the scenario model, never its philosopher/quote.
+   const periods={evening:'evenings',morning:'mornings',afternoon:'afternoons',week:'weeks',
+    day:'days',session:'sessions',month:'months',night:'nights',shift:'shifts',
+    cycle:'cycles',block:'blocks',weekday:'weekdays',weekend:'weekends'};
+   const period=context.model.repetitionPeriod??null;
+   if(period!==null&&(!Object.hasOwn(periods,period)||typeof period!=='string'))
+    return reject('Invalid repetition period.');
    const cumulative=choices.map((c,i)=>({label:c.readingLabel||c.label,units:input.amounts[i]*input.repetitions}));
+   const perIntervalCapacity=structure.budgets[0],perIntervalAllocated=structure.spent[0],
+    perIntervalUnallocated=structure.slack[0];
+   const safe=[perIntervalCapacity,perIntervalAllocated,perIntervalUnallocated,
+    ...cumulative.map(c=>c.units),perIntervalCapacity*input.repetitions,
+    perIntervalAllocated*input.repetitions,perIntervalUnallocated*input.repetitions];
+   if(!safe.every(Number.isSafeInteger))return reject('Repetition capacity exceeds safe integer bounds.');
    const slots=context.model.unitLabel||'resource units';
    add('repetition','If this exact arrangement were repeated '+input.repetitions+' times, it would reserve '+
     cumulative.map(c=>c.units+' '+slots+' for '+c.label).join(', ')+
-    '. This is a conditional pattern, not evidence that you will adopt it.', 'conditional',
-    {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions,unitHours:context.model.unitHours||null});
+    '. '+(perIntervalUnallocated>0?perIntervalUnallocated*input.repetitions+
+      ' '+slots+' remain unallocated. ':'')+
+    'This is a conditional pattern, not evidence that you will adopt it.', 'conditional',
+    {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions,
+     period,periodPlural:period===null?'cycles':periods[period],unitLabel:slots,
+     unitHours:context.model.unitHours||null,perIntervalCapacity,perIntervalAllocated,
+     perIntervalUnallocated,totalCapacity:perIntervalCapacity*input.repetitions,
+     totalAllocated:perIntervalAllocated*input.repetitions,
+     totalUnallocated:perIntervalUnallocated*input.repetitions});
   }
   const better=context.model.metric?.op==='minimum'?structure.alternatives.find(a=>a.delta>0):null;
   if(better)add('complementarity',`Reallocating one unit can increase the modeled result from ${structure.measure} to ${better.measure}.`,'conditional',better);
@@ -1717,7 +1740,7 @@ function reasonSemantically(context,input){
   add('uncertainty','An unchosen route remains a possibility, not an observed outcome.','conditional',{steps:structure.steps});
 
  }
- if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),alternative:structure.alternatives.find(a=>a.delta>0)||null});
+ if(trade&&context.model.metric?.op==='minimum')add('dependency',`The arrangement completes ${structure.measure} ${structure.measure===1?(context.model.metric.singular||context.model.metric.unit):context.model.metric.unit}; completion depends on all required stages.${structure.alternatives.some(a=>a.delta>0)?' Moving one assignment can raise completion to '+structure.alternatives.find(a=>a.delta>0).measure+' without adding resources.':''}`, 'conditional',{measure:structure.measure,components:input.amounts.map((n,i)=>n*context.model.metric.weights[i]),stageCapacities:context.model.choices.map((choice,i)=>({label:choice.label,capacity:structure.amounts[i]*context.model.metric.weights[i]})).filter((_,i)=>context.model.metric.weights[i]>0),alternative:structure.alternatives.find(a=>a.delta>0)||null});
  if(trade&&context.model.comparison){
   const c=context.model.comparison;
   const baseline=Math.floor(c.staffing*(c.minutesPerWorker-c.switchingMinutesPerWorker)/c.minutesPerUnit);
@@ -1729,6 +1752,7 @@ function reasonSemantically(context,input){
    ' units; your dedicated-stage assignment finishes '+structure.measure+' units. '+reading+
    ' Neither figure is historical evidence.','conditional',
    {baseline,specialized:structure.measure,delta,staffing:c.staffing,assignments:context.model.choices.map((choice,i)=>({id:choice.id,label:choice.label,singular:choice.singular||null,amount:structure.amounts[i]})),
+    stageCapacities:context.model.choices.map((choice,i)=>({label:choice.label,capacity:structure.amounts[i]*context.model.metric.weights[i]})).filter((_,i)=>context.model.metric.weights[i]>0),
     generalistCalculation:{staffing:c.staffing,minutesPerWorker:c.minutesPerWorker,switchingMinutesPerWorker:c.switchingMinutesPerWorker,minutesPerUnit:c.minutesPerUnit},
     explanation:c.explanation,unit:context.model.metric.unit,singular:context.model.metric.singular});
  }
@@ -1775,7 +1799,7 @@ function meaningHeadline(kind,evidence={}){
   case 'conversion': return 'This choice corresponds to '+evidence.measure+' '+evidence.unit+'.';
   case 'dependency': return 'The least-supplied stage limits what gets finished.';
   case 'specialization_effect': return evidence.specialized>evidence.baseline?
-   'Balancing the specialized stages increases modeled output.':
+   'The specialized assignment increases modeled output.':
    evidence.specialized===evidence.baseline?'Specialization alone did not increase modeled output.':
    'This specialized assignment produces less in the comparison.';
   case 'agency': return '“'+(evidence.events?.[0]?.action||'Your first response')+
@@ -1783,10 +1807,15 @@ function meaningHeadline(kind,evidence={}){
   case 'assent': return evidence.changes?.length?'Revising your judgment does not disprove the claim.':
    'Your judgment and the claim’s truth are separate questions.';
   case 'repetition': {
-   const first=evidence.cumulative?.[0],hours=first&&evidence.unitHours?
-    first.units*evidence.unitHours:null;
-   return first&&hours!==null?'Your repeated plan reserves '+hours+' hours for '+first.label+' across '+evidence.repetitions+' imagined evenings.':
-    'Repeated evenings can form a pattern, not a prediction.';
+   const a=repeatedActivityEvidence(evidence);if(!a)return null;
+   if(a.total===0)return 'No modeled activity receives assigned time.';
+   if(a.unallocated>0&&a.activities.filter(x=>x.units>0).length===1)
+    return 'One activity takes the assigned time; some capacity stays unused.';
+   if(a.unallocated>0)return 'This repeated schedule leaves available time unallocated.';
+   if(a.first.units===0)return 'One activity is absent from this repeated allocation.';
+   if(a.first.units===a.total)return 'One activity fills the entire imagined interval.';
+   if(a.first.units>=a.total/2)return 'One activity receives much of the modeled time.';
+   return 'Several activities share this imagined schedule.';
   }
   case 'information': {
    const news=evidence.revelations?.[0];
@@ -1796,7 +1825,14 @@ function meaningHeadline(kind,evidence={}){
   default: return null;
  }
 }
-function meaningExperience(packet,m){
+// Keep human-facing durations to 12 significant decimal digits, avoiding
+// binary floating-point tails while retaining arbitrarily small nonzero hours.
+function readableHours(slots,unitHours){
+ const amount=slots*unitHours;
+ if(!Number.isFinite(amount)||amount<0)return null;
+ return Number(amount.toPrecision(12));
+}
+function meaningExperience(packet,m,compact=false){
  const e=m.evidence||{};
  if(m.kind==='transition'){
   const quantities=e.amountsChanged?'You changed the allocation.':'You kept the original quantities.';
@@ -1807,9 +1843,11 @@ function meaningExperience(packet,m){
  }
  if(m.kind==='specialization_effect'){
   const quantity=n=>n+' '+(n===1?(e.singular||'unit'):(e.unit||'units'));
-  const roles=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label)).join(' and ');
-  return 'Your assignment: '+roles+'. The invented rotating-team baseline finishes '+quantity(e.baseline)+
-   '; your split finishes '+quantity(e.specialized)+'. Rates are hypothetical, not historical evidence.';
+  const assigned=(e.assignments||[]).map(a=>a.amount+' '+(a.amount===1&&a.singular?a.singular:a.label));
+  const roles=assigned.length<3?assigned.join(' and '):
+   assigned.slice(0,-1).join(', ')+', and '+assigned.at(-1);
+  return 'Your assignment: '+roles+'. The invented rotating-team baseline produces '+quantity(e.baseline)+
+   '; your split produces '+quantity(e.specialized)+'. Rates are hypothetical, not historical evidence.';
 
  }
  if(m.kind==='dependency'){
@@ -1817,13 +1855,30 @@ function meaningExperience(packet,m){
    ' An allowed reassignment could raise that to '+e.alternative.measure+'.':'';
   return 'With your chosen assignment, the team finishes '+e.measure+' modeled '+(e.measure===1?'unit':'units')+'. Both stages are needed.'+changed;
  }
- if(m.kind==='conversion')return 'This estimate uses the imagined wage, not your actual earnings.';
+ if(m.kind==='conversion')return 'This conversion follows the scenario’s assumptions, not observations of your actual life.';
  if(m.kind==='repetition'){
-  const display=n=>e.unitHours?
-   (n*e.unitHours)+' '+(n*e.unitHours===1?'hour':'hours'):
-   n+' modeled units';
-  return 'Across '+e.repetitions+' imagined evenings, the same plan would give '+
-   (e.cumulative||[]).map(c=>display(c.units)+' for '+c.label).join(', ')+
+  const display=n=>{
+   if(!e.unitHours)return n+' modeled units';
+   const amount=readableHours(n,e.unitHours);
+   if(amount===null)return null;
+   return amount+' '+(amount===1?'hour':'hours');
+  };
+  const interval=e.period===null?e.repetitions+' repeated cycles':
+   e.repetitions+' imagined '+e.periodPlural;
+  const entries=(e.cumulative||[]).map(c=>({label:c.label,time:display(c.units)}));
+  const unused=e.perIntervalUnallocated>0?display(e.totalUnallocated):null;
+  if(entries.some(x=>x.time===null)||(e.perIntervalUnallocated>0&&unused===null))return null;
+  if(compact){
+   const parts=entries.map(c=>c.label+': '+c.time).join('; ');
+   return 'Across '+interval+': '+parts+'. '+
+    (unused!==null?'Unallocated: '+unused+'. ':'')+
+    'This does not establish your actual habits.';
+  }
+  const allocations=entries.map(c=>c.time+' for '+c.label).join(', ');
+  if(unused!==null)
+   return 'Across '+interval+', '+allocations+'. '+unused+
+    ' remain unallocated. This does not establish your actual habits.';
+  return 'Across '+interval+', the same plan would give '+allocations+
    '. This does not establish your actual habits.';
  }
  if(m.kind==='information'){
@@ -1840,123 +1895,219 @@ function meaningExperience(packet,m){
 }
 // A bounded source-to-experience bridge. All branches read the already validated
 // meaning/1.2 consequence, never source IDs or a text-generated premise.
+// Generic expression only consumes evidence admitted by meaning/1.2; it must
+// not infer source identity, future outcomes, activities, or stage capacities.
+function stageCapacityEvidence(e){
+ const stages=e?.stageCapacities;
+ if(!Array.isArray(stages)||stages.length<2||stages.some(s=>
+   !s||typeof s.label!=='string'||!s.label.trim()||
+   !Number.isSafeInteger(s.capacity)||s.capacity<0))return null;
+ const minimum=Math.min(...stages.map(s=>s.capacity));
+ const limiting=stages.filter(s=>s.capacity===minimum);
+ return {stages,minimum,limiting,allEqual:limiting.length===stages.length};
+}
+function repeatedActivityEvidence(e){
+ const a=e?.cumulative;
+ if(!Array.isArray(a)||a.length<2||a.some(x=>
+   !x||typeof x.label!=='string'||!x.label.trim()||
+   !Number.isSafeInteger(x.units)||x.units<0)||!Number.isSafeInteger(e.repetitions)||
+   e.repetitions<2)return null;
+ const total=a.reduce((n,x)=>n+x.units,0);
+ if(![total,e.totalCapacity,e.totalAllocated,e.totalUnallocated,
+  e.perIntervalCapacity,e.perIntervalAllocated,e.perIntervalUnallocated].every(
+    x=>Number.isSafeInteger(x)&&x>=0)||
+   total!==e.totalAllocated||e.totalAllocated+e.totalUnallocated!==e.totalCapacity||
+   e.perIntervalCapacity!==e.perIntervalAllocated+e.perIntervalUnallocated||
+   e.totalCapacity!==e.perIntervalCapacity*e.repetitions||
+   e.totalUnallocated!==e.perIntervalUnallocated*e.repetitions||
+   typeof e.periodPlural!=='string'||!e.periodPlural)return null;
+ return {first:a[0],activities:a,total,capacity:e.totalCapacity,unallocated:e.totalUnallocated,
+  perIntervalCapacity:e.perIntervalCapacity,perIntervalAllocated:e.perIntervalAllocated,
+  perIntervalUnallocated:e.perIntervalUnallocated};
+}
 function meaningBridge(packet){
- const m=packet.meaning,e=m.evidence||{},items=packet.selectedChoices||[];
- const secondary=packet.secondaryObservations||[];
+ const m=packet.meaning,e=m.evidence||{},secondary=packet.secondaryObservations||[];
  switch(m.kind){
   case 'conversion':
-   if(e.measure===0)return 'No purchase was modeled, so this path required no additional work hours.';
+   if(!Number.isFinite(e.measure)||typeof e.unit!=='string')return null;
+   if(e.measure===0)return 'This selection produces no modeled conversion cost; its other consequences remain unknown.';
    if(secondary.some(x=>x.kind==='intention_gap'))
-    return 'The unmet target sits alongside the modeled life-time cost of your purchases.';
+    return 'The unmet stated target exposes a difference between intended quantities and their modeled cost.';
    if(packet.structure?.slack?.every(x=>x===0))
-    return 'The full allowance is committed, exposing modeled working time without judging its worth.';
-   return 'These purchases have a modeled time cost beyond their monetary price.';
+    return 'The full allowance is committed, making the modeled cost visible without judging its worth.';
+   return 'The chosen quantities carry a modeled cost, whose significance the numbers cannot determine.';
   case 'specialization_effect':{
-   const missing=e.assignments?.find(a=>a.amount===0);
-   if(missing)return 'With no '+missing.label+', an indispensable stage is absent: specialist labels alone complete nothing.';
-   if(e.delta<0)return 'Here divided roles finish less than the hypothetical rotating arrangement.';
-   if(e.delta===0)return 'Here dedicated roles only match rotation; a productivity benefit remains unshown.';
-   if(e.assignments?.length===2&&e.assignments[0].amount===e.assignments[1].amount)
-    return 'With both stages staffed equally, their coordination yields a modeled gain, not historical evidence.';
-   return 'Both stages contribute, but the thinner stage still constrains further completion.';
+   const stages=stageCapacityEvidence(e);
+   if(!stages||!Number.isFinite(e.delta))return null;
+   const limiting=stages.limiting.map(s=>s.label).join(' and ');
+   if(stages.minimum===0)return 'Without a required contribution from '+limiting+', no complete modeled unit can emerge.';
+   if(stages.allEqual)return 'Required stages have equal modeled capacity; specialization can improve skill, save switching time and encourage machinery.';
+   return 'Bottleneck: '+limiting+' ('+stages.minimum+'); specialization can improve skill, save switching time and encourage machinery.';
   }
   case 'agency':{
-   const events=e.events||[],started=Object.values(events[0]?.occurred||{}).some(Boolean);
-   const ended=Object.values(events.at(-1)?.occurred||{}).some(Boolean);
-   if(started&&events[0]?.action!==events.at(-1)?.action)
-    return 'An earlier action remains performed even when your later choice is restraint.';
-   if(started)return 'Repeating an action does not make the other person’s decision yours.';
-   if(ended)return 'Your later action changes your conduct, not the other person’s decision.';
-   return 'Refraining is also your action; it does not determine the external response.';
+   const events=e.events||[],external=String(e.external||'').trim();
+   if(events.length<2||!external)return null;
+   const first=events[0],last=events.at(-1);
+   const acted=x=>x&&Object.values(x.occurred||{}).some(Boolean);
+   if(acted(first)&&first.action!==last.action)
+    return 'An earlier action stays performed even if the next decision changes; '+external+' remains external.';
+   if(acted(first))return 'Repeating your action still cannot determine '+external+'.';
+   if(acted(last))return 'The later action changes your conduct, but not '+external+'.';
+   if(!first?.action||!last?.action)return null;
+   // Without declared occurrence effects, selected actions still form a meaningful
+   // order. Describe that order, never treat a selection as an accomplished act.
+   if(first.action===last.action)
+    return 'You selected “'+first.action+'” twice; those choices do not establish whether the action occurred or determine '+external+'.';
+   return 'You selected “'+first.action+'” then “'+last.action+
+    '”; neither selection confirms an act or determines '+external+'.';
   }
-  case 'assent':{
+  case 'assent':
    if(e.changes?.length&&e.position==='withhold')
-    return 'Withdrawing assent after new evidence leaves the disputed claim unresolved.';
-   if(e.changes?.length)
-    return 'New assent remains a judgment, not proof of the disputed claim.';
-   if(e.position==='withhold')
-    return 'Continued suspension preserves the distinction between evidence and certainty.';
-   return 'Maintaining assent does not make the disputed record clearly known.';
-  }
+    return 'Revising assent after more evidence does not establish that the claim is false.';
+   if(e.changes?.length)return 'A revised judgment does not by itself establish the truth of the claim.';
+   if(e.position==='withhold')return 'Maintained suspension keeps belief separate from the evidence currently available.';
+   return 'Maintained acceptance does not settle a disputed claim beyond the available grounds.';
   case 'repetition':{
-   const vals=(e.cumulative||[]).map(x=>x.units||0),writing=vals[0]||0,total=vals.reduce((a,b)=>a+b,0);
-   if(!writing)return 'The imagined repetition gives the story no scheduled place at all.';
-   if(writing===total)return 'Writing fills every modeled evening; the pattern excludes other activities here.';
-   if(writing>=total/2)return 'Writing has a substantial place in these modeled days alongside other claims.';
-   return 'Writing shares the imagined routine with competing activities rather than filling it.';
+   const a=repeatedActivityEvidence(e);
+   if(!a)return null;
+   if(a.total===0)return 'No activity receives modeled time; unallocated capacity tells us nothing about what happens instead.';
+   const firstLabel=a.first.label[0].toUpperCase()+a.first.label.slice(1);
+   if(a.unallocated>0){
+    const active=a.activities.filter(x=>x.units>0);
+    if(active.length===1)return 'Only '+active[0].label+
+     ' receives assigned time; the remaining capacity is not accounted for by the modeled activities.';
+    return 'The selected activities use only part of the available time; the unallocated portion remains unspecified.';
+   }
+   if(a.first.units===0)return firstLabel+' has no place in these imagined repeated intervals.';
+   if(a.first.units===a.total)return firstLabel+' fills the modeled pattern; other activities receive no allocation.';
+   const absent=a.activities.filter(x=>x.units===0);
+   if(absent.length)return firstLabel+' receives modeled time, while '+
+    absent.map(x=>x.label).join(' and ')+' receives no allocation in these imagined intervals.';
+   if(a.first.units>=a.total/2)return firstLabel+' has a prominent place while other activities remain present.';
+   return firstLabel+' receives a modeled share alongside the other activities.';
   }
   case 'information':{
    const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
    if(!later)return null;
-   return 'Only afterward does this imagined route show that '+later[0].toLowerCase()+later.slice(1)+'.';
+   return 'Later: '+later[0].toLowerCase()+later.slice(1)+
+    '; action preceded knowledge, and life denies complete hindsight.';
   }
   case 'transition':
    if(e.reallocationRequired)return 'Because the old plan no longer fit, changing it answered a new constraint.';
    if(e.amountsChanged)return 'Because the old plan still fit, revising it was an additional choice.';
    return 'Keeping the plan shows that a changed constraint need not change every choice.';
-  case 'dependency':
-   return 'Finishing work depends on every indispensable stage, not specialist titles alone.';
+  case 'dependency':{
+   const a=stageCapacityEvidence(e);
+   if(!a)return null;
+   if(a.allEqual)return 'All required stages share the same modeled capacity; none alone limits completion.';
+   return 'The limiting stage is '+a.limiting.map(s=>s.label).join(' and ')+', based on output capacity rather than worker counts.';
+  }
   case 'opportunity':
    return 'Allocating limited time here means that another feasible use goes without it.';
   default:return null;
  }
 }
-// Philosophical questions are conditioned on consequence shape, not only
-// quantities or replaced labels. They preserve the source's uncertainty.
 function pathQuestion(packet){
- const m=packet.meaning,e=m.evidence||{},path=packet.selectedChoices||[];
+ const m=packet.meaning,e=m.evidence||{};
  switch(m.kind){
-  case 'conversion':
-   if(e.measure===0)return 'If no modeled working time was exchanged, when would Thoreau’s cost-of-life test become relevant?';
-   if((packet.secondaryObservations||[]).some(x=>x.kind==='intention_gap'))
-    return 'If a purchase falls short of your own target, what could justify its time cost?';
+  case 'conversion':{
+   if(!Number.isFinite(e.measure)||typeof e.unit!=='string')return null;
+   if(e.measure===0)return 'If this choice has no modeled cost, what different allocation would make a sacrifice visible?';
+   const gap=(packet.secondaryObservations||[]).find(x=>x.kind==='intention_gap');
+   if(gap){
+    const label=packet.selectedChoices?.find(x=>x.id===gap.evidence?.id)?.label;
+    if(!label)return null;
+    return 'If your allocation for '+label+' falls short of your stated target, what justifies the modeled cost?';
+   }
    if(packet.structure?.slack?.every(x=>x===0))
-    return 'When the whole budget is spent, which alternative use of that working time remains unseen?';
-   return 'What would make the modeled hours behind these purchases worth exchanging?';
+    return 'When this allocation uses the full allowance, which possible alternative might matter more?';
+   return 'What would make these modeled '+e.unit+' worth accepting instead of another use?';
+  }
   case 'specialization_effect':{
-   const assignments=e.assignments||[];
-   if(assignments.some(x=>x.amount===0))
-    return 'If one indispensable stage receives no workers, what has specialization failed to coordinate?';
-   if(e.delta<0)return 'What does producing less show about specialization without coordination?';
-   if(e.delta===0)
-    return 'If specialized roles show no gain, which additional mechanism in Smith’s argument still needs evidence?';
-   if(assignments.length===2&&assignments[0].amount===assignments[1].amount)
-    return 'Does this modeled gain show Smith’s dexterity or machinery mechanisms, or only coordinated completion?';
-   return 'Despite a modeled gain, which stage now limits the next finished booklet?';
+   const a=stageCapacityEvidence(e);if(!a||!Number.isFinite(e.delta))return null;
+   const limiting=a.limiting.map(s=>s.label).join(' and ');
+   if(a.minimum===0)
+    return 'What change could restore the missing contribution from '+limiting+' to the joint process?';
+   if(!a.allEqual){
+    if(e.delta<0)return 'Could increasing '+limiting+' capacity reverse this modeled production loss?';
+    if(e.delta===0)return 'With no gain, could increasing '+limiting+' capacity make a difference?';
+    return 'Could increasing '+limiting+' capacity yield more completed modeled output?';
+   }
+   if(e.delta<0)return 'Why does this arrangement produce fewer modeled units?';
+   if(e.delta===0)return 'With equal modeled output, what further evidence could show a gain?';
+   return 'Does this modeled gain establish why productivity increased, or only that output was greater?';
   }
   case 'agency':{
-   const events=e.events||[],first=events[0],last=events.at(-1);
-   const happened=ev=>Object.values(ev?.occurred||{}).some(Boolean);
-   if(happened(first)&&first?.action===last?.action)
-    return 'Does repeating your action expand control over forgiveness, or merely repeat what you can choose?';
-   if(happened(first))
-    return 'After an action already occurred, what can later restraint change without undoing it?';
-   if(happened(last))
-    return 'What did acting later place within your control that earlier restraint did not?';
-   return 'Can choosing not to act exercise agency without determining the other person’s response?';
+   const ev=e.events||[],first=ev[0],last=ev.at(-1),external=String(e.external||'').trim();
+   if(ev.length<2||!external)return null;
+   const acted=x=>x&&Object.values(x.occurred||{}).some(Boolean);
+   if(acted(first)&&first.action===last.action)
+    return 'Does choosing to '+first.action.toLowerCase()+' again extend your control over '+external+'?';
+   if(acted(first))
+    return 'What can your later action change without undoing the one already performed?';
+   if(acted(last))
+    return 'How does acting now differ from earlier restraint while '+external+' remains independent?';
+   if(!first?.action||!last?.action)return null;
+   if(first.action===last.action)
+    return 'What does selecting “'+first.action+'” again clarify about your choices without confirming an act or deciding '+external+'?';
+   return 'How does choosing “'+last.action+'” after “'+first.action+
+    '” alter your decision without determining '+external+'?';
   }
   case 'assent':
    if(e.changes?.length&&e.position==='withhold')
-    return 'What did the conflicting evidence justify revising without proving the original claim false?';
+    return 'What did the new evidence justify revising without establishing the original claim as false?';
    if(e.changes?.length)
-    return 'What additional grounds could justify moving from suspension to assent?';
+    return 'What further grounds would justify moving from suspension toward assent?';
    if(e.position==='withhold')
-    return 'Why might continued suspension be more faithful to limited evidence than confident acceptance?';
-   return 'What would justify maintaining assent when the records still conflict?';
+    return 'Why might continued suspension respect the limits of the currently available evidence?';
+   return 'What would justify maintaining assent when the available grounds remain disputed?';
   case 'repetition':{
-   const vals=(e.cumulative||[]).map(x=>x.units||0),writing=vals[0]||0,total=vals.reduce((a,b)=>a+b,0);
-   const msgs=vals[1]||0,rest=vals[2]||0;
-   if(writing===0&&msgs===0)
-    return 'If rest filled every imagined evening, how could writing enter the pattern without dismissing rest?';
-   if(writing===0&&msgs===rest)
-    return 'If messages and rest divide each evening, what would need rearranging for writing to recur?';
-   if(writing===0)
-    return 'When other activities leave no scheduled writing, what would stop a pause becoming a pattern?';
-   if(writing===total)
-    return 'What would need room elsewhere for such a writing-only schedule to be repeatable?';
-   if(writing>=total/2)
-    return 'Which boundary around competing demands would make this substantial writing time sustainable?';
-   return 'What would keep writing’s smaller place deliberate if these imagined evenings continued?';
+   const a=repeatedActivityEvidence(e);if(!a)return null;
+   // An intention is evidence only when the participant explicitly supplied a
+   // target that was validated by the generic allocation parser.
+   const gap=packet.claims?.find(c=>c.kind==='intention_gap'&&
+    c.classification==='necessary'&&c.evidence?.id);
+   if(gap){
+    const named=packet.selectedChoices?.find(c=>c.id===gap.evidence.id);
+    if(!named)return null;
+    return 'How does your stated target for '+named.label+
+     ' compare with the pattern you selected across these imagined intervals?';
+   }
+   const absent=a.activities.filter(x=>x.units===0);
+   const present=a.activities.filter(x=>x.units>0);
+   const joining=xs=>xs.length<3?xs.map(x=>x.label).join(' and '):
+    xs.slice(0,-1).map(x=>x.label).join(', ')+', and '+xs.at(-1).label;
+   const ranked=[...present].sort((x,y)=>y.units-x.units);
+   if(a.total===0)
+    return 'With all the modeled time unallocated, what remains unknown about how these intervals would actually be spent?';
+   if(a.unallocated>0){
+    if(present.length===1)return 'With '+present[0].label+
+     ' the only selected activity, what remains unspecified about the unused capacity?';
+    if(absent.length)return 'With '+joining(absent)+
+     ' absent and some capacity unallocated, what does repeating this partial pattern preserve?';
+    return 'With some time unallocated, what does repeating this partial allocation preserve or leave open?';
+   }
+   if(absent.length){
+    const missing=joining(absent);
+    if(present.length===1)
+     return 'With '+missing+' absent, what does repeatedly allocating time only to '+
+      present[0].label+' sustain or exclude?';
+    if(present.every(x=>x.units===present[0].units))
+     return 'With '+missing+' absent, what does repeatedly sharing time between '+
+      joining(present)+' preserve?';
+    return 'With '+missing+' absent and '+ranked[0].label+
+     ' receiving the larger share, what does the repeated pattern preserve?';
+   }
+   if(a.activities.every(x=>x.units===a.activities[0].units))
+    return 'With '+joining(a.activities)+' allotted equal time, what does repeating this balance preserve?';
+   if(ranked[0].units>a.total/2)
+    return 'When '+ranked[0].label+
+     ' receives most modeled time, what do the other activities retain in this repeated pattern?';
+   if(ranked[0].units===ranked[1].units)
+    return 'With '+joining(ranked.slice(0,2))+
+     ' sharing the largest allocation, what does repeating this pattern preserve?';
+   return 'With '+ranked[0].label+' receiving the largest share, what does the recurring allocation leave for '+
+    ranked.at(-1).label+'?';
   }
   case 'information':{
    const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
@@ -1971,8 +2122,12 @@ function pathQuestion(packet){
    return 'If the original allocation still fits, what does keeping it reveal about a new constraint?';
   case 'opportunity':
    return 'Which activity would have to surrender time if you increased the other one?';
-  case 'dependency':
-   return 'What makes having specialist roles insufficient when one required stage is missing?';
+  case 'dependency':{
+   const a=stageCapacityEvidence(e);if(!a)return null;
+   if(a.allEqual)return 'What would have to change in each required stage to increase completed output?';
+   return 'What would need to change about '+a.limiting.map(s=>s.label).join(' and ')+
+    ' before more joint work could be finished?';
+  }
   case 'revision':
    return 'What could you reasonably know before the later evidence changed your position?';
   case 'closure':
@@ -2025,10 +2180,16 @@ function expressSemantic(packet,mode='reflective'){
   challenging:{experience:`A distinction remains: ${concepts[0]} and ${concepts[1]} are not interchangeable.`,interpretation:`${packet.author} asks us to examine ${relationship}.`,question:`What would you overlook about ${anchor} if you considered only ${concepts[0]}?`}
  };
  const composed=compositions[mode];
- let experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
+ const prefix=mode==='reflective'?'':frames[mode]+' ';
+ const initialExperience=meaningExperience(packet,m);
+ if(!initialExperience)return {status:'needs_editorial_review',reason:'The modeled time amount cannot be expressed accurately.'};
+ let experience=prefix+initialExperience;
  const secondary=boundedSecondary(packet);
- if(secondary&&words(headline+' '+experience+' '+secondary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
+ let secondaryAttached=false;
+ if(secondary&&words(headline+' '+experience+' '+secondary)<=ENCOUNTER_WORD_POLICY.sections.idea.max){
   experience+=' '+secondary;
+  secondaryAttached=true;
+ }
  if(['conversion','opportunity'].includes(m.kind)){
   const summary=readableSummary(packet);
   if(summary&&words(headline+' '+experience+' '+summary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
@@ -2044,11 +2205,32 @@ function expressSemantic(packet,mode='reflective'){
   composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
  const proactiveQuestion=pathQuestion(packet);
  if(!proactiveQuestion)return {status:'needs_editorial_review',reason:'No grounded final question available for this meaning.'};
- const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
- const wordCount=text.split(/\s+/).length;
- // Never truncate a caveat or silently add padding to satisfy a length target.
- if(wordCount>160)return {status:'needs_editorial_review',wordCount,reason:'Reading exceeds the safety ceiling; editorial shortening is required.'};
- return {status:'ready',mode,headline,experience,interpretation,proactiveQuestion,wordCount,evidence:m.evidence,classification:m.classification};
+ const sectionCounts=()=>({
+  idea:words(headline+' '+experience),philosopher:words(interpretation),question:words(proactiveQuestion)
+ });
+ const totalCount=c=>c.idea+c.philosopher+c.question;
+ const withinPolicy=c=>{
+  const p=ENCOUNTER_WORD_POLICY;
+  return totalCount(c)>=p.total.min&&totalCount(c)<=p.total.max&&
+   Object.entries(p.sections).every(([key,limit])=>c[key]>=limit.min&&c[key]<=limit.max);
+ };
+ let counts=sectionCounts();
+ if(!withinPolicy(counts)&&m.kind==='repetition'){
+  // Only reformat the evidence listing; preserve every modeled activity,
+  // numeric amount, source thesis, caveat and reflective question.
+  const concise=meaningExperience(packet,m,true);
+  if(concise){
+   experience=prefix+concise+(secondaryAttached?' '+secondary:'');
+   counts=sectionCounts();
+  }
+ }
+ const wordCount=totalCount(counts);
+ // A source qualification or evidence item is never truncated for a green status.
+ if(!withinPolicy(counts))
+  return {status:'needs_editorial_review',wordCount,sectionWordCounts:counts,
+   reason:'Reading violates the founder 80–120 total or section word policy; editorial revision is required.'};
+ return {status:'ready',mode,headline,experience,interpretation,proactiveQuestion,wordCount,
+  evidence:m.evidence,classification:m.classification};
 }
 
 
