@@ -72,7 +72,7 @@ const sourceAdmissions={
   allowedClaimKinds:['assent']},
  dillard:{premiseIds:['repeated_schedule_hypothetical'],
   centralClaim:'Dillard draws attention to the way the arrangement of days accumulates into a life.',
-  scenarioBridge:'A recurring modeled interval gives its selected activities a regular place across days.',
+  scenarioBridge:'An imagined repeated allocation can include some activities and exclude others across days.',
   allowedClaimKinds:['repetition']},
  kierkegaard:{premiseIds:['later_events_imagined'],
   centralClaim:'A life must be lived forward even though an account of it is formed retrospectively, never from outside time.',
