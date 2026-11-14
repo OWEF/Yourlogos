@@ -15,10 +15,14 @@ function choiceText(x){
  const e=x.grounded;
  if(x.kind==="repetition"){
   const intervals=e.period?e.repetitions+" imagined "+e.periodPlural:e.repetitions+" imagined cycles";
-  const amounts=e.cumulative.map(a=>fHours(a.units*e.unitHours)+" for "+a.label);
-  const allocated=amounts.length===2?amounts.join(" and "):amounts.slice(0,-1).join(", ")+", and "+amounts.at(-1);
-  const extra=e.totalUnallocated>0?" "+fHours(e.totalUnallocated*e.unitHours)+" stay unallocated in this model.":"";
-  return "Across "+intervals+", your selected plan sets aside "+allocated+"."+extra+" These are imagined allocations, not a record of your real evenings.";
+  const amounts=e.cumulative.map(a=>fHours(a.units*e.unitHours)+" for "+a.label).join("; ");
+  const remaining=e.perIntervalUnallocated>0?
+   "Each evening leaves "+fHours(e.perIntervalUnallocated*e.unitHours)+
+    " unallocated ("+fHours(e.totalUnallocated*e.unitHours)+" over "+e.repetitions+" intervals). ":
+   "All "+(e.perIntervalCapacity*e.unitHours===3?"three hours":fHours(e.perIntervalCapacity*e.unitHours))+
+    " of each evening are allocated. ";
+  return "Across "+intervals+": "+amounts+". "+remaining+
+    "This is an imagined plan, not your actual routine.";
  }
  if(x.kind==="agency"){
   const first=x.selected_choices[0]?.label||e.events[0].action;
@@ -35,15 +39,19 @@ function choiceText(x){
 function teachingText(x){
  const e=x.grounded;
  if(x.kind==="repetition"){
-  const slots=e.cumulative,first=slots[0],rest=slots[2];
-  const contrast=e.totalAllocated===0?"no time is assigned to any modeled activity":
-   first.units===e.totalAllocated?"writing takes the whole modeled block":
-   rest && rest.units===e.totalAllocated?"rest takes the whole modeled block":
-   first.units===0?"writing receives none of the modeled time":
-   "writing shares the modeled time with other activities";
-  return "Dillard connects ordinary days with the shape of a life. In your imagined repeated schedule, "+
-   contrast+". A repeated timetable makes that pattern visible without telling us how you really live. "+
-   "It also does not show that writing, messages, or rest is inherently worth more than another activity.";
+  const writing=e.cumulative[0].units,rest=e.cumulative[2]?.units||0;
+  const total=e.totalAllocated,available=e.totalCapacity;
+  if(total===0)return "Dillard reminds us that a life is made from ordinary days. Here, the model assigns none of the available time to its activities. An empty plan cannot tell us what happens during those hours, let alone what somebody actually values.";
+  if(total<available){
+   if(writing===total)return "Dillard asks us to look at what ordinary days accumulate. Here, only "+
+     fHours(e.perIntervalAllocated*e.unitHours)+" per evening goes to writing; "+
+     fHours(e.perIntervalUnallocated*e.unitHours)+" stays unassigned. Repeating this pattern shows only where the modeled time goes, not what the unassigned hours become or what you truly value.";
+   if(rest===total)return "Dillard reminds us that life is made from ordinary days. Here, rest has a modeled place, but some of the evening is still unallocated. Those open hours have no assigned activity in this scenario; they aren't secretly more rest, writing, or a verdict about priorities.";
+   return "Dillard draws attention to how our days accumulate. This imagined plan reserves some time for chosen activities while leaving other hours unassigned. Repetition can reveal a modeled pattern, but it does not tell us what fills the gaps, or which activity matters most.";
+  }
+  if(writing===total)return "Dillard suggests that a life takes shape through ordinary days. Here, writing claims every modeled hour across repeated imagined evenings. Repeating a choice gives it a place in the pattern, but this thought experiment cannot say whether writing matters more than anything else.";
+  if(rest===total)return "Dillard writes about how ordinary days make up a life. Here, the imagined evening makes space entirely for rest. Repetition gives that quiet time a recurring place; the model cannot judge its worth or tell us how anyone actually spends their days.";
+  return "Dillard shows how ordinary days can accumulate into a life. This imagined plan repeats time for writing, messages and rest instead of giving it all to one thing. It describes a possible pattern without measuring anyone's worth or revealing your actual habits.";
  }
  if(x.kind==="agency"){
   const happened=e.events.some(a=>a.occurred?.apologyOffered===true);
@@ -62,19 +70,23 @@ function teachingText(x){
 function lastThing(x,brief){
  const id=brief.rhetorical_angle.id;
  switch(id){
-  case "schedule-booked":return "Your story has booked the whole evening. No other activity got a reservation in that block.";
-  case "full-evening-image":return "Five copies of that evening form a longer chapter. The other slots stay blank.";
-  case "rest-is-part-of-day":return "Rest did not disappear from the timetable. This time, it is the whole timetable.";
+  case "schedule-booked":return "Your story got the entire three-hour slot, five imagined evenings in a row. At that rate, the calendar needs a bookmark.";
+  case "full-evening-image":return "Five imagined evenings of writing form a longer chapter. The other activities have no assigned place in that block.";
+  case "rest-is-part-of-day":return "No footnote, no apology: in this imagined timetable, rest gets a full chapter of its own.";
   case "full-but-no-writing":return "The story has an empty page. The evening was anything but empty.";
-  case "shared-calendar":return "One evening holds several different things. Repeat it, and each gets another page.";
-  case "repetition-neutral":return "The time is still available in the model. Its destination remains a blank page.";
+  case "shared-calendar":return "A story, some messages, a little rest. This imagined evening isn't a solo; it's a small ensemble.";
+  case "repetition-neutral":return "The evening hasn't vanished. The model has simply run out of things to say about it.";
   case "apology-not-reply":return "You can offer the apology. You cannot reach over and write the other person's answer.";
-  case "space-not-outcome":return "Giving space is a selected response. The other person's reply is still their own.";
+  case "space-not-outcome":return "Not every silence is a verdict. In this imagined exchange, the other person still gets to choose what comes next.";
   case "later-apology":return "You can change what you offer next. You still cannot choose someone else's response.";
-  case "stay-unlived":return "You can revisit the choice. You cannot visit the future you never chose.";
-  case "move-hours":return "The hard hours entered the story after the decision. The other path remains unread.";
+  case "stay-unlived":return "The job you didn't take never gets a bad Monday in this story. That's what an unwritten future can get away with.";
+  case "move-hours":return "The difficult hours arrived after the job started. The offer didn't come with a preview of that chapter.";
   case "move-friends":return "The choice came first. Missing old friends arrived in the next imagined chapter.";
   case "other-tomorrow":return "A choice opens one page, not the page that was left unread.";
+  case "partial-writing-window":return "The story has its hour. The other two hours aren't secretly part of the plot.";
+  case "partial-rest-window":return "Rest gets a chair in this evening; the empty chairs haven't been claimed by another activity.";
+  case "partial-shared-window":return "Some parts of this evening have a name. The open hours have not been cast in the story.";
+  case "partial-other-window":return "Some time has a name; some doesn't. The unnamed time isn't secretly spoken for.";
   default:
    if(x.kind==="repetition")return "This imagined pattern has a shape. No one knows whether your real days will follow it.";
    if(x.kind==="agency")return "Your response is yours to choose. The other person's reply remains an unwritten line.";
@@ -85,18 +97,36 @@ export function validateEncounterV20(packet,output) {
  const x=adaptEncounterEvidence(packet);
  if(x.status!=="ready")return {status:"needs_editorial_review",reason:x.reason};
  if(output?.version!=="encounter-output/2.0.0"||!Array.isArray(output.sections)||
-    output.sections.length!==3 || output.sections.some((s,i)=>s.label!==LABELS[i]||!s.text?.trim()||!Array.isArray(s.evidence_ids)))
+    output.sections.length!==3 || output.sections.some((s,i)=>!s||typeof s!=="object"||
+      s.label!==LABELS[i]||typeof s.text!=="string"||!s.text.trim()||
+      !Array.isArray(s.evidence_ids)||s.evidence_ids.some(id=>typeof id!=="string")))
   return {status:"needs_editorial_review",reason:"Exactly three evidence-traced sections are required."};
  const validIds=new Set(x.evidence.map(z=>z.id));
  if(output.sections.some(s=>s.evidence_ids.some(id=>!validIds.has(id))))
   return {status:"needs_editorial_review",reason:"A section references missing evidence."};
- if(output.quote!==packet.quote || output.source_url!==packet.sourceAdmission.sourceUrl ||
+ if(output.quote!==packet.quote || output.author!==packet.author ||
+   output.source_url!==packet.sourceAdmission.sourceUrl ||
    output.source_warrant!==packet.sourceAdmission.centralClaim ||
+   output.source_review!==packet.sourceAdmission.reviewStatus ||
    output.source_review!=="curated_provisional")
   return {status:"needs_editorial_review",reason:"Quoted source, warrant or review status changed."};
- if(output.brief?.source_warrant_id!=="source:central"||
-    output.brief.grounded_evidence_ids.some(id=>!validIds.has(id)))
-  return {status:"needs_editorial_review",reason:"Creative brief has invalid evidence references."};
+ // Do not dereference nested creative-brief fields until the entire structure is checked.
+ const brief=output.brief,object=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
+ const strings=x=>Array.isArray(x)&&x.every(v=>typeof v==="string"&&v.length>0);
+ if(!object(brief)||brief.version!=="emotion-strategy/2.0.0"||
+    typeof brief.strategy!=="string"||!["neutral","playful","provocative","warm","contemplative"].includes(brief.strategy)||
+    brief.source_warrant_id!=="source:central"||
+    !strings(brief.grounded_evidence_ids)||brief.grounded_evidence_ids.length===0||
+    !strings(brief.prohibited_claims)||!object(brief.rhetorical_angle)||
+    !["id","operator","scope"].every(k=>typeof brief.rhetorical_angle[k]==="string"&&brief.rhetorical_angle[k].length>0)||
+    !object(brief.selection_trace)||!Array.isArray(brief.selection_trace.scored)||
+    !Array.isArray(brief.selection_trace.rejected)||
+    (brief.selection_trace.requested_tone!==null&&
+      typeof brief.selection_trace.requested_tone!=="string")||
+    !["string","object"].includes(typeof brief.fallback_reason)||
+    (brief.fallback_reason!==null&&typeof brief.fallback_reason!=="string")||
+    brief.grounded_evidence_ids.some(id=>!validIds.has(id)))
+  return {status:"needs_editorial_review",reason:"Malformed or unauthorized creative brief."};
  const expectedBrief=selectEmotionStrategy(packet,{tone:output.brief?.selection_trace?.requested_tone??undefined});
  if(expectedBrief.status!=="ready"||JSON.stringify(expectedBrief)!==JSON.stringify(output.brief))
   return {status:"needs_editorial_review",reason:"Creative brief differs from evidence-grounded deterministic selection."};
