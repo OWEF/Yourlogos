@@ -441,3 +441,72 @@ test("CZ-127 work contract: unsupported or spoofed work labels fail closed on ei
   assert.equal(renderEncounterV20(bad).status,"needs_editorial_review",field+" "+value);
  }
 });
+
+
+// CZ-123 final independent follow-up: fresh unseen metadata mutation matrix.
+// Test-only QA branch, not imported from CZ-127 engineering regression suite.
+test("CZ-123 final independent: Dillard source labels can be distinct allowed variants with whitespace normalization",()=>{
+ const p=structuredClone(reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5}));
+ assert.equal(p.status,"ready");
+ p.source.work="  The    Writing Life  ";
+ p.sourceAdmission.sourceWork="The Writing Life — scheduling excerpt";
+ assert.equal(adaptEncounterEvidence(p).status,"ready");
+ const out=renderEncounterV20(p);
+ assert.equal(out.status,"ready",JSON.stringify(out));
+ assert.equal(out.author,"Annie Dillard");
+});
+
+test("CZ-123 final independent: every cross-book title mixture fails closed at either work-title field",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ for(const [left,right] of [
+  ["Enchiridion","The Writing Life"],
+  ["The Writing Life","Journal JJ:167"],
+  ["Enchiridion","Journal JJ:167"],
+  ["The Writing Life","The Wealth of Nations"],
+  ["The Wealth of Nations","The Writing Life"]
+ ]){
+  const f=structuredClone(p);
+  f.source.work=left;
+  f.sourceAdmission.sourceWork=right;
+  assert.equal(adaptEncounterEvidence(f).status,"incompatible",JSON.stringify({left,right}));
+  assert.equal(renderEncounterV20(f).status,"needs_editorial_review");
+ }
+});
+
+test("CZ-123 final independent: forged proof-of-scholarship work labels must never be admitted",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ for(const suffix of [" (scholarly approved)"," (qualified source verified)"," 1989 independently authenticated"]){
+  for(const field of ["source","sourceAdmission"]){
+   const f=structuredClone(p);
+   if(field==="source") f.source.work="The Writing Life"+suffix;
+   else f.sourceAdmission.sourceWork="The Writing Life"+suffix;
+   assert.equal(adaptEncounterEvidence(f).status,"incompatible",field+suffix);
+   assert.equal(renderEncounterV20(f).status,"needs_editorial_review");
+  }
+ }
+});
+
+test("CZ-123 final independent: missing/nonstring work labels fail safely",()=>{
+ const p=reasonSemantically(semanticCases.apology,{path:["offer","space"]});
+ for(const value of [null,undefined,{},["Enchiridion"],42,""]){
+  for(const field of ["source","sourceAdmission"]){
+   const f=structuredClone(p);
+   if(field==="source")f.source.work=value;
+   else f.sourceAdmission.sourceWork=value;
+   assert.doesNotThrow(()=>adaptEncounterEvidence(f),field+" "+String(value));
+   assert.equal(adaptEncounterEvidence(f).status,"incompatible");
+   assert.doesNotThrow(()=>renderEncounterV20(f));
+   assert.equal(renderEncounterV20(f).status,"needs_editorial_review");
+  }
+ }
+});
+
+test("CZ-123 final independent: legitimate differing metadata for Kierkegaard remains READY",()=>{
+ const p=structuredClone(reasonSemantically(semanticCases.kierkegaard,{path:["stay","missed","reflect"]}));
+ p.source.work="Journal JJ:167 (1843), shortened variant";
+ p.sourceAdmission.sourceWork="Journal JJ:167";
+ const out=renderEncounterV20(p);
+ assert.equal(out.status,"ready",JSON.stringify(out));
+ assert.equal(out.author,"Søren Kierkegaard");
+ assert.equal(out.source_review,"curated_provisional");
+});
