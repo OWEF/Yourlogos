@@ -1825,7 +1825,14 @@ function meaningHeadline(kind,evidence={}){
   default: return null;
  }
 }
-function meaningExperience(packet,m){
+// Keep human-facing durations to 12 significant decimal digits, avoiding
+// binary floating-point tails while retaining arbitrarily small nonzero hours.
+function readableHours(slots,unitHours){
+ const amount=slots*unitHours;
+ if(!Number.isFinite(amount)||amount<0)return null;
+ return Number(amount.toPrecision(12));
+}
+function meaningExperience(packet,m,compact=false){
  const e=m.evidence||{};
  if(m.kind==='transition'){
   const quantities=e.amountsChanged?'You changed the allocation.':'You kept the original quantities.';
@@ -1848,14 +1855,26 @@ function meaningExperience(packet,m){
  }
  if(m.kind==='conversion')return 'This conversion follows the scenario’s assumptions, not observations of your actual life.';
  if(m.kind==='repetition'){
-  const display=n=>e.unitHours?
-   (n*e.unitHours)+' '+(n*e.unitHours===1?'hour':'hours'):
-   n+' modeled units';
+  const display=n=>{
+   if(!e.unitHours)return n+' modeled units';
+   const amount=readableHours(n,e.unitHours);
+   if(amount===null)return null;
+   return amount+' '+(amount===1?'hour':'hours');
+  };
   const interval=e.period===null?e.repetitions+' repeated cycles':
    e.repetitions+' imagined '+e.periodPlural;
-  const allocations=(e.cumulative||[]).map(c=>display(c.units)+' for '+c.label).join(', ');
-  if(e.perIntervalUnallocated>0)
-   return 'Across '+interval+', '+allocations+'. '+display(e.totalUnallocated)+
+  const entries=(e.cumulative||[]).map(c=>({label:c.label,time:display(c.units)}));
+  const unused=e.perIntervalUnallocated>0?display(e.totalUnallocated):null;
+  if(entries.some(x=>x.time===null)||(e.perIntervalUnallocated>0&&unused===null))return null;
+  if(compact){
+   const parts=entries.map(c=>c.label+': '+c.time).join('; ');
+   return 'Across '+interval+': '+parts+'. '+
+    (unused!==null?'Unallocated: '+unused+'. ':'')+
+    'This does not establish your actual habits.';
+  }
+  const allocations=entries.map(c=>c.time+' for '+c.label).join(', ');
+  if(unused!==null)
+   return 'Across '+interval+', '+allocations+'. '+unused+
     ' remain unallocated. This does not establish your actual habits.';
   return 'Across '+interval+', the same plan would give '+allocations+
    '. This does not establish your actual habits.';
@@ -2159,10 +2178,16 @@ function expressSemantic(packet,mode='reflective'){
   challenging:{experience:`A distinction remains: ${concepts[0]} and ${concepts[1]} are not interchangeable.`,interpretation:`${packet.author} asks us to examine ${relationship}.`,question:`What would you overlook about ${anchor} if you considered only ${concepts[0]}?`}
  };
  const composed=compositions[mode];
- let experience=(mode==='reflective'?'':frames[mode]+' ')+meaningExperience(packet,m);
+ const prefix=mode==='reflective'?'':frames[mode]+' ';
+ const initialExperience=meaningExperience(packet,m);
+ if(!initialExperience)return {status:'needs_editorial_review',reason:'The modeled time amount cannot be expressed accurately.'};
+ let experience=prefix+initialExperience;
  const secondary=boundedSecondary(packet);
- if(secondary&&words(headline+' '+experience+' '+secondary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
+ let secondaryAttached=false;
+ if(secondary&&words(headline+' '+experience+' '+secondary)<=ENCOUNTER_WORD_POLICY.sections.idea.max){
   experience+=' '+secondary;
+  secondaryAttached=true;
+ }
  if(['conversion','opportunity'].includes(m.kind)){
   const summary=readableSummary(packet);
   if(summary&&words(headline+' '+experience+' '+summary)<=ENCOUNTER_WORD_POLICY.sections.idea.max)
@@ -2178,11 +2203,32 @@ function expressSemantic(packet,mode='reflective'){
   composed.interpretation+' '+packet.assumptions.join(' ')+' '+packet.limitations.join(' ');
  const proactiveQuestion=pathQuestion(packet);
  if(!proactiveQuestion)return {status:'needs_editorial_review',reason:'No grounded final question available for this meaning.'};
- const text=[headline,experience,interpretation,proactiveQuestion].join(' ');
- const wordCount=text.split(/\s+/).length;
- // Never truncate a caveat or silently add padding to satisfy a length target.
- if(wordCount>160)return {status:'needs_editorial_review',wordCount,reason:'Reading exceeds the safety ceiling; editorial shortening is required.'};
- return {status:'ready',mode,headline,experience,interpretation,proactiveQuestion,wordCount,evidence:m.evidence,classification:m.classification};
+ const sectionCounts=()=>({
+  idea:words(headline+' '+experience),philosopher:words(interpretation),question:words(proactiveQuestion)
+ });
+ const totalCount=c=>c.idea+c.philosopher+c.question;
+ const withinPolicy=c=>{
+  const p=ENCOUNTER_WORD_POLICY;
+  return totalCount(c)>=p.total.min&&totalCount(c)<=p.total.max&&
+   Object.entries(p.sections).every(([key,limit])=>c[key]>=limit.min&&c[key]<=limit.max);
+ };
+ let counts=sectionCounts();
+ if(!withinPolicy(counts)&&m.kind==='repetition'){
+  // Only reformat the evidence listing; preserve every modeled activity,
+  // numeric amount, source thesis, caveat and reflective question.
+  const concise=meaningExperience(packet,m,true);
+  if(concise){
+   experience=prefix+concise+(secondaryAttached?' '+secondary:'');
+   counts=sectionCounts();
+  }
+ }
+ const wordCount=totalCount(counts);
+ // A source qualification or evidence item is never truncated for a green status.
+ if(!withinPolicy(counts))
+  return {status:'needs_editorial_review',wordCount,sectionWordCounts:counts,
+   reason:'Reading violates the founder 80–120 total or section word policy; editorial revision is required.'};
+ return {status:'ready',mode,headline,experience,interpretation,proactiveQuestion,wordCount,
+  evidence:m.evidence,classification:m.classification};
 }
 
 
