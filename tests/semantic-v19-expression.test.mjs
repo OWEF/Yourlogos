@@ -203,7 +203,7 @@ test('v1.9.2 editorial RED: repeated actions and deficits are phrased grammatica
  const conv=reasonSemantically(semanticCases.money,{amounts:[1,0,1],budgets:[8],intentions:{lamp:2}});
  assert.equal(conv.status,'ready',conv.reason);
  assert.match(expressSemantic(conv).proactiveQuestion,/If your allocation for reading lamps falls short/i);
- assert.doesNotMatch(expressSemantic(conv).proactiveQuestion,/reading lamps falls short/i);
+ assert.doesNotMatch(expressSemantic(conv).proactiveQuestion,/^If reading lamps falls short/i);
  const e=reasonSemantically(semanticCases.apology,{path:['offer','offer']});
  assert.equal(e.status,'ready',e.reason);
  assert.match(expressSemantic(e).proactiveQuestion,/choosing to offer an apology again/i);
