@@ -1666,7 +1666,8 @@ function reasonSemantically(context,input){
    if(!Number.isSafeInteger(input.repetitions)||input.repetitions<2||input.repetitions>1000)return reject('Invalid repetition horizon.');
    if(context.model.unitHours!==undefined&&(!Number.isFinite(context.model.unitHours)||context.model.unitHours<=0))
     return reject('The scenario has an invalid time conversion.');
-   if(context.model.resources?.length!==1||choices.some(c=>c.cost?.length!==1||c.cost[0]!==1))
+   if(context.semantic.selection?.central?.includes('repetition')&&
+    (context.model.resources?.length!==1||choices.some(c=>c.cost?.length!==1||c.cost[0]!==1)))
     return reject('Repetition requires one shared time-slot resource with unit-cost activities.');
    // Interval identity belongs to the scenario model, never its philosopher/quote.
    const periods={evening:'evenings',morning:'mornings',afternoon:'afternoons',week:'weeks',
@@ -1683,9 +1684,11 @@ function reasonSemantically(context,input){
     perIntervalAllocated*input.repetitions,perIntervalUnallocated*input.repetitions];
    if(!safe.every(Number.isSafeInteger))return reject('Repetition capacity exceeds safe integer bounds.');
    const slots=context.model.unitLabel||'resource units';
-   add('repetition','If this arrangement were repeated '+input.repetitions+' times, it would assign '+
-    cumulative.map(c=>c.units+' '+slots+' to '+c.label).join(', ')+
-    ', with '+perIntervalUnallocated*input.repetitions+' '+slots+' unallocated. This remains hypothetical.', 'conditional',
+   add('repetition','If this exact arrangement were repeated '+input.repetitions+' times, it would reserve '+
+    cumulative.map(c=>c.units+' '+slots+' for '+c.label).join(', ')+
+    '. '+(perIntervalUnallocated>0?perIntervalUnallocated*input.repetitions+
+      ' '+slots+' remain unallocated. ':'')+
+    'This is a conditional pattern, not evidence that you will adopt it.', 'conditional',
     {totals:structure.spent.map(n=>n*input.repetitions),cumulative,repetitions:input.repetitions,
      period,periodPlural:period===null?'cycles':periods[period],unitLabel:slots,
      unitHours:context.model.unitHours||null,perIntervalCapacity,perIntervalAllocated,
