@@ -101,3 +101,21 @@ test("no cross-source reinterpretation, stage-only evidence or unsupported scena
  wrong.meaning.evidence.totalAllocated++;
  assert.equal(renderEncounterV20(wrong).status,"needs_editorial_review");
 });
+
+test("CZ-127 RED: a forged displayed quotation must fail source-witness admission",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ const corrupt=structuredClone(p);
+ corrupt.quote="An invented quotation never written by this author.";
+ assert.equal(renderEncounterV20(corrupt).status,"needs_editorial_review");
+});
+test("CZ-127 RED: two genuinely eligible tones change the rhetoric on the same validated path",()=>{
+ const p=reasonSemantically(semanticCases.dillard,{amounts:[6,0,0],budgets:[6],repetitions:5});
+ const playful=renderEncounterV20(p,{tone:"playful"});
+ const contemplative=renderEncounterV20(p,{tone:"contemplative"});
+ assert.equal(playful.status,"ready");
+ assert.equal(contemplative.status,"ready");
+ assert.equal(playful.brief.strategy,"playful");
+ assert.equal(contemplative.brief.strategy,"contemplative");
+ assert.notEqual(playful.sections[2].text,contemplative.sections[2].text);
+ assert.equal(playful.sections[1].text,contemplative.sections[1].text);
+});
