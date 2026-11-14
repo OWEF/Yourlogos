@@ -239,3 +239,72 @@ test('v1.9.2 adversarial agency: missing event effects do not imply that chosen 
  assert.doesNotMatch(out.interpretation+' '+out.proactiveQuestion,/\bwaiting\b|\bchoosing to wait\b/i);
  assert.match(out.interpretation+' '+out.proactiveQuestion,/decision|agency|external|independent/i);
 });
+
+
+// CZ-13 independent QA P0-1/P0-2 reproductions. These tests are published BEFORE
+// the expression fix; therefore they are red-first regressions, not unseen holdouts.
+test('v1.9.3 P0-1 RED: effect-free agency differentiates all four ordered decisions without inventing acts',()=>{
+ const c=structuredClone(semanticCases.apology);
+ c.scenario='An applicant can choose to contact a committee or wait. Selection belongs to the committee.';
+ c.assumptions=['Selecting contact does not confirm that contact took place.'];
+ c.semantic.boundary='No selected path proves contact occurred or establishes the independent selection result.';
+ c.semantic.admission.scenarioBridge='The committee decides selection independently of which contact or wait options are chosen.';
+ c.model.agency={externalVariable:'selection',own:'choosing to contact or wait',external:'the committee selection decision'};
+ c.model.variables={selection:{kind:'observation',owner:'external'}};
+ c.model.initial=['The committee decides independently.'];
+ for(const [i,node] of [c.model.nodes.first,c.model.nodes.later].entries()){
+  node.options=[
+   {id:'contact',label:'Contact the committee',action:'Contact the committee',next:i?null:'later'},
+   {id:'wait',label:'Wait without contacting',action:'Wait without contacting',next:i?null:'later'}
+  ];
+ }
+ const paths=[['contact','contact'],['contact','wait'],['wait','contact'],['wait','wait']];
+ const output=[];
+ for(const path of paths){
+  const p=reasonSemantically(c,{path});assert.equal(p.status,'ready',p.reason);
+  assert.equal(p.meaning.kind,'agency');
+  assert.ok(p.meaning.evidence.events.every(e=>Object.keys(e.occurred).length===0));
+  const o=expressSemantic(p);assert.equal(o.status,'ready',JSON.stringify(o));
+  assert.ok(o.wordCount>=80&&o.wordCount<=120,o.wordCount+' words '+path.join('/'));
+  assert.equal((o.proactiveQuestion.match(/\?/g)||[]).length,1);
+  assert.doesNotMatch([o.interpretation,o.proactiveQuestion].join(' '),/already performed|was sent|was made|irreversible|confirmed contact|forgiveness/i);
+  assert.match(o.interpretation,/committee|selection|external/i);
+  output.push(o);
+ }
+ assert.equal(new Set(output.map(x=>x.interpretation)).size,4,'Section II must reflect continuing, changing and delaying choices');
+ assert.equal(new Set(output.map(x=>x.proactiveQuestion)).size,4,'Section III must reflect ordered actions');
+ assert.notEqual(output[1].interpretation,output[2].interpretation,'reverse order must remain meaningful');
+});
+
+test('v1.9.3 P0-2 RED: repeated allocation is neutral across activity order unless a preference was stated',()=>{
+ const c=structuredClone(semanticCases.dillard);
+ const names=['running','caring for a friend','resting'];
+ for(const [i,choice] of c.model.choices.entries())Object.assign(choice,{label:names[i],readingLabel:names[i]});
+ const evaluate=(amounts,intentions)=>{
+  const input={amounts,budgets:[6],repetitions:5,...(intentions?{intentions}:{})};
+  const p=reasonSemantically(c,input);assert.equal(p.status,'ready',p.reason);
+  const o=expressSemantic(p);assert.equal(o.status,'ready',JSON.stringify(o));
+  assert.equal((o.proactiveQuestion.match(/\?/g)||[]).length,1);
+  assert.ok(o.wordCount>=80&&o.wordCount<=120,o.wordCount+' '+amounts);
+  return o;
+ };
+ const absent=evaluate([0,3,3]);
+ const balanced=evaluate([2,2,2]);
+ const majority=evaluate([0,1,5]);
+ for(const out of [absent,balanced,majority]){
+  assert.doesNotMatch(out.proactiveQuestion,/make room|give way|yield|secure a place|have to include|sacrifice|should|ought|prioriti[sz]/i);
+  assert.match(out.proactiveQuestion,/pattern|repeated|recurr|preserv|exclud|sustain|possible/i);
+ }
+ assert.notEqual(absent.proactiveQuestion,balanced.proactiveQuestion);
+ assert.notEqual(absent.proactiveQuestion,majority.proactiveQuestion);
+ const reversed=structuredClone(c);
+ reversed.model.choices.reverse();
+ const p=reasonSemantically(reversed,{amounts:[3,3,0],budgets:[6],repetitions:5});
+ assert.equal(p.status,'ready',p.reason);
+ const rev=expressSemantic(p);assert.equal(rev.status,'ready',rev.reason);
+ assert.doesNotMatch(rev.proactiveQuestion,/make room|give way|yield|should|ought|prioriti[sz]/i);
+ assert.match(rev.proactiveQuestion,/running|caring|resting|pattern|repeated|preserv|exclud/i);
+ const goal=evaluate([0,3,3],{[c.model.choices[0].id]:2});
+ assert.match(goal.proactiveQuestion,/stated|declared|target|intention|planned/i);
+ assert.notEqual(goal.proactiveQuestion,absent.proactiveQuestion,'a declared intention changes the warranted reflection');
+});
