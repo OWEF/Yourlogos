@@ -386,10 +386,11 @@ function meaningBridge(packet){
   case 'repetition':{
    const a=repeatedActivityEvidence(e);
    if(!a)return null;
-   if(a.first.units===0)return a.first.label+' has no place in these imagined repeated intervals.';
-   if(a.first.units===a.total)return a.first.label+' fills the modeled pattern; other activities receive no allocation.';
-   if(a.first.units>=a.total/2)return a.first.label+' has a prominent place while other activities remain present.';
-   return a.first.label+' receives a smaller share alongside the other modeled activities.';
+   const firstLabel=a.first.label[0].toUpperCase()+a.first.label.slice(1);
+   if(a.first.units===0)return firstLabel+' has no place in these imagined repeated intervals.';
+   if(a.first.units===a.total)return firstLabel+' fills the modeled pattern; other activities receive no allocation.';
+   if(a.first.units>=a.total/2)return firstLabel+' has a prominent place while other activities remain present.';
+   return firstLabel+' receives a smaller share alongside the other modeled activities.';
   }
   case 'information':{
    const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
@@ -421,7 +422,7 @@ function pathQuestion(packet){
    if(gap){
     const label=packet.selectedChoices?.find(x=>x.id===gap.evidence?.id)?.label;
     if(!label)return null;
-    return 'If '+label+' falls short of your stated target, what justifies the modeled cost?';
+    return 'If your allocation for '+label+' falls short of your stated target, what justifies the modeled cost?';
    }
    if(packet.structure?.slack?.every(x=>x===0))
     return 'When this allocation uses the full allowance, which possible alternative might matter more?';
@@ -445,7 +446,7 @@ function pathQuestion(packet){
    if(ev.length<2||!external)return null;
    const acted=x=>x&&Object.values(x.occurred||{}).some(Boolean);
    if(acted(first)&&first.action===last.action)
-    return 'Does repeating '+first.action.toLowerCase()+' extend your control over '+external+'?';
+    return 'Does choosing to '+first.action.toLowerCase()+' again extend your control over '+external+'?';
    if(acted(first))
     return 'What can your later action change without undoing the one already performed?';
    if(acted(last))
