@@ -379,7 +379,7 @@ function meaningBridge(packet){
    // Without declared occurrence effects, selected actions still form a meaningful
    // order. Describe that order, never treat a selection as an accomplished act.
    if(first.action===last.action)
-    return 'You selected '+first.action+' at both moments; repeating a decision does not confirm that it occurred or determine '+external+'.';
+    return 'You selected “'+first.action+'” twice; those choices do not establish whether the action occurred or determine '+external+'.';
    return 'You selected “'+first.action+'” then “'+last.action+
     '”; neither selection confirms an act or determines '+external+'.';
   }
@@ -459,7 +459,7 @@ function pathQuestion(packet){
     return 'How does acting now differ from earlier restraint while '+external+' remains independent?';
    if(!first?.action||!last?.action)return null;
    if(first.action===last.action)
-    return 'What does selecting '+first.action+' again clarify about your choices without confirming an act or deciding '+external+'?';
+    return 'What does selecting “'+first.action+'” again clarify about your choices without confirming an act or deciding '+external+'?';
    return 'How does choosing “'+last.action+'” after “'+first.action+
     '” alter your decision without determining '+external+'?';
   }
@@ -494,8 +494,8 @@ function pathQuestion(packet){
      return 'With '+missing+' absent, what does repeatedly allocating time only to '+
       present[0].label+' sustain or exclude?';
     if(present.every(x=>x.units===present[0].units))
-     return 'With '+missing+' absent and '+joining(present)+
-      ' sharing time, what does the repeated pattern preserve?';
+     return 'With '+missing+' absent, what does repeatedly sharing time between '+
+      joining(present)+' preserve?';
     return 'With '+missing+' absent and '+ranked[0].label+
      ' receiving the larger share, what does the repeated pattern preserve?';
    }
