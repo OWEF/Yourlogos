@@ -131,8 +131,8 @@ test('v1.9.2 B: repeated contact does not create forgiveness or person-specific 
  c.model.initial=['The committee chooses independently.'];
  for(const [i,node] of [c.model.nodes.first,c.model.nodes.later].entries()){
   node.prompt=i?'A response has not arrived.':'How will you proceed?';
-  node.options=[{id:'contact',label:'Contact the committee',action:'Contact the committee',next:i?null:'later',effects:{requestSent:true},commitments:{response:'contact'}},
-   {id:'wait',label:'Wait without contacting',action:'Wait without contacting',next:i?null:'later',commitments:{response:'wait'}}];
+  node.options=[{id:'contact',label:'Contact the committee',action:'Contact the committee',next:i?null:'later',effects:{requestSent:true}},
+   {id:'wait',label:'Wait without contacting',action:'Wait without contacting',next:i?null:'later'}];
  }
  const p=reasonSemantically(c,{path:['contact','contact']});
  assert.equal(p.status,'ready',p.reason);
