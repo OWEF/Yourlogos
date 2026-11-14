@@ -484,3 +484,35 @@ test('v1.9.5 protected editorial qualifications are never truncated to make an i
  assert.ok(result.sectionWordCounts.philosopher>65||result.wordCount>120,
   'overflow must be explicitly measured, never silently truncated');
 });
+
+
+/**
+ * CZ-121 v1.9.6 desk-editorial warrant: Journal JJ:167 (1843) describes the
+ * impossibility of a complete backward vantage within life in time.
+ * Original displayed shortened quotation is intentionally unchanged.
+ * Qualified scholarly signoff and real-reader comprehension remain pending.
+ */
+test('CZ-13 v1.9.6: valid Kierkegaard paths explain unfinished hindsight without a made-up alternative future',()=>{
+ const scenario=semanticCases.kierkegaard;
+ assert.match(scenario.source.work,/shortened quotation/i);
+ for(const {path,event} of [
+  {path:['change','risk','continue'],event:'the hours are harder than you expected'},
+  {path:['stay','missed','reflect'],event:'you keep wondering about the offer'},
+  {path:['change','surprise','adapt'],event:'you miss your old friends'}
+ ]){
+  const packet=reasonSemantically(scenario,{path});
+  assert.equal(packet.status,'ready',path.join('/')+': '+packet.reason);
+  for(const mode of ['reflective','surprising','playful','challenging']){
+   const output=expressSemantic(packet,mode);
+   assert.equal(output.status,'ready',path.join('/')+'/'+mode+': '+JSON.stringify(output));
+   assert.ok(output.interpretation.includes(event),path.join('/')+' imagined event missing');
+   assert.match(output.interpretation,/action preceded knowledge, and life denies complete hindsight/);
+   assert.ok(output.interpretation.includes(packet.sourceAdmission.centralClaim));
+   assert.ok(output.interpretation.includes(packet.sourceAdmission.scenarioBridge));
+   assert.ok(output.interpretation.includes(packet.limitations[0]));
+   assert.match(output.experience,/outcome of the unchosen path is still unknown/);
+   assert.ok(output.wordCount>=80&&output.wordCount<=120,path.join('/')+'/'+mode+' words '+output.wordCount);
+   assert.equal((output.proactiveQuestion.match(/\?/g)||[]).length,1);
+  }
+ }
+});

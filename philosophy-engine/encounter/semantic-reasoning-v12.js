@@ -420,10 +420,8 @@ function meaningBridge(packet){
    if(!stages||!Number.isFinite(e.delta))return null;
    const limiting=stages.limiting.map(s=>s.label).join(' and ');
    if(stages.minimum===0)return 'Without a required contribution from '+limiting+', no complete modeled unit can emerge.';
-   if(e.delta<0)return 'The specialized arrangement finishes less than the declared comparison, so assigning roles alone proves no advantage.';
-   if(e.delta===0)return 'The declared arrangements finish equally; a productivity advantage remains unshown.';
-   if(stages.allEqual)return 'Required stages have equal modeled capacity, and this arrangement outperforms the assumed comparison.';
-   return 'The modeled gain is constrained by '+limiting+', the stage with the lower output capacity.';
+   if(stages.allEqual)return 'Required stages have equal modeled capacity; specialization can improve skill, save switching time and encourage machinery.';
+   return 'Bottleneck: '+limiting+' ('+stages.minimum+'); specialization can improve skill, save switching time and encourage machinery.';
   }
   case 'agency':{
    const events=e.events||[],external=String(e.external||'').trim();
@@ -470,7 +468,8 @@ function meaningBridge(packet){
   case 'information':{
    const later=String(e.revelations?.[0]||'').replace(/[.!?]+$/,'');
    if(!later)return null;
-   return 'Only afterward does this imagined route show that '+later[0].toLowerCase()+later.slice(1)+'.';
+   return 'Later: '+later[0].toLowerCase()+later.slice(1)+
+    '; action preceded knowledge, and life denies complete hindsight.';
   }
   case 'transition':
    if(e.reallocationRequired)return 'Because the old plan no longer fit, changing it answered a new constraint.';
@@ -508,13 +507,11 @@ function pathQuestion(packet){
    const limiting=a.limiting.map(s=>s.label).join(' and ');
    if(a.minimum===0)
     return 'What change could restore the missing contribution from '+limiting+' to the joint process?';
-   if(e.delta<0)
-    return 'Which modeled constraint would need changing before these specialized roles could produce more?';
-   if(e.delta===0)
-    return 'With no gain in the model, what additional evidence could justify claiming that specialized roles improve productivity?';
-   if(a.allEqual)
-    return 'Does this modeled gain establish why productivity increased, or only that output was greater?';
-   return 'How might changing the capacity of '+limiting+' affect this modeled productivity gain?';
+   if(!a.allEqual)
+    return 'How might changing '+limiting+' capacity affect joint output without proving historical productivity gains?';
+   if(e.delta<=0)
+    return 'What might establish gains from specializing these equally supplied stages?';
+   return 'Does this modeled gain establish why productivity increased, or only that output was greater?';
   }
   case 'agency':{
    const ev=e.events||[],first=ev[0],last=ev.at(-1),external=String(e.external||'').trim();

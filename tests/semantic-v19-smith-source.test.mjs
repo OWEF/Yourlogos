@@ -69,3 +69,48 @@ test('counterfactual press restriction retains distinct evidence, not a generali
  assert.equal(p.claims.some(c=>c.kind==='specialization_effect'),true);
  assert.ok(p.sourceAdmission.independentlySourceVerified===false);
 });
+
+
+/**
+ * CZ-123 v1.9.6: the independent G01/G02 values are now disclosed regressions.
+ * They are NOT new blind holdouts and intentionally preserve the original
+ * unusual labels and hypothetical comparison assumptions.
+ */
+test('CZ-123 G01/G02: unique minimum stage is named even for zero or negative comparator delta',()=>{
+ const fixtures=[
+  {id:'G01',stages:[['print','sheet printers',5,2],['fold','page folders',2,2],['bind','book assemblers',1,2]],capacities:[10,4,2],minimum:2,baseline:2,delta:0,limiting:'book assemblers'},
+  {id:'G02',stages:[['sort','ticket sorters',4,1],['check','ticket checkers',2,2],['stamp','ticket stampers',3,2],['seal','ticket sealers',1,1]],capacities:[4,4,6,1],minimum:1,baseline:2,delta:-1,limiting:'ticket sealers'}
+ ];
+ for(const f of fixtures){
+  const c=structuredClone(semanticCases.workshop);
+  const staff=f.stages.reduce((n,stage)=>n+stage[3],0);
+  c.scenario='A fictional team of '+staff+' volunteers performs '+f.stages.length+
+   ' required production stages; every finished item needs every stage. Rates below are invented and concern one shift only.';
+  c.assumptions=['Each completed item requires all the listed stages; all rates, working times and switching penalties are invented.',
+   'A rotating-generalist team serves only as a modeled, not observed, comparator.'];
+  c.model.resources[0]={...c.model.resources[0],min:staff,max:staff,type:'exact',label:'Volunteers assigned in this hypothetical shift'};
+  c.model.choices=f.stages.map(([id,label])=>({id,label,singular:label.endsWith('s')?label.slice(0,-1):label,cost:[1],max:staff}));
+  c.model.metric={op:'minimum',weights:f.stages.map(stage=>stage[2]),unit:'finished booklets',singular:'finished booklet'};
+  c.model.comparison={...c.model.comparison,staffing:staff,
+   explanation:'Each of '+staff+' hypothetical workers has sixty minutes and loses thirty minutes if rotating; every finished unit is assigned ninety minutes in this invented comparison.'};
+  const input={amounts:f.stages.map(stage=>stage[3]),budgets:[staff]};
+  const packet=reasonSemantically(c,input);
+  assert.equal(packet.status,'ready',f.id+': '+packet.reason);
+  assert.equal(packet.meaning.kind,'specialization_effect',f.id);
+  assert.deepEqual(packet.meaning.evidence.stageCapacities.map(stage=>stage.capacity),f.capacities,f.id);
+  assert.equal(Math.min(...f.capacities),f.minimum);
+  assert.equal(packet.meaning.evidence.specialized,f.minimum,f.id);
+  assert.equal(packet.meaning.evidence.baseline,f.baseline,f.id);
+  assert.equal(packet.meaning.evidence.delta,f.delta,f.id);
+  for(const mode of ['reflective','surprising','playful','challenging']){
+   const output=expressSemantic(packet,mode);
+   assert.equal(output.status,'ready',f.id+'/'+mode+': '+JSON.stringify(output));
+   assert.match(output.interpretation,new RegExp(f.limiting),f.id+'/'+mode+' missing bottleneck');
+   assert.match(output.interpretation,/specialization can improve skill, save switching time and encourage machinery/);
+   assert.match(output.interpretation,/does not prove specialization increases productivity beyond the model/);
+   assert.match(output.proactiveQuestion,new RegExp(f.limiting));
+   assert.match(output.experience,/hypothetical, not historical evidence/);
+   assert.ok(output.wordCount>=80&&output.wordCount<=120,f.id+'/'+mode+' word policy '+output.wordCount);
+  }
+ }
+});
