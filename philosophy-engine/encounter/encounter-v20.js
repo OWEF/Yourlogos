@@ -54,8 +54,8 @@ function teachingText(x){
    "This does not make silence good or bad. ")+
    "Nothing in the scenario tells us either person's feelings or motives.";
  }
- return "Kierkegaard contrasts living forward with understanding events afterward. In this imagined route, "+
-  lower(clean(e.revelations[0]))+" only becomes known after the first decision. "+
+ return "Kierkegaard contrasts living forward with understanding events afterward. Later in the imagined route, a new detail appears: "+
+  lower(clean(e.revelations[0]))+". "+
   "Looking back can change how the choice is understood, but it cannot reveal what the other future held. "+
   "Even the path you chose never provides a view from outside your ongoing life.";
 }
