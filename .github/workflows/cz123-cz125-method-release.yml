@@ -33,7 +33,7 @@ jobs:
         run: node --test tests/cz123-cz125-method-release.mjs
       - name: Recheck engineering test suite against exact activated instrument
         run: node --test research/cz125/verify-kit.test.mjs
-      - name: Evidence inventory: real people and learning remain ZERO
+      - name: Evidence inventory of real people and learning must remain ZERO
         run: node research/cz125/audit-local-evidence.mjs
  /tmp/cz125method.txt; then
             echo "FAIL: independent QA modified implementation or frozen engines"; exit 1
