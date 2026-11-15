@@ -24,6 +24,9 @@ test("provenance pins founder-supplied full A–H transcription, not unreadable 
   assert.ok(load(filename).includes(source),filename);
  assert.equal(STUDY.fullFounderTranscriptionRecovered,true);
  assert.equal(STUDY.nativeDocumentRead,false);
+ const html=load("reader-response.html");
+ const declaredVersion=html.match(/const VERSION="([^"]+)"/)?.[1];
+ assert.equal(declaredVersion,STUDY.protocolVersion,"Recorder export protocol version must equal independent evidence validator version");
  assert.equal(STUDY.originalDocId,"bf106341-8403-4c88-a71a-67d414f2972d");
 });
 test("A–H corrects five paired participants, ten observations and original fixed sample orders",()=>{
