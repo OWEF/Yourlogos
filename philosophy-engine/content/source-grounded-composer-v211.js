@@ -57,6 +57,7 @@ function compose(packet){
  const m=packet.meaning,a=packet.sourceAdmission,e=m.evidence;
  const allocation=allocationText(packet);
  if(!allocation||!safeStructure(m.kind,e))return abstain("The quantitative evidence is structurally incomplete or unsupported.");
+ const unit=n=>n===1&&text(e.singular)?e.singular:e.unit;
  let first;
  if(m.kind==="conversion"){
   first="In this invented allocation, you selected "+allocation+
@@ -66,15 +67,35 @@ function compose(packet){
  }else{
   first="You assigned "+allocation+
    ". Under the invented task rates, the rotating team finishes "+e.baseline+
-   " "+e.unit+" while the dedicated-stage allocation finishes "+
-   e.specialized+" "+e.unit+
+   " "+unit(e.baseline)+" while the dedicated-stage allocation finishes "+
+   e.specialized+" "+unit(e.specialized)+
    ". Neither outcome is an independently measured historical result.";
  }
  const sourceBase=a.centralClaim+" "+a.scenarioBridge;
+ // Source claim remains editorially fixed, but its *educational bridge*
+ // must describe the actual measured consequence, not a canned claim about
+ // productivity or an unsourced evaluation of the reader's character.
+ const longConsequence=m.kind==="conversion"?
+  "For these possessions, "+e.measure+" "+unit(e.measure)+
+   " are the modeled working life exchanged. That cost alone does not establish their worth.":
+  e.delta===0?
+   "This comparison shows no improvement: both arrangements finish the same number of booklets.":
+  e.delta>0?
+   "Under these invented rates, the dedicated arrangement finishes "+e.delta+
+   " more booklets, a conditional modeled gain, not historical evidence.":
+   "Under these invented rates, the dedicated arrangement finishes "+Math.abs(e.delta)+
+   " fewer booklets, so specialization does not improve this comparison.";
+ const conciseConsequence=m.kind==="conversion"?
+  "Here "+e.measure+" "+unit(e.measure)+
+   " measure working life exchanged for those possessions, not their moral worth.":
+  e.delta===0?
+   "There is no modeled improvement: the two assignments yield equal output.":
+  e.delta>0?
+   "This invented comparison shows a "+e.delta+"-booklet modeled gain, not a universal result.":
+   "This invented comparison yields "+Math.abs(e.delta)+" fewer booklets with the specialized assignment.";
  const teachingOptions=[
-  sourceBase+" This imagined comparison illustrates the stated philosophical relation under its declared conditions, without proving the real result.",
-  sourceBase+" The modeled comparison is conditional evidence, not a historical finding.",
-  sourceBase
+  sourceBase+" "+longConsequence,
+  sourceBase+" "+conciseConsequence
  ];
  const finalOptions=[
   packet.limitations[0]+" The comparison changes the question, not the answer.",
@@ -135,12 +156,22 @@ export function renderSourceGroundedResearchV211(record,choice,environment){
  const packet=reasonSemantically(context,admitted.canonical);
  if(!evidenceSafeSource(packet,context))return abstain("The regenerated source-warranted meaning packet is not trustworthy.");
  const frozen=renderEncounterV20(packet);
- if(frozen.status==="ready")
+ const allowed=record.emotionalEligibility;
+ const strategyAuthorized=brief=>allowed?.enabled===true&&
+   Array.isArray(allowed.allowedStrategies)&&
+   allowed.allowedStrategies.includes(brief?.strategy);
+ if(frozen.status==="ready"){
+  if(!strategyAuthorized(frozen.brief))
+   return abstain("Frozen v2.0 chose a strategy disallowed by the source-approved research record.");
   return {...frozen,research_adapter:COMPOSITION_VERSION,
    preserved_frozen_v20:true,source_status:"research_only_primary_source_unverified"};
+ }
  if(!evidenceSafe(packet,context))
   return abstain("Frozen v2.0 abstained and no fully warranted new semantic operator is eligible.");
- return {...compose(packet),preserved_frozen_v20:false};
+ const result=compose(packet);
+ if(result.status==="ready"&&!strategyAuthorized(result.brief))
+  return abstain("No evidence-grounded research strategy is authorized by this source record.");
+ return {...result,preserved_frozen_v20:false};
 }
 function evidenceSafeSource(packet,context){
  return packet?.status==="ready"&&packet.version==="meaning/1.2"&&
