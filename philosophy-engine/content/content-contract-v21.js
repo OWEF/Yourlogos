@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 /**
  * CZ-130 / Encounter v2.1: source-first content admission and scenario contract.
  * ISOLATED RESEARCH: no catalogue import or publishing side effects.
@@ -14,11 +15,27 @@ const isObj=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
 const distinct=xs=>new Set(xs).size===xs.length;
 const safeInt=x=>Number.isSafeInteger(x)&&x>=0;
 const fail=(errors,field,reason)=>errors.push({field,reason});
+const stable=x=>Array.isArray(x)?"["+x.map(stable).join(",")+"]":
+  isObj(x)?"{"+Object.keys(x).sort().map(k=>JSON.stringify(k)+":"+stable(x[k])).join(",")+"}":JSON.stringify(x===undefined?null:x);
+/** Deterministic substantive-content hash; review flags and self-declared signoffs
+ * are NOT trusted source data and are intentionally omitted from this digest. */
+export function contentFingerprintV21(r){
+ if(!isObj(r))return null;
+ const s=r.source||{};
+ const source={author:s.author,work:s.work,quote:s.quote,locator:s.locator,
+   referenceUrl:s.referenceUrl??null,verifiedSourceUrl:s.verifiedSourceUrl??null,
+   translationEdition:s.translationEdition??null};
+ const core={id:r.id,version:r.version,source,dilemma:r.dilemma??null,
+   argument:r.argument??null,scenario:r.scenario??null,route:r.route??null,
+   gameCompatibility:r.gameCompatibility??null,emotionalEligibility:r.emotionalEligibility??null};
+ return "sha256:"+createHash("sha256").update(stable(core)).digest("hex");
+}
 export function validateContentRecordV21(record){
  const errors=[];
  if(!isObj(record)){fail(errors,"record","A record object is required.");return {status:"invalid",errors};}
  if(record.version!==CONTENT_VERSION)fail(errors,"version","Wrong content contract version.");
  if(!text(record.id)||!text(record.versionHash))fail(errors,"identity","Stable record id and immutable versionHash are required.");
+ if(text(record.id)&&record.versionHash!==contentFingerprintV21(record))fail(errors,"versionHash","Substantive record changed since its content fingerprint; re-review is mandatory.");
  const s=record.source;
  if(!isObj(s)||!text(s.author)||!text(s.work)||!text(s.quote)||!text(s.locator))
   fail(errors,"source","Author, work, excerpt and passage locator are required.");
@@ -116,5 +133,6 @@ export function canPublishEncounterV21(record,release){
    s.reviewSignoff?.versionHash===record.versionHash &&
    record.editorialState==="public_approved" &&
    record.editorialSignoff?.versionHash===record.versionHash &&
+   Array.isArray(release?.approvedRecordFingerprints)&&release.approvedRecordFingerprints.includes(record.versionHash)&&
    release?.founderAuthorized===true&&release?.publicFeatureFlag===true;
 }
