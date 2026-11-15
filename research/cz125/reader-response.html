@@ -49,10 +49,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <h1>Understanding through philosophical encounters</h1>
 <p class="meta">Accepted interactive candidate: <code>73849bff27fc73db97d5fb015c57f45323e18f30</code>. Five first-time adults; two games each; ten paired observations. Original transcription: Linear CZ-125 comment <code>cc99ce7c-4037-44a6-b199-760698937258</code>.</p>
 <div id="method-hold" class="alert" role="alert">
-<strong>METHOD RELEASE PENDING — NOT AUTHORIZED FOR PARTICIPANT ENROLLMENT.</strong>
-The full A–H instrument is implemented for functional QA only. Neutral introductory dilemmas require prospective review. The approved-mode switch remains OFF; real response creation and export are locked. No participants or responses have been collected.
+<strong>RESEARCH RECORDER ACTIVATED — LOCAL, DRAFT-ONLY.</strong>
+The founder approved the neutral scenario wording and administrative clarifications N2–N5. This local recorder is enabled for exact-commit independent methodology QA. No recruitment, public access or actual participant session has occurred. Obtain independent method PASS before organizing study sessions.
 </div>
-<p class="note">Privacy: no network requests, external scripts, analytics, cookies, browser storage, cloud uploads or automatic scores. If method release is later approved, each phase is exported locally as a JSON bundle, then imported from a private file to continue. Consent and follow-up permission are separate; do not type names, phone numbers or emails.</p>
+<p class="note">Privacy: no network requests, external scripts, analytics, cookies, browser storage, cloud uploads or automatic scores. Each phase can be exported locally as a JSON bundle, then privately imported to continue; activation is not authorization to recruit participants. Consent and follow-up permission are separate; do not type names, phone numbers or emails.</p>
 <p id="progress" aria-live="polite">Research phase not activated</p>
 <section id="entry" class="panel">
 <h2>Research session setup</h2>
@@ -115,12 +115,11 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
 <script>
 "use strict";
 (() => {
-  // Security/ethics gate: DO NOT change to true until separate CZ-123 methodology
-  // QA and founder approval of the prospective neutral baseline wording.
-  // Automated tests may exercise a transient in-memory fixture with this
-  // flag replaced, but the committed form never enrolls actual participants.
-  const METHOD_RELEASE_APPROVED=false;
-  const VERSION="cz125-founder-ah-transcription/1.0";
+  // Founder approval of neutral N1 and clarifications N2–N5 is recorded under CZ-125.
+  // Local DRAFT recorder activated for independently reviewed methodology tests.
+  // NO recruitment, public hosting, production, or human learning claim is authorized.
+  const METHOD_RELEASE_APPROVED=true;
+  const VERSION="cz125-founder-ah-transcription/1.1-method-release";
   const SCHEMA="cz125-two-games-session/1.0";
   const SHA="73849bff27fc73db97d5fb015c57f45323e18f30";
   const ORIGINAL_COMMENT="cc99ce7c-4037-44a6-b199-760698937258";
@@ -132,7 +131,7 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
   const CASES=Object.freeze({
     dillard:{
       condition:"token_studio",sourceId:"research:dillard:time-v1",gameLabel:"Token Studio",
-      neutral:"You have three free hours this evening. You could write, answer messages, or rest. How might you use that time?",
+      neutral:"You have three free hours this evening. You could write, answer messages, or rest.",
       options:[
         "Five imagined evenings can illustrate a time-use pattern, but don't prove real-life priorities.",
         "More writing tokens prove writing is the better way to live.",
@@ -142,7 +141,7 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
     },
     kierkegaard:{
       condition:"swipe_decision",sourceId:"research:kierkegaard:future-v1",gameLabel:"Swipe Decision",
-      neutral:"You have an offer to take a new job. You can accept it or remain in your current job. What do you decide?",
+      neutral:"You have an offer to take a new job. You can accept it or remain in your current job.",
       options:[
         "Later invented events show the unchosen job would have been worse.",
         "You chose your response, but not which real event happened; the unchosen path remains unknown.",
@@ -455,7 +454,7 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
       "done-export","import","import-file"]){$(id).disabled=!enabled;}
     $("method-hold").classList.toggle("hidden",enabled);
     $("progress").textContent=enabled?
-      "Study methodology released: participant phases available":"Research QA build · enrollment locked";
+      "Local research recorder enabled · no participants recruited":"Research QA build · enrollment locked";
     render();
   }
   // Read-only introspection for independent automation; no write/export hooks.
