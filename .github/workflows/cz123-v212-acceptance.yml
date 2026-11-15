@@ -1,0 +1,38 @@
+name: CZ-123 independent v2.1.2 exact-SHA acceptance
+on:
+  push:
+    branches: [qa/cz123-v212-source-fidelity-acceptance]
+  pull_request:
+    paths: ["tests/cz123-v212-fresh-independent.test.mjs", ".github/workflows/cz123-v212-acceptance.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify engineering SHA unchanged and independent QA-only modifications
+        run: |
+          BASE=01aa31ff36dbe91ad6ee6a6b62e499513173c85f
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/diff.txt
+          if grep -Ev '^(tests/cz123-v212-fresh-independent\.test\.mjs|\.github/workflows/cz123-v212-acceptance\.yml)$' /tmp/diff.txt; then
+            echo "UNAUTHORIZED: QA branch has implementation changes"; exit 1
+          fi
+          test "$(git hash-object tests/cz123-independent-pr184-known.mjs)" = "2ef6ad3529f8fb02f3571b11c0304376c7c730d9"
+          test "$(git hash-object tests/cz123-independent-pr184-adversarial.mjs)" = "3b0d8cd099ae0b73ca24a50fa9e714f6a130a965"
+      - name: Rerun original five PR183 attacks unchanged from PR185
+        run: node --test tests/cz123-independent-pr184-known.mjs
+      - name: Rerun original eight failed plus ninth abstention tests unchanged from PR185
+        run: node --test tests/cz123-independent-pr184-adversarial.mjs
+      - name: Fresh independent adversarial re-review
+        run: node --test tests/cz123-v212-fresh-independent.test.mjs
+      - name: Frozen meaning and v2.0 compatibility
+        run: |
+          node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs
+          node --test tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/source-grounded-research-v211.test.mjs tests/content-v212-editorial-regression.test.mjs
