@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121512">
+<title>YourLogos · Encounter v2.1 — research preview</title>
+<style>
+:root{
+ color-scheme:dark;--bg:#121512;--surface:#202722;--surface2:#28312b;
+ --line:#414a40;--text:#f3eedf;--muted:#c0c5b5;--accent:#ddad70;--sage:#8fbbac;
+ --coral:#d99881;--select:#324e43;--shadow:rgba(0,0,0,.27);--headline:"Cormorant Garamond",Georgia,serif;
+ --sans:"DM Sans",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body[data-theme="observatory"]{--bg:#10151e;--surface:#1d2939;--surface2:#263548;--line:#45546a;--text:#f4f1eb;--muted:#c3c9d6;--accent:#b1b3f1;--sage:#79d2c5;--coral:#eaa092;--select:#3e4b78;}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.5;min-height:100dvh;transition:background .2s}
+button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.5}
+button:active:not(:disabled){transform:scale(.98)}
+.wrap{width:min(100%,520px);margin:0 auto;padding:env(safe-area-inset-top) 18px max(24px,env(safe-area-inset-bottom))}
+.site-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:24px 0 19px;border-bottom:1px solid var(--line)}
+.wordmark{font:600 23px/1 var(--headline);letter-spacing:.025em}.wordmark em{font-style:normal;color:var(--accent)}
+.round-icon{width:35px;height:35px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--accent);font-size:20px}
+.trial{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:8px}
+.themebar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:18px}
+.trial-chip{color:var(--sage);font-size:10px;letter-spacing:.09em;text-transform:uppercase;max-width:190px;line-height:1.5}
+.segments{display:flex;align-items:center;border:1px solid var(--line);padding:3px;border-radius:30px;background:var(--surface);gap:2px}
+.segments button{font-size:12px;border:0;background:transparent;color:var(--muted);padding:8px 11px;border-radius:25px}
+.segments button[aria-pressed="true"]{background:var(--accent);color:var(--bg);font-weight:750}
+.progress{display:flex;gap:5px;margin:22px 0 25px}
+.progress span{height:3px;flex:1;border-radius:3px;background:var(--line)}
+.progress span.active{background:var(--accent)}
+.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:760;margin:0 0 14px}
+h1,h2,h3,p{margin-top:0}h1{font:500 clamp(37px,11vw,51px)/1.04 var(--headline);letter-spacing:-.028em;margin:0 0 20px}h2{font:500 34px/1.1 var(--headline);margin-bottom:12px}h3{font:600 24px/1.16 var(--headline)}
+.lede{color:var(--muted);font-size:15px;line-height:1.65}
+.quote{font:400 clamp(27px,8.5vw,38px)/1.18 var(--headline);letter-spacing:-.02em;margin:18px 0 15px;max-width:440px}
+.attrib{color:var(--accent);font:500 16px var(--headline);margin:0}
+.line{height:1px;background:var(--line);margin:28px 0}
+.dilemma{border:1px solid var(--line);padding:20px 19px 19px;border-radius:22px;background:var(--surface);box-shadow:0 10px 30px var(--shadow)}
+.dilemma strong{color:var(--sage);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.dilemma p{font:400 21px/1.35 var(--headline);margin:12px 0 0}
+.cta{border:0;width:100%;background:var(--accent);color:var(--bg);font-weight:760;border-radius:18px;min-height:56px;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:25px}
+.cta span:last-child{font-size:20px}.quiet{color:var(--muted);font-size:12px;text-align:center;margin:12px 0 0}
+.play-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.hint{font-size:13px;color:var(--muted);line-height:1.55;margin:0 0 18px}
+.counter{background:var(--surface);border:1px solid var(--line);border-radius:19px;padding:16px 17px;margin-bottom:13px;display:flex;justify-content:space-between;align-items:end}
+.counter b{display:block;font:500 32px/1 var(--headline);color:var(--accent);margin-top:3px}
+.counter label{display:block;font-size:10px;font-weight:700;letter-spacing:.13em;color:var(--muted);text-transform:uppercase}
+.bank{min-height:82px;background:var(--surface2);border:1px dashed var(--sage);border-radius:20px;padding:10px 11px 8px;display:flex;flex-wrap:wrap;gap:8px;align-content:center;margin-bottom:16px}
+.token{min-height:43px;min-width:43px;padding:0 8px;border:1px solid transparent;background:var(--accent);color:var(--bg);font-size:12px;font-weight:760;border-radius:12px;touch-action:none;user-select:none;cursor:grab;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.token[data-location="0"]{background:var(--accent)}.token[data-location="1"]{background:var(--sage)}.token[data-location="2"]{background:var(--coral)}
+.token[aria-pressed="true"]{outline:3px solid var(--text);outline-offset:2px}
+.token.moving{z-index:20;position:relative;pointer-events:none;opacity:.88;cursor:grabbing;box-shadow:0 8px 23px var(--shadow)}
+.token:focus-visible{outline-color:var(--text)}
+.bank-empty{font-size:13px;color:var(--muted);padding:12px}
+.game-card{border:1px solid var(--line);background:var(--surface);border-radius:21px;padding:16px 16px 14px;margin-bottom:11px;transition:border-color .15s}
+.game-card:focus-within,.game-card.hover{border-color:var(--accent)}
+.game-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:12px}
+.game-name{font-size:14px;font-weight:740;display:flex;align-items:center;gap:9px}
+.game-name .symbol{font-size:20px;color:var(--accent)}
+.game-time{font-size:13px;color:var(--sage);font-variant-numeric:tabular-nums;white-space:nowrap}
+.game-controls{display:flex;align-items:center;gap:6px;justify-content:space-between}
+.game-controls button{background:var(--surface2);color:var(--text);border:1px solid var(--line);border-radius:12px;width:42px;height:42px;font-size:24px;flex:0 0 auto}
+.game-controls button:disabled{opacity:.28}
+.zone{flex:1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:51px;padding:6px;border-radius:12px;border:1px dashed var(--line)}
+.zone .token{min-height:36px;min-width:36px;font-size:11px;border-radius:10px}
+.zone-hint{font-size:12px;color:var(--muted);padding:0 4px}
+.controls{display:flex;gap:10px;justify-content:space-between;margin:17px 0 4px}
+.soft-btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:10px 17px;border-radius:13px;font-size:13px;font-weight:670}
+.status{min-height:22px;color:var(--muted);font-size:12px;margin:12px 2px}
+.status.error{color:#ffb7a6}.status.ok{color:var(--sage)}
+.back{background:transparent;color:var(--muted);border:0;padding:6px 0;margin-bottom:18px;font-size:13px}
+.result-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px;margin:15px 0}
+.result-card h3{margin:0 0 12px}.result-card p{margin:0;font-size:15px;line-height:1.72}
+.result-header{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.portrait{width:84px;height:84px;flex:0 0 auto;background:#42372f;border:1px solid var(--line);border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.portrait svg{width:74px;height:74px;image-rendering:pixelated}
+.thinker-name{font:600 23px var(--headline);margin-bottom:4px}
+.thinker-caption{font-size:11px;color:var(--muted)}
+.underlined-quote{font:400 22px/1.25 var(--headline);border-left:3px solid var(--accent);padding-left:14px;margin:4px 0 17px}
+.kicker{font-size:11px;font-weight:750;color:var(--sage);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px}
+.last{font:400 22px/1.3 var(--headline)!important}
+.provisional{margin:22px 0 10px;padding:13px 15px;background:var(--surface2);border:1px solid var(--line);border-radius:15px;font-size:12px;color:var(--muted)}
+.provisional strong{color:var(--sage)}
+details{font-size:12px;color:var(--muted)}details summary{cursor:pointer;padding:9px 0;color:var(--accent)}details p{line-height:1.6}
+footer{font-size:11px;line-height:1.5;color:var(--muted);text-align:center;margin:26px auto}
+.hidden{display:none!important}
+body[data-theme="observatory"] .dilemma,body[data-theme="observatory"] .result-card{box-shadow:inset 0 1px 0 rgba(192,198,247,.12),0 12px 40px rgba(0,0,0,.12)}
+body[data-theme="observatory"] .progress span.active{background:linear-gradient(90deg,var(--accent),var(--sage))}
+body[data-theme="observatory"] .counter{background:linear-gradient(130deg,#283852,#162238)}
+body[data-theme="observatory"] .bank{background:linear-gradient(120deg,#2c3755,#17232f)}
+body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accent),var(--sage))}
+@media(min-width:700px){.wrap{padding-top:25px}.site-head{padding-top:12px}body{background:radial-gradient(ellipse at 50% 5%,var(--surface2),var(--bg) 55%);background-attachment:fixed}}
+@media(max-width:359px){.wrap{padding-left:13px;padding-right:13px}.game-card{padding:11px}.game-head{gap:3px}.game-name{font-size:13px}.bank{gap:5px}.token{min-width:39px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* CZ-140 experimental UI: same source, two different interactive learning routes */
+.game-picker{margin:19px 0 4px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.game-picker button{background:var(--surface);color:var(--muted);border:1px solid var(--line);border-radius:17px;text-align:left;padding:13px 13px;min-height:72px}
+.game-picker button[aria-pressed=true]{border-color:var(--accent);color:var(--text);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
+.game-picker strong{display:block;font:600 18px/1.2 var(--headline)}
+.game-picker small{font-size:10px;line-height:1.4;color:var(--muted)}
+.research-mode{color:var(--muted);font-size:11px;line-height:1.45;margin:6px 0 16px}
+.dilemma .discovery{font-size:15px;font-family:var(--sans);color:var(--muted);line-height:1.6}
+.dilemma .action-prompt{font-size:18px;line-height:1.43}
+.stage-step{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;color:var(--sage);font-size:11px;text-transform:uppercase;letter-spacing:.11em;font-weight:750}
+.stage-count{color:var(--muted);font-variant-numeric:tabular-nums}
+.swipe-stage-title{font:500 32px/1.11 var(--headline);margin:2px 0 11px}
+.swipe-explain{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:17px}
+.swipe-card{touch-action:pan-y;user-select:none;min-height:225px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:25px 18px;background:linear-gradient(150deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:25px;box-shadow:0 16px 38px var(--shadow);transform-origin:center bottom}
+.swipe-card .swipe-motif{width:54px;height:54px;border:1px solid var(--accent);border-radius:50%;color:var(--accent);display:grid;place-items:center;font:500 30px var(--headline)}
+.swipe-card #swipe-prompt{font:400 24px/1.2 var(--headline);margin:14px 0}
+.swipe-hint{color:var(--muted);font-size:11px;line-height:1.5}
+.swipe-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 16px}
+.swipe-choices button{background:var(--surface2);border:1px solid var(--line);color:var(--text);min-height:85px;border-radius:17px;padding:13px;font-size:14px;line-height:1.3;font-weight:700;text-align:left}
+.swipe-choices button:first-child{border-color:var(--sage)}.swipe-choices button:last-child{border-color:var(--coral)}
+.swipe-choices button small{display:block;color:var(--muted);font-size:10px;margin-bottom:8px;letter-spacing:.12em;font-weight:740}
+.swipe-path{display:flex;flex-direction:column;gap:7px;margin:13px 0}
+.swipe-path button{border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--text);min-height:43px;padding:10px 12px;text-align:left;font-size:12px}
+.swipe-path b{color:var(--accent);padding-right:9px;font-size:11px}
+.swipe-path button small{display:block;color:var(--muted);font-size:10px;padding-left:21px}
+.swipe-reveal{border-left:2px solid var(--sage);padding:8px 13px;color:var(--text);background:var(--surface);border-radius:0 12px 12px 0;font-size:13px;line-height:1.55;margin:13px 0}
+.swipe-done{background:var(--surface);border:1px solid var(--sage);border-radius:18px;padding:16px;margin:16px 0}
+.swipe-done strong{font:500 22px var(--headline)}
+.swipe-tools{display:flex;justify-content:space-between;gap:10px;margin:14px 0}
+.swipe-tools .soft-btn{flex:1}
+.swipe-note{font-size:12px;color:var(--muted);margin:14px 0;line-height:1.55}
+.path-dashboard{display:flex;flex-direction:column;gap:8px;margin-bottom:17px}
+.path-node{border:1px solid var(--line);border-radius:12px;background:var(--surface2);padding:10px 12px}
+.path-node b{color:var(--sage);font-size:10px;text-transform:uppercase;display:block;margin-bottom:3px}
+.path-node p{font-size:13px!important;margin:0!important;line-height:1.4!important}
+.path-connector{height:12px;width:2px;background:var(--accent);margin:-3px 0 -3px 13px}
+.dashboard-summary{margin-bottom:14px;font-size:12px;color:var(--muted)}
+.alloc-row{margin:10px 0}
+.alloc-label{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:6px}
+.alloc-label strong{font-variant-numeric:tabular-nums;color:var(--accent)}
+.alloc-track{height:9px;background:var(--surface2);border-radius:8px;overflow:hidden}
+.alloc-fill{height:100%;background:var(--accent);border-radius:8px}
+.alloc-row:nth-child(3) .alloc-fill{background:var(--sage)}
+.alloc-row:nth-child(4) .alloc-fill{background:var(--coral)}
+.reveal-tools{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0}
+.reveal-tools button{flex:1;min-height:47px;border-radius:13px;font-size:12px;font-weight:750;padding:8px 10px}
+.reveal-next{background:var(--accent);border:0;color:var(--bg);flex:2!important}
+.reveal-back,.reveal-all{background:var(--surface2);color:var(--text);border:1px solid var(--line)}
+.reveal-status{font-size:12px;color:var(--muted);margin:5px 0 11px}
+.result-card{scroll-margin-top:18px}
+@media(prefers-reduced-motion:no-preference){
+ .result-card.reveal-enter{animation:cz140-rise .26s ease-out both}
+ .swipe-card{transition:transform .12s ease-out,box-shadow .12s}
+ @keyframes cz140-rise{from{opacity:.4;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+}
+@media(max-width:359px){.game-picker button{padding:10px}.game-picker strong{font-size:16px}.swipe-choices button{font-size:12px;padding:10px}.reveal-tools button{font-size:11px}}
+
+</style>
+</head>
+<body data-theme="manuscript">
+<main class="wrap">
+<header class="site-head"><div><div class="wordmark">YOURLOGOS<em>.</em></div><div class="trial">Discover the philosopher in you</div></div><div class="round-icon" aria-hidden="true">✦</div></header>
+<div class="themebar"><div class="trial-chip">Isolated research preview · provisional source</div><div class="segments" role="group" aria-label="Choose design direction"><button id="theme-a" type="button" aria-pressed="true">Manuscript</button><button id="theme-b" type="button" aria-pressed="false">Observatory</button></div></div>
+<nav class="game-picker" aria-label="Choose research mini-game manually (not automatic selection)">
+  <button type="button" id="choose-token" aria-pressed="true"><strong>✦ Token Studio</strong><small>Divide your evening</small></button>
+  <button type="button" id="choose-swipe" aria-pressed="false"><strong>↔ Swipe Decision</strong><small>A choice without foresight</small></button>
+</nav>
+<p class="research-mode">Two hand-picked research scenarios · the universal six-game selector is not implemented.</p>
+<div class="progress" aria-label="Encounter progress"><span id="prog-0"></span><span id="prog-1"></span><span id="prog-2"></span></div>
+<section id="intro" aria-label="Quote and dilemma">
+<p id="intro-eyebrow" class="eyebrow">01 · A real decision, imagined</p><h1 id="intro-title">Three hours.<br>Three priorities.</h1>
+<blockquote class="quote" id="intro-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote>
+<p class="attrib" id="intro-author">— Annie Dillard · The Writing Life</p>
+<div class="line"></div>
+<div class="dilemma"><strong id="dilemma-label">SITUATION · Tonight</strong>
+<p id="dilemma-situation">You have three free hours tonight. Writing, messages, and rest are competing for that time.</p>
+<p class="action-prompt" id="dilemma-decision"><b>DECISION:</b> Allocate six tokens. Each token means 30 minutes.</p>
+<p class="discovery" id="dilemma-discovery"><b>DISCOVERY:</b> See how a repeated imagined evening connects to Annie Dillard’s argument about the way we spend our lives.</p></div>
+<button id="start" class="cta" type="button"><span id="start-label">Allocate your three hours</span><span aria-hidden="true">↗</span></button>
+<p class="quiet">A thought experiment, not an assessment of your real life.</p>
+</section>
+<section id="play" class="hidden" aria-label="Token Studio interactive allocation">
+<button id="to-intro" class="back" type="button">← The question</button>
+<div id="token-game">
+<p class="eyebrow">02 · Token Studio</p><h2>Give this evening<br>a shape.</h2>
+<p class="hint">Move six half-hour tokens into the three activities. Drag a token, or tap it and then an activity. Use + and − for easier controls.</p>
+<div class="counter"><div><label>Available time</label><b>3 hours</b></div><div><label>Unassigned</label><b id="remaining-value">3 hours</b></div></div>
+<div id="bank" class="bank" data-zone="bank" role="group" aria-label="Unallocated half-hour tokens"></div>
+<div id="game-zones"></div>
+<div class="controls"><button id="undo" type="button" class="soft-btn">↶ Undo</button><button id="reset" type="button" class="soft-btn">Reset all</button></div>
+<div id="game-status" class="status" role="status" aria-live="polite"></div>
+<button id="submit" class="cta" type="button" disabled><span>Discover what follows</span><span aria-hidden="true">↗</span></button>
+</div>
+<div id="swipe-game" class="hidden" aria-label="Swipe Decision authored branch interaction">
+<p class="eyebrow">02 · Swipe Decision</p>
+<h2>Choose before<br>you can know.</h2>
+<p class="swipe-explain">This is an imagined job decision, not advice or a prediction. Swipe left/right or choose either visible button; what you see next depends on the path.</p>
+<div class="stage-step"><span id="swipe-stage-label">Your first decision</span><span id="swipe-stage-count" class="stage-count">1 / 3</span></div>
+<div id="swipe-card" class="swipe-card" tabindex="0" role="group" aria-label="Decision card. Swipe left or right, or use the choice buttons below.">
+<div class="swipe-motif" aria-hidden="true">↔</div><div id="swipe-prompt">Which direction do you choose now?</div><div class="swipe-hint" id="swipe-hint">← Left for the first option · Right for the second →</div></div>
+<div id="swipe-choices" class="swipe-choices" role="group" aria-label="Available choices"></div>
+<div id="swipe-event" class="swipe-reveal hidden"></div>
+<p class="kicker">Your path so far · tap a step to reconsider</p>
+<div id="swipe-path" class="swipe-path"></div>
+<div id="swipe-done" class="swipe-done hidden"><strong>The imagined path is complete.</strong><p>Your selected route is ready for the existing philosophical engines. The unchosen future remains unknown.</p>
+<button class="cta" id="swipe-finish" type="button"><span>Discover what your path reveals</span><span aria-hidden="true">↗</span></button></div>
+<div class="swipe-tools"><button class="soft-btn" id="swipe-back" type="button">← Reconsider last step</button><button class="soft-btn" id="swipe-reset" type="button">Start again</button></div>
+<div id="swipe-status" class="status" role="status" aria-live="polite"></div>
+<p class="swipe-note">The middle card selects an <em>imagined circumstance</em>, not an event you control. We reveal only scenario-authored developments after your earlier decision.</p>
+</div>
+</section>
+<section id="result" class="hidden" aria-label="Your philosophical encounter">
+<button id="edit" class="back" type="button">← Edit your choice</button>
+<p class="eyebrow" id="result-eyebrow">03 · Discover</p><h2 id="result-title">What your choice<br>makes visible.</h2>
+<article class="result-card" id="choice-card" tabindex="-1"><p class="kicker">I. Your Choice</p><div id="choice-dashboard"></div><p id="choice-text"></p></article>
+<article class="result-card" id="teaching-card" tabindex="-1"><p class="kicker">II. Back to the Philosopher</p><div class="result-header"><div class="portrait" id="philosopher-portrait" aria-label="Stylized static pixel portrait of Annie Dillard"></div><div><div class="thinker-name" id="thinker-name">Annie Dillard</div><div class="thinker-caption">Static portrait · animated poses unavailable</div></div></div><blockquote class="underlined-quote" id="result-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote><p id="teaching-text"></p></article>
+<article class="result-card" id="last-card" tabindex="-1"><p class="kicker">III. One Last Thing…</p><p class="last" id="ending-text"></p></article>
+<nav id="reveal-navigation" class="reveal-tools" aria-label="Navigate the three result stages">
+<button id="reveal-back" class="reveal-back" type="button">← Back</button>
+<button id="reveal-next" class="reveal-next" type="button">Continue to the philosopher →</button>
+<button id="reveal-all" class="reveal-all" type="button">Show All</button></nav>
+<p id="reveal-status" class="reveal-status" role="status" aria-live="polite"></p>
+<div id="research-notice" class="provisional"><strong>Research-only source.</strong> This quotation and interpretation are provisionally curated, not independently certified for public publication. The scenario repeats five imagined evenings; it does not describe your actual habits.</div>
+<details><summary>Source context & limits</summary><p id="source-detail"></p></details>
+<button id="try-again" class="cta" type="button"><span id="try-again-label">Try another evening</span><span aria-hidden="true">↶</span></button>
+</section>
+<footer>PLAY → DISCOVER → REMEMBER<br>Encounter v2.1 · local research prototype · no tracking, no external requests</footer>
+</main>
+<!-- ENGINE_BUNDLE_V21 -->
+<script>
+"use strict";
+(function(){
+const engine=window.YL_ENCOUNTER_ENGINE;
+const names=["Write your story","Answer messages","Rest and recharge"];
+const icons=["✎","✉","☾"];
+const initial=Array(6).fill("bank");
+let cells=initial.slice(),history=[],selected=null,step=0,resultInput=null,result=null,pointer=null;
+const $=id=>document.getElementById(id),areas=["intro","play","result"];
+const count=i=>cells.filter(x=>x===i).length;
+const remaining=()=>count("bank");
+const fmtUnits=n=>{const h=n/2;return Number(h.toFixed(8)).toString()+(h===1?" hour":" hours");};
+function invalidate(){result=null;resultInput=null;$("choice-text").textContent="";$("teaching-text").textContent="";$("ending-text").textContent="";}
+function setStep(next){
+ step=next;areas.forEach((id,i)=>$(id).classList.toggle("hidden",i!==next));
+ for(let i=0;i<3;i++)$("prog-"+i).classList.toggle("active",i<=next);
+ window.scrollTo({top:0,behavior:"instant"});
+}
+function message(text,error=false){const s=$("game-status");s.textContent=text;s.className="status "+(error?"error":"ok");}
+function record(){history.push(cells.slice());if(history.length>80)history.shift();invalidate();}
+function move(id,to){
+ if(!Number.isSafeInteger(id)||id<0||id>=6||!["bank",0,1,2].includes(to)||cells[id]===to)return false;
+ record();cells[id]=to;selected=null;render();message("Choice updated. You can still change it.");return true;
+}
+function token(id){
+ const button=document.createElement("button");button.type="button";button.className="token";button.textContent="½h";
+ button.dataset.token=String(id);button.dataset.location=String(cells[id]);button.draggable=true;
+ button.setAttribute("aria-label","Half-hour token "+(id+1)+", currently "+(cells[id]==="bank"?"unassigned":names[cells[id]])+". Tap, then choose a destination.");
+ button.setAttribute("aria-pressed",String(selected===id));return button;
+}
+function render(){
+ const bank=$("bank");bank.replaceChildren();
+ const unassigned=cells.map((c,i)=>c==="bank"?i:-1).filter(i=>i>=0);
+ if(!unassigned.length){const span=document.createElement("span");span.className="bank-empty";span.textContent="All six half-hours are assigned.";bank.append(span);}
+ unassigned.forEach(i=>bank.append(token(i)));
+ const zones=$("game-zones");zones.replaceChildren();
+ for(let i=0;i<3;i++){
+  const card=document.createElement("div");card.className="game-card";
+  card.innerHTML='<div class="game-head"><span class="game-name"><span class="symbol" aria-hidden="true">'+icons[i]+'</span>'+names[i]+'</span><span class="game-time">'+fmtUnits(count(i))+'</span></div>';
+  const row=document.createElement("div");row.className="game-controls";
+  const minus=document.createElement("button");minus.type="button";minus.textContent="−";minus.dataset.remove=String(i);minus.disabled=count(i)===0;minus.setAttribute("aria-label","Remove half an hour from "+names[i]);
+  const zone=document.createElement("div");zone.className="zone";zone.dataset.zone=String(i);zone.role="group";zone.setAttribute("aria-label",names[i]+" allocation drop zone");
+  const ids=cells.map((c,j)=>c===i?j:-1).filter(j=>j>=0);ids.forEach(j=>zone.append(token(j)));
+  if(!ids.length){const hint=document.createElement("span");hint.className="zone-hint";hint.textContent="Drop or tap here";zone.append(hint);}
+  const plus=document.createElement("button");plus.type="button";plus.textContent="+";plus.dataset.add=String(i);plus.disabled=remaining()===0;plus.setAttribute("aria-label","Assign another half hour to "+names[i]);
+  row.append(minus,zone,plus);card.append(row);zones.append(card);
+ }
+ $("remaining-value").textContent=fmtUnits(remaining());$("submit").disabled=remaining()!==0;
+ $("undo").disabled=history.length===0;$("reset").disabled=cells.every(c=>c==="bank");
+}
+function submit(){
+ const amounts=[count(0),count(1),count(2)];
+ if(amounts.some(x=>!Number.isSafeInteger(x)||x<0)||amounts.reduce((a,b)=>a+b,0)!==6||remaining()!==0){
+  message("Allocate exactly six half-hour tokens before continuing.",true);return;
+ }
+ if(!engine||!engine.semanticCases?.dillard||typeof engine.reasonSemantically!=="function"){
+  message("Research engine unavailable. No outcome has been invented.",true);return;
+ }
+ const input={amounts,budgets:[6],repetitions:5};
+ // CZ-138: Fixed pilot game selection only. Universal six-peer selector NOT implemented.
+ const packet=engine.reasonSemantically(engine.semanticCases.dillard,input);
+ if(packet.status!=="ready"){message("The reasoning engine could not validate this choice: "+String(packet.reason||packet.status),true);return;}
+ const adapted=engine.adaptEncounterEvidence(packet);
+ if(adapted.status!=="ready"){message("Source/evidence review needed: "+String(adapted.reason||adapted.status),true);return;}
+ const brief=engine.selectEmotionStrategy(packet);
+ if(brief.status!=="ready"){message("Emotion strategy requires review: "+String(brief.reason||brief.status),true);return;}
+ const output=engine.renderEncounterV20(packet);
+ if(output.status!=="ready"||!Array.isArray(output.sections)||output.sections.length!==3){
+  message("This choice needs editorial review. The engine will not invent a result. "+String(output.reason||output.status),true);return;
+ }
+ // Preserve frozen evidence authority; don't rewrite approved expression sections in the UI.
+ if(output.brief?.strategy!==brief.strategy||output.source_review!=="curated_provisional"){
+  message("Provenance/strategy mismatch. Output withheld.",true);return;
+ }
+ resultInput=JSON.stringify(input);result=output;
+ $("choice-text").textContent=output.sections[0].text;
+ $("teaching-text").textContent=output.sections[1].text;
+ $("ending-text").textContent=output.sections[2].text;
+ $("source-detail").textContent=packet.source?.work+" · "+packet.sourceAdmission.sourceUrl+". "+output.source_warrant+" The scenario is hypothetical; what your real life contains cannot be inferred.";
+ try{$("philosopher-portrait").innerHTML=engine.philosopherPortrait("Annie Dillard");}catch(e){$("philosopher-portrait").textContent="AD";}
+ setStep(2);
+}
+document.addEventListener("click",e=>{
+ const element=e.target.closest("button,[data-zone]");
+ if(!element)return;
+ if(element.dataset.token!==undefined){
+  const id=Number(element.dataset.token);if(selected===id)selected=null;else selected=id;render();return;
+ }
+ if(element.dataset.zone!==undefined&&selected!==null){
+  const z=element.dataset.zone;move(selected,z==="bank"?"bank":Number(z));return;
+ }
+ if(element.dataset.add!==undefined){const id=cells.indexOf("bank");if(id>=0)move(id,Number(element.dataset.add));return;}
+ if(element.dataset.remove!==undefined){const id=cells.lastIndexOf(Number(element.dataset.remove));if(id>=0)move(id,"bank");return;}
+});
+document.addEventListener("dragstart",e=>{const b=e.target.closest("[data-token]");if(!b)return;selected=Number(b.dataset.token);e.dataTransfer.setData("text/plain",String(selected));e.dataTransfer.effectAllowed="move";});
+document.addEventListener("dragover",e=>{if(e.target.closest("[data-zone]"))e.preventDefault();});
+document.addEventListener("drop",e=>{const z=e.target.closest("[data-zone]");if(!z)return;e.preventDefault();const id=Number(e.dataTransfer.getData("text/plain"));move(id,z.dataset.zone==="bank"?"bank":Number(z.dataset.zone));});
+document.addEventListener("pointerdown",e=>{
+ const b=e.target.closest("[data-token]");if(!b||e.button!==0||!b.isConnected)return;
+ pointer={id:Number(b.dataset.token),x:e.clientX,y:e.clientY,element:b,dragging:false};
+});
+document.addEventListener("pointermove",e=>{
+ if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;
+ if(!pointer.dragging&&Math.hypot(dx,dy)>9){pointer.dragging=true;pointer.element.classList.add("moving");}
+ if(pointer.dragging){pointer.element.style.transform="translate("+dx+"px,"+dy+"px) scale(1.08)";}
+});
+document.addEventListener("pointerup",e=>{
+ if(!pointer)return;
+ if(pointer.dragging){
+  const {id,element}=pointer;element.style.transform="";element.classList.remove("moving");
+  const under=document.elementFromPoint(e.clientX,e.clientY);const zone=under?.closest("[data-zone]");
+  if(zone){move(id,zone.dataset.zone==="bank"?"bank":Number(zone.dataset.zone));}
+ }
+ pointer=null;
+});
+document.addEventListener("pointercancel",()=>{if(pointer){pointer.element.style.transform="";pointer.element.classList.remove("moving");}pointer=null;});
+$("start").addEventListener("click",()=>setStep(1));
+$("to-intro").addEventListener("click",()=>setStep(0));
+$("submit").addEventListener("click",submit);
+$("edit").addEventListener("click",()=>{invalidate();setStep(1);message("Your earlier choice is editable.");});
+$("try-again").addEventListener("click",()=>{invalidate();setStep(1);message("You can rearrange any of the six tokens.");});
+$("undo").addEventListener("click",()=>{
+ if(!history.length)return;cells=history.pop();selected=null;invalidate();render();message("Last change undone.");
+});
+$("reset").addEventListener("click",()=>{
+ if(cells.every(x=>x==="bank"))return;record();cells=initial.slice();selected=null;render();message("All six tokens are available again.");
+});
+function theme(t){
+ document.body.dataset.theme=t;
+ $("theme-a").setAttribute("aria-pressed",String(t==="manuscript"));
+ $("theme-b").setAttribute("aria-pressed",String(t==="observatory"));
+}
+$("theme-a").addEventListener("click",()=>theme("manuscript"));
+$("theme-b").addEventListener("click",()=>theme("observatory"));
+window.__YL_V21_TEST={getState:()=>({cells:[...cells],history:history.length,step,resultInput,
+  resultStatus:result?.status||null,sections:result?.sections?.map(s=>s.text)||null,theme:document.body.dataset.theme}),
+  submit,move,reset:()=>{$("reset").click();}};
+setStep(0);render();
+})();
+</script>
+<script>
+
+/* CZ-140 progressive research layer. Token Studio v2.1 remains structurally intact.
+ * Both manually chosen game fixtures execute the SAME frozen meaning/1.2 and
+ * v2.0 emotion/expression pipeline after a complete user choice.
+ * No universal selector and no invented timeline event implementation.
+ */
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const engine=window.YL_ENCOUNTER_ENGINE;
+const panels=["choice-card","teaching-card","last-card"];
+const req=!!engine&&!!engine.semanticCases&&!!engine.semanticCases.kierkegaard;
+let mode="token",path=[],resultStage=0,wasVisible=false,showingAll=false;
+let swipePointer=null,lastPacket=null,lastOutput=null,lastGame=null;
+const authored=engine?.semanticCases?.kierkegaard?.model;
+const note=(s,error=false)=>{const el=$("swipe-status");el.textContent=s;el.className="status "+(error?"error":"ok");};
+const intro={
+ token:{
+  title:"Three hours.\nThree priorities.",
+  quote:"“How we spend our days is, of course, how we spend our lives.”",
+  author:"— Annie Dillard · The Writing Life",label:"SITUATION · Tonight",
+  situation:"You have three free hours tonight. Writing, messages, and rest are competing for that time.",
+  decision:"DECISION: Allocate six tokens. Each token means 30 minutes.",
+  discovery:"DISCOVERY: See how a repeated imagined evening connects to Dillard’s argument about the way we spend our lives.",
+  action:"Allocate your three hours"
+ },
+ swipe:{
+  title:"One offer.\nNo preview.",
+  quote:"“Life can only be understood backwards; but it must be lived forwards.”",
+  author:"— Søren Kierkegaard · Journal JJ:167 (wording review pending)",
+  label:"SITUATION · A job offer",
+  situation:"You have a familiar job. A new job would mean moving to another city. You must decide this week without knowing how either path turns out.",
+  decision:"DECISION: Stay or take the new job. Then explore one imagined development and choose your next action.",
+  discovery:"DISCOVERY: See how choosing before knowing connects to Kierkegaard’s idea of living forward and understanding backward.",
+  action:"Make your first decision"
+ }
+};
+function presentIntro(){
+ const i=intro[mode];$("intro-title").textContent=i.title;
+ $("intro-title").style.whiteSpace="pre-line";$("intro-quote").textContent=i.quote;
+ $("intro-author").textContent=i.author;$("dilemma-label").textContent=i.label;
+ $("dilemma-situation").textContent=i.situation;
+ $("dilemma-decision").textContent=i.decision;
+ $("dilemma-discovery").textContent=i.discovery;
+ $("start-label").textContent=i.action;
+ $("token-game").classList.toggle("hidden",mode!=="token");
+ $("swipe-game").classList.toggle("hidden",mode!=="swipe");
+ $("choose-token").setAttribute("aria-pressed",String(mode==="token"));
+ $("choose-swipe").setAttribute("aria-pressed",String(mode==="swipe"));
+ $("play").setAttribute("aria-label",mode==="token"?"Token Studio interactive allocation":"Swipe Decision authored branching choices");
+ $("try-again-label").textContent=mode==="token"?"Try another evening":"Try another path";
+}
+function navigateIntro(){
+ if(!$("result").classList.contains("hidden"))$("edit").click();
+ if(!$("play").classList.contains("hidden"))$("to-intro").click();
+}
+function chooseMode(next){
+ if(next===mode)return;
+ navigateIntro();mode=next;lastPacket=null;lastOutput=null;lastGame=null;
+ presentIntro();if(mode==="swipe")renderSwipe();
+ $("intro-title").focus?.({preventScroll:true});
+}
+$("choose-token").addEventListener("click",()=>chooseMode("token"));
+$("choose-swipe").addEventListener("click",()=>chooseMode("swipe"));
+function auditPath(){
+ if(!req||!authored||!authored.start||!authored.nodes)return null;
+ let key=authored.start,trail=[];
+ for(const id of path){
+  const n=key===null?null:authored.nodes[key];
+  const option=n?.options?.find(o=>o.id===id);
+  if(!option)return null;
+  trail.push({id,label:option.label,prompt:n.prompt,kind:trail.length===1?"imagined_development":"decision",
+    reveals:Array.isArray(option.reveal)?[...option.reveal]:[],next:option.next});
+  key=option.next;
+ }
+ return {key,trail,done:key===null};
+}
+function clearSwipeDerived(){
+ lastPacket=null;lastOutput=null;lastGame=null;
+ $("choice-dashboard").replaceChildren();
+ $("choice-text").textContent="";$("teaching-text").textContent="";$("ending-text").textContent="";
+}
+function truncate(to){
+ if(!Number.isInteger(to)||to<0||to>path.length)return false;
+ path=path.slice(0,to);clearSwipeDerived();renderSwipe();
+ note("Reconsidered. Later choices and developments were discarded.");return true;
+}
+function appendLabel(container,kind,text){
+ const el=document.createElement(kind);el.textContent=text;container.append(el);return el;
+}
+function renderSwipe(){
+ if(!req){note("Frozen Kierkegaard scenario unavailable. No game result can be invented.",true);return;}
+ const a=auditPath();if(!a){note("Scenario path invalid. Returning to the first authored decision.",true);path=[];clearSwipeDerived();return renderSwipe();}
+ const stage=a.trail.length;
+ $("swipe-stage-count").textContent=Math.min(stage+1,3)+" / 3";
+ $("swipe-stage-label").textContent=stage===1?"An imagined development":stage===2?"Your next action":"Your first decision";
+ const done=a.done;
+ $("swipe-card").classList.toggle("hidden",done);
+ $("swipe-choices").classList.toggle("hidden",done);
+ $("swipe-done").classList.toggle("hidden",!done);
+ $("swipe-back").disabled=path.length===0;
+ $("swipe-reset").disabled=path.length===0;
+ const track=$("swipe-path");track.replaceChildren();
+ a.trail.forEach((t,i)=>{
+  const b=document.createElement("button");b.type="button";b.dataset.rewind=String(i);
+  appendLabel(b,"b",String(i+1).padStart(2,"0"));
+  b.append(document.createTextNode(t.label));
+  appendLabel(b,"small",t.kind==="imagined_development"?"Imagined circumstance · revisit":"Your choice · revisit");
+  track.append(b);
+ });
+ const event=$("swipe-event");event.replaceChildren();
+ const imagined=a.trail.find(t=>t.kind==="imagined_development");
+ event.classList.toggle("hidden",!imagined);
+ if(imagined)event.textContent="The scenario now supposes: "+imagined.label+". This is an authored hypothetical development, not a prediction.";
+ if(done){$("swipe-stage-label").textContent="Your complete imagined path";return;}
+ const node=authored.nodes[a.key];
+ if(!node||!Array.isArray(node.options)||node.options.length!==2){
+  note("Unsupported option count or missing authored branch; no fabricated choices.",true);
+  $("swipe-card").classList.add("hidden");$("swipe-choices").classList.add("hidden");return;
+ }
+ $("swipe-prompt").textContent=node.prompt;
+ $("swipe-hint").textContent="← Left: "+node.options[0].label+" · Right: "+node.options[1].label+" →";
+ const buttons=$("swipe-choices");buttons.replaceChildren();
+ node.options.forEach((o,i)=>{
+  const button=document.createElement("button");button.type="button";button.dataset.choice=String(i);
+  appendLabel(button,"small",i===0?"← LEFT · OPTION 1":"RIGHT · OPTION 2 →");
+  appendLabel(button,"span",o.label);buttons.append(button);
+ });
+}
+function commit(index){
+ const a=auditPath();
+ if(!a||a.done||!Number.isInteger(index)||index<0||index>1)return false;
+ const node=authored?.nodes?.[a.key],choice=node?.options?.[index];if(!choice)return false;
+ path.push(choice.id);
+ if(!auditPath()){path.pop();note("That decision is not part of this authored scenario.",true);return false;}
+ clearSwipeDerived();renderSwipe();
+ note(path.length===2?"That development is imagined, not an outcome you control.":"Your choice was recorded. You can revisit any earlier step.");
+ $("swipe-card").focus?.({preventScroll:true});
+ return true;
+}
+$("swipe-choices").addEventListener("click",e=>{const b=e.target.closest("[data-choice]");if(b)commit(Number(b.dataset.choice));});
+$("swipe-path").addEventListener("click",e=>{const b=e.target.closest("[data-rewind]");if(b)truncate(Number(b.dataset.rewind));});
+$("swipe-back").addEventListener("click",()=>{if(path.length)truncate(path.length-1);});
+$("swipe-reset").addEventListener("click",()=>{truncate(0);note("Back at the first decision.");});
+const card=$("swipe-card");
+card.addEventListener("pointerdown",e=>{
+ if(mode!=="swipe"||!card.isConnected||e.button!==0||auditPath()?.done)return;
+ swipePointer={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0};
+ try{card.setPointerCapture(e.pointerId);}catch(_){}
+});
+card.addEventListener("pointermove",e=>{
+ if(!swipePointer||swipePointer.id!==e.pointerId)return;
+ swipePointer.dx=e.clientX-swipePointer.x;swipePointer.dy=e.clientY-swipePointer.y;
+ const dx=swipePointer.dx;
+ if(Math.abs(dx)>6&&Math.abs(dx)>Math.abs(swipePointer.dy)*1.12){
+  card.style.transform="translateX("+Math.max(-75,Math.min(75,dx*.33))+"px) rotate("+(Math.max(-8,Math.min(8,dx/14)))+"deg)";
+ }
+});
+function stopSwipe(e,cancel=false){
+ if(!swipePointer||swipePointer.id!==e.pointerId)return;
+ const {dx,dy}=swipePointer;swipePointer=null;card.style.transform="";
+ if(!cancel&&Math.abs(dx)>=55&&Math.abs(dx)>Math.abs(dy)*1.15)commit(dx<0?0:1);
+}
+card.addEventListener("pointerup",e=>stopSwipe(e));
+card.addEventListener("pointercancel",e=>stopSwipe(e,true));
+card.addEventListener("keydown",e=>{
+ if(mode!=="swipe")return;
+ if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();commit(e.key==="ArrowLeft"?0:1);}
+});
+function makeAllocationVisual(){
+ const wrapper=$("choice-dashboard");wrapper.replaceChildren();
+ const cells=window.__YL_V21_TEST.getState().cells;
+ const labels=["Writing your story","Answering messages","Resting and recharging"];
+ const colors=["var(--accent)","var(--sage)","var(--coral)"];
+ let assigned=0;
+ labels.forEach((label,i)=>{
+  const n=cells.filter(x=>x===i).length;assigned+=n;
+  const line=document.createElement("div");line.className="alloc-row";
+  const head=document.createElement("div");head.className="alloc-label";
+  appendLabel(head,"span",label);appendLabel(head,"strong",Number((n*.5).toFixed(8)).toString()+" "+(n===2?"hour":"hours"));
+  const track=document.createElement("div");track.className="alloc-track";
+  const bar=document.createElement("div");bar.className="alloc-fill";bar.style.width=(n/6*100)+"%";bar.style.background=colors[i];
+  track.append(bar);line.append(head,track);wrapper.append(line);
+ });
+ const msg=document.createElement("p");msg.className="dashboard-summary";
+ msg.textContent=Number((assigned/2).toFixed(8))+" of 3 imagined hours allocated. No activity has a moral score.";
+ wrapper.prepend(msg);
+}
+function makePathVisual(a){
+ const wrapper=$("choice-dashboard");wrapper.replaceChildren();
+ const msg=appendLabel(wrapper,"p","This is the path you explored. The alternative path was not lived or observed.");
+ msg.className="dashboard-summary";
+ const track=document.createElement("div");track.className="path-dashboard";
+ a.trail.forEach((step,i)=>{
+  if(i){const connector=document.createElement("div");connector.className="path-connector";connector.setAttribute("aria-hidden","true");track.append(connector);}
+  const box=document.createElement("div");box.className="path-node";
+  appendLabel(box,"b",i===1?"An imagined event, not your action":"Your decision "+(i===2?"2":"1"));
+  appendLabel(box,"p",step.label);track.append(box);
+ });
+ wrapper.append(track);
+}
+function setReveal(n,all=false){
+ resultStage=Math.max(0,Math.min(2,n));showingAll=all;
+ panels.forEach((id,i)=>{
+  const card=$(id);card.classList.toggle("hidden",!all&&i>resultStage);
+  card.classList.remove("reveal-enter");
+  if(i===resultStage){void card.offsetHeight;card.classList.add("reveal-enter");}
+ });
+ $("reveal-back").disabled=resultStage===0&&!showingAll;
+ $("reveal-next").disabled=all||resultStage===2;
+ $("reveal-next").textContent=resultStage===0?"Continue to the philosopher →":"One last thing… →";
+ if(all)$("reveal-next").textContent="All sections visible";
+ $("reveal-all").disabled=all;
+ $("reveal-status").textContent=all?"All three source-grounded sections are visible.":"Stage "+(resultStage+1)+" of 3 · "+["Your Choice","Back to the Philosopher","One Last Thing…"][resultStage];
+ const target=all?$("choice-card"):$(panels[resultStage]);target.focus({preventScroll:true});
+ target.scrollIntoView({block:"nearest",behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
+}
+function startProgressive(){
+ const swipe=mode==="swipe",audit=swipe?auditPath():null;
+ if(swipe&&(!audit||!audit.done)){note("Complete the authored decision path first.",true);return;}
+ if(swipe)makePathVisual(audit);else makeAllocationVisual();
+ setReveal(0);
+}
+new MutationObserver(()=>{
+ const visible=!$("result").classList.contains("hidden");
+ if(visible&&!wasVisible){wasVisible=true;if(mode==="token"){lastGame="token";startProgressive();}}
+ if(!visible&&wasVisible){wasVisible=false;showingAll=false;resultStage=0;panels.forEach((id,i)=>$(id).classList.toggle("hidden",i>0));}
+}).observe($("result"),{attributes:true,attributeFilter:["class"]});
+$("reveal-back").addEventListener("click",()=>{if(showingAll){setReveal(1);return;}if(resultStage>0)setReveal(resultStage-1);});
+$("reveal-next").addEventListener("click",()=>{if(!showingAll&&resultStage<2)setReveal(resultStage+1);});
+$("reveal-all").addEventListener("click",()=>setReveal(2,true));
+function enterResult(){
+ $("intro").classList.add("hidden");$("play").classList.add("hidden");$("result").classList.remove("hidden");
+ for(let i=0;i<3;i++)$("prog-"+i).classList.toggle("active",i<=2);
+ window.scrollTo({top:0,behavior:"instant"});
+}
+function submitSwipe(){
+ const a=auditPath();
+ if(!a||!a.done){note("Only a complete source-authored decision path may be interpreted.",true);return;}
+ if(!engine||!engine.semanticCases?.kierkegaard||!engine.reasonSemantically||!engine.renderEncounterV20){
+  note("The frozen philosophical engines are unavailable; no simulated result will be substituted.",true);return;
+ }
+ const input={path:[...path]};
+ const packet=engine.reasonSemantically(engine.semanticCases.kierkegaard,input);
+ if(packet.status!=="ready"){note("Reasoning declined: "+String(packet.reason||packet.status),true);return;}
+ const evidence=engine.adaptEncounterEvidence(packet);
+ if(evidence.status!=="ready"){note("Evidence admission declined: "+String(evidence.reason||evidence.status),true);return;}
+ const brief=engine.selectEmotionStrategy(packet);
+ if(brief.status!=="ready"){note("Emotion strategy declined: "+String(brief.reason||brief.status),true);return;}
+ const out=engine.renderEncounterV20(packet);
+ if(out.status!=="ready"||out.brief?.strategy!==brief.strategy||out.source_review!=="curated_provisional"||
+  !Array.isArray(out.sections)||out.sections.length!==3){note("Expression or source review declined: "+String(out.reason||out.status),true);return;}
+ const checked=engine.validateEncounterV20(packet,out);
+ if(checked.status!=="ready"){note("Word/source policy validation declined: "+String(checked.reason||checked.status),true);return;}
+ lastPacket=packet;lastOutput=out;lastGame="swipe";
+ $("choice-text").textContent=out.sections[0].text;$("teaching-text").textContent=out.sections[1].text;
+ $("ending-text").textContent=out.sections[2].text;
+ $("thinker-name").textContent=packet.author;
+ $("result-quote").textContent="“"+packet.quote+"”";
+ $("result-title").textContent="A choice.\nA later perspective.";$("result-title").style.whiteSpace="pre-line";
+ $("philosopher-portrait").setAttribute("aria-label","Stylized static pixel portrait of "+packet.author);
+ try{$("philosopher-portrait").innerHTML=engine.philosopherPortrait(packet.author);}catch(_){$("philosopher-portrait").textContent="SK";}
+ $("source-detail").textContent=(packet.source?.work||"Source title review pending")+" · "+packet.sourceAdmission.sourceUrl+
+  ". "+out.source_warrant+" The path was imagined; the unchosen alternative and real outcomes remain unknown.";
+ $("research-notice").textContent="Research-only source. The shortened Kierkegaard quotation and its contextual reading remain provisional, not independently verified. All developments in this exercise are imagined, not predictions or known alternative futures.";
+ enterResult();startProgressive();
+}
+$("swipe-finish").addEventListener("click",submitSwipe);
+$("edit").addEventListener("click",()=>{
+ if(mode==="swipe"){clearSwipeDerived();renderSwipe();}
+});
+$("try-again").addEventListener("click",()=>{
+ if(mode==="swipe"){clearSwipeDerived();renderSwipe();}
+});
+const start=$("start");
+start.addEventListener("click",()=>{if(mode==="swipe")renderSwipe();});
+$("result").addEventListener("keydown",e=>{
+ if(e.target.closest("button"))return;
+ if(e.key==="ArrowRight"&&resultStage<2){e.preventDefault();setReveal(resultStage+1);}
+});
+window.__YL_CZ140_TEST={
+ getState:()=>({mode,path:[...path],audit:auditPath(),reveal:resultStage,showingAll,
+  visiblePanels:panels.filter(id=>!$(id).classList.contains("hidden")),
+  theme:document.body.dataset.theme,lastResultStatus:lastOutput?.status||null,
+  lastCanonicalPath:lastPacket?.structure?.path??null,
+  inputSource:lastPacket?.source?.work||null}),
+ canonical:()=>lastGame==="swipe"?lastPacket?.selectedChoices?.map(x=>x.id)??[]:null
+};
+presentIntro();renderSwipe();
+})();
+
+</script>
+</body></html>
