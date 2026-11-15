@@ -15,6 +15,7 @@ export function authoritativeContextForRecord(record){
  const matching=Object.values(semanticCases).filter(context=>
    context?.status!=="incompatible" &&
    context?.source?.url===s.referenceUrl &&
+   context?.author===s.author &&
    context?.source?.work===s.work &&
    context?.quote===s.quote &&
    context?.semantic?.admission?.centralClaim===a.sourceWarrant &&

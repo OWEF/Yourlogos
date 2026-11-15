@@ -1,6 +1,7 @@
 import {createHash} from "node:crypto";
 import {assessAllSixPeerGames,authoritativeContextForRecord} from "./content-capabilities-v211.js";
 import {reasonSemantically} from "../encounter/semantic-reasoning-v12.js";
+import {trustedEditorialAdmissionV212} from "./trusted-editorial-v212.js";
 /**
  * CZ-130 / Encounter v2.1: source-first content admission and scenario contract.
  * ISOLATED RESEARCH: no catalogue import or publishing side effects.
@@ -58,6 +59,11 @@ export function validateContentRecordV21(record){
     !text(record.editorialSignoff?.reviewedAt)||
     record.editorialSignoff?.versionHash!==record.versionHash))
   fail(errors,"editorialSignoff","Public approval requires independently signed verified exact-version content.");
+ // Source/argument authority is separate from fingerprint integrity and
+ // caller-provided signoffs. Unsupported prose must fail closed, not be
+ // interpreted as 'verified' merely because it is long or hash-consistent.
+ const editorial=trustedEditorialAdmissionV212(record,GAME_IDS);
+ if(!editorial.ok)fail(errors,editorial.field,editorial.reason);
   const scored=assessAllSixPeerGames(record,GAME_IDS);
  const g=record.gameCompatibility;
  const peersOk=Array.isArray(g)&&g.length===GAME_IDS.length&&
