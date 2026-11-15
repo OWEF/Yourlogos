@@ -24,7 +24,7 @@ jobs:
           BASE=b95f62b8c621d8267088a772a92f1e27cdb08185
           git merge-base --is-ancestor "$BASE" HEAD
           git diff --name-only "$BASE" HEAD | tee /tmp/cz125method.txt
-          if grep -Ev '^(tests/cz123-cz125-method-release\\.mjs|\\.github/workflows/cz123-cz125-method-release\\.yml)$' /tmp/cz125method.txt; then
+          if grep -Ev '^(tests/cz123-cz125-method-release\.mjs|\.github/workflows/cz123-cz125-method-release\.yml)$' /tmp/cz125method.txt; then
             echo "FAIL: independent QA modified implementation or frozen engines"; exit 1
           fi
       - name: Free browser harness dependency
