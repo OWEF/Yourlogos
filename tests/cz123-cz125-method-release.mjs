@@ -94,9 +94,11 @@ test("independently separate method-release activation from human enrollment and
  assert.match(gate,/CZ-121/);
  assert.match(gate,/CZ-126/);
  for(const doc of [protocol,reconciliation]){
-  assert.match(doc,/2026-11-16/);
   assert.match(doc,/no recruitment|not authorized|no participants/i);
  }
+ assert.match(reconciliation,/2026-11-16/);
+ assert.match(gate,/2026-11-16/);
+ assert.match(protocol,/founder approved N1/i);
  assert.doesNotMatch(html,/(?:sendBeacon|XMLHttpRequest|localStorage|indexedDB)/);
 });
 
