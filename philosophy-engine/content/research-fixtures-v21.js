@@ -5,6 +5,14 @@ import {graphPathsFromContext} from "./content-capabilities-v211.js";
 const finalize=x=>Object.freeze({...x,versionHash:contentFingerprintV21(x)});
 const decision=(eligible,evidenceOrRejection,requirements=[])=>({eligible,evidenceOrRejection,requirements});
 const six=byId=>GAME_IDS.map(id=>({id,...byId[id]}));
+const NO_FIT_REJECTIONS=Object.freeze({
+ trade_off:"The Preface's claim about mediated totality supplies no finite rival-resource allocation or measured competing outcomes.",
+ decision_map:"This proposition supplies no source-authored chain of a person's decisions, actions and dependent consequences.",
+ token_studio:"No source-grounded divisible resource, quantitative common unit or token allocation represents this philosophical claim.",
+ balance_of_values:"The claim supplies no defensible commensurable metric for ranking separate personal values against each other.",
+ swipe_decision:"No supported first personal decision, externally authored development and later user response arise from this proposition.",
+ future_reveal:"The passage provides no hypothetical timeline with defined milestones; inventing a future would misstate its argument."
+});
 const researchSource=(context,locator)=>({
  author:context.author,work:context.source.work,quote:context.quote,
  locator,referenceUrl:context.source.url,verifiedSourceUrl:null,
