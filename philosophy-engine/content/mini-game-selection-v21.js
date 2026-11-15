@@ -198,7 +198,7 @@ export function selectMiniGameV21(record,options){
     reason:"No trusted meaning context.",browserPrototypeAvailable:g.browserPrototypeAvailable})));
  const caps=assessAllSixPeerGames(record,GAME_IDS);
  const rows=SIX_PEER_GAMES.map((game,index)=>{
-  const cap=caps[index],declared=record.gameCompatibility[index];
+  const cap=caps.find(x=>x.id===game.id),declared=record.gameCompatibility.find(x=>x.id===game.id);
   const reasons=[];
   if(!cap.eligible||declared.eligible!==cap.eligible)
    reasons.push(cap.reason);
