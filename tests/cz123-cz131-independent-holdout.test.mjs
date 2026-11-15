@@ -226,3 +226,16 @@ test("DIAGNOSTIC: all eight admitted Kierkegaard paths report READY or explicit 
  });
  console.log("CZ123-CZ131-PATH-COVERAGE "+JSON.stringify(cases));
 });
+
+test("DIAGNOSTIC: frozen v2.0 allowed-tone re-render feasibility for two safe-abstained branches",async()=>{
+ const {renderEncounterV20}=await import("../philosophy-engine/encounter/encounter-v20.js");
+ const {reasonSemantically}=await import("../philosophy-engine/encounter/semantic-reasoning-v12.js");
+ for(const path of [["change","surprise","adapt"],["change","surprise","continue"]]){
+  const packet=reasonSemantically(semanticCases.kierkegaard,{path});
+  const cases=["contemplative","provocative","warm","playful"].map(tone=>{
+   const r=renderEncounterV20(packet,{tone});
+   return {tone,status:r.status,strategy:r.brief?.strategy,reason:r.reason??null};
+  });
+  console.log("CZ123-CZ131-TONE-DIAG "+JSON.stringify({path,cases}));
+ }
+});
