@@ -4,127 +4,455 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; form-action 'none'; connect-src 'none'; img-src 'none';">
-<title>YourLogos · CZ-125 — UNAPPROVED instrument · no enrollment</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';">
+<title>YourLogos · CZ-125 Human Learning Research Instrument v1.0</title>
 <style>
-:root{color-scheme:dark;--bg:#121512;--panel:#202722;--line:#434d40;--gold:#ddad70;--muted:#bfc8bb;--ink:#f3eedf;--sage:#9ac6b4}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,sans-serif}
-main{max-width:720px;margin:auto;padding:24px 17px 60px}h1{font:500 40px/1.12 Georgia,serif}h2{font:500 26px Georgia,serif}
-p,small{color:var(--muted)}.meta{color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-size:11px;font-weight:700}
-.panel{border:1px solid var(--line);border-radius:19px;background:var(--panel);padding:17px;margin:20px 0}
-label{display:block;font-weight:650;margin:15px 0 6px}
-input,textarea,select{display:block;width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink);font:inherit}
-textarea{min-height:108px;resize:vertical}button{width:100%;min-height:52px;background:var(--gold);color:var(--bg);border:0;border-radius:12px;font-weight:750;font:inherit;cursor:pointer}
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-.option{display:flex;align-items:start;gap:10px;margin:15px 0}.option input{width:auto;margin-top:5px}
-.option label{margin:0;font-weight:450}.warning{border-left:3px solid var(--gold);padding-left:12px}.notice{color:var(--sage)}
-@media(max-width:360px){h1{font-size:33px}.panel{padding:13px}}
+:root{color-scheme:dark;--bg:#121512;--panel:#202722;--line:#465047;--gold:#dfb47d;--ink:#f3eedf;--muted:#c1c9c0;--good:#a1cfbd;--warn:#f8b7a2}
+*{box-sizing:border-box}html{background:var(--bg)}body{font:15px/1.6 system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+main{width:min(100%,720px);margin:auto;padding:25px 18px 70px}
+h1{font:500 clamp(34px,9vw,47px)/1.09 Georgia,serif;margin:14px 0 15px}
+h2{font:500 28px Georgia,serif;margin:0 0 12px}
+h3{font:500 23px Georgia,serif;margin:20px 0 12px}
+p,small{color:var(--muted)}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:.15em;font-weight:750;color:var(--gold)}
+.panel{background:var(--panel);border:1px solid var(--line);padding:18px;border-radius:18px;margin:15px 0}
+.alert{border-left:4px solid var(--warn);padding:10px 15px;background:var(--panel);border-radius:8px;color:var(--ink)}
+label,.field-title{display:block;font-size:14px;font-weight:670;margin:18px 0 7px;color:var(--ink)}
+input[type="text"],select,textarea{display:block;width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);
+font:inherit;border-radius:11px;padding:12px;min-height:48px}
+textarea{min-height:118px;resize:vertical}
+button{display:block;min-height:49px;padding:10px 16px;background:var(--gold);border:0;border-radius:12px;color:#1d1913;
+font:700 14px system-ui,-apple-system,sans-serif;cursor:pointer}
+button[disabled],select[disabled],input[disabled],textarea[disabled]{opacity:.48;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row button{flex:1 1 180px}
+.secondary{border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.field-line{display:flex;gap:10px;align-items:flex-start;padding:7px 0}
+.field-line input{width:20px;height:20px;flex:0 0 auto;margin-top:2px}
+.field-line label{font-weight:450;margin:0;flex:1}
+.choices label{display:flex;align-items:start;gap:10px;margin:7px 0;font-weight:450;min-height:44px;cursor:pointer}
+.choices input{margin-top:6px;width:19px;height:19px}
+.hidden{display:none!important}
+.status{font-size:13px;color:var(--good);min-height:20px}
+.status[data-error="true"]{color:var(--warn)}
+.note{border:1px solid var(--line);padding:14px;border-radius:12px;color:var(--muted);font-size:13px}
+.meta{font-size:12px;word-break:break-word}
+#progress{color:var(--good);font-weight:700;font-size:12px}
+#neutral-prompt{font:400 23px/1.4 Georgia,serif;color:var(--ink);padding:17px 0}
+@media(max-width:360px){main{padding:18px 13px} .panel{padding:13px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <main>
-<p class="meta">YourLogos · CZ-125 · human research only</p>
-<h1>Protocol reconciliation required</h1>
-<p id="cz125-hold" class="warning" role="alert"><strong>ENROLLMENT HOLD — instrument not approved.</strong> The original native CZ-125 preregistration is not fully retrievable. Its verified November 15, 2026 10:43 UTC comment calls for a baseline, misconception/counterexample and philosophical transfer measures, six dimensions, 20–28-hour delayed recall and numerical per-game thresholds. The prior two-phase questions were incomplete. This page is a disabled reference, not an authorized way to recruit or collect answers. Study participant count: 0.</p>
-<p class="warning">This is a separate, anonymous response sheet. It is not a test of your personal decisions. The material is experimental and the philosophical passages are not yet independently approved for publication.</p>
-<p><strong>Privacy:</strong> No answers are sent anywhere or saved automatically. When a reconciled study is prospectively approved, local-only JSON export will be restored; there is currently no valid download or answer collection. Closing this tab before downloading loses the text. Do not enter your name, email, address, or other identifying details.</p>
-<form id="response" autocomplete="off" aria-describedby="cz125-hold"><fieldset disabled id="cz125-instrument-locked">
-<section class="panel">
-<h2>Session details</h2>
-<label for="code">Anonymous code (provided by your researcher)</label>
-<select required id="code" name="code"><option value="">Choose your code</option>
-<option>R01</option><option>R02</option><option>R03</option><option>R04</option><option>R05</option><option>R06</option><option>R07</option><option>R08</option><option>R09</option><option>R10</option></select>
-<label for="phase">When are you responding?</label>
-<select required id="phase" name="phase">
-<option value="baseline">Baseline — before seeing game or explanatory answer (exact original instrument unavailable)</option>
-<option value="immediate">Immediate — after the Encounter (original wording unavailable)</option>
-<option value="delayed">Delayed — 20–28 hours after Encounter, without answer exposure (instrument pending)</option>
+<p class="tag">YourLogos · CZ-125 · researcher-administered · A–H</p>
+<h1>Understanding through philosophical encounters</h1>
+<p class="meta">Accepted interactive candidate: <code>73849bff27fc73db97d5fb015c57f45323e18f30</code>. Five first-time adults; two games each; ten paired observations. Original transcription: Linear CZ-125 comment <code>cc99ce7c-4037-44a6-b199-760698937258</code>.</p>
+<div id="method-hold" class="alert" role="alert">
+<strong>METHOD RELEASE PENDING — NOT AUTHORIZED FOR PARTICIPANT ENROLLMENT.</strong>
+The full A–H instrument is implemented for functional QA only. Neutral introductory dilemmas require prospective review. The approved-mode switch remains OFF; real response creation and export are locked. No participants or responses have been collected.
+</div>
+<p class="note">Privacy: no network requests, external scripts, analytics, cookies, browser storage, cloud uploads or automatic scores. If method release is later approved, each phase is exported locally as a JSON bundle, then imported from a private file to continue. Consent and follow-up permission are separate; do not type names, phone numbers or emails.</p>
+<p id="progress" aria-live="polite">Research phase not activated</p>
+<section id="entry" class="panel">
+<h2>Research session setup</h2>
+<div class="row">
+<button id="import" class="secondary" type="button" disabled>Import previous anonymous session JSON</button>
+<input id="import-file" type="file" accept=".json,application/json" class="hidden" aria-label="Choose saved anonymous JSON session" disabled>
+</div>
+<form id="setup" autocomplete="off">
+<fieldset id="setup-fields" disabled>
+<label for="participant">Anonymous participant code</label>
+<select id="participant" required>
+<option value="">Choose code</option>
+<option value="P01">P01 — Dillard first</option>
+<option value="P02">P02 — Kierkegaard first</option>
+<option value="P03">P03 — Dillard first</option>
+<option value="P04">P04 — Kierkegaard first</option>
+<option value="P05">P05 — Dillard first</option>
 </select>
-<label for="passage">Which source did you see?</label>
-<select required id="passage" name="passage"><option value="">Choose the source you encountered</option>
-<option value="research:dillard:time-v1">Annie Dillard · Token Studio</option>
-<option value="research:kierkegaard:future-v1">Søren Kierkegaard · Swipe Decision</option>
-</select>
-<label for="canonical">What did you actually select? (researcher may enter exact allocation/path afterwards)</label>
-<input id="canonical" name="canonical" placeholder="Example: 3 / 1 / 2; or a three-step route">
-<label for="sessiontime">Encounter completion time (if known)</label>
-<input id="sessiontime" name="sessiontime" type="datetime-local">
-<label for="note">Observations on usability or assistance (researcher; optional)</label>
-<textarea id="note" name="note" placeholder="Describe actual observed confusion, any hints given and exact UI wording."></textarea>
+<div class="field-line"><input type="checkbox" id="adult" required><label for="adult">This respondent is an adult (18+) and is genuinely unfamiliar with the app version, its authorship and expected answers.</label></div>
+<div class="field-line"><input type="checkbox" id="consent" required><label for="consent">I voluntarily consent to record anonymous written answers for private internal research. Participation may stop at any time and identifiable personal stories are not requested.</label></div>
+<div class="field-line"><input type="checkbox" id="recontact"><label for="recontact">Separately, I consent to being contacted approximately 24 hours later. Contact details are arranged privately outside this form and never stored here.</label></div>
+<p>Previous familiarity (none/basic/experienced). Responses are only for counterbalancing/context; do not ask sensitive personal history.</p>
+<label for="known-dillard">Dillard</label><select id="known-dillard"><option>none</option><option>basic</option><option>experienced</option></select>
+<label for="known-kierkegaard">Kierkegaard</label><select id="known-kierkegaard"><option>none</option><option>basic</option><option>experienced</option></select>
+<label for="known-philosophy">Philosophy</label><select id="known-philosophy"><option>none</option><option>basic</option><option>experienced</option></select>
+<label for="known-games">Interactive games</label><select id="known-games"><option>none</option><option>basic</option><option>experienced</option></select>
+<label for="browser-device">Device and browser (no persistent device ID)</label>
+<input type="text" id="browser-device" maxlength="160" placeholder="e.g. mobile Safari, iOS; no serial numbers" required>
+<button id="begin" type="submit" disabled>Begin private study session</button>
+</fieldset>
+</form>
 </section>
-<section class="panel">
-<h2>Superseded four-question reference — NOT the original six-dimensional instrument</h2>
-<p><strong>Not enrollment-ready.</strong> The original pre/post question set, misconception/counterexample probes, philosophical transfer task, six dimension definitions and thresholds remain inaccessible. The following old PR #193 prompts are displayed only to document the discrepancy.</p>
-<p>There is no preferred personal choice. Respond without reopening the app or looking up an answer, and without help if possible. A blank response is allowed if you don't know.</p>
-<label for="q1">1. In your own words, what did the choice you made change in this scenario?</label>
-<textarea id="q1" name="q1"></textarea>
-<label for="q2">2. What do you think this philosopher's central argument was, and how did the example help you understand it?</label>
-<textarea id="q2" name="q2"></textarea>
-<label for="q3">3. What, if anything, remains hypothetical, uncertain, or unknown after the experience?</label>
-<textarea id="q3" name="q3"></textarea>
-<label for="q4">4. What is the final question or reflection asking you to consider?</label>
-<textarea id="q4" name="q4"></textarea>
-<label for="baseline-instrument">Baseline prompts (NOT RECOVERED)</label>
-<textarea id="baseline-instrument" disabled placeholder="Exact preregistered wording pending full original Linear document."></textarea>
-<label for="misconception-instrument">Misconception / counterexample instrument (NOT RECOVERED)</label>
-<textarea id="misconception-instrument" disabled placeholder="Exact preregistered stimulus, answer key and criteria pending."></textarea>
-<label for="transfer-instrument">Unseen philosophical transfer task (NOT RECOVERED)</label>
-<textarea id="transfer-instrument" disabled placeholder="Exact preregistered transfer scenario and evaluation pending."></textarea>
+<section id="phase" class="panel hidden" aria-labelledby="phase-heading">
+<p id="phase-kicker" class="tag"></p>
+<h2 id="phase-heading" tabindex="-1"></h2>
+<p id="phase-instructions"></p>
+<form id="phase-form" autocomplete="off">
+<fieldset id="phase-fields" disabled>
+<div id="neutral-wrap" class="hidden">
+<p id="neutral-prompt"></p>
+</div>
+<div id="questions"></div>
+<div class="row">
+<button id="advance" type="submit" disabled>Record phase</button>
+<button id="save" class="secondary" type="button" disabled>Export anonymous session JSON</button>
+</div>
+</fieldset>
+</form>
 </section>
-<section class="panel">
-<h2>Consent and private export — disabled until methodological acceptance</h2>
-<div class="option"><input id="consent" name="consent" type="checkbox" required>
-<label for="consent">I voluntarily agree to share these anonymized responses for internal evaluation of this experimental prototype. I understand I may withdraw by telling the researcher to delete my response. No personal identifiers should be entered in this form.</label></div>
-<div class="option"><input id="unassisted" name="unassisted" type="checkbox">
-<label for="unassisted">I answered without being told the intended philosophical explanation or reading my earlier answers.</label></div>
-<button type="submit" id="export" disabled aria-disabled="true">Export disabled · preregistration not approved</button>
-<p id="state" role="status" aria-live="polite" class="notice">No response has been exported yet.</p>
+<section id="done" class="panel hidden">
+<h2 id="done-heading">Study phase complete</h2>
+<p id="done-copy"></p>
+<div class="row"><button id="done-export" type="button" disabled>Export anonymous JSON now</button></div>
 </section>
-</fieldset></form>
-<p>Original evidence comment cites a 20–28-hour delayed interval and six learning dimensions. The four older 0–2 issue-description axes are not a six-dimensional mapping. No study success threshold or sample denominator is approved yet; literal five-per-game thresholds would require at least ten distinct readers, pending source verification. Do not administer this page.</p>
+<p id="feedback" class="status" role="status" aria-live="polite"></p>
+<details><summary>What does this form measure?</summary>
+<p>Interaction 0–2; philosophy baseline/post 0–4; qualified source PASS/REVIEW/BLOCK; counterexample 0–2; delayed recall 0–2; qualitative engagement verbatim, plus separate unseen transfer. An independent human reviewer assigns scores **after** collecting responses. No participant can be scored by this form.</p>
+</details>
 </main>
 <script>
 "use strict";
 (() => {
-  const form=document.getElementById("response"),message=document.getElementById("state");
-  const baseline="73849bff27fc73db97d5fb015c57f45323e18f30";
-  const PREREGISTRATION_APPROVED=false; // explicit freeze; never toggle without approved source + independent review
-  form.addEventListener("submit", e=>{
-    e.preventDefault();
-    if(!PREREGISTRATION_APPROVED){
-      message.textContent="NOT APPROVED: original six-dimensional preregistration not fully inspected. No response file created.";
+  // Security/ethics gate: DO NOT change to true until separate CZ-123 methodology
+  // QA and founder approval of the prospective neutral baseline wording.
+  // Automated tests may exercise a transient in-memory fixture with this
+  // flag replaced, but the committed form never enrolls actual participants.
+  const METHOD_RELEASE_APPROVED=false;
+  const VERSION="cz125-founder-ah-transcription/1.0";
+  const SCHEMA="cz125-two-games-session/1.0";
+  const SHA="73849bff27fc73db97d5fb015c57f45323e18f30";
+  const ORIGINAL_COMMENT="cc99ce7c-4037-44a6-b199-760698937258";
+  const ORDER=Object.freeze({
+    P01:["dillard","kierkegaard"],P02:["kierkegaard","dillard"],
+    P03:["dillard","kierkegaard"],P04:["kierkegaard","dillard"],
+    P05:["dillard","kierkegaard"]
+  });
+  const CASES=Object.freeze({
+    dillard:{
+      condition:"token_studio",sourceId:"research:dillard:time-v1",gameLabel:"Token Studio",
+      neutral:"You have three free hours this evening. You could write, answer messages, or rest. How might you use that time?",
+      options:[
+        "Five imagined evenings can illustrate a time-use pattern, but don't prove real-life priorities.",
+        "More writing tokens prove writing is the better way to live.",
+        "The game can tell exactly what you do on an average night."
+      ],
+      transfer:"A reader models a week with two hours of reading and five hours of rest each day. What can they conclude, and what can't they?"
+    },
+    kierkegaard:{
+      condition:"swipe_decision",sourceId:"research:kierkegaard:future-v1",gameLabel:"Swipe Decision",
+      neutral:"You have an offer to take a new job. You can accept it or remain in your current job. What do you decide?",
+      options:[
+        "Later invented events show the unchosen job would have been worse.",
+        "You chose your response, but not which real event happened; the unchosen path remains unknown.",
+        "Looking backward lets you judge the first decision with complete certainty."
+      ],
+      transfer:"A person moves city and discovers later that the apartment is noisier than advertised. Does this prove moving was foolish or that staying would have been better? Why?"
+    }
+  });
+  const PROMPTS=Object.freeze({
+    baseline:"What is the dilemma? Which parts could you decide yourself?",
+    glance:"In your own words, what is this experience asking you to do? What will it help you see?",
+    post:"What is the philosopher's main point? How did your decisions or events illustrate it? Which parts were not within your control or not known?",
+    engagement:"Which moment was clearest? What confused you? What if anything was worth remembering? Which interaction felt more meaningful and why?",
+    delayed:"Describe one central idea from Dillard and one from Kierkegaard, and give a specific example from each game. Identify one thing the game could NOT tell you about reality."
+  });
+  const $=id=>document.getElementById(id);
+  let session=null;
+  const message=(value,error=false)=>{ $("feedback").textContent=value;$("feedback").dataset.error=String(error); };
+  function now(){return new Date().toISOString();}
+  function localNow(){
+    const d=new Date();const z=n=>String(n).padStart(2,"0");
+    return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+"T"+z(d.getHours())+":"+z(d.getMinutes())+":"+z(d.getSeconds());
+  }
+  function initialRow(participant,game,order,metadata){
+    return {
+      participant_id:participant,code_sha:SHA,condition:CASES[game].condition,
+      source_record_id:CASES[game].sourceId,
+      date_local:null,browser_device:metadata.browser,sequence_order:order,
+      prior_familiarity:structuredClone(metadata.familiarity),
+      consent:{anonymous_written:true,recontact:metadata.recontact},
+      baseline_verbatim:null,first_glance_verbatim:null,interaction_score_0_2:null,
+      intervention_notes:null,chosen_canonical_path:null,post_verbatim:null,
+      comprehension_before_0_4:null,comprehension_after_0_4:null,
+      misconception_choice:null,misconception_reason_verbatim:null,
+      counterexample_score_0_2:null,transfer_answer_verbatim:null,
+      qualitative_quote:null,delayed_date_time:null,delayed_answer_verbatim:null,
+      delayed_score_0_2:null,adverse_observations:null,
+      scorer_id:null,scorer_justification:null,
+      source_grounded_correctness:null,
+      independent_second_scorer:null,scorer_disagreement_resolution:null,
+      baseline_at:null,first_glance_at:null,immediate_at:null,
+      delayed_followup_valid:null,delayed_missing:true,
+      interaction_observation:null,gesture_used:null,
+      comprehension_prompting:null,language_confusion:null
+    };
+  }
+  const expectedStage=progress=>{
+    if(progress>=0&&progress<6)return {index:Math.floor(progress/3),
+      gameStage:["baseline","glance","immediate"][progress%3]};
+    if(progress===6)return {index:null,gameStage:"delayed"};
+    return {index:null,gameStage:"completed"};
+  };
+  function blankText(id,label,required=true){
+    const holder=document.createElement("div");
+    const l=document.createElement("label");l.textContent=label;l.htmlFor=id;
+    const textarea=document.createElement("textarea");textarea.id=id;
+    textarea.maxLength=16000;textarea.required=required;
+    holder.append(l,textarea);return holder;
+  }
+  function textInput(id,label,required=true){
+    const holder=document.createElement("div");
+    const l=document.createElement("label");l.textContent=label;l.htmlFor=id;
+    const input=document.createElement("input");input.id=id;input.type="text";
+    input.required=required;input.maxLength=1200;
+    holder.append(l,input);return holder;
+  }
+  function choiceSelect(id,label,choices){
+    const holder=document.createElement("div"),l=document.createElement("label");
+    l.textContent=label;l.htmlFor=id;
+    const select=document.createElement("select");select.id=id;select.required=true;
+    const none=document.createElement("option");none.value="";none.textContent="Choose one";select.append(none);
+    for(const [code,statement] of choices.entries()){
+      const op=document.createElement("option");op.value=String.fromCharCode(65+code);
+      op.textContent=String.fromCharCode(65+code)+": "+statement;select.append(op);
+    }
+    holder.append(l,select);return holder;
+  }
+  function escapeProgress(s){return String(s);}
+  function render(){
+    $("entry").classList.add("hidden");$("phase").classList.add("hidden");$("done").classList.add("hidden");
+    if(!session){$("entry").classList.remove("hidden");return;}
+    const stage=expectedStage(session.progress);
+    $("progress").textContent="Anonymous participant "+session.participant_id+
+      " · "+(stage.gameStage==="delayed"?"24-hour recall":stage.gameStage==="completed"?"Study complete":
+      "Game "+(stage.index+1)+" of 2 · "+stage.gameStage);
+    if(stage.gameStage==="completed"){
+      $("done").classList.remove("hidden");
+      $("done-heading").textContent="Both game records and delayed recall captured";
+      $("done-copy").textContent="Export the final JSON privately. This form has not scored learning or certified any respondent as human.";
       return;
     }
-    if(!form.reportValidity())return;
-    const get=id=>document.getElementById(id).value.trim();
-    const code=get("code"),phase=get("phase"),sourceId=get("passage");
-    if(!/^R(?:0[1-9]|10)$/.test(code)||!["baseline","immediate","delayed"].includes(phase)||
-      !["research:dillard:time-v1","research:kierkegaard:future-v1"].includes(sourceId)){
-      message.textContent="Please choose a valid anonymous code, phase, and approved research source.";return;
+    $("phase").classList.remove("hidden");
+    const wrapper=$("questions");wrapper.replaceChildren();
+    const s=stage.gameStage,game=stage.index===null?null:session.order[stage.index];
+    const ref=game?CASES[game]:null;
+    const title=stage.index===null?"Delayed recall · both games":
+      (stage.index+1)+". "+(s==="baseline"?"Before the quote":s==="glance"?"First-glance task": "After the three-section conclusion");
+    $("phase-heading").textContent=title;
+    $("phase-kicker").textContent=s==="delayed"?"~24 hours · 20–28h target":
+      "Game "+(stage.index+1)+" of 2 · "+(s==="baseline"?"BASELINE":s==="glance"?"FIRST GLANCE":"IMMEDIATE POST");
+    $("neutral-wrap").classList.toggle("hidden",s!=="baseline");
+    $("advance").textContent=s==="delayed"?"Record delayed response":"Record "+s+" response";
+    if(s==="baseline"){
+      $("phase-instructions").textContent="Before showing a philosopher, source quotation, game, or result, read only this plain dilemma and ask exactly the question below. Researcher records verbatim.";
+      $("neutral-prompt").textContent=ref.neutral;
+      wrapper.append(blankText("answer",PROMPTS.baseline));
+    }else if(s==="glance"){
+      $("phase-instructions").textContent="Show the intro screen only. BEFORE pressing the game’s Start button, ask this question and export the answer. Do not explain the thesis or correct the reader.";
+      wrapper.append(blankText("answer",PROMPTS.glance));
+      wrapper.append(blankText("glance-prompting","Actual coaching or clarification before gameplay (researcher notes; optional)",false));
+    }else if(s==="immediate"){
+      $("phase-instructions").textContent="Participant has played "+ref.gameLabel+" through all THREE result sections. Record the real canonical choice from the accepted prototype, observe assistance and confusion, then ask the exact questions without giving answer keys.";
+      wrapper.append(textInput("canonical","Actual canonical game decision: Dillard six amounts [a,b,c] and repetitions 5; or Kierkegaard three-step path (researcher verified)"));
+      wrapper.append(choiceSelect("gesture","Which interaction did the participant actually use?",[
+        "touch/swipe","tap/button","keyboard/assistive","mixed/other"
+      ]));
+      wrapper.append(blankText("interaction","Researcher observation: did they understand who decided what, and could they go back and revise? Record any external-event-as-user-action misunderstanding verbatim.",true));
+      wrapper.append(blankText("intervention","Every intervention/coaching/technical rescue, exact wording; or write none",true));
+      wrapper.append(blankText("language","Any language comprehension versus conceptual misunderstanding (optional)",false));
+      wrapper.append(blankText("post-answer",PROMPTS.post));
+      wrapper.append(choiceSelect("misconception","Select the best interpretation. Then justify it and explain why the other TWO choices are misleading.",ref.options));
+      wrapper.append(blankText("misconception-reason","Explain why you selected that option AND why each of the other two alternatives is misleading."));
+      wrapper.append(blankText("transfer",ref.transfer));
+      wrapper.append(blankText("engagement",PROMPTS.engagement));
+      wrapper.append(blankText("adverse","Other adverse observations or exact misunderstood sentence (researcher; optional)",false));
+    }else if(s==="delayed"){
+      $("phase-instructions").textContent="Import the previously exported bundle. Before showing the prototype, source passage, previous answers or multiple-choice options, ask ONCE the following combined question. Record its answer verbatim for both game rows. Never coach before recall.";
+      wrapper.append(blankText("delayed-answer",PROMPTS.delayed));
+      wrapper.append(blankText("delayed-notes","Observer: unprompted? Was prior content revisited? Explain contamination, missing/late timing or any intervention (optional).",false));
     }
-    const record={
-      schema:"cz125-reconciled-response/PENDING-UNAPPROVED",
-      candidateSha:baseline,
-      participantCode:code,phase,sourceId,
-      recordedAt:new Date().toISOString(),
-      encounterCompletedAt:get("sessiontime")||null,
-      canonicalChoiceNotes:get("canonical"),
-      observationNotes:get("note"),
-      unassisted:document.getElementById("unassisted").checked,
-      consent:true,
-      answers:[get("q1"),get("q2"),get("q3"),get("q4")],
-      unverifiedInstrument:true,
-      automaticScoring:false
-    };
-    // Local file generation only. No fetch, XHR, storage, cookies, analytics or upload.
-    const blob=new Blob([JSON.stringify(record,null,2)],{type:"application/json"});
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement("a");
-    link.href=url;link.download="cz125-"+code+"-"+phase+".json";
-    document.body.append(link);link.click();link.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-    message.textContent="Anonymous JSON download requested. Confirm the file was saved, then provide it privately to your researcher.";
+    $("phase-heading").focus({preventScroll:true});
+  }
+  function same(a,b){return JSON.stringify(a)===JSON.stringify(b);}
+  function validSession(s){
+    if(!s||s.schema!==SCHEMA||s.protocolVersion!==VERSION||s.code_sha!==SHA||
+       s.sourceCommentId!==ORIGINAL_COMMENT||
+       !Object.prototype.hasOwnProperty.call(ORDER,s.participant_id)||
+       !Array.isArray(s.order)||!same(s.order,ORDER[s.participant_id])||
+       !Number.isInteger(s.progress)||s.progress<0||s.progress>7||
+       !Array.isArray(s.rows)||s.rows.length!==2||
+       s.consent?.anonymous_written!==true||
+       typeof s.consent.recontact!=="boolean"||
+       typeof s.browser_device!=="string"||s.browser_device.length>160||
+       !["none","basic","experienced"].includes(s.prior_familiarity?.philosophy))return false;
+    const expected= s.order.map((g,i)=>({name:g,src:CASES[g].sourceId,kind:CASES[g].condition,i}));
+    for(const q of expected){
+      const row=s.rows[q.i];
+      if(!row||row.participant_id!==s.participant_id||row.code_sha!==SHA||
+         row.condition!==q.kind||row.source_record_id!==q.src||
+         row.sequence_order!==q.i+1||
+         row.consent?.anonymous_written!==true||
+         typeof row.consent.recontact!=="boolean")return false;
+    }
+    for(let i=0;i<2;i++){
+      const doneBaseline=s.progress>i*3,doneGlance=s.progress>i*3+1,donePost=s.progress>i*3+2;
+      const row=s.rows[i];
+      if(doneBaseline&&(!row.baseline_verbatim?.trim()||!Number.isFinite(Date.parse(row.baseline_at))))return false;
+      if(doneGlance&&(!row.first_glance_verbatim?.trim()||!Number.isFinite(Date.parse(row.first_glance_at))))return false;
+      if(donePost&&(!row.post_verbatim?.trim()||
+          !row.misconception_reason_verbatim?.trim()||
+          !["A","B","C"].includes(row.misconception_choice)||
+          !row.transfer_answer_verbatim?.trim()||
+          !row.chosen_canonical_path?.trim()||
+          !Number.isFinite(Date.parse(row.immediate_at))))return false;
+    }
+    if(s.progress===7&&(!s.delayed?.answer?.trim()||
+       !Number.isFinite(Date.parse(s.delayed.at))||
+       s.rows.some(r=>r.delayed_answer_verbatim!==s.delayed.answer)))return false;
+    return true;
+  }
+  function fileExport(){
+    if(!METHOD_RELEASE_APPROVED){message("Method approval missing. No participant response export is permitted.",true);return;}
+    if(!session||!validSession(session)){message("Session data is incomplete or not validated. Nothing exported.",true);return;}
+    const payload=JSON.stringify(session,null,2);
+    const blob=new Blob([payload],{type:"application/json"});
+    const obj=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=obj;
+    a.download="cz125-"+session.participant_id+"-stage-"+session.progress+".json";
+    document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(obj),3000);
+    message("A private local JSON download was requested; verify the file before closing. Do not upload raw answers.");
+  }
+  function readValue(id){return $(id)?.value?.trim()??"";}
+  function assignPhase(){
+    if(!METHOD_RELEASE_APPROVED||!session){message("Study methodology is not approved.",true);return;}
+    const stage=expectedStage(session.progress),s=stage.gameStage;
+    if(s==="completed")return;
+    const before=structuredClone(session);
+    try{
+      if(s==="delayed"){
+        const answer=readValue("delayed-answer"),note=readValue("delayed-notes");
+        if(!answer)throw Error("Record a genuine, unprompted delayed response; if missing, leave phase unfinished and report missing.");
+        const at=now(),atLocal=localNow();
+        const hours=(Date.parse(at)-Date.parse(session.studyEndedAt))/3600000;
+        const valid=hours>=20&&hours<=28&&!/prior answer|revisited app|saw explanation/i.test(note);
+        session.delayed={answer,at,atLocal,hours,notes:note,validWindow:hours>=20&&hours<=28,
+          validIndependent:valid,contaminationReviewRequired:!!note};
+        for(const row of session.rows){
+          row.delayed_answer_verbatim=answer;row.delayed_date_time=atLocal;
+          row.delayed_missing=false;row.delayed_followup_valid=valid;
+        }
+        session.progress=7;
+      }else{
+        const r=session.rows[stage.index];
+        if(s==="baseline"){
+          r.baseline_verbatim=readValue("answer");if(!r.baseline_verbatim)throw Error("Record the baseline verbatim.");
+          r.baseline_at=now();r.date_local=localNow();
+        }else if(s==="glance"){
+          r.first_glance_verbatim=readValue("answer");if(!r.first_glance_verbatim)throw Error("Record first-glance verbatim before game action.");
+          r.first_glance_at=now();r.comprehension_prompting=readValue("glance-prompting")||null;
+        }else{
+          const canonical=readValue("canonical");
+          if(!canonical)throw Error("Actual canonical path is mandatory.");
+          if(stage.index===0&&session.progress!==2||stage.index===1&&session.progress!==5)
+            throw Error("Game stage or order is inconsistent.");
+          r.chosen_canonical_path=canonical;
+          r.gesture_used=readValue("gesture");
+          r.interaction_observation=readValue("interaction");
+          r.intervention_notes=readValue("intervention");
+          r.language_confusion=readValue("language")||null;
+          r.post_verbatim=readValue("post-answer");
+          r.misconception_choice=readValue("misconception");
+          r.misconception_reason_verbatim=readValue("misconception-reason");
+          r.transfer_answer_verbatim=readValue("transfer");
+          r.qualitative_quote=readValue("engagement");
+          r.adverse_observations=readValue("adverse")||null;
+          r.immediate_at=now();
+          if(!r.gesture_used||!r.interaction_observation||!r.intervention_notes||
+             !r.post_verbatim||!r.misconception_choice||!r.misconception_reason_verbatim||
+             !r.transfer_answer_verbatim||!r.qualitative_quote)
+            throw Error("Required immediate observation, canonical decision, post, misconception, justification, transfer and engagement evidence is incomplete.");
+        }
+        session.progress++;
+        if(session.progress===6)session.studyEndedAt=now();
+      }
+      if(!validSession(session))throw Error("The revised session did not satisfy exact research schema/progress checks.");
+      render();
+      message("Phase captured in this tab only. Export a local JSON now before closing or changing devices.");
+    }catch(error){session=before;message(error.message,true);}
+  }
+  $("setup").addEventListener("submit",event=>{
+    event.preventDefault();
+    if(!METHOD_RELEASE_APPROVED){message("Enrollment and response collection remain locked pending methodology release.",true);return;}
+    if(!$("setup").reportValidity())return;
+    const code=readValue("participant");
+    if(!Object.prototype.hasOwnProperty.call(ORDER,code)||!$("consent").checked||!$("adult").checked){
+      message("Eligibility and consent are required.",true);return;
+    }
+    const familiarity={dillard:readValue("known-dillard"),kierkegaard:readValue("known-kierkegaard"),
+      philosophy:readValue("known-philosophy"),games:readValue("known-games")};
+    const browser=readValue("browser-device");
+    if(!browser||Object.values(familiarity).some(x=>!["none","basic","experienced"].includes(x))){
+      message("A non-identifying browser description and four familiarity levels are needed.",true);return;
+    }
+    const consent={anonymous_written:true,recontact:$("recontact").checked};
+    session={schema:SCHEMA,protocolVersion:VERSION,sourceCommentId:ORIGINAL_COMMENT,
+      code_sha:SHA,participant_id:code,consent,prior_familiarity:familiarity,
+      browser_device:browser,order:[...ORDER[code]],startedAt:now(),progress:0,
+      rows:ORDER[code].map((g,i)=>initialRow(code,g,i+1,{browser,familiarity,recontact:consent.recontact})),
+      studyEndedAt:null,delayed:null,
+      automaticScoring:false,independentMethodApprovalRequired:true};
+    if(!validSession(session)){session=null;message("Invalid setup. No data started.",true);return;}
+    render();message("Setup recorded in memory only. Follow the exact neutral baseline instrument.");
   });
+  $("phase-form").addEventListener("submit",event=>{
+    event.preventDefault();
+    if(!METHOD_RELEASE_APPROVED){message("Unapproved form cannot record study data.",true);return;}
+    if(!$("phase-form").reportValidity())return;
+    assignPhase();
+  });
+  $("save").addEventListener("click",fileExport);
+  $("done-export").addEventListener("click",fileExport);
+  $("import").addEventListener("click",()=>{
+    if(!METHOD_RELEASE_APPROVED){message("Methodology not released; import disabled.",true);return;}
+    $("import-file").click();
+  });
+  $("import-file").addEventListener("change",async event=>{
+    if(!METHOD_RELEASE_APPROVED){message("Import remains locked.",true);return;}
+    const file=event.target.files?.[0];if(!file)return;
+    try{
+      if(file.size>262144)throw Error("Session file exceeds permitted 256 KiB.");
+      const candidate=JSON.parse(await file.text());
+      if(!validSession(candidate))throw Error("Wrong SHA, malformed phase order or missing research data; rejected.");
+      if(candidate.automaticScoring!==false)throw Error("Automatically scored sessions are forbidden.");
+      session=candidate;render();
+      message("Validated anonymous session imported locally. No data was sent anywhere.");
+    }catch(error){message("Import declined: "+error.message,true);}
+    finally{event.target.value="";}
+  });
+  function initialize(){
+    // Intentionally separate fully implemented recorder from method release.
+    const enabled=METHOD_RELEASE_APPROVED;
+    for(const id of ["setup-fields","phase-fields","begin","advance","save",
+      "done-export","import","import-file"]){$(id).disabled=!enabled;}
+    $("method-hold").classList.toggle("hidden",enabled);
+    $("progress").textContent=enabled?
+      "Study methodology released: participant phases available":"Research QA build · enrollment locked";
+    render();
+  }
+  // Read-only introspection for independent automation; no write/export hooks.
+  window.__CZ125_INSTRUMENT={
+    protocolVersion:VERSION,releaseApproved:METHOD_RELEASE_APPROVED,
+    originalCommentId:ORIGINAL_COMMENT,prototypeSha:SHA,
+    gameOrder:{...ORDER},
+    getStatus:()=>({releaseApproved:METHOD_RELEASE_APPROVED,
+      progress:session?.progress??null,participantId:session?.participant_id??null,
+      phase:session?expectedStage(session.progress).gameStage:null,
+      rowCount:session?.rows?.length??0,automaticScoring:false})
+  };
+  initialize();
 })();
 </script>
 </body>
