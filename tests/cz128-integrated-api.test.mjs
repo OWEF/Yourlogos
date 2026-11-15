@@ -28,6 +28,8 @@ test("strict pinned CZ-131 and byte-identical PR #182 browser preservation; vers
   '/cz128-browser-integration.js'])
   assert.ok(html.includes(phrase),phrase);
  assert.match(html,/role="group" aria-label="Possible hypothetical situations/i);
+ assert.doesNotMatch(html,/universal six-game selector is not implemented|Two hand-picked research scenarios/i);
+ assert.match(html,/Only two isolated browser games are currently playable/);
 });
 test("GET catalogue and POST selection execute actual six-peer selector, not a handpicked philosopher map",async()=>{
  await withServer(async app=>{
