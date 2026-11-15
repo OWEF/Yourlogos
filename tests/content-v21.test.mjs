@@ -28,7 +28,7 @@ test("reject overspend, underspend, negative, fractional slots, NaN, wrong horiz
  assert.equal(validateChoiceV21(DILLARD_V21,{amounts:[3,1,2],repetitions:1,gameId:"token_studio"}).status,"rejected");
 });
 test("Kierkegaard only complete authored paths, no knowledge of the alternative",()=>{
- assert.deepEqual(validateChoiceV21(KIERKEGAARD_V21,{path:["change","risk","continue"],gameId:"swipe_decision"}).canonical,{path:["change","risk","continue"],gameId:"swipe_decision"});
+ assert.deepEqual(validateChoiceV21(KIERKEGAARD_V21,{path:["change","risk","continue"],gameId:"swipe_decision"}).canonical,{path:["change","risk","continue"]});
  assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["stay","missed","reflect"],gameId:"swipe_decision"}).status,"ready");
  assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["change","unwritten","return"],gameId:"swipe_decision"}).status,"rejected");
  assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["change"],gameId:"swipe_decision"}).status,"rejected");
