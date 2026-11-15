@@ -32,7 +32,8 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const git=(...args)=>execFileSync("git",args,{cwd:root,encoding:"utf8",
   maxBuffer:3*1024*1024,stdio:["ignore","pipe","pipe"]}).trim();
 const deny=reason=>{throw new Error("CZ-128 refuses unsafe research startup: "+reason);};
-const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const stable=x=>Array.isArray(x)?x.map(stable):object(x)?Object.fromEntries(Object.keys(x).sort().map(k=>[k,stable(x[k])])):x;
+const same=(a,b)=>JSON.stringify(stable(a))===JSON.stringify(stable(b));
 const object=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
 const researchEnv=Object.freeze({isolated:true,publicVisibility:false,provisionalDisclosure:true});
 const jsFile=fileURLToPath(new URL("./cz128-browser-integration.js",import.meta.url));
