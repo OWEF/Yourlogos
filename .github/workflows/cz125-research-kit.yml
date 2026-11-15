@@ -29,5 +29,9 @@ jobs:
           fi
       - name: Study kit, four-axis protocol, embedded JS syntax and offline privacy checks
         run: node --test research/cz125/verify-kit.test.mjs
+      - name: Install free existing browser test runner
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Real Chromium at mobile widths, QA-only in-memory release and complete phases
+        run: node research/cz125/verify-recorder-browser.mjs
       - name: Report honest current evidence state with zero supplied participants
         run: node research/cz125/audit-local-evidence.mjs
