@@ -21,11 +21,32 @@ const browser=await chromium.launch({channel:"chrome",args:["--no-sandbox"]});
 const TEST_WORDS="QA-ONLY TEST INPUT: no human respondent or philosophical learning result.";
 const state=page=>page.evaluate(()=>window.__CZ125_INSTRUMENT?.getStatus());
 async function exportInMemory(page){
- const trigger=page.locator("#save").isVisible()?"#save":"#done-export";
- const [download]=await Promise.all([page.waitForEvent("download"),page.locator(trigger).click()]);
- const stream=await download.createReadStream();
- const chunks=[];for await(const chunk of stream)chunks.push(chunk);
- return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  // Observe real Blob construction and the download-link click in an isolated QA
+  // browser context; avoid about:blank/file:// permission quirks and persisted files.
+  await page.evaluate(()=>{
+    if(window.__cz125QaBlobs)return;
+    window.__cz125QaBlobs=[];window.__cz125QaDownloadClicks=[];
+    URL.createObjectURL=blob=>{
+      window.__cz125QaBlobs.push(blob);
+      return "blob:qa-only-local-file";
+    };
+    URL.revokeObjectURL=()=>{};
+    HTMLAnchorElement.prototype.click=function(){
+      window.__cz125QaDownloadClicks.push(this.download);
+    };
+  });
+  const trigger=await page.locator("#save").isVisible()?"#save":"#done-export";
+  await page.locator(trigger).click();
+  const observed=await page.evaluate(async()=>({
+    json:window.__cz125QaBlobs.length?
+      await window.__cz125QaBlobs[window.__cz125QaBlobs.length-1].text():null,
+    clicks:window.__cz125QaDownloadClicks.length,
+    feedback:document.getElementById("feedback").textContent
+  }));
+  if(!observed.json)throw Error("Recorder did not export JSON Blob: "+observed.feedback);
+  assert.equal(observed.clicks>=1,true,"Local browser download anchor must be clicked");
+  assert.match(observed.feedback,/private local JSON download/i);
+  return JSON.parse(observed.json);
 }
 async function advanceSimple(page,phase,answer=TEST_WORDS){
  assert.equal((await state(page)).phase,phase);
