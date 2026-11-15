@@ -220,7 +220,21 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
     }
     holder.append(l,select);return holder;
   }
-  function escapeProgress(s){return String(s);}
+  function parseCanonical(raw,game){
+    if(game==="dillard"){
+      const pieces=raw.split(",").map(s=>s.trim());
+      if(pieces.length!==3||pieces.some(x=>!/^[0-6]$/.test(x)))
+        throw Error("Token Studio canonical choice requires exactly three nonnegative integer slot amounts.");
+      const amounts=pieces.map(Number);
+      if(amounts.reduce((a,b)=>a+b,0)!==6)
+        throw Error("The source has SIX half-hour slots. Verify actual canonical allocation before recording.");
+      return {gameId:"token_studio",amounts,repetitions:5};
+    }
+    const path=raw.split("/").map(x=>x.trim());
+    if(path.length!==3||path.some(x=>!/^[a-z][a-z0-9_-]{0,40}$/.test(x)))
+      throw Error("Swipe Decision requires three source-authored canonical route IDs separated by /.");
+    return {gameId:"swipe_decision",path};
+  }
   function render(){
     $("entry").classList.add("hidden");$("phase").classList.add("hidden");$("done").classList.add("hidden");
     if(!session){$("entry").classList.remove("hidden");return;}
@@ -255,7 +269,9 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
       wrapper.append(blankText("glance-prompting","Actual coaching or clarification before gameplay (researcher notes; optional)",false));
     }else if(s==="immediate"){
       $("phase-instructions").textContent="Participant has played "+ref.gameLabel+" through all THREE result sections. Record the real canonical choice from the accepted prototype, observe assistance and confusion, then ask the exact questions without giving answer keys.";
-      wrapper.append(textInput("canonical","Actual canonical game decision: Dillard six amounts [a,b,c] and repetitions 5; or Kierkegaard three-step path (researcher verified)"));
+      wrapper.append(textInput("canonical",game==="dillard"?
+        "Researcher: exact SIX token amounts in game order, comma-separated (e.g. 3,1,2). Verify against the actual on-screen choice.":
+        "Researcher: exact THREE canonical route IDs separated by / (e.g. change/surprise/adapt). Verify against the actual on-screen choice."));
       wrapper.append(choiceSelect("gesture","Which interaction did the participant actually use?",[
         "touch/swipe","tap/button","keyboard/assistive","mixed/other"
       ]));
@@ -305,7 +321,7 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
           !row.misconception_reason_verbatim?.trim()||
           !["A","B","C"].includes(row.misconception_choice)||
           !row.transfer_answer_verbatim?.trim()||
-          !row.chosen_canonical_path?.trim()||
+          !(row.chosen_canonical_path?.gameId===CASES[s.order[i]].condition)||
           !Number.isFinite(Date.parse(row.immediate_at))))return false;
     }
     if(s.progress===7&&(!s.delayed?.answer?.trim()||
@@ -358,7 +374,7 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
           if(!canonical)throw Error("Actual canonical path is mandatory.");
           if(stage.index===0&&session.progress!==2||stage.index===1&&session.progress!==5)
             throw Error("Game stage or order is inconsistent.");
-          r.chosen_canonical_path=canonical;
+          r.chosen_canonical_path=parseCanonical(canonical,game);
           r.gesture_used=readValue("gesture");
           r.interaction_observation=readValue("interaction");
           r.intervention_notes=readValue("intervention");
