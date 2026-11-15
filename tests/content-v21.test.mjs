@@ -20,18 +20,18 @@ test("conserve six safe half-hours; yield actual canonical evidence packet",()=>
  const r=validateChoiceV21(DILLARD_V21,{amounts:[3,1,2],repetitions:5,gameId:"token_studio"});
  assert.equal(r.status,"ready");assert.deepEqual(r.canonical,{amounts:[3,1,2],budgets:[6],repetitions:5});
  assert.equal(r.unitHours,0.5);
- for(const a of [[6,0,0],[0,6,0],[0,0,6],[1,2,3]])assert.equal(validateChoiceV21(DILLARD_V21,{amounts:a,repetitions:5}).status,"ready");
+ for(const a of [[6,0,0],[0,6,0],[0,0,6],[1,2,3]])assert.equal(validateChoiceV21(DILLARD_V21,{amounts:a,repetitions:5,gameId:"token_studio"}).status,"ready");
 });
 test("reject overspend, underspend, negative, fractional slots, NaN, wrong horizon and wrong arity",()=>{
  for(const amounts of [[7,0,0],[1,1,1],[-1,7,0],[1.5,2,2.5],[NaN,3,3],[1,5],[1,4,2],[Infinity,0,0]])
-  assert.equal(validateChoiceV21(DILLARD_V21,{amounts,repetitions:5}).status,"rejected",String(amounts));
- assert.equal(validateChoiceV21(DILLARD_V21,{amounts:[3,1,2],repetitions:1}).status,"rejected");
+  assert.equal(validateChoiceV21(DILLARD_V21,{amounts,repetitions:5,gameId:"token_studio"}).status,"rejected",String(amounts));
+ assert.equal(validateChoiceV21(DILLARD_V21,{amounts:[3,1,2],repetitions:1,gameId:"token_studio"}).status,"rejected");
 });
 test("Kierkegaard only complete authored paths, no knowledge of the alternative",()=>{
- assert.deepEqual(validateChoiceV21(KIERKEGAARD_V21,{path:["change","risk","continue"]}).canonical,{path:["change","risk","continue"]});
- assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["stay","missed","reflect"]}).status,"ready");
- assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["change","unwritten","return"]}).status,"rejected");
- assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["change"]}).status,"rejected");
+ assert.deepEqual(validateChoiceV21(KIERKEGAARD_V21,{path:["change","risk","continue"],gameId:"swipe_decision"}).canonical,{path:["change","risk","continue"],gameId:"swipe_decision"});
+ assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["stay","missed","reflect"],gameId:"swipe_decision"}).status,"ready");
+ assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["change","unwritten","return"],gameId:"swipe_decision"}).status,"rejected");
+ assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["change"],gameId:"swipe_decision"}).status,"rejected");
 });
 test("fail closed on missing source, fabricated game, invalid budget and no-fit promotion",()=>{
  const cases=[x=>{x.source.quote="";},x=>{x.source.referenceUrl="";},
@@ -70,6 +70,13 @@ test("source verified alone is insufficient for public release",()=>{
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true,approvedRecordFingerprints:[r.versionHash]}),true);
  r.argument.thesis="Edited after scholarly review";
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true,approvedRecordFingerprints:[r.versionHash]}),false);
+});
+test("incompatible game submissions fail even with mathematically valid choices",()=>{
+ assert.equal(validateChoiceV21(DILLARD_V21,{amounts:[3,1,2],repetitions:5,gameId:"future_reveal"}).status,"rejected");
+ assert.equal(validateChoiceV21(DILLARD_V21,{amounts:[3,1,2],repetitions:5,gameId:"swipe_decision"}).status,"rejected");
+ assert.equal(validateChoiceV21(DILLARD_V21,{amounts:[3,1,2],repetitions:5}).status,"rejected");
+ assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["change","risk","continue"],gameId:"token_studio"}).status,"rejected");
+ assert.equal(validateChoiceV21(KIERKEGAARD_V21,{path:["change","risk","continue"],gameId:"decision_map"}).status,"ready");
 });
 test("Hegel cannot enter reasoner by invented allocation",()=>{
  assert.equal(validateChoiceV21(HEGEL_NO_FIT_V21,{amounts:[3,3],repetitions:5}).status,"rejected");
