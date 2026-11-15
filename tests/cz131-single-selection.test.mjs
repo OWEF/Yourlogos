@@ -76,7 +76,7 @@ test("Kierkegaard selects the authored-stage Swipe prototype with readable sourc
  assert.deepEqual(selected.canonical_choice_contract.stages.map(x=>x.role),
   ["USER_DECISION","AUTHORED_DEVELOPMENT","USER_DECISION"]);
  assert.equal(selected.canonical_choice_contract.stages[1].control,"source_authored_scenario");
- assert.match(selected.canonical_choice_contract.externalEventPolicy,/not expose stage 1 event selection as a user action/i);
+ assert.match(selected.canonical_choice_contract.externalEventPolicy,/never expose stage 1 event selection as a user action/i);
  const paths=selected.canonical_choice_contract.sourceAuthoredRoutes;
  assert.equal(paths.length,8);
  for(const p of paths){
