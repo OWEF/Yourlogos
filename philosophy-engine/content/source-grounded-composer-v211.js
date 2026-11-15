@@ -82,7 +82,7 @@ function compose(packet){
    "This comparison shows no improvement: both arrangements finish the same number of booklets.":
   e.delta>0?
    "Under these invented rates, the dedicated arrangement finishes "+e.delta+
-   " more booklets, a conditional modeled gain, not historical evidence.":
+   " more "+(e.delta===1?"booklet":"booklets")+", a conditional modeled gain, not historical evidence.":
    "Under these invented rates, the dedicated arrangement finishes "+Math.abs(e.delta)+
    " fewer booklets, so specialization does not improve this comparison.";
  const conciseConsequence=m.kind==="conversion"?
