@@ -72,7 +72,7 @@ try{
    acceptDownloads:true,reducedMotion:"reduce"});
   const errors=[],external=[];
   page.on("pageerror",e=>errors.push(e.message));
-  page.on("request",req=>external.push(req.url()));
+  page.on("request",req=>{if(/^https?:/.test(req.url()))external.push(req.url());});
   // 1. The COMMITTED form itself must not allow enrollment/export.
   await page.setContent(original,{waitUntil:"load"});
   assert.equal((await state(page)).releaseApproved,false);
