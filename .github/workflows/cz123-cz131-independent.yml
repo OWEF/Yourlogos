@@ -1,0 +1,40 @@
+name: CZ-123 CZ-131 independent exact-SHA philosophical transfer acceptance
+on:
+  push:
+    branches: [qa/cz123-cz131-independent-heldout-v1]
+  pull_request:
+    paths:
+      - "tests/cz123-cz131-independent-holdout.test.mjs"
+      - ".github/workflows/cz123-cz131-independent.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-source-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify exact implementation SHA and immutable candidate
+        run: |
+          BASE=587b4b15ae6e9e691fd0570e365254222b94d2f8
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/cz123-files.txt
+          if grep -Ev '^(tests/cz123-cz131-independent-holdout\.test\.mjs|\.github/workflows/cz123-cz131-independent\.yml)$' /tmp/cz123-files.txt; then
+            echo "FAIL: independent QA branch contains product or engine edits"; exit 1
+          fi
+          test "$(git hash-object tests/cz123-independent-pr184-known.mjs)" = "2ef6ad3529f8fb02f3571b11c0304376c7c730d9"
+          test "$(git hash-object tests/cz123-independent-pr184-adversarial.mjs)" = "3b0d8cd099ae0b73ca24a50fa9e714f6a130a965"
+      - name: Independently precommitted unseen philosophical-source and no-fit holdouts
+        run: node --test tests/cz123-cz131-independent-holdout.test.mjs
+      - name: Existing six-peer canonical and research integration regression
+        run: node --test tests/cz131-single-selection.test.mjs
+      - name: Earlier independent CZ-123 architecture attacks unchanged
+        run: node --test tests/cz123-independent-pr184-known.mjs tests/cz123-independent-pr184-adversarial.mjs
+      - name: Frozen meaning and accepted source editorial contracts
+        run: |
+          node --test tests/content-v212-editorial-regression.test.mjs tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/source-grounded-research-v211.test.mjs
+          node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs
