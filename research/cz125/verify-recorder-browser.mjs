@@ -6,11 +6,17 @@
  */
 import {chromium} from "playwright-core";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,writeFileSync,mkdtempSync,rmSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
+import {pathToFileURL} from "node:url";
 const original=readFileSync(new URL("./reader-response.html",import.meta.url),"utf8");
 assert.match(original,/const METHOD_RELEASE_APPROVED=false/);
 const testHtml=original.replace("const METHOD_RELEASE_APPROVED=false;",
  "const METHOD_RELEASE_APPROVED=true; // ephemeral QA harness, NOT committed");
+const qaTemporaryDir=mkdtempSync(join(tmpdir(),"cz125-form-qa-"));
+const qaFile=join(qaTemporaryDir,"instrument-QA-only.html");
+writeFileSync(qaFile,testHtml);
 const browser=await chromium.launch({channel:"chrome",args:["--no-sandbox"]});
 const TEST_WORDS="QA-ONLY TEST INPUT: no human respondent or philosophical learning result.";
 const state=page=>page.evaluate(()=>window.__CZ125_INSTRUMENT?.getStatus());
@@ -55,7 +61,7 @@ try{
    new Event("submit",{bubbles:true,cancelable:true})));
   assert.match(await page.locator("#feedback").innerText(),/locked|pending/i);
   // 2. In-memory QA-only harness exercises all actual UI submission controls.
-  await page.setContent(testHtml,{waitUntil:"load"});
+  await page.goto(pathToFileURL(qaFile).href,{waitUntil:"load"});
   assert.equal((await state(page)).releaseApproved,true);
   assert.equal(await page.locator("#begin").isDisabled(),false);
   await page.locator("#participant").selectOption("P02");
@@ -150,4 +156,4 @@ try{
    ungradedHumanResponses:0,externalRequests:0,browserErrors:0,overflow:false}));
   await page.close();
  }
-}finally{await browser.close();}
+}finally{await browser.close();rmSync(qaTemporaryDir,{recursive:true,force:true});}
