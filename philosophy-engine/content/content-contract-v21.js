@@ -103,6 +103,8 @@ export function validateContentRecordV21(record){
 export function validateChoiceV21(record,choice){
  const vr=validateContentRecordV21(record);
  if(vr.status!=="valid_research_record")return {status:"rejected",reason:"Unadmitted or invalid content record."};
+ if(!text(choice?.gameId)||!record.gameCompatibility.some(g=>g.id===choice.gameId&&g.eligible))
+  return {status:"rejected",reason:"The submitted game is not one of the six directly eligible peer mini-games."};
  const sc=record.scenario,c=sc.constraints;
  if(c.kind==="finite_budget"){
   const a=choice?.amounts;
