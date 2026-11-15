@@ -38,9 +38,9 @@ assert.match(doc,/20–28/);
 assert.match(doc,/18–30/);
 assert.match(doc,/conditional n>=10/i);
 assert.match(protocol,/UNKNOWN; recover first/);
-assert.match(gate,/ten distinct readers overall/i);
+assert.match(gate,/10 distinct readers overall/i);
 assert.match(gate,/exact original question text.*unknown/i);
-assert.match(gate,/Original.*NOT MEASURED/i);
+assert.match(gate,/Baseline philosophical knowledge.*NOT MEASURED/i);
 assert.match(gate,/no improvement claim/i);
 
 const inventory=JSON.parse(execFileSync(process.execPath,
@@ -78,11 +78,9 @@ try{
   assert.equal(await page.locator("#"+id).isDisabled(),true);
  }
  const reported=await page.evaluate(()=>{
-  let prevented=false;
   const e=new Event("submit",{bubbles:true,cancelable:true});
-  e.preventDefault=()=>{prevented=true;};
   document.getElementById("response").dispatchEvent(e);
-  return {prevented,message:document.getElementById("state").textContent};
+  return {prevented:e.defaultPrevented,message:document.getElementById("state").textContent};
  });
  assert.equal(reported.prevented,true);
  assert.match(reported.message,/NOT APPROVED/i);
