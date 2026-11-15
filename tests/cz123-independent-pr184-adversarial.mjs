@@ -96,6 +96,19 @@ test("P1 SCENARIO INTRO PARITY: fabricated hours in prompt/variables must not co
  print("INTRO-MISMATCH",{status:v.status,claimed:r.scenario.variables.availableHours,sourceBudget:authoritativeContextForRecord(r)?.model?.resources?.[0]?.max});
  assert.equal(v.status,"invalid","First-time reader must not be given contradictory task facts that the engine silently ignores.");
 });
+test("P0 SMITH CONDITIONALITY: when modeled gains are ZERO, teaching must explicitly reject a gain claim",()=>{
+ const intake=researchContentFromTrustedContextV211(semanticCases.workshop);
+ assert.equal(intake.status,"ready");
+ const selected={gameId:"trade_off",amounts:[3,1]};
+ const out=renderSourceGroundedResearchV211(intake.record,selected,env);
+ const first=out.sections?.[0]?.text||"",teaching=out.sections?.[1]?.text||"";
+ const e=out.evidence?.find(x=>x.id==="meaning:central")?.evidence;
+ print("SMITH-ZERO-DELTA",{status:out.status,delta:e?.delta,baseline:e?.baseline,specialized:e?.specialized,first,teaching});
+ assert.equal(out.status,"ready");
+ assert.equal(e?.delta,0);
+ assert.match(teaching,/no (?:modeled )?improvement|(?:do|does|did) not (?:outperform|increase|improve)|(?:same|equal|tie|identical) (?:output|result|production)|no (?:productivity )?gain/i,
+   "Teaching that invokes specialization gains must address the observed ZERO uplift, not merely repeat a generic theorem.");
+});
 test("INTENDED ABSTENTION: completely new context is not automatically authorized; no forced game or publication",()=>{
  const novel=clone(semanticCases.money);
  novel.id="independent-review-only-new-domain";
