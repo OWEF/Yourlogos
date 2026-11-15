@@ -1,0 +1,37 @@
+name: CZ-123 independent A-H human learning method QA
+on:
+  push:
+    branches: [qa/cz123-cz125-ah-instrument-final-v1]
+  pull_request:
+    paths:
+      - "tests/cz123-cz125-ah-independent.mjs"
+      - ".github/workflows/cz123-cz125-ah-independent.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-ah-method:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Freeze exact engineering candidate; QA-only two-file diff
+        run: |
+          set -euo pipefail
+          BASE=6a75c5a0a31b71e84290b655065d93fbcbc2b5ea
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/cz125qa.txt
+          if grep -Ev '^(tests/cz123-cz125-ah-independent\.mjs|\.github/workflows/cz123-cz125-ah-independent\.yml)$' /tmp/cz125qa.txt; then
+            echo "FAIL: independent review altered the audited instrument or engines"; exit 1
+          fi
+      - name: Free locally installed Chrome driver
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Independently inspect true A-H source fidelity and full P05 QA-only recorder
+        run: node --test tests/cz123-cz125-ah-independent.mjs
+      - name: Recheck engineering questions, six scores and private evidence contract
+        run: node --test research/cz125/verify-kit.test.mjs
+      - name: Evidence inventory must stay honest and unpopulated
+        run: node research/cz125/audit-local-evidence.mjs
