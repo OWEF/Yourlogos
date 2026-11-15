@@ -153,6 +153,23 @@ body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accen
 }
 @media(max-width:359px){.game-picker button{padding:10px}.game-picker strong{font-size:16px}.swipe-choices button{font-size:12px;padding:10px}.reveal-tools button{font-size:11px}}
 
+
+/* CZ-140 P0: distinguishing authored scenario exploration from agency */
+.agency-step-explainer{color:var(--muted);font-size:13px;line-height:1.55;margin:-4px 0 15px}
+.development-explorer{padding:17px;border:1px solid var(--sage);border-radius:23px;background:var(--surface2);margin-bottom:15px}
+.development-banner{display:flex;align-items:flex-start;gap:12px}
+.development-icon{width:37px;height:37px;border-radius:11px;flex:0 0 auto;display:grid;place-items:center;background:var(--surface);color:var(--sage);font-size:23px}
+.development-banner strong{color:var(--sage);font-size:12px;letter-spacing:.13em}
+.development-banner p{margin:6px 0 16px;font-size:14px;line-height:1.6;color:var(--text)}
+.development-options{display:grid;gap:10px}
+.development-options button{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);text-align:left;border-radius:14px;padding:13px 14px;min-height:65px;font-size:14px;font-weight:700}
+.development-options button small{display:block;color:var(--sage);font-size:10px;font-weight:750;letter-spacing:.07em;margin-bottom:5px}
+.development-footnote{color:var(--muted);font-size:12px;line-height:1.5;margin:13px 0 0}
+.swipe-path [data-agency-role="AUTHORED_DEVELOPMENT"]{border-color:var(--sage)}
+.path-node[data-agency-role="AUTHORED_DEVELOPMENT"]{border-color:var(--sage);background:var(--select)}
+.path-node[data-agency-role="RETROSPECTIVE_INTERPRETATION"]{border-color:var(--accent)}
+
+.quote-rendering-note{font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.55}.underlined-quote+.quote-rendering-note{margin:-6px 0 17px}
 </style>
 </head>
 <body data-theme="manuscript">
@@ -170,7 +187,7 @@ body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accen
 <section id="intro" aria-label="Quote and dilemma">
 <p id="intro-eyebrow" class="eyebrow">01 · A real decision, imagined</p><h1 id="intro-title">Three hours.<br>Three priorities.</h1>
 <blockquote class="quote" id="intro-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote>
-<p class="attrib" id="intro-author">— Annie Dillard · The Writing Life</p>
+<p class="attrib" id="intro-author">— Annie Dillard · The Writing Life</p><p id="quote-rendering-note" class="quote-rendering-note">Source excerpt · independent primary-edition review pending</p>
 <div class="line"></div>
 <div class="dilemma"><strong id="dilemma-label">SITUATION · Tonight</strong>
 <p id="dilemma-situation">You have three free hours tonight. Writing, messages, and rest are competing for that time.</p>
@@ -194,26 +211,31 @@ body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accen
 <div id="swipe-game" class="hidden" aria-label="Swipe Decision authored branch interaction">
 <p class="eyebrow">02 · Swipe Decision</p>
 <h2>Choose before<br>you can know.</h2>
-<p class="swipe-explain">This is an imagined job decision, not advice or a prediction. Swipe left/right or choose either visible button; what you see next depends on the path.</p>
-<div class="stage-step"><span id="swipe-stage-label">Your first decision</span><span id="swipe-stage-count" class="stage-count">1 / 3</span></div>
+<p class="swipe-explain">This is an imagined job decision, not advice or a prediction. <strong>You choose an action</strong>; later you <strong>explore an authored event</strong> that you do not control; finally you choose how to respond. Swipe only on your decision cards, or use the buttons.</p>
+<div class="stage-step"><span id="swipe-stage-label">01 · YOUR DECISION</span><span id="swipe-stage-count" class="stage-count">1 / 4</span></div><p id="agency-step-explainer" class="agency-step-explainer" role="status" aria-live="polite">You control this first hypothetical action. The future is not known yet.</p>
 <div id="swipe-card" class="swipe-card" tabindex="0" role="group" aria-label="Decision card. Swipe left or right, or use the choice buttons below.">
 <div class="swipe-motif" aria-hidden="true">↔</div><div id="swipe-prompt">Which direction do you choose now?</div><div class="swipe-hint" id="swipe-hint">← Left for the first option · Right for the second →</div></div>
-<div id="swipe-choices" class="swipe-choices" role="group" aria-label="Available choices"></div>
+<div id="swipe-choices" class="swipe-choices" role="group" aria-label="Your actionable decisions"></div>
+<section id="development-explorer" class="development-explorer hidden" role="group" aria-label="Explore one authored hypothetical development" data-agency-role="AUTHORED_DEVELOPMENT">
+ <div class="development-banner"><span class="development-icon" aria-hidden="true">◈</span><div><strong>SOMETHING HAPPENS</strong><p>You do not decide which event occurs in a real life. For this thought experiment, select <em>which authored hypothetical situation to explore</em>.</p></div></div>
+ <div id="development-options" class="development-options" role="group" aria-label="Possible hypothetical situations, not personal actions"></div>
+ <p class="development-footnote">These situations are invented to illustrate uncertainty. Neither is a prediction. The path you did not choose remains unknown.</p>
+</section>
 <div id="swipe-event" class="swipe-reveal hidden"></div>
-<p class="kicker">Your path so far · tap a step to reconsider</p>
+<p class="kicker">The sequence so far · your choices and imagined events · tap to reconsider</p>
 <div id="swipe-path" class="swipe-path"></div>
 <div id="swipe-done" class="swipe-done hidden"><strong>The imagined path is complete.</strong><p>Your selected route is ready for the existing philosophical engines. The unchosen future remains unknown.</p>
 <button class="cta" id="swipe-finish" type="button"><span>Discover what your path reveals</span><span aria-hidden="true">↗</span></button></div>
 <div class="swipe-tools"><button class="soft-btn" id="swipe-back" type="button">← Reconsider last step</button><button class="soft-btn" id="swipe-reset" type="button">Start again</button></div>
 <div id="swipe-status" class="status" role="status" aria-live="polite"></div>
-<p class="swipe-note">The middle card selects an <em>imagined circumstance</em>, not an event you control. We reveal only scenario-authored developments after your earlier decision.</p>
+<p class="swipe-note">Only Steps 1 and 3 represent actions you select. Step 2 is an authored hypothetical scenario branch that you choose to <em>explore</em>, not an event you cause. Step 4 is retrospective understanding, not another decision.</p>
 </div>
 </section>
 <section id="result" class="hidden" aria-label="Your philosophical encounter">
 <button id="edit" class="back" type="button">← Edit your choice</button>
 <p class="eyebrow" id="result-eyebrow">03 · Discover</p><h2 id="result-title">What your choice<br>makes visible.</h2>
 <article class="result-card" id="choice-card" tabindex="-1"><p class="kicker">I. Your Choice</p><div id="choice-dashboard"></div><p id="choice-text"></p></article>
-<article class="result-card" id="teaching-card" tabindex="-1"><p class="kicker">II. Back to the Philosopher</p><div class="result-header"><div class="portrait" id="philosopher-portrait" aria-label="Stylized static pixel portrait of Annie Dillard"></div><div><div class="thinker-name" id="thinker-name">Annie Dillard</div><div class="thinker-caption">Static portrait · animated poses unavailable</div></div></div><blockquote class="underlined-quote" id="result-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote><p id="teaching-text"></p></article>
+<article class="result-card" id="teaching-card" tabindex="-1"><p class="kicker">II. Back to the Philosopher</p><div class="result-header"><div class="portrait" id="philosopher-portrait" aria-label="Stylized static pixel portrait of Annie Dillard"></div><div><div class="thinker-name" id="thinker-name">Annie Dillard</div><div class="thinker-caption">Static portrait · animated poses unavailable</div></div></div><blockquote class="underlined-quote" id="result-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote><p class="quote-rendering-note" id="result-quote-note">Source excerpt · independent primary-edition review pending</p><p id="teaching-text"></p></article>
 <article class="result-card" id="last-card" tabindex="-1"><p class="kicker">III. One Last Thing…</p><p class="last" id="ending-text"></p></article>
 <nav id="reveal-navigation" class="reveal-tools" aria-label="Navigate the three result stages">
 <button id="reveal-back" class="reveal-back" type="button">← Back</button>
@@ -2959,6 +2981,17 @@ const req=!!engine&&!!engine.semanticCases&&!!engine.semanticCases.kierkegaard;
 let mode="token",path=[],resultStage=0,wasVisible=false,showingAll=false;
 let swipePointer=null,lastPacket=null,lastOutput=null,lastGame=null;
 const authored=engine?.semanticCases?.kierkegaard?.model;
+/** New UI-only, versioned agency overlay. No mutation of meaning/1.2,
+ * kernel choices or source-authored path IDs. Independent CZ-123 review needed. */
+const AGENCY_UI_V1=Object.freeze({
+ version:"encounter-agency-ui/1.0.0",
+ steps:Object.freeze(["USER_DECISION","AUTHORED_DEVELOPMENT","USER_DECISION","RETROSPECTIVE_INTERPRETATION"])
+});
+const agencyText=Object.freeze({
+ USER_DECISION:"This is an action you decide within the hypothetical scenario.",
+ AUTHORED_DEVELOPMENT:"This is an authored external possibility to EXPLORE, not something you choose to make happen.",
+ RETROSPECTIVE_INTERPRETATION:"You now interpret the lived-forward imagined path; you never observed the unchosen future."
+});
 const note=(s,error=false)=>{const el=$("swipe-status");el.textContent=s;el.className="status "+(error?"error":"ok");};
 const intro={
  token:{
@@ -2985,6 +3018,11 @@ function presentIntro(){
  const i=intro[mode];$("intro-title").textContent=i.title;
  $("intro-title").style.whiteSpace="pre-line";$("intro-quote").textContent=i.quote;
  $("intro-author").textContent=i.author;$("dilemma-label").textContent=i.label;
+ const qualification=mode==="swipe"?
+  "Shortened English paraphrase of Journal JJ:167 (1843), not a verbatim full-passage translation.":
+  "Dillard excerpt; independent primary-edition text and contextual review pending.";
+ $("quote-rendering-note").textContent=qualification;
+ $("result-quote-note").textContent=qualification;
  $("dilemma-situation").textContent=i.situation;
  $("dilemma-decision").textContent=i.decision;
  $("dilemma-discovery").textContent=i.discovery;
@@ -3022,7 +3060,7 @@ function auditPath(){
   const n=key===null?null:authored.nodes[key];
   const option=n?.options?.find(o=>o.id===id);
   if(!option)return null;
-  trail.push({id,label:option.label,prompt:n.prompt,kind:trail.length===1?"imagined_development":"decision",
+  trail.push({id,label:option.label,prompt:n.prompt,role:AGENCY_UI_V1.steps[trail.length],kind:trail.length===1?"imagined_development":"decision",
     reveals:Array.isArray(option.reveal)?[...option.reveal]:[],next:option.next});
   key=option.next;
  }
@@ -3045,11 +3083,19 @@ function renderSwipe(){
  if(!req){note("Frozen Kierkegaard scenario unavailable. No game result can be invented.",true);return;}
  const a=auditPath();if(!a){note("Scenario path invalid. Returning to the first authored decision.",true);path=[];clearSwipeDerived();return renderSwipe();}
  const stage=a.trail.length;
- $("swipe-stage-count").textContent=Math.min(stage+1,3)+" / 3";
- $("swipe-stage-label").textContent=stage===1?"An imagined development":stage===2?"Your next action":"Your first decision";
+ const role=AGENCY_UI_V1.steps[Math.min(stage,3)];
+ $("swipe-stage-count").textContent=Math.min(stage+1,4)+" / 4";
+ $("swipe-stage-label").textContent=[
+   "01 · YOUR DECISION","02 · SOMETHING HAPPENS","03 · YOUR RESPONSE","04 · LOOKING BACK"
+ ][Math.min(stage,3)];
+ $("agency-step-explainer").textContent=agencyText[role];
+ $("swipe-card").dataset.agencyRole=role;
+ $("swipe-choices").dataset.agencyRole=role;
  const done=a.done;
- $("swipe-card").classList.toggle("hidden",done);
- $("swipe-choices").classList.toggle("hidden",done);
+ const exploring=stage===1&&!done;
+ $("development-explorer").classList.toggle("hidden",!exploring);
+ $("swipe-card").classList.toggle("hidden",done||exploring);
+ $("swipe-choices").classList.toggle("hidden",done||exploring);
  $("swipe-done").classList.toggle("hidden",!done);
  $("swipe-back").disabled=path.length===0;
  $("swipe-reset").disabled=path.length===0;
@@ -3058,18 +3104,30 @@ function renderSwipe(){
   const b=document.createElement("button");b.type="button";b.dataset.rewind=String(i);
   appendLabel(b,"b",String(i+1).padStart(2,"0"));
   b.append(document.createTextNode(t.label));
-  appendLabel(b,"small",t.kind==="imagined_development"?"Imagined circumstance · revisit":"Your choice · revisit");
+  b.dataset.agencyRole=t.role;
+  appendLabel(b,"small",t.role==="AUTHORED_DEVELOPMENT"?"Authored hypothetical · not your action · change scenario":i===0?"Your first decision · revisit":"Your response · revisit");
   track.append(b);
  });
  const event=$("swipe-event");event.replaceChildren();
  const imagined=a.trail.find(t=>t.kind==="imagined_development");
  event.classList.toggle("hidden",!imagined);
  if(imagined)event.textContent="The scenario now supposes: "+imagined.label+". This is an authored hypothetical development, not a prediction.";
- if(done){$("swipe-stage-label").textContent="Your complete imagined path";return;}
+ if(done){$("swipe-stage-label").textContent="04 · RETROSPECTIVE UNDERSTANDING";return;}
  const node=authored.nodes[a.key];
  if(!node||!Array.isArray(node.options)||node.options.length!==2){
   note("Unsupported option count or missing authored branch; no fabricated choices.",true);
   $("swipe-card").classList.add("hidden");$("swipe-choices").classList.add("hidden");return;
+ }
+ if(exploring){
+  const options=$("development-options");options.replaceChildren();
+  node.options.forEach((o,i)=>{
+    const b=document.createElement("button");b.type="button";b.dataset.development=String(i);
+    b.dataset.agencyRole="AUTHORED_DEVELOPMENT";
+    appendLabel(b,"small","EXPLORE HYPOTHETICAL "+(i+1)+" · NOT YOUR ACTION");
+    appendLabel(b,"span",o.label);
+    options.append(b);
+  });
+  return;
  }
  $("swipe-prompt").textContent=node.prompt;
  $("swipe-hint").textContent="← Left: "+node.options[0].label+" · Right: "+node.options[1].label+" →";
@@ -3080,25 +3138,29 @@ function renderSwipe(){
   appendLabel(button,"span",o.label);buttons.append(button);
  });
 }
-function commit(index){
+function commit(index,channel="USER_DECISION"){
  const a=auditPath();
  if(!a||a.done||!Number.isInteger(index)||index<0||index>1)return false;
+ const role=AGENCY_UI_V1.steps[a.trail.length];
+ if(role!==channel){note("An external event cannot be presented or submitted as your action.",true);return false;}
  const node=authored?.nodes?.[a.key],choice=node?.options?.[index];if(!choice)return false;
  path.push(choice.id);
  if(!auditPath()){path.pop();note("That decision is not part of this authored scenario.",true);return false;}
  clearSwipeDerived();renderSwipe();
- note(path.length===2?"That development is imagined, not an outcome you control.":"Your choice was recorded. You can revisit any earlier step.");
+ note(path.length===2?"Now explore your response to this imagined event. It was not your decision to cause it.":"Your decision was recorded. You can revisit any earlier step.");
  if(auditPath()?.done)$("swipe-finish").focus({preventScroll:true});
+ else if(path.length===1)$("development-options").querySelector("button")?.focus({preventScroll:true});
  else $("swipe-card").focus({preventScroll:true});
  return true;
 }
-$("swipe-choices").addEventListener("click",e=>{const b=e.target.closest("[data-choice]");if(b)commit(Number(b.dataset.choice));});
+$("swipe-choices").addEventListener("click",e=>{const b=e.target.closest("[data-choice]");if(b)commit(Number(b.dataset.choice),"USER_DECISION");});
+$("development-options").addEventListener("click",e=>{const b=e.target.closest("[data-development]");if(b)commit(Number(b.dataset.development),"AUTHORED_DEVELOPMENT");});
 $("swipe-path").addEventListener("click",e=>{const b=e.target.closest("[data-rewind]");if(b)truncate(Number(b.dataset.rewind));});
 $("swipe-back").addEventListener("click",()=>{if(path.length)truncate(path.length-1);});
 $("swipe-reset").addEventListener("click",()=>{truncate(0);note("Back at the first decision.");});
 const card=$("swipe-card");
 card.addEventListener("pointerdown",e=>{
- if(mode!=="swipe"||!card.isConnected||e.button!==0||auditPath()?.done)return;
+ if(mode!=="swipe"||!card.isConnected||e.button!==0||auditPath()?.done||auditPath()?.trail.length===1)return;
  swipePointer={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0};
  try{card.setPointerCapture(e.pointerId);}catch(_){}
 });
@@ -3113,13 +3175,13 @@ card.addEventListener("pointermove",e=>{
 function stopSwipe(e,cancel=false){
  if(!swipePointer||swipePointer.id!==e.pointerId)return;
  const {dx,dy}=swipePointer;swipePointer=null;card.style.transform="";
- if(!cancel&&Math.abs(dx)>=55&&Math.abs(dx)>Math.abs(dy)*1.15)commit(dx<0?0:1);
+ if(!cancel&&Math.abs(dx)>=55&&Math.abs(dx)>Math.abs(dy)*1.15)commit(dx<0?0:1,"USER_DECISION");
 }
 card.addEventListener("pointerup",e=>stopSwipe(e));
 card.addEventListener("pointercancel",e=>stopSwipe(e,true));
 card.addEventListener("keydown",e=>{
- if(mode!=="swipe")return;
- if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();commit(e.key==="ArrowLeft"?0:1);}
+ if(mode!=="swipe"||auditPath()?.trail.length===1)return;
+ if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();commit(e.key==="ArrowLeft"?0:1,"USER_DECISION");}
 });
 function makeAllocationVisual(){
  const wrapper=$("choice-dashboard");wrapper.replaceChildren();
@@ -3148,10 +3210,15 @@ function makePathVisual(a){
  a.trail.forEach((step,i)=>{
   if(i){const connector=document.createElement("div");connector.className="path-connector";connector.setAttribute("aria-hidden","true");track.append(connector);}
   const box=document.createElement("div");box.className="path-node";
-  appendLabel(box,"b",i===1?"An imagined event, not your action":"Your decision "+(i===2?"2":"1"));
+  box.dataset.agencyRole=step.role;
+  appendLabel(box,"b",step.role==="AUTHORED_DEVELOPMENT"?"02 · AUTHORED EVENT · NOT YOUR ACTION":i===0?"01 · YOUR ORIGINAL DECISION":"03 · YOUR RESPONSE");
   appendLabel(box,"p",step.label);track.append(box);
  });
- wrapper.append(track);
+ const retro=document.createElement("div");retro.className="path-node";retro.dataset.agencyRole="RETROSPECTIVE_INTERPRETATION";
+ const connector=document.createElement("div");connector.className="path-connector";connector.setAttribute("aria-hidden","true");track.append(connector);
+ appendLabel(retro,"b","04 · RETROSPECTIVE UNDERSTANDING");
+ appendLabel(retro,"p","Only now can you interpret this imagined route in hindsight. You did not know this development at the first decision; the unchosen future remains unknown.");
+ track.append(retro);wrapper.append(track);
 }
 function setReveal(n,all=false){
  resultStage=Math.max(0,Math.min(2,n));showingAll=all;
@@ -3211,12 +3278,13 @@ function submitSwipe(){
  $("ending-text").textContent=out.sections[2].text;
  $("thinker-name").textContent=packet.author;
  $("result-quote").textContent="“"+packet.quote+"”";
+ $("result-quote-note").textContent="Shortened English paraphrase of Journal JJ:167 (1843), not a verbatim full-passage translation.";
  $("result-title").textContent="A choice.\nA later perspective.";$("result-title").style.whiteSpace="pre-line";
  $("philosopher-portrait").setAttribute("aria-label","Stylized static pixel portrait of "+packet.author);
  try{$("philosopher-portrait").innerHTML=engine.philosopherPortrait(packet.author);}catch(_){$("philosopher-portrait").textContent="SK";}
  $("source-detail").textContent=(packet.source?.work||"Source title review pending")+" · "+packet.sourceAdmission.sourceUrl+
   ". "+out.source_warrant+" The path was imagined; the unchosen alternative and real outcomes remain unknown.";
- $("research-notice").textContent="Research-only source. The shortened Kierkegaard quotation and its contextual reading remain provisional, not independently verified. All developments in this exercise are imagined, not predictions or known alternative futures.";
+ $("research-notice").textContent="Research-only provisional source. This familiar English aphorism is a shortened paraphrase of the longer Journal JJ:167 passage; its edition/translation review remains open. All developments are imagined, not predictions or known alternative futures.";
  enterResult();startProgressive();
 }
 $("swipe-finish").addEventListener("click",submitSwipe);
@@ -3237,8 +3305,10 @@ window.__YL_CZ140_TEST={
   visiblePanels:panels.filter(id=>!$(id).classList.contains("hidden")),
   theme:document.body.dataset.theme,lastResultStatus:lastOutput?.status||null,
   lastCanonicalPath:lastPacket?.structure?.path??null,
-  inputSource:lastPacket?.source?.work||null}),
- canonical:()=>lastGame==="swipe"?lastPacket?.selectedChoices?.map(x=>x.id)??[]:null
+  inputSource:lastPacket?.source?.work||null,agencyContract:AGENCY_UI_V1.version,currentRole:AGENCY_UI_V1.steps[Math.min(path.length,3)]}),
+ canonical:()=>lastGame==="swipe"?lastPacket?.selectedChoices?.map(x=>x.id)??[]:null,
+ // Non-production adversarial assertion: this MUST fail at stage 2.
+ tryAgencySpoof:()=>commit(0,"USER_DECISION")
 };
 presentIntro();renderSwipe();
 })();
