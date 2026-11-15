@@ -96,6 +96,7 @@ try{
   const trace=await page.locator("#cz128-peer-reasons").textContent();
   assert.match(trace,/Value|Balance of Values|Future Reveal/i);
   assert.match(trace,/not implemented|Not eligible/i);
+  assert.ok((await page.locator("#start").evaluate(el=>el.getBoundingClientRect().height))>=44);
   await page.locator("#start").click();
   for(let n=0;n<6;n++)await page.locator('[data-add="0"]').click();
   const first=await submitted(page,"#submit");
@@ -132,6 +133,8 @@ try{
   const k=await choose(page,KIERKEGAARD_V21.id,true);
   assert.equal(k.selectedGameId,"swipe_decision");
   await page.locator("#start").click();
+  const actionHeights=await page.locator("#swipe-choices button").evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().height));
+  assert.ok(actionHeights.length===2&&actionHeights.every(h=>h>=44));
   await page.locator('#swipe-choices [data-choice="0"]').click();
   assert.equal(await page.locator("#development-explorer").isVisible(),true);
   assert.equal(await page.locator("#swipe-card").isVisible(),false);
@@ -168,12 +171,9 @@ try{
   assert.equal((await state(page)).rememberVisible,true);
   const sizing=await page.evaluate(()=>({
    source:document.getElementById("cz128-source").getBoundingClientRect().height,
-   start:document.getElementById("start").getBoundingClientRect().height,
-   choiceButtons:[...document.querySelectorAll("#swipe-choices button")]
-     .map(b=>b.getBoundingClientRect().height)
+   recall:document.getElementById("cz128-recall-choice").getBoundingClientRect().height
   }));
-  assert.ok(sizing.source>=44&&sizing.start>=44);
-  assert.ok(sizing.choiceButtons.every(n=>n>=44));
+  assert.ok(sizing.source>=44&&sizing.recall>=44);
   if(width===390)await page.screenshot({
    path:new URL("cz128-independent-swipe-390.png",screenshotDir).pathname,fullPage:true
   });
