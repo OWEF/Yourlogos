@@ -24,7 +24,20 @@ jobs:
           BASE=73849bff27fc73db97d5fb015c57f45323e18f30
           git merge-base --is-ancestor "$BASE" HEAD
           git diff --name-only "$BASE" HEAD | tee /tmp/research-files.txt
-          if grep -Ev '^(research/cz125/[^/]+|\.github/workflows/cz125-research-kit\.yml)$' /tmp/research-files.txt; then
+          if grep -Ev '^(research/cz125/[^/]+|\.github/workflows/cz125-research-kit\.yml|tests/cz123-cz125-method-release\.mjs|\.github/workflows/cz123-cz125-method-release\.yml)
+            echo "FAIL: changes outside the research kit, accepted selector, frozen engines or playable UI"; exit 1
+          fi
+      - name: Study kit, four-axis protocol, embedded JS syntax and offline privacy checks
+        run: node --test research/cz125/verify-kit.test.mjs
+      - name: Install free existing browser test runner
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Real Chromium at mobile widths, QA-only in-memory release and complete phases
+        run: node research/cz125/verify-recorder-browser.mjs
+      - name: Independent exact-commit N1-N5 and activated recorder QA
+        run: node --test tests/cz123-cz125-method-release.mjs
+      - name: Report honest current evidence state with zero supplied participants
+        run: node research/cz125/audit-local-evidence.mjs
+ /tmp/research-files.txt; then
             echo "FAIL: changes outside the research kit, accepted selector, frozen engines or playable UI"; exit 1
           fi
       - name: Study kit, four-axis protocol, embedded JS syntax and offline privacy checks
