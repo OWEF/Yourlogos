@@ -1,0 +1,33 @@
+name: CZ-125 human validation kit — privacy and scope verification
+on:
+  push:
+    branches: [research/cz125-human-validation-kit-v1]
+  pull_request:
+    paths:
+      - "research/cz125/**"
+      - ".github/workflows/cz125-research-kit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  human-research-preparation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify accepted prototype remains EXACT and modifications are study documentation only
+        run: |
+          set -euo pipefail
+          BASE=73849bff27fc73db97d5fb015c57f45323e18f30
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/research-files.txt
+          if grep -Ev '^(research/cz125/[^/]+|\.github/workflows/cz125-research-kit\.yml)$' /tmp/research-files.txt; then
+            echo "FAIL: changes outside the research kit, accepted selector, frozen engines or playable UI"; exit 1
+          fi
+      - name: Study kit, four-axis protocol, embedded JS syntax and offline privacy checks
+        run: node --test research/cz125/verify-kit.test.mjs
+      - name: Report honest current evidence state with zero supplied participants
+        run: node research/cz125/audit-local-evidence.mjs
