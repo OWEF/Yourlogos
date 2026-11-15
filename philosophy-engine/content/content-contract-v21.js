@@ -1,5 +1,6 @@
 import {createHash} from "node:crypto";
-import {assessAllSixPeerGames} from "./content-capabilities-v211.js";
+import {assessAllSixPeerGames,authoritativeContextForRecord} from "./content-capabilities-v211.js";
+import {reasonSemantically} from "../encounter/semantic-reasoning-v12.js";
 /**
  * CZ-130 / Encounter v2.1: source-first content admission and scenario contract.
  * ISOLATED RESEARCH: no catalogue import or publishing side effects.
@@ -98,7 +99,7 @@ export function validateContentRecordV21(record){
       !sc.constraints.costs.every(n=>Number.isSafeInteger(n)&&n>0)||
       !(sc.constraints.unitHours===null||(Number.isFinite(sc.constraints.unitHours)&&sc.constraints.unitHours>0))||
       !["exact","cap"].includes(sc.constraints.capacityMode||"exact")||
-      !safeInt(sc.constraints.repetitions)||sc.constraints.repetitions<2)
+      !(sc.constraints.repetitions===null||(safeInt(sc.constraints.repetitions)&&sc.constraints.repetitions>=2)))
     fail(errors,"scenario.constraints","Finite resource must have safe budget, positive costs, fractional unit and repetition horizon.");
   }else if(sc.constraints.kind==="authored_branch"){
    if(!Array.isArray(sc.constraints.routes)||!sc.constraints.routes.length||
@@ -121,22 +122,30 @@ export function validateChoiceV21(record,choice){
  if(vr.status!=="valid_research_record")return {status:"rejected",reason:"Unadmitted or invalid content record."};
  if(!text(choice?.gameId)||!record.gameCompatibility.some(g=>g.id===choice.gameId&&g.eligible))
   return {status:"rejected",reason:"The submitted game is not one of the six directly eligible peer mini-games."};
- const sc=record.scenario,c=sc.constraints;
+ const sc=record.scenario,c=sc.constraints,context=authoritativeContextForRecord(record);
+ if(!context)return {status:"rejected",reason:"No authorized frozen meaning context matches this content record."};
  if(c.kind==="finite_budget"){
   const a=choice?.amounts;
   if(!Array.isArray(a)||a.length!==sc.choices.length||
      !a.every(safeInt)||!Number.isSafeInteger(a.reduce((n,x,i)=>n+x*c.costs[i],0))||
      (c.capacityMode==="cap"?a.reduce((n,x,i)=>n+x*c.costs[i],0)>c.capacity:
       a.reduce((n,x,i)=>n+x*c.costs[i],0)!==c.capacity)||
-     choice?.repetitions!==c.repetitions)
+     a.some((n,i)=>n>(context.model.choices[i]?.max??-1))||
+     (c.repetitions===null?choice?.repetitions!==undefined:choice?.repetitions!==c.repetitions))
    return {status:"rejected",reason:"Allocation must conserve exact capacity in safe whole-slot units."};
-  return {status:"ready",canonical:{amounts:[...a],budgets:[c.capacity],repetitions:c.repetitions},
-   unitHours:c.unitHours,gameId:choice?.gameId||null};
+  const canonical={amounts:[...a],budgets:[c.capacity],
+   ...(c.repetitions!==null?{repetitions:c.repetitions}:{})};
+  const checked=reasonSemantically(context,canonical);
+  if(checked.status!=="ready")return {status:"rejected",reason:"Frozen reasoning model rejected the chosen allocation: "+checked.reason};
+  return {status:"ready",canonical,unitHours:c.unitHours,gameId:choice.gameId,
+    meaningVersion:checked.version};
  }
  const path=choice?.path;
  if(!Array.isArray(path)||!c.routes.some(r=>JSON.stringify(r.path)===JSON.stringify(path)))
   return {status:"rejected",reason:"The branch must match a complete source-authored possible path."};
- return {status:"ready",canonical:{path:[...path]},gameId:choice?.gameId||null};
+ const canonical={path:[...path]},checked=reasonSemantically(context,canonical);
+ if(checked.status!=="ready")return {status:"rejected",reason:"Frozen reasoning model rejected the chosen path: "+checked.reason};
+ return {status:"ready",canonical,gameId:choice.gameId,meaningVersion:checked.version};
 }
 export function canRunIsolatedResearchV21(record,environment){
  const v=validateContentRecordV21(record);
