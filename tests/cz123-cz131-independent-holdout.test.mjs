@@ -211,3 +211,18 @@ test("INDEPENDENT spoof of selection trace and game availability never upgrades 
   assert.equal(code.includes(holdout.author),false,
    "The implementation must not contain QA holdout author routing.");
 });
+
+test("DIAGNOSTIC: all eight admitted Kierkegaard paths report READY or explicit editorial abstention, never fabricated conclusions",()=>{
+ const s=selectMiniGameV21(KIERKEGAARD_V21);
+ const cases=KIERKEGAARD_V21.scenario.constraints.routes.map(route=>{
+  const result=runSelectedEncounterResearchV21(KIERKEGAARD_V21,s,
+   {gameId:"swipe_decision",path:route.path},env);
+  assert.ok(["ready","needs_editorial_review"].includes(result.status));
+  if(result.status==="ready"){
+   assert.deepEqual(result.canonical_choice,{path:route.path});
+   assert.match(result.epistemicLimits.join(" "),/unknown|imagined|unchosen/i);
+  }
+  return {path:route.path,status:result.status,reason:result.reason??null};
+ });
+ console.log("CZ123-CZ131-PATH-COVERAGE "+JSON.stringify(cases));
+});
