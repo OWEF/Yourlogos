@@ -1,10 +1,12 @@
 import {createHash} from "node:crypto";
+import {assessAllSixPeerGames,authoritativeContextForRecord} from "./content-capabilities-v211.js";
+import {reasonSemantically} from "../encounter/semantic-reasoning-v12.js";
 /**
  * CZ-130 / Encounter v2.1: source-first content admission and scenario contract.
  * ISOLATED RESEARCH: no catalogue import or publishing side effects.
  * Six peer game options are metadata; selection belongs to CZ-131, never here.
  */
-export const CONTENT_VERSION="philosophical-content/2.1.0";
+export const CONTENT_VERSION="philosophical-content/2.1.1";
 export const GAME_IDS=Object.freeze([
  "trade_off","decision_map","token_studio","balance_of_values","swipe_decision","future_reveal"
 ]);
@@ -27,7 +29,8 @@ export function contentFingerprintV21(r){
    translationEdition:s.translationEdition??null};
  const core={id:r.id,version:r.version,source,dilemma:r.dilemma??null,
    argument:r.argument??null,scenario:r.scenario??null,route:r.route??null,
-   gameCompatibility:r.gameCompatibility??null,emotionalEligibility:r.emotionalEligibility??null};
+   gameCompatibility:r.gameCompatibility??null,emotionalEligibility:r.emotionalEligibility??null,
+   engineAdapter:r.engineAdapter??null,noFitReason:r.noFitReason??null};
  return "sha256:"+createHash("sha256").update(stable(core)).digest("hex");
 }
 export function validateContentRecordV21(record){
@@ -55,7 +58,25 @@ export function validateContentRecordV21(record){
     !text(record.editorialSignoff?.reviewedAt)||
     record.editorialSignoff?.versionHash!==record.versionHash))
   fail(errors,"editorialSignoff","Public approval requires independently signed verified exact-version content.");
+  const scored=assessAllSixPeerGames(record,GAME_IDS);
+ const g=record.gameCompatibility;
+ const peersOk=Array.isArray(g)&&g.length===GAME_IDS.length&&
+   distinct(g.map(x=>x?.id))&&GAME_IDS.every(id=>g.some(x=>x?.id===id))&&
+   g.every(entry=>isObj(entry)&&typeof entry.eligible==="boolean"&&
+    Array.isArray(entry.requirements)&&entry.requirements.every(text)&&
+    text(entry.evidenceOrRejection)&&entry.evidenceOrRejection.trim().length>=20);
+ if(!peersOk)fail(errors,"gameCompatibility","All SIX direct peers require explicit, substantive evidence or rejection.");
+ else{
+  const incorrect=g.filter(entry=>entry.eligible!==scored.find(x=>x.id===entry.id)?.eligible);
+  for(const row of incorrect){
+   const finding=scored.find(x=>x.id===row.id);
+   fail(errors,"gameCompatibility."+row.id,
+    "Eligibility contradicts machine-checkable source capability: "+finding.reason);
+  }
+ }
+
  if(record.route==="no_fit"){
+  if(!text(record.noFitReason)||record.noFitReason.trim().length<30)fail(errors,"noFitReason","Explain why all six peers cannot represent the philosophical passage.");
   if(record.gameCompatibility?.some(g=>g.eligible))fail(errors,"no_fit","Cannot admit any game when route=no_fit.");
   if(record.editorialState!=="research_only")fail(errors,"no_fit","No-fit cannot be directly published as an Encounter.");
   return {status:errors.length?"invalid":"inventory_no_fit",errors};
@@ -76,8 +97,9 @@ export function validateContentRecordV21(record){
    if(!safeInt(sc.constraints.capacity)||!Array.isArray(sc.constraints.costs)||
       sc.constraints.costs.length!==sc.choices.length||
       !sc.constraints.costs.every(n=>Number.isSafeInteger(n)&&n>0)||
-      !Number.isFinite(sc.constraints.unitHours)||sc.constraints.unitHours<=0||
-      !safeInt(sc.constraints.repetitions)||sc.constraints.repetitions<2)
+      !(sc.constraints.unitHours===null||(Number.isFinite(sc.constraints.unitHours)&&sc.constraints.unitHours>0))||
+      !["exact","cap"].includes(sc.constraints.capacityMode||"exact")||
+      !(sc.constraints.repetitions===null||(safeInt(sc.constraints.repetitions)&&sc.constraints.repetitions>=2)))
     fail(errors,"scenario.constraints","Finite resource must have safe budget, positive costs, fractional unit and repetition horizon.");
   }else if(sc.constraints.kind==="authored_branch"){
    if(!Array.isArray(sc.constraints.routes)||!sc.constraints.routes.length||
@@ -87,13 +109,8 @@ export function validateContentRecordV21(record){
     fail(errors,"scenario.constraints","Branch must have authored possible developments with unchosen outcomes unknown.");
   }else fail(errors,"scenario.constraints.kind","Unknown constraints; don't fabricate outcomes.");
  }
- if(!Array.isArray(record.gameCompatibility)||record.gameCompatibility.length!==GAME_IDS.length||
-    !distinct((record.gameCompatibility||[]).map(x=>x.id))||
-    !GAME_IDS.every(id=>record.gameCompatibility.some(x=>x.id===id))||
-    !record.gameCompatibility.every(g=>isObj(g)&&typeof g.eligible==="boolean"&&
-      Array.isArray(g.requirements)&&g.requirements.every(text)&&
-      text(g.evidenceOrRejection)))
-  fail(errors,"gameCompatibility","Exactly six uniquely identified, evidence-grounded peer decisions required.");
+ // The six-peer evidence and exact capability assertions are checked above,
+ // including every negative no-fit record before an early return.
  if(!isObj(record.emotionalEligibility)||typeof record.emotionalEligibility.enabled!=="boolean"||
     !Array.isArray(record.emotionalEligibility.allowedStrategies)||
     !record.emotionalEligibility.allowedStrategies.every(text))
@@ -105,20 +122,30 @@ export function validateChoiceV21(record,choice){
  if(vr.status!=="valid_research_record")return {status:"rejected",reason:"Unadmitted or invalid content record."};
  if(!text(choice?.gameId)||!record.gameCompatibility.some(g=>g.id===choice.gameId&&g.eligible))
   return {status:"rejected",reason:"The submitted game is not one of the six directly eligible peer mini-games."};
- const sc=record.scenario,c=sc.constraints;
+ const sc=record.scenario,c=sc.constraints,context=authoritativeContextForRecord(record);
+ if(!context)return {status:"rejected",reason:"No authorized frozen meaning context matches this content record."};
  if(c.kind==="finite_budget"){
   const a=choice?.amounts;
   if(!Array.isArray(a)||a.length!==sc.choices.length||
-     !a.every(safeInt)||a.reduce((n,x,i)=>n+x*c.costs[i],0)!==c.capacity||
-     choice?.repetitions!==c.repetitions)
+     !a.every(safeInt)||!Number.isSafeInteger(a.reduce((n,x,i)=>n+x*c.costs[i],0))||
+     (c.capacityMode==="cap"?a.reduce((n,x,i)=>n+x*c.costs[i],0)>c.capacity:
+      a.reduce((n,x,i)=>n+x*c.costs[i],0)!==c.capacity)||
+     a.some((n,i)=>n>(context.model.choices[i]?.max??-1))||
+     (c.repetitions===null?choice?.repetitions!==undefined:choice?.repetitions!==c.repetitions))
    return {status:"rejected",reason:"Allocation must conserve exact capacity in safe whole-slot units."};
-  return {status:"ready",canonical:{amounts:[...a],budgets:[c.capacity],repetitions:c.repetitions},
-   unitHours:c.unitHours,gameId:choice?.gameId||null};
+  const canonical={amounts:[...a],budgets:[c.capacity],
+   ...(c.repetitions!==null?{repetitions:c.repetitions}:{})};
+  const checked=reasonSemantically(context,canonical);
+  if(checked.status!=="ready")return {status:"rejected",reason:"Frozen reasoning model rejected the chosen allocation: "+checked.reason};
+  return {status:"ready",canonical,unitHours:c.unitHours,gameId:choice.gameId,
+    meaningVersion:checked.version};
  }
  const path=choice?.path;
  if(!Array.isArray(path)||!c.routes.some(r=>JSON.stringify(r.path)===JSON.stringify(path)))
   return {status:"rejected",reason:"The branch must match a complete source-authored possible path."};
- return {status:"ready",canonical:{path:[...path]},gameId:choice?.gameId||null};
+ const canonical={path:[...path]},checked=reasonSemantically(context,canonical);
+ if(checked.status!=="ready")return {status:"rejected",reason:"Frozen reasoning model rejected the chosen path: "+checked.reason};
+ return {status:"ready",canonical,gameId:choice.gameId,meaningVersion:checked.version};
 }
 export function canRunIsolatedResearchV21(record,environment){
  const v=validateContentRecordV21(record);
@@ -128,13 +155,11 @@ export function canRunIsolatedResearchV21(record,environment){
   environment?.isolated===true&&environment?.publicVisibility===false &&
   environment?.provisionalDisclosure===true;
 }
-export function canPublishEncounterV21(record,release){
- if(validateContentRecordV21(record).status!=="valid_research_record")return false;
- const s=record.source;
- return s.reviewState==="source_verified"&&
-   s.reviewSignoff?.versionHash===record.versionHash &&
-   record.editorialState==="public_approved" &&
-   record.editorialSignoff?.versionHash===record.versionHash &&
-   Array.isArray(release?.approvedRecordFingerprints)&&release.approvedRecordFingerprints.includes(record.versionHash)&&
-   release?.founderAuthorized===true&&release?.publicFeatureFlag===true;
+/** Publication authority is NOT derivable from a content hash, arbitrary reviewer
+ * fields or booleans. No trusted server-owned authorization boundary is
+ * connected in this isolated research module, therefore PUBLICATION IS DENIED.
+ * Integrators must add independently auditable server-held approval at a later
+ * reviewed boundary; never add a caller token here as an escape hatch. */
+export function canPublishEncounterV21(_record,_callerRelease){
+ return false;
 }

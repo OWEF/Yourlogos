@@ -5,7 +5,7 @@ import {DILLARD_V21,KIERKEGAARD_V21,HEGEL_NO_FIT_V21} from "../philosophy-engine
 const clone=x=>structuredClone(x);
 const research={isolated:true,publicVisibility:false,provisionalDisclosure:true};
 test("versioned record and exactly six games without a pre-router",()=>{
- assert.equal(CONTENT_VERSION,"philosophical-content/2.1.0");
+ assert.equal(CONTENT_VERSION,"philosophical-content/2.1.1");
  assert.deepEqual(GAME_IDS,["trade_off","decision_map","token_studio","balance_of_values","swipe_decision","future_reveal"]);
  for(const r of [DILLARD_V21,KIERKEGAARD_V21]){
   assert.equal(validateContentRecordV21(r).status,"valid_research_record");
@@ -67,7 +67,7 @@ test("source verified alone is insufficient for public release",()=>{
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:false,publicFeatureFlag:true}),false);
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:false}),false);
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true}),false,"No trusted release hash allowlist, no public approval");
- assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true,approvedRecordFingerprints:[r.versionHash]}),true);
+ assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true,approvedRecordFingerprints:[r.versionHash]}),false,"Research module has no server-owned trusted authorization, and must fail closed even for matching hashes");
  r.argument.thesis="Edited after scholarly review";
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true,approvedRecordFingerprints:[r.versionHash]}),false);
 });

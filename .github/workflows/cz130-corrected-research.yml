@@ -1,0 +1,30 @@
+name: CZ-130 corrected philosophical content and source-generalized research
+on:
+  push:
+    branches:
+      - fix/cz130-five-architecture-blockers-v211
+  pull_request:
+    paths:
+      - "philosophy-engine/content/**"
+      - "tests/content-v21*.test.mjs"
+      - "tests/content-v211*.test.mjs"
+      - ".github/workflows/cz130-corrected-research.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Known A-D safe RED-to-GREEN acceptance controls and original research tests
+        run: |
+          node --test tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs
+      - name: New source-distinct research transfer and fail-closed expression gates
+        run: node --test tests/source-grounded-research-v211.test.mjs
+      - name: Frozen v2.0 and semantic reasoning compatibility
+        run: |
+          node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs

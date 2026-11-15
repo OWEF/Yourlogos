@@ -1,6 +1,7 @@
 /** CZ-130 representative records are ISOLATED / PROVISIONAL ONLY. Never imported to public Discover. */
 import {semanticCases} from "../encounter/semantic-cases-v12.js";
 import {CONTENT_VERSION,GAME_IDS,contentFingerprintV21} from "./content-contract-v21.js";
+import {graphPathsFromContext} from "./content-capabilities-v211.js";
 const finalize=x=>Object.freeze({...x,versionHash:contentFingerprintV21(x)});
 const decision=(eligible,evidenceOrRejection,requirements=[])=>({eligible,evidenceOrRejection,requirements});
 const six=byId=>GAME_IDS.map(id=>({id,...byId[id]}));
@@ -23,7 +24,7 @@ export const DILLARD_V21=finalize({
   uncertaintyLimit:"Five evenings are hypothetical, not your observed behavior; we cannot know your motives or rank the value of rest, writing or relationships."
  },
  scenario:{id:"finite-evening-v1",variables:{unit:"half-hour",availableHours:3,period:"evening"},
-  choices:[{id:"writing",label:"Write your story"},{id:"messages",label:"Answer messages"},{id:"rest",label:"Rest and recharge"}],
+  choices:[{id:"activity-0",label:"Write your story"},{id:"activity-1",label:"Answer messages"},{id:"activity-2",label:"Rest and recharge"}],
   constraints:{kind:"finite_budget",capacity:6,costs:[1,1,1],unitHours:0.5,repetitions:5},
   consequences:{warrant:"The chosen arrangement adds up across five imagined repeated evenings; an unchosen outcome is not inferred.",unknowns:["what happens in real life","what a reader truly values"]}},
  gameCompatibility:six({
@@ -50,11 +51,13 @@ export const KIERKEGAARD_V21=finalize({
   uncertaintyLimit:"Developments are explicitly authored possibilities, not forecasts or hidden insight into a reader's future."
  },
  scenario:{id:"forward-choice-v1",variables:{domain:"imagined job choice",futureKnown:false},
-  choices:[{id:"change",label:"Take the new job"},{id:"stay",label:"Stay in current job"}],
-  constraints:{kind:"authored_branch",routes:[
-   {path:["change","risk","continue"],authoredDevelopments:["Imagined difficult hours after the change"],unchosenOutcomeKnown:false},
-   {path:["stay","missed","reflect"],authoredDevelopments:["Imagined later reflections about a missed change"],unchosenOutcomeKnown:false}
-  ]},
+  choices:semanticCases.kierkegaard.model.nodes.first.options.map(o=>({id:o.id,label:o.label})),
+  constraints:{kind:"authored_branch",routes:graphPathsFromContext(semanticCases.kierkegaard).map(steps=>({
+   path:steps.map(s=>s.id),
+   authoredDevelopments:steps[1]?.reveal||[],
+   agencyRoles:["USER_DECISION","AUTHORED_DEVELOPMENT","USER_DECISION"],
+   unchosenOutcomeKnown:false
+  }))},
   consequences:{warrant:"Later imagined evidence informs the chosen path but does not establish the unchosen future.",unknowns:["actual results","unchosen job future"]}},
  gameCompatibility:six({
   trade_off:decision(false,"No shared quantifiable resource.",["finite_budget"]),
