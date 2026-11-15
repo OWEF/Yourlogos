@@ -1,0 +1,33 @@
+name: CZ-123 independent exact-SHA PR184 acceptance (QA only)
+on:
+  push:
+    branches: [qa/cz123-independent-acceptance-pr184-v1]
+  pull_request:
+    paths:
+      - "tests/cz123-independent-pr184-*.mjs"
+      - ".github/workflows/cz123-pr184-adversarial.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-adversarial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify untouched candidate ancestry and QA-only diff
+        run: |
+          BASE=25834a8e57a2efe662a4a03b901373face21b2fc
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/qa-files.txt
+          if grep -Ev '^(tests/cz123-independent-pr184-(known|adversarial)\.mjs|\.github/workflows/cz123-pr184-adversarial\.yml)$' /tmp/qa-files.txt; then
+            echo "ERROR: QA branch contains non-test changes"
+            exit 1
+          fi
+      - name: Reexecute original five known attacks with independently authored assertions
+        run: node --test tests/cz123-independent-pr184-known.mjs
+      - name: New adversarial tests — any failed assertion is a RELEASE BLOCKER
+        run: node --test tests/cz123-independent-pr184-adversarial.mjs
