@@ -1,0 +1,61 @@
+name: CZ-128 integrated Encounter research — accepted selector + real browser
+on:
+  push:
+    branches: [feature/cz128-integrated-learning-research-v1]
+  pull_request:
+    paths:
+      - "experiments/cz128-*"
+      - "tests/cz128-*"
+      - ".github/workflows/cz128-integrated-learning.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrated-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Fetch immutable PR 182 UI source and check exact Git object
+        run: |
+          set -euo pipefail
+          if ! git cat-file -e b3b2662ce7034a67a2ef0cf6a7b4d4eb4b13d6a8:experiments/encounter-v21-progressive.html 2>/dev/null; then
+            git fetch origin b3b2662ce7034a67a2ef0cf6a7b4d4eb4b13d6a8
+          fi
+          test "$(git rev-parse b3b2662ce7034a67a2ef0cf6a7b4d4eb4b13d6a8:experiments/encounter-v21-progressive.html)" = "90ab4781728947b91dac3a3b7b4a30283ef8ca87"
+      - name: Confirm pinned CZ-131 engine unchanged, no changes outside isolated integration
+        run: |
+          set -euo pipefail
+          BASE=b18a3e6bcce8acbcf5bbd199d27d36cd390bb1da
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/integration-files.txt
+          if grep -Ev '^(experiments/cz128-research-server\.mjs|experiments/cz128-research-style\.css|experiments/cz128-browser-integration\.js|tests/cz128-integrated-api\.test\.mjs|tests/cz128-integrated-browser\.mjs|\.github/workflows/cz128-integrated-learning\.yml)$' /tmp/integration-files.txt; then
+            echo "FAIL: accepted content, selector, frozen engine or PR182 prototype changed"; exit 1
+          fi
+      - name: Run source-verified selector bridge and adversarial local API tests
+        run: node --test tests/cz128-integrated-api.test.mjs
+      - name: Build deterministic HTML derived from original PR 182 UI (requires local server)
+        run: node experiments/cz128-research-server.mjs --build
+      - name: Existing accepted selector, source and frozen philosophical engines
+        run: |
+          node --test tests/cz131-single-selection.test.mjs
+          node --test tests/cz123-independent-pr184-known.mjs tests/cz123-independent-pr184-adversarial.mjs
+          node --test tests/content-v212-editorial-regression.test.mjs tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/source-grounded-research-v211.test.mjs
+          node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs
+      - name: Install free browser test runner
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Actual interactive Chromium mobile viewport acceptance (not physical iPhone)
+        run: node tests/cz128-integrated-browser.mjs
+      - name: Preserve non-production visual test evidence for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz128-integrated-research-evidence
+          path: |
+            artifacts/cz128/
+            artifacts/cz128-integrated-learning-local.html
+          if-no-files-found: ignore
+          retention-days: 14
