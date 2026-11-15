@@ -23,6 +23,9 @@ try{
   page.on("request",r=>{if(/^https?:/.test(r.url()))network.push(r.url());});
   await start(page);
   assert.equal(await page.locator("#start-label").innerText(),"Allocate your three hours");
+  await page.locator(".capability-note summary").click();
+  assert.match(await page.locator(".capability-note").innerText(),/no-fit for this pilot/);
+  await page.locator(".capability-note summary").click();
   // Preserve functioning Token Studio and render canonical, non-psychometric bars.
   await page.locator("#start").click();
   for(const [i,n] of [[0,3],[1,1],[2,2]])
@@ -81,6 +84,7 @@ try{
   await swipeChoice(page,0);await swipeChoice(page,0);
   assert.deepEqual((await page.evaluate(()=>window.__YL_CZ140_TEST.getState())).path,["stay","missed","reflect"]);
   assert.equal(await page.locator("#swipe-finish").isVisible(),true);
+  assert.equal(await page.evaluate(()=>document.activeElement?.id),"swipe-finish","Completed swipe path should focus the submit control");
   await page.locator("#swipe-finish").click();
   assert.equal((await page.evaluate(()=>window.__YL_CZ140_TEST.getState())).lastResultStatus,"ready");
   assert.match(await page.locator("#choice-dashboard").innerText(),/stay in your current job/i);
@@ -115,6 +119,14 @@ try{
   assert.match(await page.locator("#choice-text").innerText(),/harder/i);
   assert.notEqual(await page.locator("#ending-text").innerText(),endingStay,"different paths must have different source-grounded endings");
   assert.match(await page.locator("#research-notice").innerText(),/provisional/i);
+  // Switching back to Token Studio cannot leave a Kierkegaard source label or an old result.
+  await page.locator("#edit").click();
+  await page.locator("#to-intro").click();
+  await page.locator("#choose-token").click();
+  assert.match(await page.locator("#result-quote").innerText(),/How we spend our days/);
+  assert.match(await page.locator("#research-notice").innerText(),/Dillard/);
+  assert.equal(await page.locator("#thinker-name").innerText(),"Annie Dillard");
+  assert.equal((await page.evaluate(()=>window.__YL_CZ140_TEST.getState())).mode,"token");
   assert.ok((await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)),"Horizontal overflow "+width);
   assert.equal(network.length,0,"Unexpected network "+network.join(", "));
   assert.equal(pageErrors.length,0,"Page errors "+pageErrors.join("; "));
