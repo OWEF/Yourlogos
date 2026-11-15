@@ -1,0 +1,31 @@
+name: CZ-130 v2.1 content contract (isolated)
+on:
+  push:
+    branches:
+      - feature/cz130-v21-content-contract
+  pull_request:
+    paths:
+      - "philosophy-engine/content/**"
+      - "tests/content-v21.test.mjs"
+      - ".github/workflows/encounter-v21-content.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  versioned-research-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax and invariant tests
+        run: |
+          node --check philosophy-engine/content/content-contract-v21.js
+          node --check philosophy-engine/content/research-fixtures-v21.js
+          node --test tests/content-v21.test.mjs
+      - name: Frozen engine regression
+        run: |
+          node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs
+          node scripts/build-encounter-v20.mjs --check
