@@ -16,6 +16,8 @@ import {assessAllSixPeerGames,authoritativeContextForRecord}
 import {reasonSemantically} from "../encounter/semantic-reasoning-v12.js";
 import {renderSourceGroundedResearchV211,validateSourceGroundedResearchV211}
  from "./source-grounded-composer-v211.js";
+import {renderEncounterV20,validateEncounterV20}
+ from "../encounter/encounter-v20.js";
 
 export const SELECTION_VERSION="single-six-peer-selection/2.1.0";
 const research="research_adapter";
@@ -314,11 +316,37 @@ export function runSelectedEncounterResearchV21(record,selection,choice,environm
     meaning.author!==record.source.author||
     meaning.sourceAdmission?.centralClaim!==record.argument.sourceWarrant)
   return abstain("needs_editorial_review","Frozen meaning or source identity is inconsistent.");
- const expression=renderSourceGroundedResearchV211(record,choice,environment);
+ let expression=renderSourceGroundedResearchV211(record,choice,environment);
+ let expressionVerification="source_grounded_replay_v211";
+ // A valid choice must not be falsely advertised as unplayable solely because
+ // frozen Emotion's DEFAULT tone is outside an independently reviewed allowlist.
+ // Do not bypass other editorial abstentions. The frozen v2.0 composer already
+ // accepts evidence-grounded explicit tones and independently verifies its own
+ // result. Reuse it verbatim under a source-authorized strategy, never forge
+ // a creative brief or rewrite the philosopher's conclusions.
+ if(expression.status!=="ready"&&expression.reason===
+    "Frozen v2.0 chose a strategy disallowed by the source-approved research record."){
+  for(const tone of record.emotionalEligibility.allowedStrategies){
+   const candidate=renderEncounterV20(meaning,{tone});
+   if(candidate.status!=="ready"||
+      !record.emotionalEligibility.allowedStrategies.includes(candidate.brief?.strategy)||
+      candidate.source_url!==record.source.referenceUrl||
+      candidate.author!==record.source.author||
+      candidate.quote!==record.source.quote||
+      candidate.source_warrant!==record.argument.sourceWarrant||
+      candidate.source_review!=="curated_provisional"||
+      validateEncounterV20(meaning,candidate).status!=="ready")continue;
+   expression=candidate;
+   expressionVerification="frozen_v20_exact_evidence_authorized_tone";
+   break;
+  }
+ }
  if(expression.status!=="ready")
   return abstain("needs_editorial_review",
    expression.reason||"Source-grounded Emotion/Expression abstained.");
- const checked=validateSourceGroundedResearchV211(record,choice,environment,expression);
+ const checked=expressionVerification==="source_grounded_replay_v211"?
+   validateSourceGroundedResearchV211(record,choice,environment,expression):
+   validateEncounterV20(meaning,expression);
  if(checked.status!=="ready")
   return abstain("needs_editorial_review","The expression did not match replayed source evidence.");
  if(!record.emotionalEligibility.allowedStrategies.includes(expression.brief.strategy))
@@ -331,6 +359,7 @@ export function runSelectedEncounterResearchV21(record,selection,choice,environm
   canonical_choice:clone(submitted.canonical),
   canonical_choice_contract:clone(replay.canonical_choice_contract),
   meaning,emotion:clone(expression.brief),expression,
+  expressionVerification,
   stages:[
    {name:"Content database",status:"approved_for_isolated_research",versionHash:record.versionHash},
    {name:"ONE mini-game selection",status:"research_selected",gameId},
