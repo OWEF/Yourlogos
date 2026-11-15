@@ -1,10 +1,11 @@
 import {createHash} from "node:crypto";
+import {assessAllSixPeerGames} from "./content-capabilities-v211.js";
 /**
  * CZ-130 / Encounter v2.1: source-first content admission and scenario contract.
  * ISOLATED RESEARCH: no catalogue import or publishing side effects.
  * Six peer game options are metadata; selection belongs to CZ-131, never here.
  */
-export const CONTENT_VERSION="philosophical-content/2.1.0";
+export const CONTENT_VERSION="philosophical-content/2.1.1";
 export const GAME_IDS=Object.freeze([
  "trade_off","decision_map","token_studio","balance_of_values","swipe_decision","future_reveal"
 ]);
@@ -27,7 +28,8 @@ export function contentFingerprintV21(r){
    translationEdition:s.translationEdition??null};
  const core={id:r.id,version:r.version,source,dilemma:r.dilemma??null,
    argument:r.argument??null,scenario:r.scenario??null,route:r.route??null,
-   gameCompatibility:r.gameCompatibility??null,emotionalEligibility:r.emotionalEligibility??null};
+   gameCompatibility:r.gameCompatibility??null,emotionalEligibility:r.emotionalEligibility??null,
+   engineAdapter:r.engineAdapter??null,noFitReason:r.noFitReason??null};
  return "sha256:"+createHash("sha256").update(stable(core)).digest("hex");
 }
 export function validateContentRecordV21(record){
@@ -55,7 +57,25 @@ export function validateContentRecordV21(record){
     !text(record.editorialSignoff?.reviewedAt)||
     record.editorialSignoff?.versionHash!==record.versionHash))
   fail(errors,"editorialSignoff","Public approval requires independently signed verified exact-version content.");
+  const scored=assessAllSixPeerGames(record,GAME_IDS);
+ const g=record.gameCompatibility;
+ const peersOk=Array.isArray(g)&&g.length===GAME_IDS.length&&
+   distinct(g.map(x=>x?.id))&&GAME_IDS.every(id=>g.some(x=>x?.id===id))&&
+   g.every(entry=>isObj(entry)&&typeof entry.eligible==="boolean"&&
+    Array.isArray(entry.requirements)&&entry.requirements.every(text)&&
+    text(entry.evidenceOrRejection)&&entry.evidenceOrRejection.trim().length>=20);
+ if(!peersOk)fail(errors,"gameCompatibility","All SIX direct peers require explicit, substantive evidence or rejection.");
+ else{
+  const incorrect=g.filter(entry=>entry.eligible!==scored.find(x=>x.id===entry.id)?.eligible);
+  for(const row of incorrect){
+   const finding=scored.find(x=>x.id===row.id);
+   fail(errors,"gameCompatibility."+row.id,
+    "Eligibility contradicts machine-checkable source capability: "+finding.reason);
+  }
+ }
+
  if(record.route==="no_fit"){
+  if(!text(record.noFitReason)||record.noFitReason.trim().length<30)fail(errors,"noFitReason","Explain why all six peers cannot represent the philosophical passage.");
   if(record.gameCompatibility?.some(g=>g.eligible))fail(errors,"no_fit","Cannot admit any game when route=no_fit.");
   if(record.editorialState!=="research_only")fail(errors,"no_fit","No-fit cannot be directly published as an Encounter.");
   return {status:errors.length?"invalid":"inventory_no_fit",errors};
@@ -87,13 +107,8 @@ export function validateContentRecordV21(record){
     fail(errors,"scenario.constraints","Branch must have authored possible developments with unchosen outcomes unknown.");
   }else fail(errors,"scenario.constraints.kind","Unknown constraints; don't fabricate outcomes.");
  }
- if(!Array.isArray(record.gameCompatibility)||record.gameCompatibility.length!==GAME_IDS.length||
-    !distinct((record.gameCompatibility||[]).map(x=>x.id))||
-    !GAME_IDS.every(id=>record.gameCompatibility.some(x=>x.id===id))||
-    !record.gameCompatibility.every(g=>isObj(g)&&typeof g.eligible==="boolean"&&
-      Array.isArray(g.requirements)&&g.requirements.every(text)&&
-      text(g.evidenceOrRejection)))
-  fail(errors,"gameCompatibility","Exactly six uniquely identified, evidence-grounded peer decisions required.");
+ // The six-peer evidence and exact capability assertions are checked above,
+ // including every negative no-fit record before an early return.
  if(!isObj(record.emotionalEligibility)||typeof record.emotionalEligibility.enabled!=="boolean"||
     !Array.isArray(record.emotionalEligibility.allowedStrategies)||
     !record.emotionalEligibility.allowedStrategies.every(text))
@@ -128,13 +143,11 @@ export function canRunIsolatedResearchV21(record,environment){
   environment?.isolated===true&&environment?.publicVisibility===false &&
   environment?.provisionalDisclosure===true;
 }
-export function canPublishEncounterV21(record,release){
- if(validateContentRecordV21(record).status!=="valid_research_record")return false;
- const s=record.source;
- return s.reviewState==="source_verified"&&
-   s.reviewSignoff?.versionHash===record.versionHash &&
-   record.editorialState==="public_approved" &&
-   record.editorialSignoff?.versionHash===record.versionHash &&
-   Array.isArray(release?.approvedRecordFingerprints)&&release.approvedRecordFingerprints.includes(record.versionHash)&&
-   release?.founderAuthorized===true&&release?.publicFeatureFlag===true;
+/** Publication authority is NOT derivable from a content hash, arbitrary reviewer
+ * fields or booleans. No trusted server-owned authorization boundary is
+ * connected in this isolated research module, therefore PUBLICATION IS DENIED.
+ * Integrators must add independently auditable server-held approval at a later
+ * reviewed boundary; never add a caller token here as an escape hatch. */
+export function canPublishEncounterV21(_record,_callerRelease){
+ return false;
 }
