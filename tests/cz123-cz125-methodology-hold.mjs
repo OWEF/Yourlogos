@@ -68,7 +68,7 @@ try{
  let downloaded=false;
  page.on("download",()=>downloaded=true);
  await page.goto(new URL("reader-response.html",root).href);
- assert.equal(await page.locator("fieldset#cz125-instrument-locked").isDisabled(),true);
+ assert.equal(await page.locator("fieldset#cz125-instrument-locked").evaluate(el=>el.disabled),true);
  assert.equal(await page.locator("#export").isDisabled(),true);
  assert.match(await page.locator("#cz125-hold").innerText(),/ENROLLMENT HOLD/);
  assert.match(await page.locator("#cz125-hold").innerText(),/six dimensions/i);
