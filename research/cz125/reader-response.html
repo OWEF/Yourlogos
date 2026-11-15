@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; form-action 'none'; connect-src 'none'; img-src 'none';">
+<title>YourLogos · Anonymous Philosophical Comprehension Responses</title>
+<style>
+:root{color-scheme:dark;--bg:#121512;--panel:#202722;--line:#434d40;--gold:#ddad70;--muted:#bfc8bb;--ink:#f3eedf;--sage:#9ac6b4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,sans-serif}
+main{max-width:720px;margin:auto;padding:24px 17px 60px}h1{font:500 40px/1.12 Georgia,serif}h2{font:500 26px Georgia,serif}
+p,small{color:var(--muted)}.meta{color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-size:11px;font-weight:700}
+.panel{border:1px solid var(--line);border-radius:19px;background:var(--panel);padding:17px;margin:20px 0}
+label{display:block;font-weight:650;margin:15px 0 6px}
+input,textarea,select{display:block;width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:108px;resize:vertical}button{width:100%;min-height:52px;background:var(--gold);color:var(--bg);border:0;border-radius:12px;font-weight:750;font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.option{display:flex;align-items:start;gap:10px;margin:15px 0}.option input{width:auto;margin-top:5px}
+.option label{margin:0;font-weight:450}.warning{border-left:3px solid var(--gold);padding-left:12px}.notice{color:var(--sage)}
+@media(max-width:360px){h1{font-size:33px}.panel{padding:13px}}
+</style>
+</head>
+<body>
+<main>
+<p class="meta">YourLogos · CZ-125 · human research only</p>
+<h1>What did the experience help you understand?</h1>
+<p class="warning">This is a separate, anonymous response sheet. It is not a test of your personal decisions. The material is experimental and the philosophical passages are not yet independently approved for publication.</p>
+<p><strong>Privacy:</strong> No answers are sent anywhere or saved automatically. When you finish, download the JSON file and give it privately to your researcher. Closing this tab before downloading loses the text. Do not enter your name, email, address, or other identifying details.</p>
+<form id="response" autocomplete="off">
+<section class="panel">
+<h2>Session details</h2>
+<label for="code">Anonymous code (provided by your researcher)</label>
+<select required id="code" name="code"><option value="">Choose your code</option>
+<option>R01</option><option>R02</option><option>R03</option><option>R04</option><option>R05</option></select>
+<label for="phase">When are you responding?</label>
+<select required id="phase" name="phase">
+<option value="immediate">Immediately after the Encounter</option>
+<option value="delayed">Later, without re-opening the Encounter or previous answers</option>
+</select>
+<label for="passage">Which source did you see?</label>
+<select required id="passage" name="passage"><option value="">Choose the source you encountered</option>
+<option value="research:dillard:time-v1">Annie Dillard · Token Studio</option>
+<option value="research:kierkegaard:future-v1">Søren Kierkegaard · Swipe Decision</option>
+</select>
+<label for="canonical">What did you actually select? (researcher may enter exact allocation/path afterwards)</label>
+<input id="canonical" name="canonical" placeholder="Example: 3 / 1 / 2; or a three-step route">
+<label for="sessiontime">Encounter completion time (if known)</label>
+<input id="sessiontime" name="sessiontime" type="datetime-local">
+<label for="note">Observations on usability or assistance (researcher; optional)</label>
+<textarea id="note" name="note" placeholder="Describe actual observed confusion, any hints given and exact UI wording."></textarea>
+</section>
+<section class="panel">
+<h2>Explain in your own words</h2>
+<p>There is no preferred personal choice. Respond without reopening the app or looking up an answer, and without help if possible. A blank response is allowed if you don't know.</p>
+<label for="q1">1. In your own words, what did the choice you made change in this scenario?</label>
+<textarea id="q1" name="q1"></textarea>
+<label for="q2">2. What do you think this philosopher's central argument was, and how did the example help you understand it?</label>
+<textarea id="q2" name="q2"></textarea>
+<label for="q3">3. What, if anything, remains hypothetical, uncertain, or unknown after the experience?</label>
+<textarea id="q3" name="q3"></textarea>
+<label for="q4">4. What is the final question or reflection asking you to consider?</label>
+<textarea id="q4" name="q4"></textarea>
+</section>
+<section class="panel">
+<h2>Consent and private export</h2>
+<div class="option"><input id="consent" name="consent" type="checkbox" required>
+<label for="consent">I voluntarily agree to share these anonymized responses for internal evaluation of this experimental prototype. I understand I may withdraw by telling the researcher to delete my response. No personal identifiers should be entered in this form.</label></div>
+<div class="option"><input id="unassisted" name="unassisted" type="checkbox">
+<label for="unassisted">I answered without being told the intended philosophical explanation or reading my earlier answers.</label></div>
+<button type="submit" id="export">Download anonymous response (JSON)</button>
+<p id="state" role="status" aria-live="polite" class="notice">No response has been exported yet.</p>
+</section>
+</form>
+<p>For the delayed session, use the same code and answer without seeing your immediate transcript. A human reviewer separately applies the four existing CZ-125 0–2 criteria. This file does not assess you or infer philosophical knowledge.</p>
+</main>
+<script>
+"use strict";
+(() => {
+  const form=document.getElementById("response"),message=document.getElementById("state");
+  const baseline="73849bff27fc73db97d5fb015c57f45323e18f30";
+  form.addEventListener("submit", e=>{
+    e.preventDefault();
+    if(!form.reportValidity())return;
+    const get=id=>document.getElementById(id).value.trim();
+    const code=get("code"),phase=get("phase"),sourceId=get("passage");
+    if(!/^R0[1-5]$/.test(code)||!["immediate","delayed"].includes(phase)||
+      !["research:dillard:time-v1","research:kierkegaard:future-v1"].includes(sourceId)){
+      message.textContent="Please choose a valid anonymous code, phase, and approved research source.";return;
+    }
+    const record={
+      schema:"cz125-real-reader-response/1.0",
+      candidateSha:baseline,
+      participantCode:code,phase,sourceId,
+      recordedAt:new Date().toISOString(),
+      encounterCompletedAt:get("sessiontime")||null,
+      canonicalChoiceNotes:get("canonical"),
+      observationNotes:get("note"),
+      unassisted:document.getElementById("unassisted").checked,
+      consent:true,
+      answers:[get("q1"),get("q2"),get("q3"),get("q4")],
+      automaticScoring:false,
+      responseIsHumanReported:true
+    };
+    // Local file generation only. No fetch, XHR, storage, cookies, analytics or upload.
+    const blob=new Blob([JSON.stringify(record,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;link.download="cz125-"+code+"-"+phase+".json";
+    document.body.append(link);link.click();link.remove();
+    URL.revokeObjectURL(url);
+    message.textContent="Anonymous JSON download requested. Confirm the file was saved, then provide it privately to your researcher.";
+  });
+})();
+</script>
+</body>
+</html>
