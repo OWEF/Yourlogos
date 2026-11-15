@@ -9,10 +9,13 @@
  */
 import {chromium} from "playwright-core";
 import assert from "node:assert/strict";
+import {mkdirSync} from "node:fs";
 import {createIntegratedResearchServer,ENGINE_SHA,SOURCE_UI_SHA}
  from "../experiments/cz128-research-server.mjs";
 import {DILLARD_V21,KIERKEGAARD_V21,HEGEL_NO_FIT_V21}
  from "../philosophy-engine/content/research-fixtures-v21.js";
+const screenshotDir=new URL("../artifacts/cz123/",import.meta.url);
+mkdirSync(screenshotDir,{recursive:true});
 const start=async()=>{
  const app=await createIntegratedResearchServer();
  const browser=await chromium.launch({channel:"chrome",args:["--no-sandbox"]});
@@ -122,7 +125,7 @@ try{
    second.result.expression.sections[1].text);
   assert.equal(first.result.expression.source_warrant,
    second.result.expression.source_warrant);
-  assert.doesNotMatch(second.result.expression.sections.join(" "),/you are lazy|morally inferior/i);
+  assert.doesNotMatch(second.result.expression.sections.map(x=>x.text).join(" "),/you are lazy|morally inferior/i);
   assert.equal((await state(page)).rememberVisible,false,
    "Previous reflection must not leak into a new result");
   // One can choose a SOURCE, but a game type is never manually chosen.
@@ -162,6 +165,17 @@ try{
   await page.locator("#reveal-next").click();
   await page.locator("#reveal-next").click();
   assert.equal((await state(page)).rememberVisible,true);
+  const sizing=await page.evaluate(()=>({
+   source:document.getElementById("cz128-source").getBoundingClientRect().height,
+   start:document.getElementById("start").getBoundingClientRect().height,
+   choiceButtons:[...document.querySelectorAll("#swipe-choices button")]
+     .map(b=>b.getBoundingClientRect().height)
+  }));
+  assert.ok(sizing.source>=44&&sizing.start>=44);
+  assert.ok(sizing.choiceButtons.every(n=>n>=44));
+  if(width===390)await page.screenshot({
+   path:new URL("cz128-independent-swipe-390.png",screenshotDir).pathname,fullPage:true
+  });
   const noFit=await choose(page,HEGEL_NO_FIT_V21.id,false);
   assert.equal(noFit.status,"no_fit");
   assert.equal(await page.locator("#start").isDisabled(),true);
