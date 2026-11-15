@@ -15,7 +15,7 @@ export const STUDY=Object.freeze({
   schema:"cz125-two-games-session/1.0",
   protocolVersion:"cz125-founder-ah-transcription/1.0",
   prototypeSha:"73849bff27fc73db97d5fb015c57f45323e18f30",
-  enrollmentAuthorized:false,methodReleaseApproved:false,
+  enrollmentAuthorized:false,methodReleaseApproved:true,
   participants:5,observations:10,perGameObservations:5,
   assignedOrder:Object.freeze({
     P01:["dillard","kierkegaard"],P02:["kierkegaard","dillard"],
@@ -208,7 +208,7 @@ export function summarizePrivateDirectory(directory){
     "Only genuine human interviews independently assessed under the recovered six original axes can count.",
     "No automatic philosophical correctness, efficacy threshold PASS, human testimonials or fabricated participant data.",
     "Missing delayed responses are missing (null), NOT observed wrong (0).",
-    "No participant recruitment or export in committed form until independent methodology approval and separate release."
+    "Local draft recorder is enabled for exact-SHA independent methodological QA; no recruitment, approved human evidence or philosophical efficacy is claimed."
   ]
  };
  if(!directory)return report;
