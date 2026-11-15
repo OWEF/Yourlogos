@@ -1,0 +1,50 @@
+name: CZ-123 independent CZ-128 integrated product acceptance
+on:
+  push:
+    branches: [qa/cz123-cz128-integrated-final-v2]
+  pull_request:
+    paths:
+      - "tests/cz123-cz128-independent-product.mjs"
+      - ".github/workflows/cz123-cz128-independent.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-product-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify immutable engineering candidate SHA and strict QA-only diff
+        run: |
+          set -euo pipefail
+          BASE=73849bff27fc73db97d5fb015c57f45323e18f30
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/qa-diff.txt
+          if grep -Ev '^(tests/cz123-cz128-independent-product\.mjs|\.github/workflows/cz123-cz128-independent\.yml)$' /tmp/qa-diff.txt; then
+            echo "ERROR: independent review modified implementation"; exit 1
+          fi
+          if ! git cat-file -e b3b2662ce7034a67a2ef0cf6a7b4d4eb4b13d6a8:experiments/encounter-v21-progressive.html 2>/dev/null; then
+            git fetch origin b3b2662ce7034a67a2ef0cf6a7b4d4eb4b13d6a8
+          fi
+      - name: Install free Chrome automation library
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Independent real-browser philosophical journey and API versus UI parity
+        run: node tests/cz123-cz128-independent-product.mjs
+      - name: Independently rerun integration API spoof/mutation and accepted source contracts
+        run: |
+          node --test tests/cz128-integrated-api.test.mjs
+          node --test tests/cz131-single-selection.test.mjs tests/cz123-independent-pr184-known.mjs tests/cz123-independent-pr184-adversarial.mjs
+          node --test tests/content-v212-editorial-regression.test.mjs tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/source-grounded-research-v211.test.mjs
+          node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs
+      - name: Preserve independent mobile visual QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz123-cz128-independent-product-qa
+          path: artifacts/cz123/
+          if-no-files-found: ignore
+          retention-days: 14
