@@ -1,6 +1,7 @@
 /** CZ-130 representative records are ISOLATED / PROVISIONAL ONLY. Never imported to public Discover. */
 import {semanticCases} from "../encounter/semantic-cases-v12.js";
-import {CONTENT_VERSION,GAME_IDS} from "./content-contract-v21.js";
+import {CONTENT_VERSION,GAME_IDS,contentFingerprintV21} from "./content-contract-v21.js";
+const finalize=x=>Object.freeze({...x,versionHash:contentFingerprintV21(x)});
 const decision=(eligible,evidenceOrRejection,requirements=[])=>({eligible,evidenceOrRejection,requirements});
 const six=byId=>GAME_IDS.map(id=>({id,...byId[id]}));
 const researchSource=(context,locator)=>({
@@ -9,7 +10,7 @@ const researchSource=(context,locator)=>({
  reviewState:"curated_provisional",reviewSignoff:null,
  translationEdition:"Edition/translation pending qualified review"
 });
-export const DILLARD_V21=Object.freeze({
+export const DILLARD_V21=finalize({
  version:CONTENT_VERSION,id:"research:dillard:time-v1",versionHash:"dillard-time-research-2026-11-15",
  source:researchSource(semanticCases.dillard,"The Writing Life, scheduling passage; exact original passage review pending"),
  editorialState:"research_only",editorialSignoff:null,route:"selector_pending",
@@ -36,7 +37,7 @@ export const DILLARD_V21=Object.freeze({
  emotionalEligibility:{enabled:true,allowedStrategies:["contemplative","warm","playful"],groundedTensions:["time allocation","hypothetical repetition"]},
  engineAdapter:{contextKey:"dillard",operation:"tradeoff",packetVersion:"meaning/1.2"}
 });
-export const KIERKEGAARD_V21=Object.freeze({
+export const KIERKEGAARD_V21=finalize({
  version:CONTENT_VERSION,id:"research:kierkegaard:future-v1",versionHash:"kierkegaard-branch-research-2026-11-15",
  source:researchSource(semanticCases.kierkegaard,"Journal JJ:167; shortened quotation wording review pending"),
  editorialState:"research_only",editorialSignoff:null,route:"selector_pending",
@@ -66,7 +67,7 @@ export const KIERKEGAARD_V21=Object.freeze({
  emotionalEligibility:{enabled:true,allowedStrategies:["contemplative","provocative"],groundedTensions:["acting ahead of knowledge","unobserved alternative"]},
  engineAdapter:{contextKey:"kierkegaard",operation:"decision_map",packetVersion:"meaning/1.2"}
 });
-export const HEGEL_NO_FIT_V21=Object.freeze({
+export const HEGEL_NO_FIT_V21=finalize({
  version:CONTENT_VERSION,id:"catalogue:hegel:whole-v1",versionHash:"hegel-preface-unverified-2026-11-15",
  source:{author:"G. W. F. Hegel",work:"Phenomenology of Spirit, Preface (translation varies)",
  quote:"The true is the whole.",locator:"Preface, exact passage/translation verification pending",
