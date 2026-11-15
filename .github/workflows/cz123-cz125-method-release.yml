@@ -1,0 +1,38 @@
+name: CZ-123 independent N1-N5 local recorder method QA
+on:
+  push:
+    branches: [qa/cz123-cz125-method-release-final-v2]
+  pull_request:
+    paths:
+      - "tests/cz123-cz125-method-release.mjs"
+      - ".github/workflows/cz123-cz125-method-release.yml"
+      - ".github/workflows/cz125-research-kit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-method-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Exact approved implementation and QA-only diff
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor ae118e37516f2e6dbbce40bf003a29fa26b19799 HEAD
+          git diff --name-only ae118e37516f2e6dbbce40bf003a29fa26b19799 HEAD > /tmp/qa-files.txt
+          test "$(wc -l < /tmp/qa-files.txt)" -eq 3
+          grep -Fxq 'tests/cz123-cz125-method-release.mjs' /tmp/qa-files.txt
+          grep -Fxq '.github/workflows/cz123-cz125-method-release.yml' /tmp/qa-files.txt
+          grep -Fxq '.github/workflows/cz125-research-kit.yml' /tmp/qa-files.txt
+      - name: Browser QA harness dependency
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Execute independent exact-source and real recorder browser QA
+        run: node --test tests/cz123-cz125-method-release.mjs
+      - name: Verify original engineering research instrument contract
+        run: node --test research/cz125/verify-kit.test.mjs
+      - name: Verify no real humans or auto learning scores
+        run: node research/cz125/audit-local-evidence.mjs
