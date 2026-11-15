@@ -77,12 +77,14 @@ export function sourceBoundBranchParity(record,context){
 function finiteParity(record,context){
  const c=record?.scenario?.constraints,m=context?.model,choices=record?.scenario?.choices;
  if(c?.kind!=="finite_budget"||context?.mechanism!=="tradeoff"||!Array.isArray(m?.resources)||m.resources.length!==1||
-    m.resources[0].type!=="exact"||m.resources[0].min!==c.capacity||m.resources[0].max!==c.capacity||
+    !["exact","cap"].includes(m.resources[0].type)||
+    (c.capacityMode||"exact")!==m.resources[0].type||
+    !(Number.isSafeInteger(c.capacity)&&c.capacity>=m.resources[0].min&&c.capacity<=m.resources[0].max)||
     !Array.isArray(m.choices)||!Array.isArray(choices)||m.choices.length!==choices.length||
     !same(m.choices.map(x=>x.id),choices.map(x=>x.id))||
     !same(m.choices.map(x=>x.label),choices.map(x=>x.label))||
     !same(m.choices.map(x=>x.cost?.[0]),c.costs)||
-    m.unitHours!==c.unitHours||
+    (m.unitHours??null)!==c.unitHours||
     !Number.isSafeInteger(c.repetitions)||c.repetitions<2)
   return {ok:false,reason:"Finite budget, costs, labels or unit conversion do not match the trusted meaning model."};
  return {ok:true,reason:"Exact discrete shared budget and effects match the source-authorized model."};
@@ -98,7 +100,7 @@ export function assessAllSixPeerGames(record,gameIds){
  const criteria={
   trade_off:finite.ok,
   decision_map:branch.ok,
-  token_studio:finite.ok&&c?.costs?.every(x=>x===1)&&c?.capacity>=2,
+  token_studio:finite.ok&&c?.unitHours>0&&c?.costs?.every(x=>x===1)&&c?.capacity>=2,
   balance_of_values:false,
   swipe_decision:branch.ok&&rolesOk,
   future_reveal:false
