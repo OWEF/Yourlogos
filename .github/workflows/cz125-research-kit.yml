@@ -1,4 +1,4 @@
-name: CZ-125 human validation kit — privacy and scope verification
+name: CZ-125 study kit — privacy and scope verification
 on:
   push:
     branches: [research/cz125-human-validation-kit-v1]
@@ -12,39 +12,30 @@ permissions:
 jobs:
   human-research-preparation:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}
       - uses: actions/setup-node@v4
         with: {node-version: "22"}
-      - name: Verify accepted prototype remains EXACT and modifications are study documentation only
+      - name: Verify original interactive engines unchanged
         run: |
           set -euo pipefail
-          BASE=73849bff27fc73db97d5fb015c57f45323e18f30
-          git merge-base --is-ancestor "$BASE" HEAD
-          git diff --name-only "$BASE" HEAD | tee /tmp/research-files.txt
-          if grep -Ev '^(research/cz125/[^/]+|\.github/workflows/cz125-research-kit\.yml|tests/cz123-cz125-method-release\.mjs|\.github/workflows/cz123-cz125-method-release\.yml)
-            echo "FAIL: changes outside the research kit, accepted selector, frozen engines or playable UI"; exit 1
-          fi
-      - name: Study kit, four-axis protocol, embedded JS syntax and offline privacy checks
+          git merge-base --is-ancestor 73849bff27fc73db97d5fb015c57f45323e18f30 HEAD
+          git diff --name-only 73849bff27fc73db97d5fb015c57f45323e18f30 HEAD > /tmp/research-files.txt
+          while IFS= read -r path; do
+            case "$path" in
+              research/cz125/*|.github/workflows/cz125-research-kit.yml|tests/cz123-cz125-method-release.mjs|.github/workflows/cz123-cz125-method-release.yml) ;;
+              *) echo "FAIL outside research or QA scope"; exit 1 ;;
+            esac
+          done < /tmp/research-files.txt
+      - name: Verify founder A-H questions, rubric and privacy
         run: node --test research/cz125/verify-kit.test.mjs
-      - name: Install free existing browser test runner
+      - name: Install browser test runner
         run: npm install --no-save --ignore-scripts playwright-core@1.56.1
-      - name: Real Chromium at mobile widths, QA-only in-memory release and complete phases
+      - name: Exercise exact local recorder in mobile Chromium
         run: node research/cz125/verify-recorder-browser.mjs
-      - name: Independent exact-commit N1-N5 and activated recorder QA
+      - name: Execute separate independent QA tests
         run: node --test tests/cz123-cz125-method-release.mjs
-      - name: Report honest current evidence state with zero supplied participants
-        run: node research/cz125/audit-local-evidence.mjs
- /tmp/research-files.txt; then
-            echo "FAIL: changes outside the research kit, accepted selector, frozen engines or playable UI"; exit 1
-          fi
-      - name: Study kit, four-axis protocol, embedded JS syntax and offline privacy checks
-        run: node --test research/cz125/verify-kit.test.mjs
-      - name: Install free existing browser test runner
-        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
-      - name: Real Chromium at mobile widths, QA-only in-memory release and complete phases
-        run: node research/cz125/verify-recorder-browser.mjs
-      - name: Report honest current evidence state with zero supplied participants
+      - name: Verify real participants and scores remain uncollected
         run: node research/cz125/audit-local-evidence.mjs
