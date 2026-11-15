@@ -55,7 +55,9 @@ try{
    assert.equal(state.sections.join(" ").split(/\s+/).length<=120,true);
    assert.equal(await page.locator("#philosopher-portrait svg").count(),1);
    assert.match(await page.locator("#teaching-text").innerText(),/Dillard/);
+   await page.locator("details summary").click();
    assert.match(await page.locator("#source-detail").innerText(),/http/);
+   await page.locator("details summary").click();
    teachings.push(state.sections[1]);endings.push(state.sections[2]);snapshots.push(state.sections[0]);
    if(width===390&&(name==="shared"||name==="rest")){
     await page.locator(name==="shared"?"#theme-a":"#theme-b").click();
