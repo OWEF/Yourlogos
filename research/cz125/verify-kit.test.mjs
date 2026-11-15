@@ -154,7 +154,7 @@ test("G structural validator accepts complete *explicitly QA-only* A–H flow bu
  assert.equal(inspectResearchBundle(b).valid,false,"QA fixture is NEVER real evidence");
 });
 test("G structurally rejects tampering, missing baseline/immediate and improper human score bounds",()=>{
- const b=qaBundle();b.rows[0].condition="swipe_decision";
+ const b=qaBundle();b.rows[0].condition="token_studio"; // P02 first is Kierkegaard/Swipe
  assert.equal(inspectResearchBundle(b,{allowQaTestOnly:true}).valid,false);
  b.rows[0].condition="swipe_decision";
  b.rows[0].source_record_id="research:kierkegaard:future-v1";
