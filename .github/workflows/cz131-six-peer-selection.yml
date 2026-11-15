@@ -1,0 +1,40 @@
+name: CZ-131 single six-peer research selection
+on:
+  push:
+    branches: [feature/cz131-single-six-peer-selector-v21]
+  pull_request:
+    paths:
+      - "philosophy-engine/content/mini-game-selection-v21.js"
+      - "tests/cz131-single-selection.test.mjs"
+      - "experiments/cz131-research-selection-demo.mjs"
+      - ".github/workflows/cz131-six-peer-selection.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-grounded-selection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify CZ-130 exact accepted baseline and only selector/research changes
+        run: |
+          BASE=01aa31ff36dbe91ad6ee6a6b62e499513173c85f
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/cz131-files.txt
+          if grep -Ev '^(philosophy-engine/content/mini-game-selection-v21\.js|tests/cz131-single-selection\.test\.mjs|experiments/cz131-research-selection-demo\.mjs|\.github/workflows/cz131-six-peer-selection\.yml)$' /tmp/cz131-files.txt; then
+            echo "ERROR: CZ-130 contract, frozen engine or product UI was modified"; exit 1
+          fi
+      - name: One selector six-peer integration and adversarial test suite
+        run: node --test tests/cz131-single-selection.test.mjs
+      - name: Real research-only pipeline demonstration
+        run: node experiments/cz131-research-selection-demo.mjs
+      - name: CZ-130 independent source-integrity acceptance unchanged
+        run: |
+          node --test tests/cz123-independent-pr184-known.mjs tests/cz123-independent-pr184-adversarial.mjs
+          node --test tests/content-v212-editorial-regression.test.mjs tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/source-grounded-research-v211.test.mjs
+      - name: Frozen Reasoning / Emotion / Expression compatibility
+        run: node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs
