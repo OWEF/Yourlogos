@@ -89,14 +89,14 @@ test("E six original dimensions and original F thresholds are not adjusted or si
  assert.match(p,/both ideas/i);
  assert.match(p,/missing = null/i);
 });
-test("privacy and method lock: no network/storage, separate consent, no unsanctioned exports or fake participants",()=>{
+test("privacy and local method-release candidate: no network/storage, separate consent, no fake participants",()=>{
  const html=load("reader-response.html");
  for(const bad of [
   /<script[^>]+src=/i,/<link[^>]+href=["']https?:/i,
   /\b(?:fetch|XMLHttpRequest|sendBeacon)\s*\(/i,/\b(?:localStorage|sessionStorage|indexedDB)\b/i,
   /\b(?:track|analytics)\s*\(/i
  ])assert.doesNotMatch(html,bad);
- assert.match(html,/const METHOD_RELEASE_APPROVED=false/);
+ assert.match(html,/const METHOD_RELEASE_APPROVED=true/);
  assert.match(html,/id="recontact"/);
  assert.match(html,/id="consent"/);
  assert.match(html,/id="adult"/);
@@ -104,7 +104,7 @@ test("privacy and method lock: no network/storage, separate consent, no unsancti
  assert.match(html,/new Blob\(/);
  assert.match(html,/!METHOD_RELEASE_APPROVED/);
  assert.equal(STUDY.enrollmentAuthorized,false);
- assert.equal(STUDY.methodReleaseApproved,false);
+ assert.equal(STUDY.methodReleaseApproved,true);
  const empty=summarizePrivateDirectory();
  assert.equal(empty.actualVerifiedHumanParticipants,0);
  assert.equal(empty.actualVerifiedHumanGameRows,0);
@@ -193,9 +193,27 @@ test("review remains pending while source/device gates stay open and neutral wor
   gate=load("FOUNDER-GATE.md"),preview=load("PRIVATE-HTTPS-PREVIEW.md");
  for(const q of ["N1","N2","N3","N4","N5"])assert.ok(rec.includes(q));
  assert.match(p,/prior to.*enrollment|before recruitment/i);
- assert.match(gate,/METHOD RELEASE PENDING/i);
+ assert.match(gate,/independent methodological PASS pending/i);
  assert.match(gate,/0 \/ 5/);
  assert.match(gate,/0 \/ 10/);
  assert.match(preview,/NOT DEPLOYED/);
  assert.match(preview,/Host\/Origin/);
+});
+
+test("founder-approved N1 is declarative and N2–N5 are acknowledged without changing A–H thresholds",()=>{
+ const html=load("reader-response.html"),protocol=load("PROTOCOL.md"),
+  reconciliation=load("PREREG-RECONCILIATION-v0.1.md"),gate=load("FOUNDER-GATE.md");
+ const d="You have three free hours this evening. You could write, answer messages, or rest.";
+ const k="You have an offer to take a new job. You can accept it or remain in your current job.";
+ for(const s of [html,protocol,reconciliation]){
+  assert.ok(s.includes(d));assert.ok(s.includes(k));
+  assert.doesNotMatch(s,/How might you use that time\\?|What do you decide\\?/);
+ }
+ for(const key of ["N1","N2","N3","N4","N5"]){
+  assert.ok(gate.includes(key));assert.ok(reconciliation.includes(key));
+ }
+ assert.match(gate,/FOUNDER N1 APPROVED/);
+ assert.match(gate,/NOT AUTHORIZED by this action/);
+ assert.equal(STUDY.enrollmentAuthorized,false);
+ assert.equal(STUDY.methodReleaseApproved,true);
 });
