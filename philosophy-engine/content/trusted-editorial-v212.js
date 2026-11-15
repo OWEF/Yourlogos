@@ -156,7 +156,7 @@ function noFitRecord(record,ids){
   return fail("gameCompatibility","Six source-and-capability-specific rejection attestations are required.");
  for(const id of ids){
   const g=record.gameCompatibility.find(x=>x?.id===id);
-  if(!g||g.eligible!==false||g.evidenceOrRejection!==noFitReference.rejection||
+  if(!g||g.eligible!==false||g.evidenceOrRejection!==noFitReference.rejection[id]||
      !eq(g.requirements,[]))
    return fail("gameCompatibility."+id,"Free-text rejection length cannot replace an independently reviewed no-fit assertion.");
  }
