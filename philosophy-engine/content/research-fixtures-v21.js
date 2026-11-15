@@ -85,7 +85,7 @@ export const HEGEL_NO_FIT_V21=finalize({
  reviewState:"catalogue_only",reviewSignoff:null},
  editorialState:"research_only",editorialSignoff:null,route:"no_fit",
  gameCompatibility:six(Object.fromEntries(GAME_IDS.map(id=>[id,decision(false,
-  "Current game would impose an unsourced choice/reward mechanism on a claim about mediated totality.",[])]))),
+  NO_FIT_REJECTIONS[id],[])]))),
  noFitReason:"The quote's claim about a mediated and developing whole cannot be faithfully reduced to available game choices."
 });
 export const RESEARCH_FIXTURES_V21=Object.freeze([DILLARD_V21,KIERKEGAARD_V21,HEGEL_NO_FIT_V21]);
