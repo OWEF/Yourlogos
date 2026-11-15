@@ -374,7 +374,7 @@ The full A–H instrument is implemented for functional QA only. Neutral introdu
           if(!canonical)throw Error("Actual canonical path is mandatory.");
           if(stage.index===0&&session.progress!==2||stage.index===1&&session.progress!==5)
             throw Error("Game stage or order is inconsistent.");
-          r.chosen_canonical_path=parseCanonical(canonical,game);
+          r.chosen_canonical_path=parseCanonical(canonical,session.order[stage.index]);
           r.gesture_used=readValue("gesture");
           r.interaction_observation=readValue("interaction");
           r.intervention_notes=readValue("intervention");
