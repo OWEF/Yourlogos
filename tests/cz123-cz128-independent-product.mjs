@@ -144,6 +144,7 @@ try{
   assert.equal(swipe1.result.emotion.strategy,"contemplative");
   assert.equal(swipe1.result.expressionVerification,
    "frozen_v20_exact_evidence_authorized_tone");
+  await page.locator('#choice-dashboard [data-role="AUTHORED_DEVELOPMENT"]').waitFor({state:"visible"});
   assert.equal(await page.locator('#choice-dashboard [data-role="AUTHORED_DEVELOPMENT"]').count(),1);
   assert.equal(await page.locator("#teaching-text").textContent(),
    swipe1.result.expression.sections[1].text);
