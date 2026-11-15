@@ -84,7 +84,7 @@ function compose(packet){
    "Under these invented rates, the dedicated arrangement finishes "+e.delta+
    " more "+(e.delta===1?"booklet":"booklets")+", a conditional modeled gain, not historical evidence.":
    "Under these invented rates, the dedicated arrangement finishes "+Math.abs(e.delta)+
-   " fewer booklets, so specialization does not improve this comparison.";
+   " fewer "+(Math.abs(e.delta)===1?"booklet":"booklets")+", so specialization does not improve this comparison.";
  const conciseConsequence=m.kind==="conversion"?
   "Here "+e.measure+" "+unit(e.measure)+
    " measure working life exchanged for those possessions, not their moral worth.":
@@ -92,7 +92,7 @@ function compose(packet){
    "There is no modeled improvement: the two assignments yield equal output.":
   e.delta>0?
    "This invented comparison shows a "+e.delta+"-booklet modeled gain, not a universal result.":
-   "This invented comparison yields "+Math.abs(e.delta)+" fewer booklets with the specialized assignment.";
+   "This invented comparison yields "+Math.abs(e.delta)+" fewer "+(Math.abs(e.delta)===1?"booklet":"booklets")+" with the specialized assignment.";
  const teachingOptions=[
   sourceBase+" "+longConsequence,
   sourceBase+" "+conciseConsequence
