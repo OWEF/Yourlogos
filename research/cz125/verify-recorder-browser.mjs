@@ -1,8 +1,7 @@
 /**
- * CZ-125 real Chromium dynamic recorder QA (NO participant test).
- * QA unlock is applied IN MEMORY ONLY to the test browser page; the committed
- * HTML stays locked for enrollment. All typed answers are synthetic QA strings,
- * never stored as human research evidence.
+ * CZ-125 exact committed LOCAL recorder activation browser QA; NO human study.
+ * Founder N1 approved and N2–N5 acknowledged. All simulated entries are
+ * explicitly QA-only synthetic strings, never counted as participants.
  */
 import {chromium} from "playwright-core";
 import assert from "node:assert/strict";
@@ -11,9 +10,8 @@ import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {pathToFileURL} from "node:url";
 const original=readFileSync(new URL("./reader-response.html",import.meta.url),"utf8");
-assert.match(original,/const METHOD_RELEASE_APPROVED=false/);
-const testHtml=original.replace("const METHOD_RELEASE_APPROVED=false;",
- "const METHOD_RELEASE_APPROVED=true; // ephemeral QA harness, NOT committed");
+assert.match(original,/const METHOD_RELEASE_APPROVED=true/);
+const testHtml=original; // Test the EXACT committed activated artifact, no flag patching.
 const qaTemporaryDir=mkdtempSync(join(tmpdir(),"cz125-form-qa-"));
 const qaFile=join(qaTemporaryDir,"instrument-QA-only.html");
 writeFileSync(qaFile,testHtml);
@@ -73,15 +71,13 @@ try{
   const errors=[],external=[];
   page.on("pageerror",e=>errors.push(e.message));
   page.on("request",req=>{if(/^https?:/.test(req.url()))external.push(req.url());});
-  // 1. The COMMITTED form itself must not allow enrollment/export.
+  // 1. The exact committed research recorder is locally activated, but has NO participants.
   await page.setContent(original,{waitUntil:"load"});
-  assert.equal((await state(page)).releaseApproved,false);
-  assert.equal(await page.locator("#begin").isDisabled(),true);
-  assert.equal(await page.locator("#import").isDisabled(),true);
-  await page.locator("#setup").evaluate(el=>el.dispatchEvent(
-   new Event("submit",{bubbles:true,cancelable:true})));
-  assert.match(await page.locator("#feedback").innerText(),/locked|pending/i);
-  // 2. In-memory QA-only harness exercises all actual UI submission controls.
+  assert.equal((await state(page)).releaseApproved,true);
+  assert.equal(await page.locator("#begin").isDisabled(),false);
+  assert.equal(await page.locator("#import").isDisabled(),false);
+  // No real human answers or identity data are entered during this test.
+  // 2. A separate QA-only local copy of the UNMODIFIED artifact exercises UI controls.
   await page.goto(pathToFileURL(qaFile).href,{waitUntil:"load"});
   assert.equal((await state(page)).releaseApproved,true);
   assert.equal(await page.locator("#begin").isDisabled(),false);
@@ -171,7 +167,7 @@ try{
   assert.deepEqual(external,[],"No external network requests, including export");
   assert.deepEqual(errors,[]);
   console.log("CZ125-QA-ONLY "+JSON.stringify({width,
-   defaultEnrollmentLocked:true,methodTestFlow:["baseline","first-glance","immediate","delayed"],
+   committedRecorderEnabled:true,actualGenuineReaders:0,methodTestFlow:["baseline","first-glance","immediate","delayed"],
    counterbalancedP02:["kierkegaard","dillard"],inMemoryQaOnly:true,
    completeTypedCanonicalTwoGameRows:2,delayedHourTarget:"20–28",
    ungradedHumanResponses:0,externalRequests:0,browserErrors:0,overflow:false}));
