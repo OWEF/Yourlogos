@@ -1,6 +1,6 @@
 # CZ-125 — Human philosophical learning study · corrected A–H instrument v1.0
 
-**Status:** complete questionnaire for independent methodological QA. **Enrollment not authorized pending qualified method approval and neutral-dilemma wording signoff**. Readers enrolled 0/5; participant×game rows 0/10; pre/post/delayed responses 0. No efficacy claim.
+**Status:** founder approved N1 and acknowledged N2–N5; local draft recorder **activated for final exact-SHA independent method QA**, which is not yet a methodological PASS. **No recruitment or participant enrollment authorized by this change.** Readers enrolled 0/5; participant×game rows 0/10; pre/post/delayed responses 0. No efficacy claim.
 **Owner-supplied authoritative transcription:** CZ-125 Linear comment `cc99ce7c-4037-44a6-b199-760698937258` (Sections A–H), preserving the original native document ID `bf106341-8403-4c88-a71a-67d414f2972d`, which the connector still cannot open. Do not overwrite the original or pretend its native body was directly read. **Review amendments:** [PREREG-RECONCILIATION-v0.1.md](./PREREG-RECONCILIATION-v0.1.md).
 **Playable fixed code SHA:** PR #191 `73849bff27fc73db97d5fb015c57f45323e18f30`. Reuse its **actual selector**, Token Studio and Swipe Decision in the existing localhost research UI; no source-content or engine modifications.
 
@@ -29,10 +29,10 @@ Record previous familiarity with Dillard, Kierkegaard, philosophy, interactive g
 The two games use the **same** stages in the specified order, not the same game repeated twice.
 
 **C0. Before source quote/content:** Present only a *neutral plain dilemma*, independently reviewable prospective texts:
-- Dillard: **"You have three free hours this evening. You could write, answer messages, or rest. How might you use that time?"**
-- Kierkegaard: **"You have an offer to take a new job. You can accept it or remain in your current job. What do you decide?"**
+- Dillard: **"You have three free hours this evening. You could write, answer messages, or rest."**
+- Kierkegaard: **"You have an offer to take a new job. You can accept it or remain in your current job."**
 
-These two exact dilemma sentences are **new operational clarification N1** in reconciliation, not original author text; must be approved before recruitment. Do **not** display the actual quote, explanatory answer, source name, moral inference or unseen-counterfactual distinction with these baseline prompts. Ask original question **"What is the dilemma? Which parts could you decide yourself?"** Capture verbatim and an independent *baseline philosophical comprehension* rating 0–4 after the answer is recorded (not participant auto-score).
+These two exact dilemma sentences are **prospective operational clarification N1** (not original author text), **approved by founder on 16 November 2026 before any enrollment**, and are deliberately declarative to avoid demanding a choice before baseline. Independent exact-SHA methodological verification remains required before recruitment. Do **not** display the actual quote, explanatory answer, source name, moral inference or unseen-counterfactual distinction with these baseline prompts. Ask original question **"What is the dilemma? Which parts could you decide yourself?"** Capture verbatim and an independent *baseline philosophical comprehension* rating 0–4 after the answer is recorded (not participant auto-score).
 
 **C1. On first intro screen, before user action:** Ask original exact question **"In your own words, what is this experience asking you to do? What will it help you see?"** Capture verbatim and whether coaching was needed. Because this must happen *before play*, keep recorder open in separate tab and save a fresh private local export after first-glance before resuming interaction.
 
@@ -114,7 +114,7 @@ An **offline local-only bundle** stores precisely two such rows per P01–P05, p
 
 ## H — Study status and release protocol
 
-Original study status: **0 enrolled / 0 baseline / 0 post / 0 delayed**, preregistered before enrollment. This corrected form can be inspected and exercised with ephemeral **non-human, explicitly labelled QA** test inputs, but participant collection stays blocked in this branch pending independent method approval and review of neutral C0 wording.
+Original study status: **0 enrolled / 0 baseline / 0 post / 0 delayed**, preregistered before enrollment. Founder-approved N1 and acknowledged N2–N5 are recorded in CZ-125; activated local recorder is not research recruitment. This corrected form can be inspected and exercised with ephemeral **non-human, explicitly labelled QA** test inputs, but participant collection stays blocked in this branch pending independent method approval and review of neutral C0 wording.
 
 Before permitting recruitment: CZ-123 independent reviewer checks original A–H comment full body, versioned reconciliations N1–N5, live form behavior/export/data validation and scores/thresholds, protects original accepted PR #191. Founder/method owner must approve new neutral C0 sentences as **prospective operational clarification**, acknowledge N2–N4, then separately authorize a locked-form research release. Without these decisions, result is **METHOD REVIEW PENDING**, not validated learning.
 
