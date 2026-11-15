@@ -59,6 +59,7 @@ try{
   await page.locator("#to-intro").click();
   await page.locator("#choose-swipe").click();
   assert.match(await page.locator("#intro-quote").innerText(),/Life can only be understood backwards/);
+  assert.match(await page.locator("#quote-rendering-note").innerText(),/shortened English paraphrase/i);
   assert.match(await page.locator("#dilemma-decision").innerText(),/Stay or take the new job/);
   assert.match(await page.locator("#dilemma-discovery").innerText(),/Kierkegaard/);
   assert.equal(await page.locator("#start-label").innerText(),"Make your first decision");
@@ -112,6 +113,7 @@ try{
   await assessStage(page,0);
   await page.locator("#reveal-next").click();await assessStage(page,1);
   assert.match(await page.locator("#teaching-text").innerText(),/Kierkegaard/);
+  assert.match(await page.locator("#result-quote-note").innerText(),/not a verbatim/i);
   await page.locator("#reveal-next").click();await assessStage(page,2);
   assert.match(await page.locator("#ending-text").innerText(),/future|job|Mondays/i);
   if(width===390)await page.screenshot({path:new URL("cz140-swipe-observatory-390.png",screenshotDir).pathname,fullPage:true});
