@@ -101,6 +101,12 @@ export function integratedHtml(){
   .replace('<nav class="game-picker"',
     chooser+'<nav class="game-picker" aria-hidden="true" style="display:none"')
   .replace('<button id="try-again" class="cta"',remember+'<button id="try-again" class="cta"')
+  .replace('Two hand-picked research scenarios · the universal six-game selector is not implemented.',
+   'One version-verified six-peer selector chooses a source-compatible game. Only two isolated browser games are currently playable.')
+  .replace("Why isn't Future Reveal playable yet?",
+   'Which games are actually available?')
+  .replace('Neither research record includes a source-authorized sequence of timed milestones. Inventing outcomes to fill a timeline would distort the philosophy. Future Reveal remains a separate six-peer candidate with an explicit <strong>no-fit for this pilot</strong>, not a hidden third game.',
+   'The six-peer selector evaluates every game and shows source-specific reasons above. Token Studio and Swipe Decision have isolated browser prototypes; Trade-Off and Decision Map are headless research adapters; Balance of Values and Future Reveal are not implemented. No game is production-playable.')
   .replace("Encounter v2.1 · local research prototype · no tracking, no external requests",
     "Encounter v2.1 · localhost research · no tracking or external services")
   .replace("</body></html>",'<script src="/cz128-browser-integration.js"></script>\n</body></html>');
