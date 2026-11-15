@@ -39,7 +39,7 @@ try{
   assert.equal(await page.locator("#remaining-value").innerText(),"3 hours");
   const endings=[],teachings=[],snapshots=[];
   for(const {name,amounts} of patterns){
-   await page.locator("#reset").click();
+   if(await page.locator("#reset").isEnabled())await page.locator("#reset").click();
    for(let i=0;i<3;i++)for(let j=0;j<amounts[i];j++)
     await page.locator('[data-add="'+i+'"]').click();
    assert.equal(await page.locator("#remaining-value").innerText(),"0 hours");
