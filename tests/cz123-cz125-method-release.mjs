@@ -83,6 +83,23 @@ test("verbatim A–H instrument source is represented, options not keyed in part
  assert.equal(STUDY.enrollmentAuthorized,false);
  assert.match(gate,/independent methodological PASS pending/i);
 });
+test("independently separate method-release activation from human enrollment and finished product claims",()=>{
+ const html=file("reader-response.html"),gate=file("FOUNDER-GATE.md"),
+  protocol=file("PROTOCOL.md"),reconciliation=file("PREREG-RECONCILIATION-v0.1.md");
+ assert.match(html,/const METHOD_RELEASE_APPROVED=true/);
+ assert.equal(STUDY.methodReleaseApproved,true);
+ assert.equal(STUDY.enrollmentAuthorized,false);
+ assert.match(gate,/Genuine enrolled adults: \*\*0/i);
+ assert.match(gate,/NOT AUTHORIZED by this action/i);
+ assert.match(gate,/CZ-121/);
+ assert.match(gate,/CZ-126/);
+ for(const doc of [protocol,reconciliation]){
+  assert.match(doc,/2026-11-16/);
+  assert.match(doc,/no recruitment|not authorized|no participants/i);
+ }
+ assert.doesNotMatch(html,/(?:sendBeacon|XMLHttpRequest|localStorage|indexedDB)/);
+});
+
 test("independent desktop Chrome interaction: exact activated recorder, P05 paired games, anonymous JSON and missingness",async()=>{
  const html=file("reader-response.html");
  const qaHtml=html; // EXACT reviewed and committed local recorder: no code monkey-patching.
