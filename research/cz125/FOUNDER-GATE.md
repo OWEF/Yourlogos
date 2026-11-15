@@ -2,7 +2,7 @@
 
 **Updated 2026-11-15; prior to participant enrollment**. Exact accepted playable PR #191 `73849bff27fc73db97d5fb015c57f45323e18f30`. Research-kit PR #193 based on prior SHA `7ec22e2c0010c004fca8a82c845630f7d4d63539`.
 **Recovered authoritative A–H:** founder-supplied **complete transcription** recorded in CZ-125 Linear comment `cc99ce7c-4037-44a6-b199-760698937258`. Native document ID `bf106341-8403-4c88-a71a-67d414f2972d` remains directly inaccessible and unmodified. [Reconciliation](./PREREG-RECONCILIATION-v0.1.md); [protocol](./PROTOCOL.md).
-**Study-method status:** functional instrument implemented for QA, **METHOD RELEASE PENDING**. Offline participant recorder default enrollment/export switch OFF; its legitimate flow can be inspected with ephemeral QA mode without counting test fixtures as participants.
+**Study-method status:** **FOUNDER N1 APPROVED / N2–N5 ACKNOWLEDGED (16 Nov 2026)**. Local draft research recorder now activates its offline form/export for exact-SHA independent method QA; **independent methodological PASS pending, recruitment NOT authorized and participants still 0/5**. This is not production, public access, study results or scholarly source approval.
 
 ## Restored original A–H
 
@@ -35,11 +35,11 @@
 
 ## Required prospective clarification signoff (N1–N5)
 
-1. **N1 neutral baseline dilemma texts**: original Section C requires separately read *plain human dilemmas* but does not supply wording. We drafted the minimal texts in protocol §C. Founder/CZ-123 methodological reviewer must approve them explicitly before enabling real export. They disclose no correct philosophical conclusions.
-2. **N2** "Repeat same game" in original C is interpreted as run same *sequence* for the *other* game, consistent with B. Reviewer must acknowledge.
-3. **N3** missing delayed results tracked **null**, not observed zero, despite ambiguous E wording; genuine incorrect responses score 0. Reviewer must acknowledge.
-4. **N4** practical offline session bundle with two Section G rows, local import/export, after each phase. Reviewer must verify no unnecessary network or personal data.
-5. **N5** method release: form stays locked by default, real enrollment not begun. Only a **separate reviewed prospective release** can enable participant collection.
+1. **N1 neutral baseline dilemma texts — FOUNDER APPROVED 2026-11-16**: original C calls for plain dilemmas without exact wording. Founder approved the declarative forms in protocol §C (no concluding questions, philosophical claims or correct-answer cues). Independent methodology reviewer still verifies the exact candidate.
+2. **N2 — FOUNDER ACKNOWLEDGED 2026-11-16:** "Repeat same game" in original C means same protocol sequence for the *other* game, consistent with B; independent reviewer verifies.
+3. **N3 — FOUNDER ACKNOWLEDGED 2026-11-16:** missing delayed result = **null**, observed wrong = zero; independent reviewer verifies.
+4. **N4 — FOUNDER ACKNOWLEDGED 2026-11-16:** two Section G rows bundled locally for import/export, with no external network or personal data; independent reviewer verifies.
+5. **N5 — FOUNDER ACKNOWLEDGED 2026-11-16:** this draft-local recorder is activated for independent QA only, not recruitment. This deliberate activation does not itself authorize people to be recruited or the results to be certified.
 
 ## Current actual evidence
 
@@ -53,9 +53,9 @@
 
 ## Release gates
 
-**Methodology acceptance:** Requires independent CZ-123 comparison with actual A–H founder transcription, exact sample order, all six dimensions, exact Section C and D wording/options, threshold arithmetic, format validation/export, and prospective N1–N5 wording signoff. Green CI is study-instrument implementation evidence ONLY, not philosophical learning. If QA issues METHOD PASS but neutral N1 wording not explicitly approved, enrollment remains on HOLD.
+**Methodology acceptance:** Requires independent CZ-123 comparison with actual A–H founder transcription, exact sample order, all six dimensions, exact Section C and D wording/options, threshold arithmetic, format validation/export, and prospective N1–N5 wording signoff. Green CI is study-instrument implementation evidence ONLY, not philosophical learning. N1 is founder-approved and N2–N5 acknowledged; independent exact-SHA reviewer must still issue METHOD PASS before research organizers seek permission to recruit.
 
-**Enrollment:** Only after method owner accepts prospective clarifications and separately approves release enabling the local recorder; consent + five genuine adult readers + no known unauthorized access. No response collection in current locked artifact.
+**Enrollment:** NOT AUTHORIZED by this action. Recorder code is locally usable for technical QA, but no real person is enrolled, invited, or tested. Separate study-start authorization, independent METHOD PASS, qualified source safeguards and secure access remain necessary.
 
 **Final learning gate:** Verbatim real responses scored independently (at least one blinded second scorer for ambiguous), exact path evidence, 20–28h recall, all Section F thresholds, human source approval and no CZ-123 P0 error. Founder approval separate from production release.
 
