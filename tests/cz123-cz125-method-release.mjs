@@ -74,7 +74,7 @@ test("verbatim A–H instrument source is represented, options not keyed in part
  const neutralK="You have an offer to take a new job. You can accept it or remain in your current job.";
  for(const t of [file("PROTOCOL.md"),file("PREREG-RECONCILIATION-v0.1.md"),html]){
   assert.ok(t.includes(neutralD)&&t.includes(neutralK));
-  assert.doesNotMatch(t,/How might you use that time\\?|What do you decide\\?/);
+  assert.doesNotMatch(t,/How might you use that time\?|What do you decide\?/);
  }
  const gate=file("FOUNDER-GATE.md");
  assert.match(gate,/FOUNDER N1 APPROVED/);
