@@ -1,43 +1,41 @@
-# CZ-125 — Human philosophical comprehension study
-Status: NOT VERIFIED (0 of 5 human readers). Pinned integrated prototype: PR #191 at 73849bff27fc73db97d5fb015c57f45323e18f30. This research kit makes no engine, selector or game changes.
+# CZ-125 — Human learning protocol v0.1.1 (ON HOLD — not enrollment approved)
 
-## Eligibility and consent
-Recruit at least five genuinely distinct, first-time readers who have not worked on YourLogos or its tests. Do not count the founder or AI simulations. Obtain voluntary informed consent; no names, contact details, precise addresses, health data or other identifying information in response forms. Explain: this is an experimental product, source verification remains provisional, people may stop at any time, and quotations/answers may be used only as anonymized internal research evidence. Audio/video requires separate opt-in. Keep raw answers off GitHub, Linear, and public services; store consented exports in a private encrypted folder.
+**Status:** PREREGISTRATION UNAPPROVED; ENROLLMENT PROHIBITED. 0 genuine first-time readers, 0 baseline/immediate/delayed responses.
+**Pinned playable prototype:** PR #191 SHA 73849bff27fc73db97d5fb015c57f45323e18f30 (independent automated QA PR #192).
+**Research-kit starting SHA:** b4e201e5333db378af5be596419e26dba0c2e33d.
+**Authoritative Linear document:** bf106341-8403-4c88-a71a-67d414f2972d. Its full body is NOT accessible by current connector (get_document returned an empty object twice; list_documents shows a truncated preview).
+**Verified secondary authority:** CZ-125 original comment 80458715-2441-4492-bcb7-945eaf3246a8 (2026-11-15 10:43:27 UTC).
+**Mandatory comparison:** [PREREG-RECONCILIATION-v0.1.md](./PREREG-RECONCILIATION-v0.1.md).
 
-## Research environment
-From the exact PR #191 checkout (Node.js 22+, including original PR #182 commit in local Git history), run:
-  node experiments/cz128-research-server.mjs
-Open the reported localhost address in the participant's desktop browser. It uses the **actual** six-peer selector and existing Token Studio and Swipe Decision; it is NOT standalone offline HTML. No public preview has been deployed. Run a fresh session per person and record pinned candidate SHA, source record, game, canonical choice, viewport, browser, time and observed assistance. Assign two or three readers to each playable passage (Dillard Token Studio and Kierkegaard Swipe Decision), with at least two for each. Choose *source* first; do not override the selector. Unadmitted source, Hegel no-fit, or headless-only source does not count as a playable session.
+## Why enrollment is explicitly blocked
 
-## Neutral opening — read verbatim
-"You will try a short experimental philosophical experience. Work through it however you understand the screen. There are no correct personal choices. Afterwards, please explain in your own words what you understood. The philosophical quotation and scenario are provisional research material. You may stop at any time. Your responses will remain anonymous within this study."
+The original comment records a before/after instrument, misconception/counterexample and philosophical transfer tasks, six separately reported learning dimensions, 20–28-hour delayed recall and predetermined acceptance thresholds. The first PR #193 study kit **did not implement those requirements**: it had no baseline, only four immediate questions, repeated four prompts at 18–30 hours, four 0–2 rubric axes and no fixed threshold. This is a material contradiction, not an editorial detail.
 
-Do not mention the intended philosophical thesis, which outcome is correct, real-life character conclusions, source caveat answer, or the external-event distinction before play. Observe actual usability and record every intervention. Reader completes Quote → Play → three progressively revealed Discover sections. No leading explanations or AI answer simulations.
+The exact original questions, six dimension names and scoring anchors, and denominator rules cannot be reconstructed from the short comment or from assumptions. This file is NOT the authoritative questionnaire, and the accompanying offline response sheet is deliberately disabled for enrollment.
 
-## Immediate four-question protocol
-Prompt unassisted and transcribe **verbatim** using the offline reader response sheet.
-1. Consequence: "In your own words, what did the choice you made change in this scenario?"
-2. Central thesis: "What do you think this philosopher's central argument was, and how did the example help you understand it?"
-3. Limits: "What, if anything, remains hypothetical, uncertain, or unknown after the experience?"
-4. Final reflection: "What is the final question or reflection asking you to consider?"
+## Requirements already documented by the recoverable comment (not a substitute for full document)
 
-Record hesitation, inability to understand instructions, source claims misread, navigation trouble, and any exact sentence causing a misconception separately from philosophical scores. Any coaching marks the answer assisted, not unassisted.
+- **Baseline (before play):** needed to distinguish prior philosophical understanding from understanding acquired in the encounter. Exact questions and comparison anchors: **UNKNOWN; recover first**.
+- **Post-play:** the record expects task comprehension and philosopher comprehension; source-specific scenario consequence, analogy, misconception/counterexample and unseen transfer measures must be explicitly scored. Exact instruments: **UNKNOWN; recover first**.
+- **Delayed:** the cited window is **20–28 hours** after the experience, not PR #193's 18–30. Actual memory must be elicited without giving back explanations or earlier responses. Exact delayed questions and scoring: **UNKNOWN; recover first**.
+- **Six learning dimensions:** the comment states six; the names and rubric scales are NOT present in accessible evidence. The four older CZ-125 issue-description 0–2 axes (consequence, thesis, caveat, final reflection) may only be kept as **auxiliary** until a correct explicit six-dimension mapping is verified.
+- **Thresholds cited:** >=4/5 interaction/task comprehension and >=4/5 after-game philosophical comprehension **per game**; >=4/5 counterexample; >=3/5 demonstrable gain; >=3/5 valid delayed recall for both games; >=4/5 follow-up attendance. Source comment does not disclose all denominator definitions or mappings. **Do not pool or silently lower them.**
+- **Sample conflict:** five overall split 2+3 cannot satisfy ">=4/5 per game." If literally five unique participants are needed for each of two games, minimum is **10 unique people (five per game)**, **conditional** on verifying the original document and prospectively approving the correction. This document does not authorize a sample size or recruitment.
 
-## Delayed recall — requested supplementary evidence
-Administer the **same four unprompted questions before showing the app, earlier answers or notes**, target 24 hours after the first session, with 18–30 hour target range. Delayed recall is a new prospective extension; do not rewrite the original CZ-125 immediate criteria. Keep late responses and mark actual interval. If exposed to the earlier answers, mark contaminated rather than treating as independent memory evidence. Obtain genuine reader answers; no generated recollections.
+## Safe process after original preregistration becomes fully accessible
 
-## Independent human rubric: preserve four 0–2 axes
-- **Choice/consequence:** 0 missing or false, 1 identifies an action but weak modeled consequence or agency distinction, 2 accurately describes canonical decision, the modeled implication and who controlled what.
-- **Philosopher's argument:** 0 materially wrong or mere game recap, 1 partial philosophical idea without meaningful choice-to-argument bridge, 2 source-faithful thesis and explanation of how this specific choice illustrates it.
-- **Hypothetical limits:** 0 falsely asserts real motives, known unchosen future or universal result; 1 partial caveat; 2 distinguishes model from real life and identifies crucial unknowns.
-- **Final prompt:** 0 irrelevant/missing, 1 partial topic, 2 understands philosophical invitation as applied to the actual scenario.
+1. Preserve and attach the complete original document body, date, version and hash in the independent review record; do not rewrite the original.
+2. Compare exact before, immediate, misconception, counterexample, transfer and delayed questions. Restore original measurement items unless any change is explicitly documented as a dated, prospective amendment with founder approval.
+3. Distinguish actual interaction/task understanding, philosophical thesis, decision-to-source argument bridge, epistemic qualifications, misconception recognition and out-of-sample application by **the verified original six dimensions**, not by invented labels.
+4. Verify whether thresholds and denominators are by game, pooled or repeated observations. Freeze n per game and rules for withdrawals, missed follow-up, incomplete or assisted answers **before enrollment**.
+5. Implement the final original/approved questions in the local-only anonymous recorder, with baseline → encounter → immediate → delayed and safeguards against seeing answers at delayed follow-up. Confirm instrument equivalence for a prospective before/post learning-gain measure.
+6. The researcher's independent scorer applies predeclared criteria to verbatim genuine human responses, retains disagreements and misconceptions; no LLM or CI invents scores, readers or responses.
+7. Submit independently verified protocol, form, inventory validation and exact commit to CZ-123. Authorize enrollment only after **the full original source has been inspected** and an independent methodological acceptance verdict explicitly clears the hold.
 
-A **human independent reviewer** scores each axis and each phase 0–2, with supporting verbatim evidence. Display possible 0–8 totals and qualitative misunderstandings, not inferred AI correctness. Prefer a second human for disputed cases; log disagreement. Original CZ-125 established no universal numeric PASS cutoff: do not invent or move a cutoff retrospectively. Five reader experiences are qualitative evidence, not statistical proof of general learning efficacy.
+## Privacy and related gates
 
-## Recorder and evidence
-Open the separate local file [reader-response.html](./reader-response.html) **offline**. No network, cookies, localStorage, analytics or server submission. Reader/observer must download the anonymous JSON for each immediate and delayed phase; unsaved typing is lost on close. Store exports in a private directory outside the repo. Participant code R01–R05 only, and session start and end times, game, path, actual answers, assisting prompts and observations.
+Retain voluntary informed consent, anonymous codes, local-only export, no storage/network/analytics, no personal identifiers in GitHub or Linear. Keep real source/game/canonical path and participant timing in a private researcher-controlled store with consent. No participants have been approached, enrolled or tested by this work.
 
-## Gate decision
-The independent reviewer must see five actual consented human records, four scored axes each, actual source/route metadata, delayed results or explicit missingness, and observed misunderstandings before issuing PASS / REVISE / BLOCK. Technical CI PASS does not replace this. As of writing count remains **0/5**.
+CZ-121 source-fidelity review remains OPEN. CZ-126 real iPhone Safari/VoiceOver remains OPEN. Tailscale Serve is **proposal only**, not authorized or deployed. No engine or game changes, production rollout, public provisional source publication or paid dependency.
 
-CZ-121 qualified scholarly source review OPEN; CZ-126 physical iPhone Safari/VoiceOver OPEN. The integrated prototype remains draft and unmerged. No deployment, public source publication, migration or paid service authorized by this file.
+**Research decision: HOLD.** Do not use the previous PR #193 four-prompt instrument to claim learning improvement or schedule participants.
