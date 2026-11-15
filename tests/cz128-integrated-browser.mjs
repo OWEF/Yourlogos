@@ -102,7 +102,7 @@ try{
   assert.equal(["contemplative","provocative"].includes(s.emotionStrategy),true);
   assert.match(await page.locator("#choice-dashboard").innerText(),/AUTHORED HYPOTHETICAL/);
   assert.equal(await page.locator('#choice-dashboard [data-role="AUTHORED_DEVELOPMENT"]').count(),1);
-  assert.match(await page.locator("#source-detail").innerText(),/unknown|hypothetical|imagined/i);
+  assert.match(await page.locator("#source-detail").textContent(),/unknown|hypothetical|imagined/i);
   await page.locator("#reveal-next").click();
   await page.locator("#reveal-next").click();
   assert.equal((await current(page)).rememberVisible,true);
