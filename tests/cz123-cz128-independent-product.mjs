@@ -93,7 +93,7 @@ try{
    /selector is not implemented/i);
   assert.match(await page.locator("#cz128-selection-summary").innerText(),
    /Automatically selected: Token Studio/i);
-  const trace=await page.locator("#cz128-peer-reasons").innerText();
+  const trace=await page.locator("#cz128-peer-reasons").textContent();
   assert.match(trace,/Value|Balance of Values|Future Reveal/i);
   assert.match(trace,/not implemented|Not eligible/i);
   await page.locator("#start").click();
