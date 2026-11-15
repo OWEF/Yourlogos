@@ -1,0 +1,25 @@
+name: CZ-130 adversarial DESK review — findings are not acceptance
+on:
+  push:
+    branches:
+      - review/cz130-adversarial-holdout-gates
+  pull_request:
+    paths:
+      - "tests/content-v21-adversarial-findings.test.mjs"
+      - ".github/workflows/cz130-adversarial.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  adversarial-reproductions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run red-team repro; passing means vulnerabilities WERE reproduced
+        run: |
+          node --test tests/content-v21-adversarial-findings.test.mjs
+          node --test tests/content-v21.test.mjs
