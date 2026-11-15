@@ -24,7 +24,18 @@ jobs:
           BASE=b95f62b8c621d8267088a772a92f1e27cdb08185
           git merge-base --is-ancestor "$BASE" HEAD
           git diff --name-only "$BASE" HEAD | tee /tmp/cz125method.txt
-          if grep -Ev '^(tests/cz123-cz125-method-release\.mjs|\.github/workflows/cz123-cz125-method-release\.yml)$' /tmp/cz125method.txt; then
+          if grep -Ev '^(tests/cz123-cz125-method-release\.mjs|\.github/workflows/cz123-cz125-method-release\.yml|\.github/workflows/cz125-research-kit\.yml)
+            echo "FAIL: independent QA modified implementation or frozen engines"; exit 1
+          fi
+      - name: Free browser harness dependency
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Independently test real activated source and both-game flow
+        run: node --test tests/cz123-cz125-method-release.mjs
+      - name: Recheck engineering test suite against exact activated instrument
+        run: node --test research/cz125/verify-kit.test.mjs
+      - name: Evidence inventory: real people and learning remain ZERO
+        run: node research/cz125/audit-local-evidence.mjs
+ /tmp/cz125method.txt; then
             echo "FAIL: independent QA modified implementation or frozen engines"; exit 1
           fi
       - name: Free browser harness dependency
