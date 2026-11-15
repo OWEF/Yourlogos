@@ -190,6 +190,20 @@ test("unseen source, malformed input and false author/source identity fail close
   {featureFlag:true}
  ])assert.equal(selectMiniGameV21(DILLARD_V21,request).status,"invalid_request");
 });
+test("peer evaluation is stable by game ID even when valid source peer arrays arrive reordered",()=>{
+ const canonical=selectMiniGameV21(DILLARD_V21);
+ const shuffled=structuredClone(DILLARD_V21);
+ shuffled.gameCompatibility.reverse();
+ shuffled.versionHash=contentFingerprintV21(shuffled);
+ const newOrder=selectMiniGameV21(shuffled);
+ assert.equal(newOrder.status,"research_selected",JSON.stringify(newOrder));
+ assert.equal(newOrder.selected_game_id,canonical.selected_game_id);
+ assert.deepEqual(ids(newOrder.eligible_games),ids(canonical.eligible_games));
+ assert.deepEqual(ids(newOrder.rejected_games),ids(canonical.rejected_games));
+ const chosen=runSelectedEncounterResearchV21(shuffled,newOrder,
+  {gameId:"token_studio",amounts:[3,1,2],repetitions:5},env);
+ assert.equal(chosen.status,"ready",JSON.stringify(chosen));
+});
 test("accessibility constraints and malicious preferences cannot silently claim a playable browser interaction",()=>{
  const a=selectMiniGameV21(DILLARD_V21,{
   preferredGameId:"balance_of_values"});
