@@ -13,7 +13,7 @@ export const STUDY=Object.freeze({
   sourceProvenance:"founder_supplied_full_A_H_transcription",
   fullFounderTranscriptionRecovered:true,nativeDocumentRead:false,
   schema:"cz125-two-games-session/1.0",
-  protocolVersion:"cz125-founder-ah-transcription/1.0",
+  protocolVersion:"cz125-founder-ah-transcription/1.1-method-release",
   prototypeSha:"73849bff27fc73db97d5fb015c57f45323e18f30",
   enrollmentAuthorized:false,methodReleaseApproved:true,
   participants:5,observations:10,perGameObservations:5,
