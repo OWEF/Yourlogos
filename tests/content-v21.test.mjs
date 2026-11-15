@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {GAME_IDS,CONTENT_VERSION,validateContentRecordV21,validateChoiceV21,canRunIsolatedResearchV21,canPublishEncounterV21} from "../philosophy-engine/content/content-contract-v21.js";
+import {GAME_IDS,CONTENT_VERSION,validateContentRecordV21,validateChoiceV21,canRunIsolatedResearchV21,canPublishEncounterV21,contentFingerprintV21} from "../philosophy-engine/content/content-contract-v21.js";
 import {DILLARD_V21,KIERKEGAARD_V21,HEGEL_NO_FIT_V21} from "../philosophy-engine/content/research-fixtures-v21.js";
 const clone=x=>structuredClone(x);
 const research={isolated:true,publicVisibility:false,provisionalDisclosure:true};
@@ -57,6 +57,8 @@ test("source verified alone is insufficient for public release",()=>{
  const r=clone(DILLARD_V21);
  r.source.reviewState="source_verified";
  r.source.verifiedSourceUrl="https://example.org/primary";
+ r.source.translationEdition="Edition A";
+ r.versionHash=contentFingerprintV21(r);
  r.source.reviewSignoff={reviewer:"Independent editor",reviewedAt:"2026-11-15",versionHash:r.versionHash,translationEdition:"Edition A",passageLocation:"p. 1"};
  assert.equal(validateContentRecordV21(r).status,"valid_research_record");
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true}),false);
@@ -64,9 +66,10 @@ test("source verified alone is insufficient for public release",()=>{
  r.editorialSignoff={reviewer:"Editorial approver",reviewedAt:"2026-11-15",versionHash:r.versionHash};
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:false,publicFeatureFlag:true}),false);
  assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:false}),false);
- assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true}),true);
- r.versionHash="edited-not-reapproved";
- assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true}),false);
+ assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true}),false,"No trusted release hash allowlist, no public approval");
+ assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true,approvedRecordFingerprints:[r.versionHash]}),true);
+ r.argument.thesis="Edited after scholarly review";
+ assert.equal(canPublishEncounterV21(r,{founderAuthorized:true,publicFeatureFlag:true,approvedRecordFingerprints:[r.versionHash]}),false);
 });
 test("Hegel cannot enter reasoner by invented allocation",()=>{
  assert.equal(validateChoiceV21(HEGEL_NO_FIT_V21,{amounts:[3,3],repetitions:5}).status,"rejected");
