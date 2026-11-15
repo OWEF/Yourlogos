@@ -1,0 +1,30 @@
+name: CZ-130 v2.1.2 exact independent-assertion remediation gate
+on:
+  push:
+    branches: [fix/cz130-editorial-fidelity-v212]
+  pull_request:
+    paths:
+      - "philosophy-engine/content/**"
+      - "tests/cz123-independent-pr184-*.mjs"
+      - "tests/content-v212-editorial-regression.test.mjs"
+      - ".github/workflows/cz130-v212-editorial.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  targeted-remediation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Exact unchanged CZ-123 adversarial controls and new regression
+        run: |
+          node --test tests/cz123-independent-pr184-known.mjs
+          node --test tests/cz123-independent-pr184-adversarial.mjs
+          node --test tests/content-v212-editorial-regression.test.mjs
+      - name: Existing research and frozen source-contract compatibility
+        run: |
+          node --test tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/source-grounded-research-v211.test.mjs
+          node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs
