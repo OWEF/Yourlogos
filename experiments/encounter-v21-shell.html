@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121512">
+<title>YourLogos · Encounter v2.1 — research preview</title>
+<style>
+:root{
+ color-scheme:dark;--bg:#121512;--surface:#202722;--surface2:#28312b;
+ --line:#414a40;--text:#f3eedf;--muted:#c0c5b5;--accent:#ddad70;--sage:#8fbbac;
+ --coral:#d99881;--select:#324e43;--shadow:rgba(0,0,0,.27);--headline:"Cormorant Garamond",Georgia,serif;
+ --sans:"DM Sans",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body[data-theme="observatory"]{--bg:#10151e;--surface:#1d2939;--surface2:#263548;--line:#45546a;--text:#f4f1eb;--muted:#c3c9d6;--accent:#b1b3f1;--sage:#79d2c5;--coral:#eaa092;--select:#3e4b78;}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.5;min-height:100dvh;transition:background .2s}
+button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.5}
+button:active:not(:disabled){transform:scale(.98)}
+.wrap{width:min(100%,520px);margin:0 auto;padding:env(safe-area-inset-top) 18px max(24px,env(safe-area-inset-bottom))}
+.site-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:24px 0 19px;border-bottom:1px solid var(--line)}
+.wordmark{font:600 23px/1 var(--headline);letter-spacing:.025em}.wordmark em{font-style:normal;color:var(--accent)}
+.round-icon{width:35px;height:35px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--accent);font-size:20px}
+.trial{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:8px}
+.themebar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:18px}
+.trial-chip{color:var(--sage);font-size:10px;letter-spacing:.09em;text-transform:uppercase;max-width:190px;line-height:1.5}
+.segments{display:flex;align-items:center;border:1px solid var(--line);padding:3px;border-radius:30px;background:var(--surface);gap:2px}
+.segments button{font-size:12px;border:0;background:transparent;color:var(--muted);padding:8px 11px;border-radius:25px}
+.segments button[aria-pressed="true"]{background:var(--accent);color:var(--bg);font-weight:750}
+.progress{display:flex;gap:5px;margin:22px 0 25px}
+.progress span{height:3px;flex:1;border-radius:3px;background:var(--line)}
+.progress span.active{background:var(--accent)}
+.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:760;margin:0 0 14px}
+h1,h2,h3,p{margin-top:0}h1{font:500 clamp(37px,11vw,51px)/1.04 var(--headline);letter-spacing:-.028em;margin:0 0 20px}h2{font:500 34px/1.1 var(--headline);margin-bottom:12px}h3{font:600 24px/1.16 var(--headline)}
+.lede{color:var(--muted);font-size:15px;line-height:1.65}
+.quote{font:400 clamp(27px,8.5vw,38px)/1.18 var(--headline);letter-spacing:-.02em;margin:18px 0 15px;max-width:440px}
+.attrib{color:var(--accent);font:500 16px var(--headline);margin:0}
+.line{height:1px;background:var(--line);margin:28px 0}
+.dilemma{border:1px solid var(--line);padding:20px 19px 19px;border-radius:22px;background:var(--surface);box-shadow:0 10px 30px var(--shadow)}
+.dilemma strong{color:var(--sage);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.dilemma p{font:400 21px/1.35 var(--headline);margin:12px 0 0}
+.cta{border:0;width:100%;background:var(--accent);color:var(--bg);font-weight:760;border-radius:18px;min-height:56px;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:25px}
+.cta span:last-child{font-size:20px}.quiet{color:var(--muted);font-size:12px;text-align:center;margin:12px 0 0}
+.play-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.hint{font-size:13px;color:var(--muted);line-height:1.55;margin:0 0 18px}
+.counter{background:var(--surface);border:1px solid var(--line);border-radius:19px;padding:16px 17px;margin-bottom:13px;display:flex;justify-content:space-between;align-items:end}
+.counter b{display:block;font:500 32px/1 var(--headline);color:var(--accent);margin-top:3px}
+.counter label{display:block;font-size:10px;font-weight:700;letter-spacing:.13em;color:var(--muted);text-transform:uppercase}
+.bank{min-height:82px;background:var(--surface2);border:1px dashed var(--sage);border-radius:20px;padding:10px 11px 8px;display:flex;flex-wrap:wrap;gap:8px;align-content:center;margin-bottom:16px}
+.token{min-height:43px;min-width:43px;padding:0 8px;border:1px solid transparent;background:var(--accent);color:var(--bg);font-size:12px;font-weight:760;border-radius:12px;touch-action:none;user-select:none;cursor:grab;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.token[data-location="0"]{background:var(--accent)}.token[data-location="1"]{background:var(--sage)}.token[data-location="2"]{background:var(--coral)}
+.token[aria-pressed="true"]{outline:3px solid var(--text);outline-offset:2px}
+.token.moving{z-index:20;position:relative;pointer-events:none;opacity:.88;cursor:grabbing;box-shadow:0 8px 23px var(--shadow)}
+.token:focus-visible{outline-color:var(--text)}
+.bank-empty{font-size:13px;color:var(--muted);padding:12px}
+.game-card{border:1px solid var(--line);background:var(--surface);border-radius:21px;padding:16px 16px 14px;margin-bottom:11px;transition:border-color .15s}
+.game-card:focus-within,.game-card.hover{border-color:var(--accent)}
+.game-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:12px}
+.game-name{font-size:14px;font-weight:740;display:flex;align-items:center;gap:9px}
+.game-name .symbol{font-size:20px;color:var(--accent)}
+.game-time{font-size:13px;color:var(--sage);font-variant-numeric:tabular-nums;white-space:nowrap}
+.game-controls{display:flex;align-items:center;gap:6px;justify-content:space-between}
+.game-controls button{background:var(--surface2);color:var(--text);border:1px solid var(--line);border-radius:12px;width:42px;height:42px;font-size:24px;flex:0 0 auto}
+.game-controls button:disabled{opacity:.28}
+.zone{flex:1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:51px;padding:6px;border-radius:12px;border:1px dashed var(--line)}
+.zone .token{min-height:36px;min-width:36px;font-size:11px;border-radius:10px}
+.zone-hint{font-size:12px;color:var(--muted);padding:0 4px}
+.controls{display:flex;gap:10px;justify-content:space-between;margin:17px 0 4px}
+.soft-btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:10px 17px;border-radius:13px;font-size:13px;font-weight:670}
+.status{min-height:22px;color:var(--muted);font-size:12px;margin:12px 2px}
+.status.error{color:#ffb7a6}.status.ok{color:var(--sage)}
+.back{background:transparent;color:var(--muted);border:0;padding:6px 0;margin-bottom:18px;font-size:13px}
+.result-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px;margin:15px 0}
+.result-card h3{margin:0 0 12px}.result-card p{margin:0;font-size:15px;line-height:1.72}
+.result-header{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.portrait{width:84px;height:84px;flex:0 0 auto;background:#42372f;border:1px solid var(--line);border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.portrait svg{width:74px;height:74px;image-rendering:pixelated}
+.thinker-name{font:600 23px var(--headline);margin-bottom:4px}
+.thinker-caption{font-size:11px;color:var(--muted)}
+.underlined-quote{font:400 22px/1.25 var(--headline);border-left:3px solid var(--accent);padding-left:14px;margin:4px 0 17px}
+.kicker{font-size:11px;font-weight:750;color:var(--sage);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px}
+.last{font:400 22px/1.3 var(--headline)!important}
+.provisional{margin:22px 0 10px;padding:13px 15px;background:var(--surface2);border:1px solid var(--line);border-radius:15px;font-size:12px;color:var(--muted)}
+.provisional strong{color:var(--sage)}
+details{font-size:12px;color:var(--muted)}details summary{cursor:pointer;padding:9px 0;color:var(--accent)}details p{line-height:1.6}
+footer{font-size:11px;line-height:1.5;color:var(--muted);text-align:center;margin:26px auto}
+.hidden{display:none!important}
+body[data-theme="observatory"] .dilemma,body[data-theme="observatory"] .result-card{box-shadow:inset 0 1px 0 rgba(192,198,247,.12),0 12px 40px rgba(0,0,0,.12)}
+body[data-theme="observatory"] .progress span.active{background:linear-gradient(90deg,var(--accent),var(--sage))}
+body[data-theme="observatory"] .counter{background:linear-gradient(130deg,#283852,#162238)}
+body[data-theme="observatory"] .bank{background:linear-gradient(120deg,#2c3755,#17232f)}
+body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accent),var(--sage))}
+@media(min-width:700px){.wrap{padding-top:25px}.site-head{padding-top:12px}body{background:radial-gradient(ellipse at 50% 5%,var(--surface2),var(--bg) 55%);background-attachment:fixed}}
+@media(max-width:359px){.wrap{padding-left:13px;padding-right:13px}.game-card{padding:11px}.game-head{gap:3px}.game-name{font-size:13px}.bank{gap:5px}.token{min-width:39px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body data-theme="manuscript">
+<main class="wrap">
+<header class="site-head"><div><div class="wordmark">YOURLOGOS<em>.</em></div><div class="trial">Discover the philosopher in you</div></div><div class="round-icon" aria-hidden="true">✦</div></header>
+<div class="themebar"><div class="trial-chip">Isolated research preview · provisional source</div><div class="segments" role="group" aria-label="Choose design direction"><button id="theme-a" type="button" aria-pressed="true">Manuscript</button><button id="theme-b" type="button" aria-pressed="false">Observatory</button></div></div>
+<div class="progress" aria-label="Encounter progress"><span id="prog-0"></span><span id="prog-1"></span><span id="prog-2"></span></div>
+<section id="intro" aria-label="Quote and dilemma">
+<p class="eyebrow">01 · The quotation</p><h1>Where does<br>your time go?</h1>
+<blockquote class="quote">“How we spend our days is, of course, how we spend our lives.”</blockquote>
+<p class="attrib">— Annie Dillard · <i>The Writing Life</i></p>
+<div class="line"></div>
+<div class="dilemma"><strong>An ordinary evening</strong><p>Three hours remain. A story you want to write. Messages waiting for you. And a little time to rest.</p><p>What would your six half-hour moments look like?</p></div>
+<button id="start" class="cta" type="button"><span>Shape your evening</span><span aria-hidden="true">↗</span></button>
+<p class="quiet">A thought experiment, not an assessment of your real life.</p>
+</section>
+<section id="play" class="hidden" aria-label="Token Studio interactive allocation">
+<button id="to-intro" class="back" type="button">← The question</button>
+<p class="eyebrow">02 · Token Studio</p><h2>Give this evening<br>a shape.</h2>
+<p class="hint">Move six half-hour tokens into the three activities. Drag a token, or tap it and then an activity. Use + and − for easier controls.</p>
+<div class="counter"><div><label>Available time</label><b>3 hours</b></div><div><label>Unassigned</label><b id="remaining-value">3 hours</b></div></div>
+<div id="bank" class="bank" data-zone="bank" role="group" aria-label="Unallocated half-hour tokens"></div>
+<div id="game-zones"></div>
+<div class="controls"><button id="undo" type="button" class="soft-btn">↶ Undo</button><button id="reset" type="button" class="soft-btn">Reset all</button></div>
+<div id="game-status" class="status" role="status" aria-live="polite"></div>
+<button id="submit" class="cta" type="button" disabled><span>Discover what follows</span><span aria-hidden="true">↗</span></button>
+</section>
+<section id="result" class="hidden" aria-label="Your philosophical encounter">
+<button id="edit" class="back" type="button">← Edit your choice</button>
+<p class="eyebrow">03 · Discover</p><h2>The shape of<br>an imagined day.</h2>
+<article class="result-card" id="choice-card"><p class="kicker">I. Your Choice</p><p id="choice-text"></p></article>
+<article class="result-card" id="teaching-card"><p class="kicker">II. Back to the Philosopher</p><div class="result-header"><div class="portrait" id="philosopher-portrait" aria-label="Stylized static pixel portrait of Annie Dillard"></div><div><div class="thinker-name">Annie Dillard</div><div class="thinker-caption">Static portrait · animated poses unavailable</div></div></div><blockquote class="underlined-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote><p id="teaching-text"></p></article>
+<article class="result-card" id="last-card"><p class="kicker">III. One Last Thing…</p><p class="last" id="ending-text"></p></article>
+<div class="provisional"><strong>Research-only source.</strong> This quotation and interpretation are provisionally curated, not independently certified for public publication. The scenario repeats five imagined evenings; it does not describe your actual habits.</div>
+<details><summary>Source context & limits</summary><p id="source-detail"></p></details>
+<button id="try-again" class="cta" type="button"><span>Try another evening</span><span aria-hidden="true">↶</span></button>
+</section>
+<footer>PLAY → DISCOVER → REMEMBER<br>Encounter v2.1 · local research prototype · no tracking, no external requests</footer>
+</main>
+<!-- ENGINE_BUNDLE_V21 -->
+<script>
+"use strict";
+(function(){
+const engine=window.YL_ENCOUNTER_ENGINE;
+const names=["Write your story","Answer messages","Rest and recharge"];
+const icons=["✎","✉","☾"];
+const initial=Array(6).fill("bank");
+let cells=initial.slice(),history=[],selected=null,step=0,resultInput=null,result=null,pointer=null;
+const $=id=>document.getElementById(id),areas=["intro","play","result"];
+const count=i=>cells.filter(x=>x===i).length;
+const remaining=()=>count("bank");
+const fmtUnits=n=>{const h=n/2;return Number(h.toFixed(8)).toString()+(h===1?" hour":" hours");};
+function invalidate(){result=null;resultInput=null;$("choice-text").textContent="";$("teaching-text").textContent="";$("ending-text").textContent="";}
+function setStep(next){
+ step=next;areas.forEach((id,i)=>$(id).classList.toggle("hidden",i!==next));
+ for(let i=0;i<3;i++)$("prog-"+i).classList.toggle("active",i<=next);
+ window.scrollTo({top:0,behavior:"instant"});
+}
+function message(text,error=false){const s=$("game-status");s.textContent=text;s.className="status "+(error?"error":"ok");}
+function record(){history.push(cells.slice());if(history.length>80)history.shift();invalidate();}
+function move(id,to){
+ if(!Number.isSafeInteger(id)||id<0||id>=6||!["bank",0,1,2].includes(to)||cells[id]===to)return false;
+ record();cells[id]=to;selected=null;render();message("Choice updated. You can still change it.");return true;
+}
+function token(id){
+ const button=document.createElement("button");button.type="button";button.className="token";button.textContent="½h";
+ button.dataset.token=String(id);button.dataset.location=String(cells[id]);button.draggable=true;
+ button.setAttribute("aria-label","Half-hour token "+(id+1)+", currently "+(cells[id]==="bank"?"unassigned":names[cells[id]])+". Tap, then choose a destination.");
+ button.setAttribute("aria-pressed",String(selected===id));return button;
+}
+function render(){
+ const bank=$("bank");bank.replaceChildren();
+ const unassigned=cells.map((c,i)=>c==="bank"?i:-1).filter(i=>i>=0);
+ if(!unassigned.length){const span=document.createElement("span");span.className="bank-empty";span.textContent="All six half-hours are assigned.";bank.append(span);}
+ unassigned.forEach(i=>bank.append(token(i)));
+ const zones=$("game-zones");zones.replaceChildren();
+ for(let i=0;i<3;i++){
+  const card=document.createElement("div");card.className="game-card";
+  card.innerHTML='<div class="game-head"><span class="game-name"><span class="symbol" aria-hidden="true">'+icons[i]+'</span>'+names[i]+'</span><span class="game-time">'+fmtUnits(count(i))+'</span></div>';
+  const row=document.createElement("div");row.className="game-controls";
+  const minus=document.createElement("button");minus.type="button";minus.textContent="−";minus.dataset.remove=String(i);minus.disabled=count(i)===0;minus.setAttribute("aria-label","Remove half an hour from "+names[i]);
+  const zone=document.createElement("div");zone.className="zone";zone.dataset.zone=String(i);zone.role="group";zone.setAttribute("aria-label",names[i]+" allocation drop zone");
+  const ids=cells.map((c,j)=>c===i?j:-1).filter(j=>j>=0);ids.forEach(j=>zone.append(token(j)));
+  if(!ids.length){const hint=document.createElement("span");hint.className="zone-hint";hint.textContent="Drop or tap here";zone.append(hint);}
+  const plus=document.createElement("button");plus.type="button";plus.textContent="+";plus.dataset.add=String(i);plus.disabled=remaining()===0;plus.setAttribute("aria-label","Assign another half hour to "+names[i]);
+  row.append(minus,zone,plus);card.append(row);zones.append(card);
+ }
+ $("remaining-value").textContent=fmtUnits(remaining());$("submit").disabled=remaining()!==0;
+ $("undo").disabled=history.length===0;$("reset").disabled=cells.every(c=>c==="bank");
+}
+function submit(){
+ const amounts=[count(0),count(1),count(2)];
+ if(amounts.some(x=>!Number.isSafeInteger(x)||x<0)||amounts.reduce((a,b)=>a+b,0)!==6||remaining()!==0){
+  message("Allocate exactly six half-hour tokens before continuing.",true);return;
+ }
+ if(!engine||!engine.semanticCases?.dillard||typeof engine.reasonSemantically!=="function"){
+  message("Research engine unavailable. No outcome has been invented.",true);return;
+ }
+ const input={amounts,budgets:[6],repetitions:5};
+ // CZ-138: Fixed pilot game selection only. Universal six-peer selector NOT implemented.
+ const packet=engine.reasonSemantically(engine.semanticCases.dillard,input);
+ if(packet.status!=="ready"){message("The reasoning engine could not validate this choice: "+String(packet.reason||packet.status),true);return;}
+ const adapted=engine.adaptEncounterEvidence(packet);
+ if(adapted.status!=="ready"){message("Source/evidence review needed: "+String(adapted.reason||adapted.status),true);return;}
+ const brief=engine.selectEmotionStrategy(packet);
+ if(brief.status!=="ready"){message("Emotion strategy requires review: "+String(brief.reason||brief.status),true);return;}
+ const output=engine.renderEncounterV20(packet);
+ if(output.status!=="ready"||!Array.isArray(output.sections)||output.sections.length!==3){
+  message("This choice needs editorial review. The engine will not invent a result. "+String(output.reason||output.status),true);return;
+ }
+ // Preserve frozen evidence authority; don't rewrite approved expression sections in the UI.
+ if(output.brief?.strategy!==brief.strategy||output.source_review!=="curated_provisional"){
+  message("Provenance/strategy mismatch. Output withheld.",true);return;
+ }
+ resultInput=JSON.stringify(input);result=output;
+ $("choice-text").textContent=output.sections[0].text;
+ $("teaching-text").textContent=output.sections[1].text;
+ $("ending-text").textContent=output.sections[2].text;
+ $("source-detail").textContent=packet.source?.work+" · "+packet.sourceAdmission.sourceUrl+". "+output.source_warrant+" The scenario is hypothetical; what your real life contains cannot be inferred.";
+ try{$("philosopher-portrait").innerHTML=engine.philosopherPortrait("Annie Dillard");}catch(e){$("philosopher-portrait").textContent="AD";}
+ setStep(2);
+}
+document.addEventListener("click",e=>{
+ const element=e.target.closest("button,[data-zone]");
+ if(!element)return;
+ if(element.dataset.token!==undefined){
+  const id=Number(element.dataset.token);if(selected===id)selected=null;else selected=id;render();return;
+ }
+ if(element.dataset.zone!==undefined&&selected!==null){
+  const z=element.dataset.zone;move(selected,z==="bank"?"bank":Number(z));return;
+ }
+ if(element.dataset.add!==undefined){const id=cells.indexOf("bank");if(id>=0)move(id,Number(element.dataset.add));return;}
+ if(element.dataset.remove!==undefined){const id=cells.lastIndexOf(Number(element.dataset.remove));if(id>=0)move(id,"bank");return;}
+});
+document.addEventListener("dragstart",e=>{const b=e.target.closest("[data-token]");if(!b)return;selected=Number(b.dataset.token);e.dataTransfer.setData("text/plain",String(selected));e.dataTransfer.effectAllowed="move";});
+document.addEventListener("dragover",e=>{if(e.target.closest("[data-zone]"))e.preventDefault();});
+document.addEventListener("drop",e=>{const z=e.target.closest("[data-zone]");if(!z)return;e.preventDefault();const id=Number(e.dataTransfer.getData("text/plain"));move(id,z.dataset.zone==="bank"?"bank":Number(z.dataset.zone));});
+document.addEventListener("pointerdown",e=>{
+ const b=e.target.closest("[data-token]");if(!b||e.button!==0||!b.isConnected)return;
+ pointer={id:Number(b.dataset.token),x:e.clientX,y:e.clientY,element:b,dragging:false};
+});
+document.addEventListener("pointermove",e=>{
+ if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;
+ if(!pointer.dragging&&Math.hypot(dx,dy)>9){pointer.dragging=true;pointer.element.classList.add("moving");}
+ if(pointer.dragging){pointer.element.style.transform="translate("+dx+"px,"+dy+"px) scale(1.08)";}
+});
+document.addEventListener("pointerup",e=>{
+ if(!pointer)return;
+ if(pointer.dragging){
+  const {id,element}=pointer;element.style.transform="";element.classList.remove("moving");
+  const under=document.elementFromPoint(e.clientX,e.clientY);const zone=under?.closest("[data-zone]");
+  if(zone){move(id,zone.dataset.zone==="bank"?"bank":Number(zone.dataset.zone));}
+ }
+ pointer=null;
+});
+document.addEventListener("pointercancel",()=>{if(pointer){pointer.element.style.transform="";pointer.element.classList.remove("moving");}pointer=null;});
+$("start").addEventListener("click",()=>setStep(1));
+$("to-intro").addEventListener("click",()=>setStep(0));
+$("submit").addEventListener("click",submit);
+$("edit").addEventListener("click",()=>{invalidate();setStep(1);message("Your earlier choice is editable.");});
+$("try-again").addEventListener("click",()=>{invalidate();setStep(1);message("You can rearrange any of the six tokens.");});
+$("undo").addEventListener("click",()=>{
+ if(!history.length)return;cells=history.pop();selected=null;invalidate();render();message("Last change undone.");
+});
+$("reset").addEventListener("click",()=>{
+ if(cells.every(x=>x==="bank"))return;record();cells=initial.slice();selected=null;render();message("All six tokens are available again.");
+});
+function theme(t){
+ document.body.dataset.theme=t;
+ $("theme-a").setAttribute("aria-pressed",String(t==="manuscript"));
+ $("theme-b").setAttribute("aria-pressed",String(t==="observatory"));
+}
+$("theme-a").addEventListener("click",()=>theme("manuscript"));
+$("theme-b").addEventListener("click",()=>theme("observatory"));
+window.__YL_V21_TEST={getState:()=>({cells:[...cells],history:history.length,step,resultInput,
+  resultStatus:result?.status||null,sections:result?.sections?.map(s=>s.text)||null,theme:document.body.dataset.theme}),
+  submit,move,reset:()=>{$("reset").click();}};
+setStep(0);render();
+})();
+</script>
+</body></html>

@@ -1,0 +1,41 @@
+name: CZ-138 v2.1 playable HTML (isolated)
+on:
+  push:
+    branches:
+      - feature/cz138-v21-playable-pilot
+  pull_request:
+    paths:
+      - "experiments/encounter-v21-*"
+      - "scripts/build-encounter-v21.mjs"
+      - "tests/encounter-v21-browser.mjs"
+      - ".github/workflows/encounter-v21-playable.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  playable-encounter-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Standalone engine source-integrity build and prior engine regression
+        run: |
+          node --check scripts/build-encounter-v21.mjs
+          node scripts/build-encounter-v21.mjs --check
+          node --test tests/encounter-v20.test.mjs tests/semantic-v12.test.mjs tests/semantic-v19-admission.test.mjs
+          node scripts/build-encounter-v20.mjs --check
+      - name: Install isolated browser driver
+        run: npm install --no-save --package-lock=false playwright-core@1.56.1
+      - name: Actual mobile gesture, choice/engine parity and no-network browser tests
+        run: node tests/encounter-v21-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cz138-playable-html-and-mobile-screenshots
+          path: |
+            experiments/encounter-v21-playable.html
+            artifacts/cz138-*.png
+          if-no-files-found: warn
