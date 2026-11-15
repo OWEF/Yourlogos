@@ -250,3 +250,25 @@ test("negative and zero workbench meaning remain supported in a single headless 
   assert.ok(o.expression.wordCount>=80&&o.expression.wordCount<=120);
  }
 });
+
+test("all eight valid source-authored paths reach source-authorized Emotion/Expression without frozen edits",()=>{
+ const sel=selectMiniGameV21(KIERKEGAARD_V21);
+ const expected=KIERKEGAARD_V21.scenario.constraints.routes;
+ assert.equal(expected.length,8);
+ const results=[];
+ for(const route of expected){
+  const output=runSelectedEncounterResearchV21(KIERKEGAARD_V21,sel,
+   {gameId:"swipe_decision",path:route.path},env);
+  assert.equal(output.status,"ready",JSON.stringify({path:route.path,output}));
+  assert.deepEqual(output.canonical_choice.path,route.path);
+  assert.ok(KIERKEGAARD_V21.emotionalEligibility.allowedStrategies.includes(output.emotion.strategy));
+  assert.ok(output.expression.wordCount>=80&&output.expression.wordCount<=120);
+  assert.deepEqual(output.canonical_choice_contract.stages.map(s=>s.role),
+   ["USER_DECISION","AUTHORED_DEVELOPMENT","USER_DECISION"]);
+  results.push({path:route.path,strategy:output.emotion.strategy,
+   verification:output.expressionVerification,words:output.expression.wordCount});
+ }
+ assert.ok(results.some(r=>r.verification==="frozen_v20_exact_evidence_authorized_tone"),
+  "At least one historically abstained route must be rescued by evidence-validated, explicitly allowed tone.");
+ console.log("CZ131-ALL-8-PATHS "+JSON.stringify(results));
+});
