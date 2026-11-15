@@ -99,8 +99,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       unassisted:document.getElementById("unassisted").checked,
       consent:true,
       answers:[get("q1"),get("q2"),get("q3"),get("q4")],
-      automaticScoring:false,
-      responseIsHumanReported:true
+      automaticScoring:false
     };
     // Local file generation only. No fetch, XHR, storage, cookies, analytics or upload.
     const blob=new Blob([JSON.stringify(record,null,2)],{type:"application/json"});
@@ -108,7 +107,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     const link=document.createElement("a");
     link.href=url;link.download="cz125-"+code+"-"+phase+".json";
     document.body.append(link);link.click();link.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
     message.textContent="Anonymous JSON download requested. Confirm the file was saved, then provide it privately to your researcher.";
   });
 })();
