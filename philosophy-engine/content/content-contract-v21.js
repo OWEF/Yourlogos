@@ -96,7 +96,8 @@ export function validateContentRecordV21(record){
    if(!safeInt(sc.constraints.capacity)||!Array.isArray(sc.constraints.costs)||
       sc.constraints.costs.length!==sc.choices.length||
       !sc.constraints.costs.every(n=>Number.isSafeInteger(n)&&n>0)||
-      !Number.isFinite(sc.constraints.unitHours)||sc.constraints.unitHours<=0||
+      !(sc.constraints.unitHours===null||(Number.isFinite(sc.constraints.unitHours)&&sc.constraints.unitHours>0))||
+      !["exact","cap"].includes(sc.constraints.capacityMode||"exact")||
       !safeInt(sc.constraints.repetitions)||sc.constraints.repetitions<2)
     fail(errors,"scenario.constraints","Finite resource must have safe budget, positive costs, fractional unit and repetition horizon.");
   }else if(sc.constraints.kind==="authored_branch"){
@@ -124,7 +125,9 @@ export function validateChoiceV21(record,choice){
  if(c.kind==="finite_budget"){
   const a=choice?.amounts;
   if(!Array.isArray(a)||a.length!==sc.choices.length||
-     !a.every(safeInt)||a.reduce((n,x,i)=>n+x*c.costs[i],0)!==c.capacity||
+     !a.every(safeInt)||!Number.isSafeInteger(a.reduce((n,x,i)=>n+x*c.costs[i],0))||
+     (c.capacityMode==="cap"?a.reduce((n,x,i)=>n+x*c.costs[i],0)>c.capacity:
+      a.reduce((n,x,i)=>n+x*c.costs[i],0)!==c.capacity)||
      choice?.repetitions!==c.repetitions)
    return {status:"rejected",reason:"Allocation must conserve exact capacity in safe whole-slot units."};
   return {status:"ready",canonical:{amounts:[...a],budgets:[c.capacity],repetitions:c.repetitions},
