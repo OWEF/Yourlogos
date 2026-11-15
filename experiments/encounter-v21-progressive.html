@@ -169,6 +169,7 @@ body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accen
 .path-node[data-agency-role="AUTHORED_DEVELOPMENT"]{border-color:var(--sage);background:var(--select)}
 .path-node[data-agency-role="RETROSPECTIVE_INTERPRETATION"]{border-color:var(--accent)}
 
+.quote-rendering-note{font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.55}.underlined-quote+.quote-rendering-note{margin:-6px 0 17px}
 </style>
 </head>
 <body data-theme="manuscript">
@@ -186,7 +187,7 @@ body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accen
 <section id="intro" aria-label="Quote and dilemma">
 <p id="intro-eyebrow" class="eyebrow">01 · A real decision, imagined</p><h1 id="intro-title">Three hours.<br>Three priorities.</h1>
 <blockquote class="quote" id="intro-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote>
-<p class="attrib" id="intro-author">— Annie Dillard · The Writing Life</p>
+<p class="attrib" id="intro-author">— Annie Dillard · The Writing Life</p><p id="quote-rendering-note" class="quote-rendering-note">Source excerpt · independent primary-edition review pending</p>
 <div class="line"></div>
 <div class="dilemma"><strong id="dilemma-label">SITUATION · Tonight</strong>
 <p id="dilemma-situation">You have three free hours tonight. Writing, messages, and rest are competing for that time.</p>
@@ -234,7 +235,7 @@ body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accen
 <button id="edit" class="back" type="button">← Edit your choice</button>
 <p class="eyebrow" id="result-eyebrow">03 · Discover</p><h2 id="result-title">What your choice<br>makes visible.</h2>
 <article class="result-card" id="choice-card" tabindex="-1"><p class="kicker">I. Your Choice</p><div id="choice-dashboard"></div><p id="choice-text"></p></article>
-<article class="result-card" id="teaching-card" tabindex="-1"><p class="kicker">II. Back to the Philosopher</p><div class="result-header"><div class="portrait" id="philosopher-portrait" aria-label="Stylized static pixel portrait of Annie Dillard"></div><div><div class="thinker-name" id="thinker-name">Annie Dillard</div><div class="thinker-caption">Static portrait · animated poses unavailable</div></div></div><blockquote class="underlined-quote" id="result-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote><p id="teaching-text"></p></article>
+<article class="result-card" id="teaching-card" tabindex="-1"><p class="kicker">II. Back to the Philosopher</p><div class="result-header"><div class="portrait" id="philosopher-portrait" aria-label="Stylized static pixel portrait of Annie Dillard"></div><div><div class="thinker-name" id="thinker-name">Annie Dillard</div><div class="thinker-caption">Static portrait · animated poses unavailable</div></div></div><blockquote class="underlined-quote" id="result-quote">“How we spend our days is, of course, how we spend our lives.”</blockquote><p class="quote-rendering-note" id="result-quote-note">Source excerpt · independent primary-edition review pending</p><p id="teaching-text"></p></article>
 <article class="result-card" id="last-card" tabindex="-1"><p class="kicker">III. One Last Thing…</p><p class="last" id="ending-text"></p></article>
 <nav id="reveal-navigation" class="reveal-tools" aria-label="Navigate the three result stages">
 <button id="reveal-back" class="reveal-back" type="button">← Back</button>
@@ -3017,6 +3018,11 @@ function presentIntro(){
  const i=intro[mode];$("intro-title").textContent=i.title;
  $("intro-title").style.whiteSpace="pre-line";$("intro-quote").textContent=i.quote;
  $("intro-author").textContent=i.author;$("dilemma-label").textContent=i.label;
+ const qualification=mode==="swipe"?
+  "Shortened English paraphrase of Journal JJ:167 (1843), not a verbatim full-passage translation.":
+  "Dillard excerpt; independent primary-edition text and contextual review pending.";
+ $("quote-rendering-note").textContent=qualification;
+ $("result-quote-note").textContent=qualification;
  $("dilemma-situation").textContent=i.situation;
  $("dilemma-decision").textContent=i.decision;
  $("dilemma-discovery").textContent=i.discovery;
@@ -3272,12 +3278,13 @@ function submitSwipe(){
  $("ending-text").textContent=out.sections[2].text;
  $("thinker-name").textContent=packet.author;
  $("result-quote").textContent="“"+packet.quote+"”";
+ $("result-quote-note").textContent="Shortened English paraphrase of Journal JJ:167 (1843), not a verbatim full-passage translation.";
  $("result-title").textContent="A choice.\nA later perspective.";$("result-title").style.whiteSpace="pre-line";
  $("philosopher-portrait").setAttribute("aria-label","Stylized static pixel portrait of "+packet.author);
  try{$("philosopher-portrait").innerHTML=engine.philosopherPortrait(packet.author);}catch(_){$("philosopher-portrait").textContent="SK";}
  $("source-detail").textContent=(packet.source?.work||"Source title review pending")+" · "+packet.sourceAdmission.sourceUrl+
   ". "+out.source_warrant+" The path was imagined; the unchosen alternative and real outcomes remain unknown.";
- $("research-notice").textContent="Research-only source. The shortened Kierkegaard quotation and its contextual reading remain provisional, not independently verified. All developments in this exercise are imagined, not predictions or known alternative futures.";
+ $("research-notice").textContent="Research-only source. This familiar English aphorism is a shortened paraphrase of the longer Journal JJ:167 passage; its edition/translation review remains open. All developments are imagined, not predictions or known alternative futures.";
  enterResult();startProgressive();
 }
 $("swipe-finish").addEventListener("click",submitSwipe);
