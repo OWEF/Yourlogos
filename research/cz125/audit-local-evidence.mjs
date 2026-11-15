@@ -47,6 +47,16 @@ export const STUDY=Object.freeze({
 const validTime=x=>typeof x==="string"&&x!==""&&Number.isFinite(Date.parse(x));
 const text=x=>typeof x==="string"&&x.trim().length>0;
 const nullableScore=(x,max)=>x===null||(Number.isInteger(x)&&x>=0&&x<=max);
+const canonicalMatches=(choice,game)=>{
+  if(!choice||typeof choice!=="object"||Array.isArray(choice)||choice.gameId!==game)return false;
+  if(game==="token_studio"){
+    return Array.isArray(choice.amounts)&&choice.amounts.length===3&&
+      choice.amounts.every(x=>Number.isInteger(x)&&x>=0&&x<=6)&&
+      choice.amounts.reduce((a,b)=>a+b,0)===6&&choice.repetitions===5;
+  }
+  return Array.isArray(choice.path)&&choice.path.length===3&&
+    choice.path.every(x=>typeof x==="string"&&/^[a-z][a-z0-9_-]{0,40}$/.test(x));
+};
 const asError=(where,reason)=>({where,reason});
 const keys=Object.freeze({
   dillard:{condition:"token_studio",source:"research:dillard:time-v1"},
@@ -116,11 +126,12 @@ export function inspectResearchBundle(b,{allowQaTestOnly=false}={}){
       else reportedGlance++;
     }
     if(needImmediate){
-      const required=["chosen_canonical_path","post_verbatim","misconception_reason_verbatim",
+      const required=["post_verbatim","misconception_reason_verbatim",
         "transfer_answer_verbatim","qualitative_quote","interaction_observation",
         "intervention_notes"];
       const missing=required.filter(k=>!text(r[k]));
-      if(missing.length||!["A","B","C"].includes(r.misconception_choice)||
+      if(missing.length||!canonicalMatches(r.chosen_canonical_path,q.condition)||
+         !["A","B","C"].includes(r.misconception_choice)||
          !validTime(r.immediate_at)){
         errors.push(asError("immediate["+i+"]","Original C instrument incomplete (not inferred): "+
           missing.join(", ")));
