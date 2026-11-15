@@ -708,7 +708,7 @@ function submitSwipe(){
  try{$("philosopher-portrait").innerHTML=engine.philosopherPortrait(packet.author);}catch(_){$("philosopher-portrait").textContent="SK";}
  $("source-detail").textContent=(packet.source?.work||"Source title review pending")+" · "+packet.sourceAdmission.sourceUrl+
   ". "+out.source_warrant+" The path was imagined; the unchosen alternative and real outcomes remain unknown.";
- $("research-notice").textContent="Research-only source. This familiar English aphorism is a shortened paraphrase of the longer Journal JJ:167 passage; its edition/translation review remains open. All developments are imagined, not predictions or known alternative futures.";
+ $("research-notice").textContent="Research-only provisional source. This familiar English aphorism is a shortened paraphrase of the longer Journal JJ:167 passage; its edition/translation review remains open. All developments are imagined, not predictions or known alternative futures.";
  enterResult();startProgressive();
 }
 $("swipe-finish").addEventListener("click",submitSwipe);
