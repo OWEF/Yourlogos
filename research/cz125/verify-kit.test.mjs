@@ -121,7 +121,9 @@ function qaBundle(progress=6){
   consent:{anonymous_written:true,recontact:true},
   baseline_verbatim:QA,baseline_at:"2026-11-15T08:00:00.000Z",
   first_glance_verbatim:QA,first_glance_at:"2026-11-15T08:01:00.000Z",
-  interaction_score_0_2:null,chosen_canonical_path:"QA TEST ONLY",
+  interaction_score_0_2:null,chosen_canonical_path:name==="dillard"?
+    {gameId:"token_studio",amounts:[3,1,2],repetitions:5}:
+    {gameId:"swipe_decision",path:["change","surprise","adapt"]},
   post_verbatim:QA,misconception_choice:"A",
   misconception_reason_verbatim:QA,
   transfer_answer_verbatim:QA,qualitative_quote:QA,
