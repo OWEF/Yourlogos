@@ -32,9 +32,9 @@ test("reconciliation covers every conflicted original objective and refuses fals
   "Philosophical transfer","Delayed recall","Learning dimensions",
   "Pass/fail thresholds","Participants per game"])
   assert.ok(doc.includes(phrase),"missing comparison item: "+phrase);
- assert.match(doc,/six learning dimensions/i);
+ assert.match(doc,/six separately reported dimensions/i);
  assert.match(doc,/four.*six/i);
- assert.match(doc,/full.*document.*NOT INSPECTED/i);
+ assert.match(doc,/full original source therefore \*\*NOT INSPECTED\*\*/i);
  assert.match(doc,/conditional n>=10|minimum is .*10/i);
  assert.match(doc,/>=4\/5/i);
  assert.match(doc,/20–28/);
