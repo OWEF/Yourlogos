@@ -54,7 +54,14 @@ const fixed={
   adapter:{contextKey:"kierkegaard",operation:"decision_map",packetVersion:"meaning/1.2"}
  }
 };
-const noFitEvidence="Current game would impose an unsourced choice/reward mechanism on a claim about mediated totality.";
+const noFitEvidence=Object.freeze({
+ trade_off:"The Preface's claim about mediated totality supplies no finite rival-resource allocation or measured competing outcomes.",
+ decision_map:"This proposition supplies no source-authored chain of a person's decisions, actions and dependent consequences.",
+ token_studio:"No source-grounded divisible resource, quantitative common unit or token allocation represents this philosophical claim.",
+ balance_of_values:"The claim supplies no defensible commensurable metric for ranking separate personal values against each other.",
+ swipe_decision:"No supported first personal decision, externally authored development and later user response arise from this proposition.",
+ future_reveal:"The passage provides no hypothetical timeline with defined milestones; inventing a future would misstate its argument."
+});
 const noFitReference=Object.freeze({
  id:"catalogue:hegel:whole-v1",
  source:{
