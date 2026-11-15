@@ -30,7 +30,7 @@ test("authoritative provenance is founder-supplied full A–H comment, NOT false
  assert.equal(STUDY.nativeDocumentRead,false);
  assert.match(file("PROTOCOL.md"),/owner-supplied authoritative transcription/i);
  const reconciliation=file("PREREG-RECONCILIATION-v0.1.md");
- for(const section of ["A —","B —","C/E","D/E/F","Six axes","Sample"])
+ for(const section of ["Baseline (C/E)","Post-game (C/E)","Misconception (A/C/E)","Unseen transfer (C/G)","Delayed (D/E/F)","Six axes (E)","Section F thresholds","Sample (B/F)"])
   assert.ok(reconciliation.includes(section)||reconciliation.includes(section.toLowerCase()),section);
 });
 test("five within-subject readers, counterbalance, ten paired rows, original A–H thresholds all hold",()=>{
