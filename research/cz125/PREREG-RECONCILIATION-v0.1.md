@@ -5,7 +5,7 @@
 **Previous hold revision:** `7ec22e2c0010c004fca8a82c845630f7d4d63539`.  
 **Original kit:** `b4e201e5333db378af5be596419e26dba0c2e33d`.  
 **Unchanged playable prototype:** PR #191, `73849bff27fc73db97d5fb015c57f45323e18f30`.  
-**Status:** full founder transcription recovered; implementing functional instrument for independent QA; enrollment still **NOT AUTHORIZED** until the reviewed instrument and neutral wording have explicit method release.
+**Status:** founder approved declarative N1 and acknowledged N2–N5 on **2026-11-16**, before any enrollment. Local draft recorder activation candidate is awaiting independent exact-SHA methodology re-review; **no recruitment or study participation authorized** by this activation.
 
 ## Source-of-truth reconciliation
 
@@ -52,12 +52,12 @@ C "Looking backward lets you judge the first decision with complete certainty."
 
 ## Prospective operational clarifications (NOT original wording; dated 2026-11-15)
 
-**N1 — neutral introductory dilemma texts, founder / CZ-123 approval pending**. The original Section C instructs a separately read neutral prompt but does not supply its exact wording. Minimal proposals shown before *any* source quote or explanation:
+**N1 — neutral introductory dilemma texts, founder APPROVED 2026-11-16; independent exact-SHA CZ-123 method re-review pending**. The original Section C instructs a separately read neutral prompt but does not supply its exact wording. Minimal proposals shown before *any* source quote or explanation:
 
-- **Dillard:** "You have three free hours this evening. You could write, answer messages, or rest. How might you use that time?"
-- **Kierkegaard:** "You have an offer to take a new job. You can accept it or remain in your current job. What do you decide?"
+- **Dillard:** "You have three free hours this evening. You could write, answer messages, or rest."
+- **Kierkegaard:** "You have an offer to take a new job. You can accept it or remain in your current job."
 
-They disclose the ordinary situation without cumulative thesis, unknown-counterfactual distinction, correct option or philosophical answer. They are **prospective clarification**, not a retroactive claim about the original instrument; require methodological wording approval before enrollment.
+These are **declarative** ordinary situations only: no leading decision question, thesis, unknown-counterfactual distinction, correct option or philosophical answer. Founder approved these prospective N1 sentences on 2026-11-16 before participant enrollment; this approval is not a claim that they appeared in the original instrument. Independent method reviewer must verify wording exactness.
 
 **N2 — Section C contradictory wording:** "Repeat same game with counterbalanced order" is interpreted as "repeat the sequence for the other game", in accordance with explicit Section B order and ten observations. The game is never repeated twice for one reader. This is an interpretive **prospective clarification** to be acknowledged in method approval.
 
@@ -65,7 +65,7 @@ They disclose the ordinary situation without cumulative thesis, unknown-counterf
 
 **N4 — local single-bundle data transport:** One offline JSON bundle contains two Section G participant×game rows and a shared unprompted delayed answer; after each phase download local JSON and reimport it before next step, without storage, uploads or answer feedback. This is a prospective **implementation clarification**; no change to scoring or original 5-person denominators.
 
-**N5 — neutral research approval separation:** questionnaire is fully implemented and can be functionally exercised in bounded QA mode while enrollment mode stays blocked. This is not an approval or evidence of human learning.
+**N5 — methodology versus recruitment separation (FOUNDER ACKNOWLEDGED 2026-11-16):** activate offline draft recorder for independent exact-SHA review; this is NOT enrollment, participant recruitment, publication, human-learning verification, or source/device approval. N2–N4 above were also acknowledged prospectively by founder 2026-11-16; Section F unchanged.
 
 ## Locked success decision
 
