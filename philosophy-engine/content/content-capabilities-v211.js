@@ -85,7 +85,7 @@ function finiteParity(record,context){
     !same(m.choices.map(x=>x.label),choices.map(x=>x.label))||
     !same(m.choices.map(x=>x.cost?.[0]),c.costs)||
     (m.unitHours??null)!==c.unitHours||
-    !Number.isSafeInteger(c.repetitions)||c.repetitions<2)
+    !(c.repetitions===null||(Number.isSafeInteger(c.repetitions)&&c.repetitions>=2)))
   return {ok:false,reason:"Finite budget, costs, labels or unit conversion do not match the trusted meaning model."};
  return {ok:true,reason:"Exact discrete shared budget and effects match the source-authorized model."};
 }
