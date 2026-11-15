@@ -101,7 +101,8 @@ body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accen
 .game-picker button[aria-pressed=true]{border-color:var(--accent);color:var(--text);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
 .game-picker strong{display:block;font:600 18px/1.2 var(--headline)}
 .game-picker small{font-size:10px;line-height:1.4;color:var(--muted)}
-.research-mode{color:var(--muted);font-size:11px;line-height:1.45;margin:6px 0 16px}
+.research-mode{color:var(--muted);font-size:11px;line-height:1.45;margin:6px 0 8px}
+.capability-note{font-size:12px;line-height:1.55;color:var(--muted);margin:0 0 16px}.capability-note summary{color:var(--accent);font-weight:600}
 .dilemma .discovery{font-size:15px;font-family:var(--sans);color:var(--muted);line-height:1.6}
 .dilemma .action-prompt{font-size:18px;line-height:1.43}
 .stage-step{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;color:var(--sage);font-size:11px;text-transform:uppercase;letter-spacing:.11em;font-weight:750}
@@ -163,6 +164,8 @@ body[data-theme="observatory"] .cta{background:linear-gradient(90deg,var(--accen
   <button type="button" id="choose-swipe" aria-pressed="false"><strong>↔ Swipe Decision</strong><small>A choice without foresight</small></button>
 </nav>
 <p class="research-mode">Two hand-picked research scenarios · the universal six-game selector is not implemented.</p>
+<details class="capability-note"><summary>Why isn't Future Reveal playable yet?</summary>
+<p>Neither research record includes a source-authorized sequence of timed milestones. Inventing outcomes to fill a timeline would distort the philosophy. Future Reveal remains a separate six-peer candidate with an explicit <strong>no-fit for this pilot</strong>, not a hidden third game.</p></details>
 <div class="progress" aria-label="Encounter progress"><span id="prog-0"></span><span id="prog-1"></span><span id="prog-2"></span></div>
 <section id="intro" aria-label="Quote and dilemma">
 <p id="intro-eyebrow" class="eyebrow">01 · A real decision, imagined</p><h1 id="intro-title">Three hours.<br>Three priorities.</h1>
@@ -416,6 +419,13 @@ function presentIntro(){
  $("choose-swipe").setAttribute("aria-pressed",String(mode==="swipe"));
  $("play").setAttribute("aria-label",mode==="token"?"Token Studio interactive allocation":"Swipe Decision authored branching choices");
  $("try-again-label").textContent=mode==="token"?"Try another evening":"Try another path";
+ $("result-quote").textContent=i.quote;
+ $("thinker-name").textContent=mode==="token"?"Annie Dillard":"Søren Kierkegaard";
+ $("result-title").textContent=mode==="token"?"What your choice\nmakes visible.":"A choice.\nA later perspective.";
+ $("result-title").style.whiteSpace="pre-line";
+ $("research-notice").textContent=mode==="token"?
+  "Research-only source. Dillard's quotation and interpretation remain provisional. Five evenings are imagined, not reports of actual habits.":
+  "Research-only source. Kierkegaard's wording and interpretation remain provisional. All later events and unchosen futures are imaginary, not predictions.";
 }
 function navigateIntro(){
  if(!$("result").classList.contains("hidden"))$("edit").click();
@@ -502,7 +512,8 @@ function commit(index){
  if(!auditPath()){path.pop();note("That decision is not part of this authored scenario.",true);return false;}
  clearSwipeDerived();renderSwipe();
  note(path.length===2?"That development is imagined, not an outcome you control.":"Your choice was recorded. You can revisit any earlier step.");
- $("swipe-card").focus?.({preventScroll:true});
+ if(auditPath()?.done)$("swipe-finish").focus({preventScroll:true});
+ else $("swipe-card").focus({preventScroll:true});
  return true;
 }
 $("swipe-choices").addEventListener("click",e=>{const b=e.target.closest("[data-choice]");if(b)commit(Number(b.dataset.choice));});
