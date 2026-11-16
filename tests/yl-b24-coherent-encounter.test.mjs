@@ -114,7 +114,8 @@ test("Four original games retain identical canonical meanings and three sections
   const actual=runSelectedEncounterB24(record,sel,choice);
   validateSections(actual);
   assert.equal(actual.selected_game_id,game);
-  assert.equal(actual.expressionVerification,"frozen_v20");
+  assert.equal(actual.expressionVerification,
+   record===DILLARD_V21?"source_grounded_replay_v211":"frozen_v20");
  }
 });
 test("Future Reveal preserves all eight authored paths, no predictions, and native v2 emotion",()=>{
