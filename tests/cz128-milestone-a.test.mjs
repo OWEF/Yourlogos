@@ -40,7 +40,8 @@ test("same accepted frozen engines; versioned ONE selector admits exactly four b
   assert.match(html,/id="start"/);
   assert.match(html,/id="game-content"/);
   assert.match(html,/Your Choice\./);
-  assert.match(html,/Finish & Save/); // in explanatory non-persisted shell only
+  const script=await (await fetch(app.url+"/cz128-milestone-a-ui.js")).text();
+  assert.match(script,/Finish & Save/); // disabled: truthful preview cannot persist
   assert.doesNotMatch(html,/Supabase|localStorage|<script src="https:/i);
  });
 });
