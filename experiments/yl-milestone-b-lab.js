@@ -70,16 +70,16 @@
   line.style.setProperty("--tilt",(state.balance-3)*7+"deg");
   pivot.append(line);panel.append(left,pivot,right);root.append(panel);
   const row=node("div",null,"slider-row");
-  const less=button("←","",()=>balanceAdjust(Math.max(0,state.balance-1)),
-   "Move toward "+f.right);
-  less.disabled=state.balance===0;
+  const less=button("←","",()=>balanceAdjust(Math.min(6,state.balance+1)),
+   "Move toward "+f.left);
+  less.disabled=state.balance===6;
   const input=node("input");input.type="range";input.min="0";input.max="6";
   input.step="1";input.value=String(state.balance);input.id="balance-slider";
   input.setAttribute("aria-label","Symbolic emphasis from "+f.right+" to "+f.left);
   input.addEventListener("change",e=>balanceAdjust(Number(e.target.value)));
-  const more=button("→","",()=>balanceAdjust(Math.min(6,state.balance+1)),
-   "Move toward "+f.left);
-  more.disabled=state.balance===6;
+  const more=button("→","",()=>balanceAdjust(Math.max(0,state.balance-1)),
+   "Move toward "+f.right);
+  more.disabled=state.balance===0;
   row.append(less,input,more);root.append(row);
   root.append(node("p",f.note,"micro"));
   $("step-label").textContent="01 / 01";
