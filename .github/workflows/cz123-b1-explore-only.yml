@@ -1,0 +1,32 @@
+name: CZ-123 independent B1 authored-exploration boundary QA
+on:
+  push:
+    branches: [qa/cz123-b1-explore-only-final-v1]
+  pull_request:
+    paths:
+      - "tests/cz123-b1-explore-only.test.mjs"
+      - ".github/workflows/cz123-b1-explore-only.yml"
+permissions:
+  contents: read
+jobs:
+  authored-exploration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Confirm exact engineering SHA and QA-only changes
+        run: |
+          set -euo pipefail
+          BASE=f8f3b38c9ad0ab5db6c9741d6d20766aeda8b7a7
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b1-qa-files.txt
+          test "$(wc -l < /tmp/b1-qa-files.txt)" -eq 2
+          grep -Fxq 'tests/cz123-b1-explore-only.test.mjs' /tmp/b1-qa-files.txt
+          grep -Fxq '.github/workflows/cz123-b1-explore-only.yml' /tmp/b1-qa-files.txt
+      - name: Independently test all route variations and source rejection
+        run: node --test tests/cz123-b1-explore-only.test.mjs
+      - name: Recheck implementation guardrails
+        run: node --test tests/yl-b1-editorial-gated.test.mjs
