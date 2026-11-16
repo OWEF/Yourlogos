@@ -98,6 +98,14 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
     reducedMotion:"reduce",isMobile:width<=430,hasTouch:width<=430});
    const page=await context.newPage(),errors=[];
    page.on("pageerror",e=>errors.push(e.stack||e.message));
+   const cdp=await context.newCDPSession(page);
+   cdp.on("Debugger.scriptFailedToParse",e=>{
+    console.log("B27_FAILED_SCRIPT "+JSON.stringify({
+      url:e.url,hash:e.hash,startLine:e.startLine,
+      endLine:e.endLine,length:e.length,executionContextId:e.executionContextId
+    }));
+   });
+   await cdp.send("Debugger.enable");
    await seed(page,91);
    const source=await openAt(page,app.base,91,"Smith");
    assert.equal(source.status,"ready");
