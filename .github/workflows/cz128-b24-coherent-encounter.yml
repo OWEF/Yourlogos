@@ -1,0 +1,53 @@
+name: CZ-128 B2.4 coherent six-game Encounter integration
+on:
+  push:
+    branches: [feature/cz128-b24-coherent-encounter-v1]
+  pull_request:
+    paths:
+      - "experiments/yl-b24-conversion-bridge.mjs"
+      - "experiments/yl-b24-encounter.mjs"
+      - "experiments/yl-b23-research-server.mjs"
+      - "experiments/yl-b23-research.html"
+      - "experiments/yl-b23-research.js"
+      - "experiments/yl-b23-research.css"
+      - "tests/yl-b24-coherent-encounter.test.mjs"
+      - "tests/yl-b23-browser.test.mjs"
+      - ".github/workflows/cz128-b24-coherent-encounter.yml"
+permissions:
+  contents: read
+jobs:
+  b24-encounter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Protect accepted frozen Reasoning, original four and source contracts
+        run: |
+          set -euo pipefail
+          BASE=a7a675d853d5fe9c865683ae3042a95fa70f00bc
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD >/tmp/b24_files
+          while IFS= read -r f; do
+            case "$f" in
+              experiments/yl-b24-conversion-bridge.mjs|experiments/yl-b24-encounter.mjs|experiments/yl-b23-research-server.mjs|experiments/yl-b23-research.html|experiments/yl-b23-research.js|experiments/yl-b23-research.css|tests/yl-b24-coherent-encounter.test.mjs|tests/yl-b23-browser.test.mjs|.github/workflows/cz128-b24-coherent-encounter.yml) ;;
+              *) echo "Out-of-scope frozen file modified: $f"; exit 1 ;;
+            esac
+          done </tmp/b24_files
+      - name: Positive and negative new source/meaning/Emotion/Expression contracts
+        run: node --test tests/yl-b24-coherent-encounter.test.mjs
+      - name: Install no-cost browser QA dependency
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: All six interactive games at four widths
+        run: node --test tests/yl-b23-browser.test.mjs
+      - name: Browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz128-b24-developer-browser-screenshots
+          path: qa-evidence/
+          if-no-files-found: warn
+      - name: Inherited engine, source-gate and legacy four-game regression
+        run: node --test tests/yl-milestone-a.test.mjs tests/yl-b1-editorial-gated.test.mjs tests/yl-b2-source-proposals.test.mjs tests/yl-b23-founder-six-peer.test.mjs

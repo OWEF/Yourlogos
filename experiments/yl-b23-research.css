@@ -33,3 +33,26 @@ button,input{font:inherit}button{cursor:pointer;min-height:44px}button:disabled{
 
 .swipe-surface{display:flex;align-items:center;min-height:72px;margin:12px 0;padding:15px 17px;border:1px dashed var(--accent);border-radius:12px;color:var(--sage);background:#262b23;touch-action:pan-y;user-select:none;font-size:13px}
 .swipe-surface:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* B2.4 — source-bound education stays inside Section II */
+.lens-option.selected{border-color:var(--accent);background:rgba(209,187,131,.16)}
+.lens-choices{border-top:1px solid var(--border);padding-top:14px;margin-top:18px}
+.marginal-note{background:#2b3028;border-left:3px solid var(--sage);border-radius:0 10px 10px 0;padding:12px 14px;color:var(--text);font-size:14px}
+.result-section.educational{padding:23px 0}
+.teaching-card{background:linear-gradient(130deg,rgba(33,43,38,.94),rgba(42,37,29,.8));border:1px solid #4c5948;border-radius:17px;padding:clamp(15px,3vw,22px);min-width:0}
+.teaching-identity{display:flex;align-items:center;gap:15px;margin-bottom:14px}
+.thinker-avatar{width:74px;min-width:74px;height:74px;display:grid;place-items:center;border-radius:15px;background:#423d32;border:1px solid #71694f}
+.thinker-avatar .yl-thinker-pixel{width:58px;height:58px;image-rendering:pixelated}
+.thinker-meta{min-width:0;display:flex;flex-direction:column;gap:2px}
+.thinker-meta strong{color:var(--text);font:normal 22px Georgia,serif}
+.thinker-meta span{color:var(--accent);font-size:13px}
+.thinker-meta small{color:var(--muted);font-size:11px}
+.source-excerpt{margin:0 0 18px;padding:12px 17px;border-left:3px solid var(--accent);font:italic 17px/1.5 Georgia,serif;color:#e4decd}
+.source-excerpt mark{background:rgba(218,189,111,.2);color:#f3dfa8;border-radius:4px;padding:1px 3px}
+.teaching-core{font-size:16px;line-height:1.7;color:var(--text);margin:0 0 12px}
+.source-depth{border-top:1px solid var(--border);padding-top:11px;color:var(--muted)}
+.source-depth summary{cursor:pointer;color:var(--sage);min-height:44px;display:flex;align-items:center;font-size:14px}
+.source-depth a{color:var(--accent);text-underline-offset:4px;display:inline-flex;align-items:center;min-height:44px}
+.source-depth .source-caveat{font-size:13px;color:var(--muted)}
+@media(min-width:650px){.result-section.educational{margin:0 -3px}}
+@media(max-width:359px){.thinker-avatar{width:58px;min-width:58px;height:58px}.thinker-avatar .yl-thinker-pixel{width:48px;height:48px}.thinker-meta strong{font-size:19px}}

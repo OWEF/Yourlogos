@@ -21,12 +21,12 @@ const result=async(page,expected)=>{
  await page.locator("#finish").click();
  await page.locator("#result").waitFor({state:"visible"});
  assert.equal(await page.locator(".result-section").count(),3,expected);
- assert.match(await page.locator("#result-status").innerText(),/words · founder-provisional research/);
+ assert.match(await page.locator("#result-status").innerText(),/words · A three-part reflection/);
  const body=await page.locator("#result-sections").innerText();
  assert.ok(body.includes("Back to the Philosopher"),expected);
  assert.ok(body.includes("One Last Thing"),expected);
  const status=await page.locator("#game-status").innerText();
- assert.match(status,/three-section reflection is ready/);
+ assert.match(status,/reflection is ready/);
 };
 const chooseK=async page=>{
  await page.locator('[data-start="change"]').click();
@@ -63,7 +63,7 @@ test("actual source-connected six-peer browser passes source/choice/result flow 
    });
    assert.equal((await page.evaluate(()=>window.__YL_B23_QA.getState())).st.leftSlots,6);
    await result(page,"balance_of_values");
-   assert.match(await page.locator("#result-status").innerText(),/v1.2 semantic expression/);
+   assert.match(await page.locator("#result-status").innerText(),/v2.0-compatible source-verified composition/);
    if(width===390)await page.screenshot({path:"qa-evidence/b23-value-balance-connected-390.png",fullPage:true});
    // Revising previous choice does not forge account completion.
    await page.locator("#revise").click();
