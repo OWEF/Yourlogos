@@ -9,11 +9,9 @@ import {DILLARD_V21,KIERKEGAARD_V21}
  from "../philosophy-engine/content/research-fixtures-v21.js";
 import {semanticCases} from "../philosophy-engine/encounter/semantic-cases-v12.js";
 import {GAME_IDS} from "../philosophy-engine/content/content-contract-v21.js";
-import {B23_SOURCE_CONTRACTS,selectMiniGameB23}
+import {B23_SOURCE_CONTRACTS,selectMiniGameB23,runSelectedEncounterB23}
  from "./yl-b23-founder-six-peer.mjs";
-import {runSelectedEncounterB24}
- from "./yl-b24-encounter.mjs";
-export const B23_BROWSER_VERSION="coherent-source-eligible-encounter/2.4.0";
+export const B23_BROWSER_VERSION="source-eligible-six-peer-browser/0.1.0";
 const descriptors=[
  {key:"dillard",source:DILLARD_V21,kind:"allocation",title:"Dillard · Repeated days",
   intro:"Try an imagined schedule across five evenings. Nothing here reports your real habits."},
@@ -51,10 +49,7 @@ export function browserCatalogueB23(){
     selection.selected_game_id===id};
   });
   return {key:d.key,kind:d.kind,title:d.title,intro:d.intro,author:source.author,
-   work:source.work,quote:source.quote,
-   sourceUrl:source.referenceUrl,
-   sourceLocator:source.locator,
-   sourceReview:"FOUNDER_PROVISIONAL_NONPUBLIC",
+   work:source.work,quote:source.quote,sourceReview:"FOUNDER_PROVISIONAL_NONPUBLIC",
    games:peers,choices:d.kind==="allocation"||d.kind==="balance"?
     (d.kind==="balance"?[
       {id:"paid_optional_furnishing",label:"Extra paid work (imagined)"},
@@ -67,9 +62,7 @@ export function browserCatalogueB23(){
 }
 const files={"/":"yl-b23-research.html","/yl-b23-research.html":"yl-b23-research.html",
  "/yl-b23-research.css":"yl-b23-research.css",
- "/yl-b23-research.js":"yl-b23-research.js",
- "/philosopher-portraits.js":"../philosopher-portraits.js",
- "/philosopher-featured-art.js":"../philosopher-featured-art.js"};
+ "/yl-b23-research.js":"yl-b23-research.js"};
 function respond(res,code,payload,extra={}){
  res.writeHead(code,{"content-type":"application/json; charset=utf-8",
   "cache-control":"no-store","x-content-type-options":"nosniff",
@@ -103,15 +96,12 @@ export async function createB23ResearchServer({port=0}={}){
     const sel=selectMiniGameB23(ref(d),{preferredGameId:input.gameId});
     if(sel.status!=="research_selected")
      return respond(res,422,fail("no_fit","This source does not authorize the selected game"));
-    const result=runSelectedEncounterB24(ref(d),sel,input.input);
+    const result=runSelectedEncounterB23(ref(d),sel,input.input);
     if(result.status!=="ready")return respond(res,422,result);
     return respond(res,200,{status:"ready",selected_game_id:result.selected_game_id,
      sourceReview:result.sourceReview,expressionVerification:result.expressionVerification||null,
-     expressionVersion:result.expression.version,
-     emotionStrategy:result.expression.brief?.strategy||"neutral",
      sections:result.expression.sections,
      wordCount:result.expression.wordCount,
-     sectionWordCounts:result.expression.sectionWordCounts||null,
      canonical_choice:result.canonical_choice,
      provenance:result.provenance||null,
      publicationAllowed:false,productionPlayable:false,

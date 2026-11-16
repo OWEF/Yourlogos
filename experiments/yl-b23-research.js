@@ -1,4 +1,3 @@
-import {philosopherPortrait} from "/philosopher-portraits.js";
 /**
  * YourLogos CZ-134 B2.3 — isolated, source-bound six-peer browser.
  * Server owns source/author/game eligibility. Never persist anything.
@@ -24,7 +23,7 @@ function button(text,fn,cls="button outline"){
 function setDisabled(id,disabled){$(id).disabled=disabled;}
 function resetState(){
  const s={touched:false,finished:false,amounts:[2,2,2],
-  tokenOwners:[0,0,1,1,2,2],leftSlots:4,focus:"life_exchanged",
+  tokenOwners:[0,0,1,1,2,2],leftSlots:4,
   start:null,scene:null,response:null,view:0,unlocked:0};
  return s;
 }
@@ -157,24 +156,6 @@ function renderBalance(root){
  root.append(slider,controls);
  root.append(make("p","The assumed extra earnings are $"+(st.leftSlots*20)+
   ". That number belongs only to this fictional example.","hint"));
- // Second philosophical interaction: a reader-authored interpretive lens.
- // This does NOT assert that the allocation exposes a personal moral ranking.
- const interpret=make("div",null,"lens-choices");
- interpret.append(make("p","Now choose what to notice about the same exchange.","hint"));
- const options=make("div",null,"option-pair");
- for(const [id,label] of [["life_exchanged","The life spent earning"],
-                            ["time_kept","The possibilities kept open"]]){
-  const b=button(label,()=>updateState(x=>{x.focus=id;}),"option-card lens-option");
-  b.dataset.focus=id;b.setAttribute("aria-pressed",String(st.focus===id));
-  b.classList.toggle("selected",st.focus===id);
-  options.append(b);
- }
- interpret.append(options);
- const swap=st.leftSlots<8?
-  "One more hour of optional work would leave "+(7-st.leftSlots)+" hours available for other uses.":
-  "All eight fictional hours are allocated to extra work. Moving one back would leave one hour available.";
- interpret.append(make("p",swap+" It says nothing about which option is morally superior.","marginal-note"));
- root.append(interpret);
 }
 const kindIsFuture=()=>game==="future_reveal";
 function possibleStarts(){
@@ -340,7 +321,7 @@ function getInput(){
  if(game==="trade_off"||game==="token_studio")
   return {amounts:[...st.amounts],repetitions:selectedSource().repetitions};
  if(game==="balance_of_values")
-  return {leftSlots:st.leftSlots,touched:st.touched,focus:st.focus};
+  return {leftSlots:st.leftSlots,touched:st.touched};
  if(game==="decision_map"||game==="swipe_decision")
   return {path:[st.start,st.scene,st.response]};
  return {actions:[
@@ -349,56 +330,6 @@ function getInput(){
   {type:"choose_response",optionId:st.response},
   {type:"read_retrospective"}]};
 }
-
-function sourceHighlight(source){
- const raw=String(source.quote||"");
- const options=[
-  /the cost of a thing is the amount of what I will call life/i,
-  /lived forwards/i,
-  /spend our days/i
- ];
- const match=options.map(re=>raw.match(re)).find(Boolean);
- return match?match[0]:raw.split(/\s+/).slice(0,Math.min(8,raw.split(/\s+/).length)).join(" ");
-}
-function makeTeachingCard(section,source){
- const panel=make("div",null,"teaching-card");
- const head=make("div",null,"teaching-identity");
- const avatar=make("div",null,"thinker-avatar");
- // Reuse the existing, locally authored pixel figure. No remote image/AI rig.
- avatar.innerHTML=philosopherPortrait(source.author);
- avatar.setAttribute("aria-hidden","true");
- const identity=make("div",null,"thinker-meta");
- identity.append(make("strong",source.author),
-  make("span",source.work||"Philosophical source"),
-  make("small","Stylized portrait · source interpretation provisional"));
- head.append(avatar,identity);panel.append(head);
- const quote=make("blockquote",null,"source-excerpt");
- const text=String(source.quote||""),clause=sourceHighlight(source);
- const at=text.indexOf(clause);
- if(at>=0&&clause){
-  quote.append(document.createTextNode(text.slice(0,at)));
-  quote.append(make("mark",clause));
-  quote.append(document.createTextNode(text.slice(at+clause.length)));
- }else quote.textContent=text;
- panel.append(quote);
- // The source-grounded Section II text is THE main lesson. There is no
- // fourth compulsory section and no replacement of a source qualification.
- const core=make("p",section.text,"teaching-core");
- core.dataset.teachingClaim="true";
- panel.append(core);
- const details=make("details",null,"source-depth");
- const summary=make("summary","Why this matters · read the source");
- details.append(summary);
- details.append(make("p","This is a founder-provisional interpretive example, not an independently verified edition or translation. The scenario uses invented people and events. Its philosophical claim cannot establish a reader's real motives, moral worth, or unchosen future.","source-caveat"));
- if(typeof source.sourceUrl==="string"&&/^https:\/\//.test(source.sourceUrl)){
-  const link=make("a","View the quoted source");
-  link.href=source.sourceUrl;link.rel="noopener noreferrer";link.target="_blank";
-  details.append(link);
- }else details.append(make("p","Exact source link unavailable; no invented link is displayed.","source-caveat"));
- panel.append(details);
- return panel;
-}
-
 async function discover(){
  if(!readiness())return;
  setDisabled("finish",true);
@@ -411,20 +342,18 @@ async function discover(){
   if(!response.ok||result.status!=="ready")
    throw new Error(result.code||result.reason||"Research engine abstained");
   const root=$("result-sections");root.replaceChildren();
-  const src=selectedSource();
-  result.sections.forEach((section,i)=>{
-   const item=make("div",null,"result-section"+(i===1?" educational":""));
-   item.append(make("h3",section.label));
-   item.append(i===1?makeTeachingCard(section,src):make("p",section.text));
+  for(const section of result.sections){
+   const item=make("div",null,"result-section");
+   item.append(make("h3",section.label),make("p",section.text));
    root.append(item);
-  });
+  }
   $("result-status").textContent=result.wordCount+
-   " words · A three-part reflection · "+
-   (result.expressionVerification?.startsWith("source-bound-encounter-v2-compatible/")?
-    "v2.0-compatible source-verified composition":
+   " words · founder-provisional research · "+
+   (result.expressionVerification==="frozen_v12_semantic_not_v20"?
+    "v1.2 semantic expression (not v2.0)" :
     "frozen v2.0 expression");
   $("result").hidden=false;st.finished=true;
-  $("game-status").textContent="Your reflection is ready. No answer has been saved.";
+  $("game-status").textContent="The three-section reflection is ready for isolated QA.";
   $("result").scrollIntoView({behavior:"instant"});
  }catch(err){
   $("game-status").textContent="The research engine declined: "+err.message;

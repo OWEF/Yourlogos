@@ -11,7 +11,7 @@ import {DILLARD_V21,KIERKEGAARD_V21,HEGEL_NO_FIT_V21}
  from "../philosophy-engine/content/research-fixtures-v21.js";
 import {reasonSemantically}
  from "../philosophy-engine/encounter/semantic-reasoning-v12.js";
-import {browserCatalogueB23} from "../experiments/yl-b23-research-server.mjs";
+import {browserCatalogueB24} from "../experiments/yl-b24-encounter-server.mjs";
 const count=s=>s.trim().split(/\s+/).filter(Boolean).length;
 function validateSections(result){
  assert.equal(result.status,"ready",JSON.stringify(result).slice(0,450));
@@ -96,9 +96,9 @@ test("Genuinely unfamiliar source records and structurally incompatible cases ab
  assert.equal(selectMiniGameB23(incompatible).status,"no_fit");
  assert.equal(runSelectedEncounterB24(incompatible,sel,{leftSlots:4,touched:true}).status,"blocked");
  const moneyThoreau={...c,context:{...c.context,model:{
-  ...c.context.model,resources:[{id:"money",min:8,max:8,type:"cap"}]}};
+  ...c.context.model,resources:[{id:"money",min:8,max:8,type:"cap"}]}}};
  assert.equal(runSelectedEncounterB24(moneyThoreau,sel,{leftSlots:4,touched:true}).status,"blocked");
- const catalogue=browserCatalogueB23();
+ const catalogue=browserCatalogueB24();
  assert.equal(catalogue.length,4);
  assert.ok(catalogue.every(x=>x.games.length===6));
  assert.ok(catalogue.every(x=>x.sourceUrl&&x.quote));

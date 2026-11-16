@@ -6,12 +6,12 @@ on:
     paths:
       - "experiments/yl-b24-conversion-bridge.mjs"
       - "experiments/yl-b24-encounter.mjs"
-      - "experiments/yl-b23-research-server.mjs"
-      - "experiments/yl-b23-research.html"
-      - "experiments/yl-b23-research.js"
-      - "experiments/yl-b23-research.css"
+      - "experiments/yl-b24-encounter-server.mjs"
+      - "experiments/yl-b24-encounter.html"
+      - "experiments/yl-b24-encounter.js"
+      - "experiments/yl-b24-encounter.css"
       - "tests/yl-b24-coherent-encounter.test.mjs"
-      - "tests/yl-b23-browser.test.mjs"
+      - "tests/yl-b24-browser.test.mjs"
       - ".github/workflows/cz128-b24-coherent-encounter.yml"
 permissions:
   contents: read
@@ -32,7 +32,7 @@ jobs:
           git diff --name-only "$BASE" HEAD >/tmp/b24_files
           while IFS= read -r f; do
             case "$f" in
-              experiments/yl-b24-conversion-bridge.mjs|experiments/yl-b24-encounter.mjs|experiments/yl-b23-research-server.mjs|experiments/yl-b23-research.html|experiments/yl-b23-research.js|experiments/yl-b23-research.css|tests/yl-b24-coherent-encounter.test.mjs|tests/yl-b23-browser.test.mjs|.github/workflows/cz128-b24-coherent-encounter.yml) ;;
+              experiments/yl-b24-conversion-bridge.mjs|experiments/yl-b24-encounter.mjs|experiments/yl-b24-encounter-server.mjs|experiments/yl-b24-encounter.html|experiments/yl-b24-encounter.js|experiments/yl-b24-encounter.css|tests/yl-b24-coherent-encounter.test.mjs|tests/yl-b24-browser.test.mjs|.github/workflows/cz128-b24-coherent-encounter.yml) ;;
               *) echo "Out-of-scope frozen file modified: $f"; exit 1 ;;
             esac
           done </tmp/b24_files
@@ -41,7 +41,7 @@ jobs:
       - name: Install no-cost browser QA dependency
         run: npm install --no-save --ignore-scripts playwright-core@1.56.1
       - name: All six interactive games at four widths
-        run: node --test tests/yl-b23-browser.test.mjs
+        run: node --test tests/yl-b24-browser.test.mjs
       - name: Browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
