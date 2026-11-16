@@ -1,0 +1,37 @@
+name: CZ-134 B2.2 reviewer decision and preapproval controls
+on:
+  push:
+    branches: [feature/cz134-b22-review-remediation-v1]
+  pull_request:
+    paths:
+      - "research/cz121/B22-QUALIFIED-DECISIONS.md"
+      - "research/cz134/B22-POST-APPROVAL-INTEGRATION.md"
+      - "tests/yl-b22-preapproval-controls.test.mjs"
+      - ".github/workflows/cz134-b22-preapproval.yml"
+permissions:
+  contents: read
+jobs:
+  b22-pending-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: No edits to frozen engines or existing games
+        run: |
+          set -euo pipefail
+          BASE=074da155c44d13f600c11b8ba6baf0f9d8b69f30
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b22_changes
+          while IFS= read -r f; do
+            case "$f" in
+              research/cz121/B22-QUALIFIED-DECISIONS.md|research/cz134/B22-POST-APPROVAL-INTEGRATION.md|tests/yl-b22-preapproval-controls.test.mjs|.github/workflows/cz134-b22-preapproval.yml) ;;
+              *) echo "Unauthorized modified file: $f"; exit 1 ;;
+            esac
+          done < /tmp/b22_changes
+      - name: Source-capability mismatch and eight-route adversarial controls
+        run: node --test tests/yl-b22-preapproval-controls.test.mjs
+      - name: Four original games and prior exact source regression
+        run: node --test tests/yl-b2-source-proposals.test.mjs tests/yl-b1-editorial-gated.test.mjs tests/yl-milestone-a.test.mjs tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/content-v212-editorial-regression.test.mjs
