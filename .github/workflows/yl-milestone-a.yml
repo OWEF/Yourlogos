@@ -1,13 +1,13 @@
 name: CZ-128 milestone A — four playable research games
 on:
   push:
-    branches: [feature/cz128-milestone-a-four-games-v22]
+    branches: [feature/yl-milestone-a-four-games-v22]
   pull_request:
     paths:
-      - "experiments/cz128-mini-game-selection-v22.mjs"
-      - "experiments/cz128-milestone-a*"
-      - "tests/cz128-milestone-a*"
-      - ".github/workflows/cz128-milestone-a.yml"
+      - "experiments/yl-milestone-a-selector.mjs"
+      - "experiments/yl-milestone-a*"
+      - "tests/yl-milestone-a*"
+      - ".github/workflows/yl-milestone-a.yml"
 permissions:
   contents: read
 jobs:
@@ -31,7 +31,7 @@ jobs:
             exit 1
           fi
       - name: Canonical cross-game equivalence, source/agency and fail-closed tests
-        run: node --test tests/cz128-milestone-a.test.mjs
+        run: node --test tests/yl-milestone-a.test.mjs
       - name: Accepted v2.1 selector, source and frozen reasoning regression tests
         run: |
           node --test tests/cz131-single-selection.test.mjs
@@ -40,12 +40,12 @@ jobs:
       - name: Install free browser harness without changing the package manifest
         run: npm install --no-save --ignore-scripts playwright-core@1.56.1
       - name: 320/390/430/desktop actual Chromium four-game journeys
-        run: node tests/cz128-milestone-a-browser.mjs
+        run: node tests/yl-milestone-a-browser.mjs
       - name: Upload visual evidence (not physical Safari)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cz128-milestone-a-evidence
+          name: yl-milestone-a-evidence
           path: artifacts/cz128/milestone-a/
           if-no-files-found: ignore
           retention-days: 14

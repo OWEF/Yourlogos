@@ -2,7 +2,7 @@
  * CZ-128 Milestone A: four-game, loopback-only research service.
  * The content/meaning/emotion/expression modules from accepted PR #191 remain
  * unchanged. This is a versioned successor of ONE existing peer selector.
- * Run: node experiments/cz128-milestone-a-server.mjs
+ * Run: node experiments/yl-milestone-a-server.mjs
  */
 import {createServer} from "node:http";
 import {readFileSync} from "node:fs";
@@ -18,7 +18,7 @@ import {authoritativeContextForRecord,graphPathsFromContext}
  from "../philosophy-engine/content/content-capabilities-v211.js";
 import {GAME_IDS,canPublishEncounterV21} from "../philosophy-engine/content/content-contract-v21.js";
 import {selectMiniGameV22,runSelectedEncounterResearchV22,
- SELECTION_VERSION,SIX_PEER_GAMES} from "./cz128-mini-game-selection-v22.mjs";
+ SELECTION_VERSION,SIX_PEER_GAMES} from "./yl-milestone-a-selector.mjs";
 
 export const MILESTONE_A_VERSION="research-four-game-shell/1.0.0";
 const dir=path.dirname(fileURLToPath(import.meta.url));
@@ -28,9 +28,9 @@ const known=x=>typeof x==="string"&&GAME_IDS.includes(x);
 const frozen=x=>JSON.parse(JSON.stringify(x));
 const fail=(status,reason)=>({status,reason,publicationAllowed:false});
 const staticFiles=Object.freeze({
- "/":"cz128-milestone-a.html",
- "/cz128-milestone-a.css":"cz128-milestone-a.css",
- "/cz128-milestone-a-ui.js":"cz128-milestone-a-ui.js"
+ "/":"yl-milestone-a.html",
+ "/yl-milestone-a.css":"yl-milestone-a.css",
+ "/yl-milestone-a-ui.js":"yl-milestone-a-ui.js"
 });
 const mimeFor=x=>x.endsWith(".css")?"text/css; charset=utf-8":
  x.endsWith(".js")?"text/javascript; charset=utf-8":"text/html; charset=utf-8";

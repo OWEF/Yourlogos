@@ -1,11 +1,11 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {createMilestoneAServer,MILESTONE_A_VERSION}
- from "../experiments/cz128-milestone-a-server.mjs";
+ from "../experiments/yl-milestone-a-server.mjs";
 import {DILLARD_V21,KIERKEGAARD_V21,HEGEL_NO_FIT_V21}
  from "../philosophy-engine/content/research-fixtures-v21.js";
 import {SELECTION_VERSION,SIX_PEER_GAMES}
- from "../experiments/cz128-mini-game-selection-v22.mjs";
+ from "../experiments/yl-milestone-a-selector.mjs";
 const withServer=async f=>{
  const server=await createMilestoneAServer();
  try{await f(server);}finally{await server.close();}
@@ -40,7 +40,7 @@ test("same accepted frozen engines; versioned ONE selector admits exactly four b
   assert.match(html,/id="start"/);
   assert.match(html,/id="game-content"/);
   assert.match(html,/Your Choice\./);
-  const script=await (await fetch(app.url+"/cz128-milestone-a-ui.js")).text();
+  const script=await (await fetch(app.url+"/yl-milestone-a-ui.js")).text();
   assert.match(script,/Finish & Save/); // disabled: truthful preview cannot persist
   assert.doesNotMatch(html,/Supabase|localStorage|<script src="https:/i);
  });
