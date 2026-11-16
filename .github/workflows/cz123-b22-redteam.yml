@@ -1,0 +1,45 @@
+name: CZ-123 B2.2 QA-only red-team R0-R2 and B0 browser
+on:
+  push:
+    branches: [qa/cz123-b22-independent-p0-p1-review-v1]
+  pull_request:
+    paths:
+      - "tests/yl-b22-qa-redteam.test.mjs"
+      - "tests/yl-b22-qa-browser.mjs"
+      - ".github/workflows/cz123-b22-redteam.yml"
+permissions:
+  contents: read
+jobs:
+  qa-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Protect implementation and exactly reviewed SHA
+        run: |
+          set -euo pipefail
+          BASE=a44fbfaa615210fc14edad3df41e1ae70680fb38
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b22qa_files
+          while IFS= read -r f; do
+            case "$f" in
+              tests/yl-b22-qa-redteam.test.mjs|tests/yl-b22-qa-browser.mjs|.github/workflows/cz123-b22-redteam.yml) ;;
+              *) echo "QA modified implementation: $f"; exit 1 ;;
+            esac
+          done < /tmp/b22qa_files
+      - name: Fresh QA R0-R2 adversarial and positive four-game API
+        run: node --test tests/yl-b22-qa-redteam.test.mjs
+      - name: Use existing free Chromium browser harness
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Mobile and desktop UI-only synthetic lab regression
+        run: node tests/yl-b22-qa-browser.mjs
+      - name: Capture 390px UI-only evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cz123-b22-source-neutral-screenshots
+          path: qa-evidence/
+          if-no-files-found: warn
