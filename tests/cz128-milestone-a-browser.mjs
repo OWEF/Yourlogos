@@ -40,6 +40,7 @@ try{
   });
   await page.goto(app.url);
   await page.waitForFunction(()=>window.__YL_CZ128_MILESTONE_A?.getState().recordId);
+  await page.locator("#qa-controls summary").click(); // research preference is intentionally behind a disclosure
   const expected=["trade_off","decision_map","token_studio","swipe_decision"];
   assert.equal(await page.locator("#trace .trace-item").count(),6);
   for(const game of expected){
