@@ -70,8 +70,9 @@
   line.style.setProperty("--tilt",(state.balance-3)*7+"deg");
   pivot.append(line);panel.append(left,pivot,right);root.append(panel);
   const row=node("div",null,"slider-row");
-  const less=button("←","","", "Move toward "+f.right);
-  less.onclick=()=>balanceAdjust(Math.max(0,state.balance-1));less.disabled=state.balance===0;
+  const less=button("←","",()=>balanceAdjust(Math.max(0,state.balance-1)),
+   "Move toward "+f.right);
+  less.disabled=state.balance===0;
   const input=node("input");input.type="range";input.min="0";input.max="6";
   input.step="1";input.value=String(state.balance);input.id="balance-slider";
   input.setAttribute("aria-label","Symbolic emphasis from "+f.right+" to "+f.left);
