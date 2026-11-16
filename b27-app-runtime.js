@@ -178,8 +178,11 @@ export function createB27AppRuntime({
    if(sheet?.stage!=="play")return;
    const slider=evt.target.closest?.("[data-b27-slider]");
    if(!slider)return;
+   const active=slider===document.activeElement;
    const changed=adjustB27Game(sheet,"slider",slider.value);
-   if(changed)epoch++;draw();
+   if(changed){epoch++;draw();
+     if(active)document.querySelector("[data-b27-slider]")?.focus({preventScroll:true});
+   }
   });
  }
  install();
