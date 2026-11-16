@@ -78,7 +78,7 @@ test("actual source-connected six-peer browser passes source/choice/result flow 
    assert.equal(await page.locator("#timeline-scrub").getAttribute("max"),"1");
    await page.locator('[data-scene="risk"]').click();
    assert.equal(await page.locator("#timeline-scrub").getAttribute("max"),"2");
-   assert.match(await page.locator(".authored").innerText(),/AUTHOR-WRITTEN FICTION|Authored possibility/);
+   assert.match(await page.locator(".authored").last().innerText(),/AUTHOR-WRITTEN FICTION|Authored possibility/);
    await page.locator('[data-response="continue"]').click();
    await result(page,"future_reveal");
    assert.match(await page.locator("#result-status").innerText(),/frozen v2.0 expression/);
