@@ -74,12 +74,19 @@ function modelOf(desc){
 function contentsForSource(row){
  const ref=refs[row.key],capability=assessInteractionFamiliesB26(ref);
  const family=capability.selectedFamilyId??null;
+ // Older B2.5 curated records store the text under record.source;
+ // newer authored scenarios already expose text at the catalogue layer.
+ // Never substitute authored display prose for a missing source quote.
+ const trustedSource=typeof ref==="object"&&ref?.source?.author&&ref?.source?.quote?
+  ref.source:null;
  return {
   key:row.key,title:row.title,intro:row.intro,
   familyId:family,familyLabel:family?name[family]:null,
   sourceStatus:capability.status,sourceFingerprint:capability.sourceVersionHash??null,
-  author:row.author,work:row.work,quote:row.quote,
-  sourceUrl:row.sourceUrl??null,
+  author:trustedSource?.author??row.author,
+  work:trustedSource?.work??row.work,
+  quote:trustedSource?.quote??row.quote,
+  sourceUrl:trustedSource?.referenceUrl??row.sourceUrl??null,
   sourceReview:"founder_provisional_not_independently_source_verified",
   selectionTrace:capability.selectionTrace??null,
   eligibleFamilies:INTERACTION_FAMILIES.map(id=>({
