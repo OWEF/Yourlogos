@@ -109,12 +109,6 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
    await page.locator('[data-b27="pair"][data-value="sketch"]').focus();
    await page.keyboard.press("Enter");
    assert.equal((await current(page)).game.first,"sketch");
-   console.log("B27_CARD_HIT_TEST "+JSON.stringify(await page.locator('[data-b27="pair"][data-value="friend"]').evaluate(el=>{
-    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
-    return {viewport:{width:innerWidth,height:innerHeight},sheet:document.querySelector(".b27-shell")?.getBoundingClientRect()?.toJSON(),rect:{x:r.x,y:r.y,w:r.width,h:r.height},
-      hit:document.elementFromPoint(x,y)?.outerHTML?.slice(0,250),
-      overlays:document.elementsFromPoint(x,y).slice(0,4).map(e=>e.className)};
-   })));
    await page.locator('[data-b27="pair"][data-value="friend"]').click();
    assert.equal((await current(page)).game.pairs.length,1);
    const result=await finish(page,"tap_pair");
@@ -134,7 +128,7 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
    await page.locator('[data-b27="reopen"]').click();
    assert.equal((await current(page)).saved,true);
    assert.equal(await page.locator(".b27-result-section").count(),3);
-   await page.locator('[data-action="close-discover"]').click();
+   await page.locator('button[data-action="close-discover"]').click();
    await page.locator('[data-view="profile"]').first().click();
    await page.locator('[data-b27="delete"]').click();
    assert.equal(await page.locator(".b27-world-item").count(),0);
