@@ -7,7 +7,7 @@ import {SIX_PEER_GAMES,selectMiniGameV22}
 import {validateContentRecordV21}
  from "../philosophy-engine/content/content-contract-v21.js";
 import {B1_GAMES,QUALIFIED_WARRANTS,inspectB1Source,
- tryB1Encounter,normalizeBalance,normalizeFuture}
+ tryB1Encounter,normalizeBalance,normalizeFuture,listAuthoredPossibilities}
  from "../experiments/yl-b1-editorial-gated-adapters.mjs";
 const clone=x=>JSON.parse(JSON.stringify(x));
 test("ONE six-peer registry: both new games blocked for all current sources",()=>{
@@ -74,4 +74,54 @@ test("no source-ineligible game can emit an engine result",()=>{
  assert.equal(out.status,"blocked");
  assert.equal(out.publicationAllowed,false);
  assert.equal("result" in out,false);
+});
+
+test("research-only hypothetical exploration lists ONLY preauthored possibilities, never real futures",()=>{
+ const options=listAuthoredPossibilities(KIERKEGAARD_V21,"change");
+ assert.equal(options.status,"research_options_only");
+ assert.equal(options.sourceApproved,false);
+ assert.equal(options.publicationAllowed,false);
+ assert.ok(options.options.length>=2,"Ambiguous authored scenes must be visible as explorations");
+ const routeIds=new Set(KIERKEGAARD_V21.scenario.constraints.routes.filter(r=>r.path[0]==="change").map(r=>r.path[1]));
+ assert.deepEqual(new Set(options.options.map(x=>x.sceneId)),routeIds);
+ for(const scene of options.options){
+  assert.equal(scene.role,"AUTHORED_DEVELOPMENT");
+  assert.equal(scene.readerAction,"EXPLORE_ONLY");
+  assert.equal(scene.causedByReader,false);
+  assert.equal(scene.predictedRealFuture,false);
+  assert.equal(scene.unchosenFutureKnown,false);
+  assert.ok(scene.authoredText.length>0);
+ }
+ assert.equal(listAuthoredPossibilities(KIERKEGAARD_V21,"invented").code,"invalid_decision");
+});
+test("reader explores one exact authored possibility without causing it; original source gate remains closed",()=>{
+ const options=listAuthoredPossibilities(KIERKEGAARD_V21,"change");
+ const one=options.options.find(x=>x.sceneId==="risk");
+ assert.ok(one,"Existing accepted research graph includes risk");
+ const terminal=KIERKEGAARD_V21.scenario.constraints.routes.find(r=>r.path[0]==="change"&&r.path[1]===one.sceneId);
+ assert.ok(terminal);
+ const path=terminal.path;
+ const actions=[{type:"choose_start",optionId:path[0]},
+  {type:"explore_authored",sceneId:one.sceneId},
+  {type:"choose_response",optionId:path[2]},
+  {type:"read_retrospective"}];
+ const r=normalizeFuture(KIERKEGAARD_V21,actions);
+ assert.equal(r.status,"normalized",JSON.stringify(r));
+ assert.deepEqual(r.canonical.path,path);
+ assert.equal(r.provenance.authoredEventCausedByReader,false);
+ assert.equal(r.provenance.predictedActualFuture,false);
+ assert.equal(r.provenance.unchosenFutureKnown,false);
+ assert.equal(r.provenance.readerExploredFiction,true);
+ assert.equal(tryB1Encounter(KIERKEGAARD_V21,"future_reveal",{actions}).status,"blocked",
+  "Normalized test-only decisions cannot bypass qualified source/selector gates");
+ assert.equal(normalizeFuture(KIERKEGAARD_V21,
+  [actions[0],{type:"explore_authored",sceneId:"invented"},...actions.slice(2)]).code,
+  "unapproved_scene");
+ assert.equal(normalizeFuture(KIERKEGAARD_V21,
+  [actions[0],{type:"explore_authored",sceneId:one.sceneId,authoredText:"You win"},...actions.slice(2)]).code,
+  "forged_event");
+ assert.equal(normalizeFuture(KIERKEGAARD_V21,
+  [actions[0],{type:"explore_authored",sceneId:one.sceneId},
+   {type:"revise_start",optionId:"stay"},...actions.slice(2)]).code,"invalid_response",
+  "Changing the initial action invalidates the previously explored fictional scene");
 });
