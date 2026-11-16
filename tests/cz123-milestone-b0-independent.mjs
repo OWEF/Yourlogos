@@ -45,7 +45,7 @@ test("B0 accessible balance direction, locked stages, no false My World success"
    assert.equal((await get()).maxSeen,0);
    // Maliciously jump over locked scene; UI must reject before progressing.
    await page.locator("#future-slider").evaluate(el=>{
-    el.value="3";el.dispatchEvent(new Event("change",{bubbles:true}));
+    el.max="3";el.value="3";el.dispatchEvent(new Event("change",{bubbles:true}));
    });
    assert.equal((await get()).step,0);
    assert.equal((await get()).maxSeen,0);
