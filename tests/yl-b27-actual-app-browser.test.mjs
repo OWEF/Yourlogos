@@ -111,7 +111,7 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
    assert.equal((await current(page)).game.first,"sketch");
    console.log("B27_CARD_HIT_TEST "+JSON.stringify(await page.locator('[data-b27="pair"][data-value="friend"]').evaluate(el=>{
     const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
-    return {rect:{x:r.x,y:r.y,w:r.width,h:r.height},
+    return {viewport:{width:innerWidth,height:innerHeight},sheet:document.querySelector(".b27-shell")?.getBoundingClientRect()?.toJSON(),rect:{x:r.x,y:r.y,w:r.width,h:r.height},
       hit:document.elementFromPoint(x,y)?.outerHTML?.slice(0,250),
       overlays:document.elementsFromPoint(x,y).slice(0,4).map(e=>e.className)};
    })));
