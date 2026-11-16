@@ -1,0 +1,35 @@
+name: CZ-123 B2.3 independent six peer positive acceptance
+on:
+  push:
+    branches: [qa/cz123-b23-six-peer-positive-independent-v1]
+  pull_request:
+    paths:
+      - "tests/yl-b23-independent-qa.test.mjs"
+      - ".github/workflows/cz123-b23-independent.yml"
+permissions:
+  contents: read
+jobs:
+  positive-negative-holdouts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: QA-only exact-SHA integrity
+        run: |
+          set -euo pipefail
+          BASE=07d8ca2611821eef84a69550489deab327557921
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/qa_files
+          while IFS= read -r f; do
+            case "$f" in
+              tests/yl-b23-independent-qa.test.mjs|.github/workflows/cz123-b23-independent.yml) ;;
+              *) echo "QA has modified implementation: $f"; exit 1 ;;
+            esac
+          done < /tmp/qa_files
+      - name: Fresh source and all six positive/negative R0–R2 holdouts
+        run: node --test tests/yl-b23-independent-qa.test.mjs
+      - name: Existing original source rejection protections
+        run: node --test tests/yl-b23-founder-six-peer.test.mjs tests/yl-b22-preapproval-controls.test.mjs tests/yl-milestone-a.test.mjs
