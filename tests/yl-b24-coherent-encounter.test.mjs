@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {B23_SOURCE_CONTRACTS,selectMiniGameB23}
+import {B23_SOURCE_CONTRACTS,selectMiniGameB23,runSelectedEncounterB23}
  from "../experiments/yl-b23-founder-six-peer.mjs";
 import {runSelectedEncounterB24}
  from "../experiments/yl-b24-encounter.mjs";
@@ -114,8 +114,11 @@ test("Four original games retain identical canonical meanings and three sections
   const actual=runSelectedEncounterB24(record,sel,choice);
   validateSections(actual);
   assert.equal(actual.selected_game_id,game);
-  assert.equal(actual.expressionVerification,
-   record===DILLARD_V21?"source_grounded_replay_v211":"frozen_v20");
+  const historical=runSelectedEncounterB23(record,sel,choice);
+  assert.equal(historical.status,"ready");
+  assert.equal(actual.expressionVerification,historical.expressionVerification);
+  assert.deepEqual(actual.meaning,historical.meaning);
+  assert.deepEqual(actual.expression,historical.expression);
  }
 });
 test("Future Reveal preserves all eight authored paths, no predictions, and native v2 emotion",()=>{
