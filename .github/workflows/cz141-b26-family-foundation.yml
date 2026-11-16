@@ -1,0 +1,49 @@
+name: CZ-141 B2.6 four actual tactile Encounter families
+on:
+  push:
+    branches: [feature/cz141-b26-four-interaction-families]
+  pull_request:
+    paths:
+      - "experiments/yl-b26-*"
+      - "tests/yl-b26-*"
+      - ".github/workflows/cz141-b26-family-foundation.yml"
+permissions:
+  contents: read
+jobs:
+  four-source-grounded-games:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Guard historical six engines and B2.5 exact baseline
+        run: |
+          set -euo pipefail
+          BASE=576743a354a961a35b35bf58f8b61f655c43d190
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/changed
+          while IFS= read -r f; do
+            case "$f" in
+              research/cz128/B26-FOUR-FAMILY-INTERACTIONS.md|experiments/yl-b26-*.mjs|experiments/yl-b26-*.html|experiments/yl-b26-*.css|experiments/yl-b26-*.js|tests/yl-b26-*.test.mjs|.github/workflows/cz141-b26-family-foundation.yml) ;;
+              *) echo "Protected historical file changed: $f"; exit 1 ;;
+            esac
+          done < /tmp/changed
+      - name: Foundation original exact-source six to four mapping
+        run: node --test tests/yl-b26-four-family-contract.test.mjs
+      - name: Four real semantic game families source and final expression
+        run: node --test tests/yl-b26-four-family-functional.test.mjs
+      - name: Install free Chrome automation harness
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Browser actual 4-family positive journeys across four widths
+        run: node --test tests/yl-b26-browser.test.mjs
+      - name: Save 390px screenshots of actual four family outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz141-b26-four-family-developer-evidence
+          path: qa-evidence/
+          if-no-files-found: warn
+      - name: Inherited full source and six-game regression
+        run: node --test tests/yl-b25-generalized-encounter.test.mjs tests/yl-b24-coherent-encounter.test.mjs tests/yl-b23-founder-six-peer.test.mjs tests/yl-milestone-a.test.mjs tests/yl-b1-editorial-gated.test.mjs
