@@ -1,7 +1,7 @@
 /**
  * CZ-145 trusted quote->source->single FOUR-family selector->reason/compact.
  * Never routes by philosopher names, themes, or client-supplied family.
- * All 91 existing quote IDs are immutable; new source excerpts 91–93
+ * All 91 existing quote IDs are immutable; new source excerpts 91–94
  * are opt-in development-only material behind ?b27=1 in app.js.
  */
 import {B27_APP_QUOTES,B27_INHERITED_COUNT}
@@ -25,16 +25,10 @@ import {B27_KIERKEGAARD_HINDSIGHT,replayB27HindsightBase}
  from "./yl-b27-future-source.mjs";
 import {compactEncounterB27}
  from "./yl-b27-compact.mjs";
+import {editorialB27,reportB27Coverage} from "./yl-b27-editorial-ledger.mjs";
+export {reportB27Coverage} from "./yl-b27-editorial-ledger.mjs";
 export const B27_ROUTE_VERSION="quote-direct-source-bound/2.7.0";
 const obj=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
-const sourceByQuoteId=Object.freeze({
- 12:"dillard",
- 34:"kierkegaard_map",
- 91:"smith_human",
- 92:"epictetus_relations",
- 93:"thoreau_weekend",
- 94:"kierkegaard_hindsight"
-});
 const keyRef=Object.freeze({
  dillard:DILLARD_V21,
  kierkegaard_map:KIERKEGAARD_V21,
@@ -89,20 +83,26 @@ export function resolveQuoteB27(input){
   "An exact existing quotation ID, text, author and source is required");
  const {quoteId}=input;
  const quoteFingerprint=fingerprintB25({quoteId,quote});
- const key=sourceByQuoteId[quoteId];
+ const editorial=editorialB27(quoteId);
+ const key=editorial?.status==="playable"?editorial.key:null;
  if(!key){
-  // Genuine no_fit/reading-first remains available to ALL real quotations.
-  const hegel=quote[0]==="The true is the whole."&&
-    quote[1]==="G. W. F. Hegel";
+  // Absent or unadmitted editorial evidence is never interpreted as a game.
+  // The reader sees a truthful reading-first path, not a disguised quiz.
+  const coverage=editorial?.status??"reading_first";
   return {
    status:"no_fit",version:B27_ROUTE_VERSION,quoteId,
    quoteFingerprint,quote:{text:quote[0],author:quote[1],
     work:quote[3],question:quote[4]},
-   sourceReview:"catalogue_source_not_admitted_for_game",
-   reason:hegel?
-    "The mediated whole is not evidenced by any of the four finite/branch/relation operators. A source-critical reading comes first.":
+   sourceReview:editorial?.sourceStatus??"catalogue_source_not_admitted_for_game",
+   editorialCoverageStatus:coverage,
+   reason:coverage==="no_fit"?
+    "This thesis requires an operation the four tactile families cannot faithfully express. A source-critical reading comes first.":
+    coverage==="awaiting_reasoning_capability"?
+    "This source needs a missing philosophical reasoning capability; no surrogate puzzle is admissible.":
+    coverage==="awaiting_source_review"?
+    "Candidate human adaptations remain unverified against the exact source and edition.":
     "No versioned source-warranted four-family interaction has been admitted for this exact quotation.",
-   capabilityGap:hegel?"mediation_across_the_whole":"source_specific_semantic_admission",
+   capabilityGap:editorial?.gap??"source_specific_semantic_admission",
    readingFirst:true,publicationAllowed:false,productionPlayable:false
   };
  }
