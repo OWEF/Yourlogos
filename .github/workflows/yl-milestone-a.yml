@@ -1,0 +1,51 @@
+name: CZ-128 milestone A — four playable research games
+on:
+  push:
+    branches: [feature/yl-milestone-a-four-games-v22]
+  pull_request:
+    paths:
+      - "experiments/yl-milestone-a-selector.mjs"
+      - "experiments/yl-milestone-a*"
+      - "tests/yl-milestone-a*"
+      - ".github/workflows/yl-milestone-a.yml"
+permissions:
+  contents: read
+jobs:
+  four-game-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preserve accepted content and frozen engines
+        run: |
+          set -euo pipefail
+          BASE=73849bff27fc73db97d5fb015c57f45323e18f30
+          git merge-base --is-ancestor "$BASE" HEAD
+          if git diff --name-only "$BASE" HEAD -- philosophy-engine app.js encounter-events.js | grep -q .; then
+            echo "Frozen reasoning/content/production modified; refusing research QA"
+            exit 1
+          fi
+      - name: Canonical cross-game equivalence, source/agency and fail-closed tests
+        run: node --test tests/yl-milestone-a.test.mjs
+      - name: Accepted v2.1 selector, source and frozen reasoning regression tests
+        run: |
+          node --test tests/cz131-single-selection.test.mjs
+          node --test tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/content-v212-editorial-regression.test.mjs
+          node --test tests/encounter-v20.test.mjs
+      - name: Install free browser harness without changing the package manifest
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: 320/390/430/desktop actual Chromium four-game journeys
+        run: node tests/yl-milestone-a-browser.mjs
+      - name: Upload visual evidence (not physical Safari)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yl-milestone-a-evidence
+          path: artifacts/cz128/milestone-a/
+          if-no-files-found: ignore
+          retention-days: 14
