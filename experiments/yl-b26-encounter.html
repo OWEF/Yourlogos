@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111511">
+<meta name="description" content="YourLogos — philosophical discovery through one thoughtful choice.">
+<title>YourLogos · Encounter</title>
+<link rel="stylesheet" href="/yl-b26-encounter.css">
+<script type="module" src="/yl-b26-encounter.js"></script>
+</head>
+<body>
+<div id="app" class="shell">
+ <header class="masthead">
+  <div class="brand"><span aria-hidden="true">✧</span> YourLogos <span class="brand-sub">/ ENCOUNTER</span></div>
+  <span id="mode" class="mode">A thought worth exploring</span>
+ </header>
+ <main>
+  <section id="choose-screen" aria-labelledby="intro-heading" class="scene enter">
+   <div class="hero">
+    <p class="eyebrow">PLAY · DISCOVER · REMEMBER</p>
+    <h1 id="intro-heading">Small choices.<br><em>Different horizons.</em></h1>
+    <p class="lead">Pick a question. Try a simple gesture. See what the philosopher helps you notice.</p>
+   </div>
+   <div class="category-head"><h2>What draws your attention?</h2><span class="footnote">An imagined moment, not a test</span></div>
+   <div id="questions" class="questions-grid" role="group" aria-label="Choose an Encounter question"></div>
+   <section id="qa-panel" class="qa-panel" hidden aria-label="Independent QA family selection">
+    <p class="eyebrow">QA ONLY · Manual family override</p>
+    <p>Only a source-warranted family can be selected; no relation is invented to fill an incompatible source.</p>
+    <div id="qa-families" class="qa-families" role="group" aria-label="Four interaction families"></div>
+   </section>
+  </section>
+  <section id="play-screen" class="scene enter" hidden aria-labelledby="play-title">
+   <div class="play-top">
+    <button type="button" id="back-to-questions" class="back-button"><span aria-hidden="true">‹</span> Questions</button>
+    <span class="phase">01 <span aria-hidden="true">/</span> 02 · PLAY</span>
+   </div>
+   <div class="play-heading">
+    <p id="play-family" class="eyebrow"></p>
+    <h1 id="play-title" tabindex="-1">Choose</h1>
+    <p id="play-description" class="lead"></p>
+   </div>
+   <div class="play-well">
+    <div class="well-shine" aria-hidden="true"></div>
+    <div id="game" aria-label="Interactive philosophical mini-game"></div>
+   </div>
+   <div class="play-foot">
+    <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+    <div class="controls">
+     <button id="undo" type="button" class="control quiet">Undo</button>
+     <button id="reset" type="button" class="control quiet">Start over</button>
+     <button id="discover" type="button" class="control primary" disabled>Discover <span aria-hidden="true">↗</span></button>
+    </div>
+   </div>
+  </section>
+  <section id="discover-screen" class="scene enter" hidden aria-labelledby="result-heading">
+   <div class="play-top">
+    <button type="button" id="back-to-play" class="back-button"><span aria-hidden="true">‹</span> Change my choice</button>
+    <span class="phase">02 <span aria-hidden="true">/</span> 02 · DISCOVER</span>
+   </div>
+   <div class="result-hero">
+    <p class="eyebrow">A moment to reflect</p>
+    <h1 id="result-heading" tabindex="-1">What your choice reveals</h1>
+    <p class="lead">A reading of this imagined decision. No score, no judgment.</p>
+   </div>
+   <div id="result-sections" class="result-sections" aria-label="Three-part philosophical reflection"></div>
+   <p id="result-meta" class="result-meta"></p>
+   <button id="another" type="button" class="control outline">Explore another idea <span aria-hidden="true">↗</span></button>
+  </section>
+ </main>
+ <footer class="disclosure">FOUNDER-PROVISIONAL SOURCE INTERPRETATIONS · FICTIONAL SCENARIOS · NOT A FORECAST · NOTHING SAVED TO MY WORLD · ISOLATED PREVIEW</footer>
+</div>
+</body>
+</html>

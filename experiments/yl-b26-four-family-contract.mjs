@@ -13,6 +13,8 @@
  */
 import {selectMiniGameB25}
   from "./yl-b25-encounter.mjs";
+import {inspectPairSource}
+  from "./yl-b26-relations.mjs";
 
 export const B26_VERSION = "source-driven-four-family-foundation/2.6.0";
 export const INTERACTION_FAMILIES = Object.freeze([
@@ -76,6 +78,36 @@ export function assessInteractionFamiliesB26(
   if (!checkPreferred(preferredFamilyId))
     return invalid("invalid_family", "Only the four registered interaction families exist");
 
+  // Pair source-authored relationships are a distinct kind of source contract.
+  // They are not admitted through a fake allocation/branch compatibility flag.
+  const relation = inspectPairSource(sourceRef);
+  if(relation){
+    const eligible=[{id:"tap_pair",eligible:true,candidateLegacyGameIds:[],
+      reason:"Exact authored relation evidence and typed canonical pair contract",
+      requiredChoiceKind:"source_warranted_pairs"}];
+    const excluded=INTERACTION_FAMILIES.filter(id=>id!=="tap_pair").map(id=>({
+      id,reason:"Source has no resource or sequential branch warrant"
+    }));
+    if(preferredFamilyId && preferredFamilyId!=="tap_pair")
+      return {status:"no_fit",version:B26_VERSION,requestedFamilyId:preferredFamilyId,
+        reason:"The source warrants relationships, not the requested unrelated operation",
+        eligibleFamilies:eligible,excludedFamilies:excluded,publicationAllowed:false};
+    return {
+      status:"research_selected",version:B26_VERSION,
+      sourceRecordId:relation.recordId,sourceVersionHash:relation.sourceFingerprint,
+      selectedFamilyId:"tap_pair",familyChoiceKind:"source_warranted_pairs",
+      internalLegacyGameId:null,
+      eligibleFamilies:eligible,excludedFamilies:excluded,
+      selectionTrace:{evaluatedFamilies:[...INTERACTION_FAMILIES],
+       sourceReasoningOperation:"source_warranted_relation",
+       sourceWarrantIds:[...relation.warrant.evidenceIds],
+       sourceRelation:relation.warrant.sourceRelation,
+       noSecondUserFacingSelection:true,tapPairBlockedUntilRelationAdapterExists:false,
+       derivedFromCertifiedSource:true},
+      sourceReview:"founder_provisional_not_scholar_verified",
+      publicationAllowed:false,productionPlayable:false
+    };
+  }
   const certified = selectMiniGameB25(sourceRef);
   if (certified.status !== "research_selected")
     return {
