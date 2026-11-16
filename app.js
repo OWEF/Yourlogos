@@ -708,8 +708,23 @@ document.addEventListener("click",async e=>{
    const control=e.target.closest("[data-b27]");
    if(control){
     e.preventDefault();
+    // Native buttons generate Enter/Space clicks. Preserve logical focus when
+    // the app rerenders the chosen game control out from under the keyboard.
+    const keyboard=e.detail===0;
+    const actionId=control.dataset.b27;
+    const valueId=control.dataset.value??control.dataset.b27Piece??null;
     const result=await b27Runtime.action(control);
     if(result==="open_saved"){discoverOpen=true;render();}
+    if(keyboard&&discoverOpen){
+      const controls=[...document.querySelectorAll(".b27-shell button:not(:disabled)")];
+      const same=controls.find(node=>node.dataset.b27===actionId&&
+        (node.dataset.value??node.dataset.b27Piece??null)===valueId);
+      const next=same||controls.find(node=>
+        ["branch","pair","move","focus"].includes(node.dataset.b27))||
+        controls.find(node=>node.dataset.b27==="complete")||
+        controls.find(node=>node.classList.contains("b27-close"));
+      next?.focus({preventScroll:true});
+    }
     return;
    }
   }
