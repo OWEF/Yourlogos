@@ -188,6 +188,33 @@ function chooseResponse(id){
  if(!responses().some(x=>x.id===id))return;
  updateState(s=>{s.response=id;s.unlocked=3;s.view=3;});
 }
+
+function swipeControl(options,handler){
+ const area=make("div","Swipe LEFT for the first decision, RIGHT for the second. Tap the labelled choices below or use arrow keys.","swipe-surface");
+ area.dataset.swipeSurface="true";
+ area.tabIndex=0;area.setAttribute("role","group");
+ area.setAttribute("aria-label","Swipe Decision choice surface with tap and keyboard alternatives");
+ let start=null;
+ area.addEventListener("touchstart",e=>{
+  start=e.changedTouches?.[0]?.clientX??null;
+ },{passive:true});
+ area.addEventListener("touchend",e=>{
+  const finish=e.changedTouches?.[0]?.clientX??null;
+  if(start===null||finish===null)return;
+  const dx=finish-start;start=null;
+  if(Math.abs(dx)<45||options.length<2)return;
+  const item=dx>0?options[1]:options[0];
+  if(item)handler(item.id);
+ },{passive:true});
+ area.addEventListener("keydown",e=>{
+  if(!["ArrowLeft","ArrowRight"].includes(e.key))return;
+  e.preventDefault();
+  const item=e.key==="ArrowRight"?options[1]:options[0];
+  if(item)handler(item.id);
+ });
+ return area;
+}
+
 function renderBranch(root){
  root.append(make("p",kindIsFuture()?
   "The first and third stages are YOUR decisions. The middle stage is a fiction you choose to explore, not an event you cause.":
@@ -212,6 +239,7 @@ function renderBranch(root){
  }
  if(st.start===null){
   root.append(make("p","First, what do you choose?","hint"));
+  if(game==="swipe_decision")root.append(swipeControl(possibleStarts(),chooseStart));
   const pair=make("div",null,"option-pair");
   for(const item of possibleStarts()){
    const b=button(item.label,()=>chooseStart(item.id),"option-card");
@@ -247,6 +275,7 @@ function renderBranch(root){
   box.append(make("small","AUTHOR-WRITTEN FICTION · NOT CAUSED BY YOUR DECISION"),
    make("p",currentScene?.description||""));
   root.append(box,make("p","Knowing this imagined development, what would you decide next?","hint"));
+  if(game==="swipe_decision")root.append(swipeControl(responses(),chooseResponse));
   const pair=make("div",null,"option-pair");
   for(const item of responses()){
    const b=button(item.label,()=>chooseResponse(item.id),"option-card");

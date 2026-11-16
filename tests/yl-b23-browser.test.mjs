@@ -103,7 +103,23 @@ test("actual source-connected six-peer browser passes source/choice/result flow 
    await source(page,"kierkegaard_map");await game(page,"decision_map");
    await chooseK(page);await result(page,"decision_map");
    await game(page,"swipe_decision");
-   await chooseK(page);await result(page,"swipe_decision");
+   assert.equal(await page.locator("[data-swipe-surface]").count(),1);
+   if(width<=430){
+    await page.locator("[data-swipe-surface]").evaluate(e=>{
+     const mk=x=>new Touch({identifier:1,target:e,clientX:x,clientY:100});
+     e.dispatchEvent(new TouchEvent("touchstart",{bubbles:true,
+      changedTouches:[mk(240)],touches:[mk(240)]}));
+     e.dispatchEvent(new TouchEvent("touchend",{bubbles:true,
+      changedTouches:[mk(30)],touches:[]}));
+    });
+    assert.equal((await page.evaluate(()=>window.__YL_B23_QA.getState())).st.start,"change");
+   }else await page.locator('[data-start="change"]').click();
+   await page.locator('[data-scene="risk"]').click();
+   assert.equal(await page.locator("[data-swipe-surface]").count(),1);
+   await page.locator("[data-swipe-surface]").focus();
+   await page.keyboard.press("ArrowLeft");
+   assert.equal((await page.evaluate(()=>window.__YL_B23_QA.getState())).st.response,"continue");
+   await result(page,"swipe_decision");
 
    const unacceptable=await page.evaluate(async()=>{
     const r=await fetch("/api/run",{method:"POST",

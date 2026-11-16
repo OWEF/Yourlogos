@@ -30,3 +30,6 @@ button,input{font:inherit}button{cursor:pointer;min-height:44px}button:disabled{
 [hidden]{display:none!important}
 @media(min-width:770px){.shell{padding-left:30px;padding-right:30px}.source-grid{grid-template-columns:repeat(2,1fr)}.peer-grid{grid-template-columns:repeat(3,1fr)}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
+
+.swipe-surface{display:flex;align-items:center;min-height:72px;margin:12px 0;padding:15px 17px;border:1px dashed var(--accent);border-radius:12px;color:var(--sage);background:#262b23;touch-action:pan-y;user-select:none;font-size:13px}
+.swipe-surface:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
