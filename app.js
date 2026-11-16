@@ -720,7 +720,7 @@ document.addEventListener("click",async e=>{
       const same=controls.find(node=>node.dataset.b27===actionId&&
         (node.dataset.value??node.dataset.b27Piece??null)===valueId);
       const next=same||controls.find(node=>
-        ["branch","pair","move","focus"].includes(node.dataset.b27))||
+        (["branch","pair","move","focus"]).includes(node.dataset.b27))||
         controls.find(node=>node.dataset.b27==="complete")||
         controls.find(node=>node.classList.contains("b27-close"));
       next?.focus({preventScroll:true});
