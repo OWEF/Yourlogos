@@ -188,13 +188,30 @@ function pairHtml(enc){
   const edge=r.edges.find(x=>(x.aId===p.aId&&x.bId===p.bId&&x.relationId===p.relationId));
   return '<span class="b27-pair-chip">'+e(edge?.label||"Connected")+'</span>';
  }).join("");
- return '<p class="b27-instruction">Tap two ideas to connect them. One or two relationships are enough—there is no matching score.</p>'+
+ // The user should never guess a hidden "right" partner. Once an idea is
+ // selected, only source-warranted partner buttons remain actionable; spell
+ // those possibilities out instead of rejecting arbitrary mystery matches.
+ const candidates=g.first===null?[]:r.edges.filter(edge=>
+  edge.aId===g.first||edge.bId===g.first);
+ const allowedIds=new Set(candidates.map(edge=>
+  edge.aId===g.first?edge.bId:edge.aId));
+ const labels=r.cards.filter(c=>allowedIds.has(c.id)).map(c=>e(c.label));
+ const guide=g.pairs.length>=2?
+  '<p class="b27-pair-guide" role="status">Two connections are recorded. Choose Undo to revise them.</p>':
+  g.first===null?
+   '<p class="b27-pair-guide">Choose any idea first. Supported connections will be shown before your next tap.</p>':
+   '<p class="b27-pair-guide" role="status">Source-supported next ideas: '+labels.join(', ')+'.</p>';
+ return '<p class="b27-instruction">Connect two ideas to explore a relationship. No secret matching score.</p>'+
+  guide+
   '<div class="b27-concepts" role="group" aria-label="Philosophical source-authorized concept cards">'+
-  r.cards.map(c=>b("pair",'<span aria-hidden="true" class="b27-concept-icon">✧</span><strong>'+e(c.label)+'</strong>',
-   "b27-concept"+(g.first===c.id?" active":"")+
-    (g.pairs.some(p=>[p.aId,p.bId].includes(c.id))?" connected":""),
-   'data-value="'+e(c.id)+'" aria-pressed="'+(g.first===c.id)+'" aria-label="'+e(c.label)+
-    ". "+e(c.detail)+'"')).join("")+'</div>'+
+  r.cards.map(c=>{
+   const eligible=g.pairs.length<2&&(g.first===null||c.id===g.first||allowedIds.has(c.id));
+   return b("pair",'<span aria-hidden="true" class="b27-concept-icon">✧</span><strong>'+e(c.label)+'</strong>',
+    "b27-concept"+(g.first===c.id?" active":"")+
+     (g.pairs.some(p=>[p.aId,p.bId].includes(c.id))?" connected":""),
+    'data-value="'+e(c.id)+'" aria-pressed="'+(g.first===c.id)+'" aria-label="'+e(c.label)+
+     ". "+e(c.detail)+'"'+(eligible?"":' disabled aria-disabled="true"'));
+  }).join("")+'</div>'+
   '<div class="b27-connections" aria-live="polite">'+links+'</div>';
 }
 function decisionHtml(enc){
