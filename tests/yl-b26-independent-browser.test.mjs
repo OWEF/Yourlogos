@@ -114,6 +114,10 @@ test("Independent visual and interactive mobile acceptance for 4 real tactile fa
    await page.waitForFunction(()=>document.querySelectorAll(".relation-lines line").length===1);
    await page.locator("#undo").click();
    assert.equal((await st(page)).state.pairs.length,0);
+   assert.equal((await st(page)).state.first,"pages",
+    "Undo restores the selected first card, not an invented cleared state");
+   await page.locator('[data-card="pages"]').click();
+   assert.equal((await st(page)).state.first,null);
    await page.locator('[data-card="pages"]').click();
    await page.locator('[data-card="binding"]').click();
    const related=await result(page,"tap_pair");
