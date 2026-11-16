@@ -16,6 +16,11 @@ export function createB27AppRuntime({
  quotes,getData,persist,readback,render,navigateWorld,notify
 }){
  let sheet=null,epoch=0;
+ // Some emulated/mobile browsers report window.innerWidth including the
+ // scrollbar gutter. Position the app-owned sheet against the actual visible
+ // document box instead of centering it in that wider layout viewport.
+ const syncViewport=()=>document.documentElement.style.setProperty(
+  "--yl-b27-client-width",document.documentElement.clientWidth+"px");
  const enabled=true;
  const qRequest=id=>{
   const q=quotes()[id];
@@ -29,6 +34,7 @@ export function createB27AppRuntime({
   const q=qRequest(id);
   if(!q)return false;
   const token=++epoch;
+  syncViewport();
   sheet={
    stage:"loading",quoteId:id,
    quote:{text:q.quoteText,author:q.quoteAuthor,
@@ -60,7 +66,10 @@ export function createB27AppRuntime({
   }
   draw();return true;
  }
- function close(){epoch++;sheet=null;}
+ function close(){
+  epoch++;sheet=null;
+  document.documentElement.style.removeProperty("--yl-b27-client-width");
+ }
  function html(quote){return renderB27Encounter(sheet,quote);}
  function worldHtml(saved){return savedB27WorldHtml(saved);}
  async function action(el){
@@ -72,6 +81,7 @@ export function createB27AppRuntime({
     notify?.("This saved Encounter could not be verified.");return false;
    }
    const q=quotes()[stored.quoteId];epoch++;
+   syncViewport();
    sheet={stage:"result",quoteId:stored.quoteId,
     quote:{text:q[0],author:q[1],work:q[3],question:q[4]},
     sourceVersionHash:stored.sourceVersionHash,
@@ -154,6 +164,7 @@ export function createB27AppRuntime({
   return false;
  }
  function install(){
+  window.addEventListener("resize",()=>{if(sheet)syncViewport()});
   document.addEventListener("dragstart",evt=>{
    const piece=evt.target.closest?.("[data-b27-piece]");
    if(sheet?.stage!=="play"||!piece||!evt.dataTransfer)return;
