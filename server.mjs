@@ -171,8 +171,17 @@ createServer(async(req,res)=>{
   if(!file.startsWith(ROOT+path.sep)){res.writeHead(403);res.end();return}
   try{
     const info=await stat(file);if(!info.isFile())throw new Error("not file");
-    const body=await readFile(file);
-    res.writeHead(200,{"Content-Type":MIME[path.extname(file)]||"application/octet-stream","X-Content-Type-Options":"nosniff","Cache-Control":file.endsWith("sw.js")||file.endsWith("auth-config.js")?"no-cache":"public,max-age=60"});
+    const isEntry=name==="/index.html";
+    // An opt-in query alone must NEVER enable unpublished B2.7 on a server
+    // where the feature is disabled. Static host entry HTML has no gate and
+    // therefore also safely defaults to legacy behavior.
+    const rawBody=await readFile(file);
+    const body=isEntry?Buffer.from(String(rawBody).replace("</head>",
+      '<script>window.__YL_B27_PREVIEW_ENABLED__='+
+      (process.env.YOURLOGOS_B27_PREVIEW==="1"?"true":"false")+
+      ';</script></head>')):rawBody;
+    res.writeHead(200,{"Content-Type":MIME[path.extname(file)]||"application/octet-stream","X-Content-Type-Options":"nosniff",
+      "Cache-Control":isEntry?"no-store":file.endsWith("sw.js")||file.endsWith("auth-config.js")?"no-cache":"public,max-age=60"});
     res.end(req.method==="HEAD"?undefined:body);
   }catch{res.writeHead(404);res.end("Not found")}
 }).listen(PORT,"0.0.0.0",()=>{
