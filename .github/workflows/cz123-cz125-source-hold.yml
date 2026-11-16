@@ -1,0 +1,37 @@
+name: CZ-123 CZ-125 preregistration independent SAFETY HOLD review
+on:
+  push:
+    branches: [qa/cz123-cz125-prereg-source-hold-v1]
+  pull_request:
+    paths:
+      - "tests/cz123-cz125-methodology-hold.mjs"
+      - ".github/workflows/cz123-cz125-source-hold.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-methodology-hold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify exact corrected PR193 SHA and only QA files added
+        run: |
+          set -euo pipefail
+          BASE=7ec22e2c0010c004fca8a82c845630f7d4d63539
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | tee /tmp/qa-files.txt
+          if grep -Ev '^(tests/cz123-cz125-methodology-hold\.mjs|\.github/workflows/cz123-cz125-source-hold\.yml)$' /tmp/qa-files.txt; then
+            echo "FAIL: independent QA modified research instrument or accepted engines"; exit 1
+          fi
+      - name: Verify corrective source-bound preregistration HOLD tests
+        run: node --test research/cz125/verify-kit.test.mjs
+      - name: Free local Chromium automation dependency
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Independently open disabled form and try to submit at mobile viewport
+        run: node tests/cz123-cz125-methodology-hold.mjs
+      - name: Report unapproved real-reader counts without fabricating respondents
+        run: node research/cz125/audit-local-evidence.mjs
