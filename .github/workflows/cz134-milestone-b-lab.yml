@@ -1,0 +1,38 @@
+name: CZ-134 source-neutral tactile UI lab checks
+on:
+  push:
+    branches: [feature/cz134-milestone-b-safe-tactile-lab-v1]
+  pull_request:
+    paths:
+      - "experiments/yl-milestone-b-lab*"
+      - "tests/yl-milestone-b-lab-browser.mjs"
+      - ".github/workflows/cz134-milestone-b-lab.yml"
+permissions:
+  contents: read
+jobs:
+  source-neutral-b0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Confirm accepted Milestone A remains unchanged and B0 adds only UI lab
+        run: |
+          set -euo pipefail
+          BASE=14c4cdbb1ad47b68dca3708b42a55b08895e5422
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b0_files.txt
+          while IFS= read -r file; do
+            case "$file" in
+              experiments/yl-milestone-b-lab.*|tests/yl-milestone-b-lab-browser.mjs|.github/workflows/cz134-milestone-b-lab.yml) ;;
+              *) echo "Scope violation: $file"; exit 1 ;;
+            esac
+          done < /tmp/b0_files.txt
+      - name: Check standalone UX script syntax
+        run: node --check experiments/yl-milestone-b-lab.js
+      - name: Install free existing browser harness
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Exercise Value Balance and Future Reveal at phone and desktop sizes
+        run: node tests/yl-milestone-b-lab-browser.mjs
