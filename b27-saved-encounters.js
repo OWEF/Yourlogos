@@ -24,7 +24,10 @@ export function saveFinishedEncounter(state,completed,{persist,readback,clock=()
  if(existing){
   const read=readback()?.savedEncounters;
   return Array.isArray(read)&&read.some(x=>x.saveKey===existing.saveKey&&
-   stable(x.canonicalChoice)===stable(existing.canonicalChoice))?
+   stable(x.canonicalChoice)===stable(existing.canonicalChoice)&&
+   x.sourceVersionHash===existing.sourceVersionHash&&
+   x.quoteFingerprint===existing.quoteFingerprint&&
+   stable(x.fullExpression)===stable(existing.fullExpression))?
    {status:"saved",id:existing.saveKey,alreadyExisted:true,record:existing}:
    fail("readback_not_verified","An existing Encounter was not confirmed from app storage");
  }
@@ -76,7 +79,9 @@ export function deleteSavedEncounter(state,id,{persist,readback}={}){
  state.savedEncounters=old.filter(x=>x?.saveKey!==id);
  try{
   persist();
-  if(readback()?.savedEncounters?.some(x=>x?.saveKey===id))
+  const verified=readback()?.savedEncounters;
+  if(!Array.isArray(verified)||verified.some(x=>x?.saveKey===id)||
+     verified.length!==state.savedEncounters.length)
    throw Error("Deletion readback failed");
   return {status:"deleted",id};
  }catch{
