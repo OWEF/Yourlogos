@@ -121,7 +121,7 @@ const DAILY_FEATURE_IDS=[0,2,3,5,6,7,9,10,12,13,15,16,17,18,19,20,21,22,23,24,26
 const THEMES=["Meaning","Suffering","Freedom","Mortality","Love","Doubt","Action","Solitude","Beauty","Time"];
 // Keep the canonical 91-quote literal and historic V2.4 verification isolated;
 // provisional B2.7 excerpts are appended only for an explicitly enabled preview.
-if(B27_ENABLED)QUOTES.push(...B27_APP_QUOTES.slice(B27_INHERITED_COUNT).map(row=>[...row]));
+if(typeof B27_ENABLED!=="undefined"&&B27_ENABLED)QUOTES.push(...B27_APP_QUOTES.slice(B27_INHERITED_COUNT).map(row=>[...row]));
 const PROMPTS={
 Meaning:["Notice where your own 'why' is clear, and where it has gone quiet.","Can meaning be found, or must it be made?"],
 Suffering:["Where is the pain, before you try to explain it?","Does suffering necessarily teach us anything?"],
@@ -213,12 +213,12 @@ const dailyPick=(dateKey)=>{
 };
 const activeQuote=()=>{const d=today();if(Number.isInteger(data.practice[d]?.quoteId)&&QUOTES[data.practice[d].quoteId])return data.practice[d].quoteId;return dailyPick(d)};
 const persist=()=>localStorage.setItem(KEY,JSON.stringify(data));
-const b27Runtime=B27_ENABLED?createB27AppRuntime({
+const b27Runtime=(typeof B27_ENABLED!=="undefined"&&B27_ENABLED)?createB27AppRuntime({
  quotes:()=>QUOTES,getData:()=>data,persist,readback:load,render:()=>render(),
  navigateWorld:()=>{discoverOpen=false;view="profile";universePane="home";render();},
  notify:message=>toast(message)
 }):null;
-if(B27_ENABLED)window.__YL_B27_QA=Object.freeze({
+if(typeof B27_ENABLED!=="undefined"&&B27_ENABLED)window.__YL_B27_QA=Object.freeze({
  getState:()=>({...b27Runtime.getState(),
   savedEncounters:validatedSavedEncounters(data.savedEncounters).length,
   quoteLikeCount:data.saved.length,productionMerged:false})
