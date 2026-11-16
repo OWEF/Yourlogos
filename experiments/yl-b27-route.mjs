@@ -21,6 +21,8 @@ import {runFourFamilyEncounterB26}
  from "./yl-b26-encounter.mjs";
 import {SMITH_HUMAN_CONTRACT,runSmithHumanEncounter}
  from "./yl-b27-human-content.mjs";
+import {B27_KIERKEGAARD_HINDSIGHT,replayB27HindsightBase}
+ from "./yl-b27-future-source.mjs";
 import {compactEncounterB27}
  from "./yl-b27-compact.mjs";
 export const B27_ROUTE_VERSION="quote-direct-source-bound/2.7.0";
@@ -30,14 +32,16 @@ const sourceByQuoteId=Object.freeze({
  34:"kierkegaard_map",
  91:"smith_human",
  92:"epictetus_relations",
- 93:"thoreau_weekend"
+ 93:"thoreau_weekend",
+ 94:"kierkegaard_hindsight"
 });
 const keyRef=Object.freeze({
  dillard:DILLARD_V21,
  kierkegaard_map:KIERKEGAARD_V21,
  thoreau_weekend:B25_BALANCE_CONTRACTS[1].recordId,
  epictetus_relations:PAIR_SOURCE_RECORDS[0].recordId,
- smith_human:SMITH_HUMAN_CONTRACT.recordId
+ smith_human:SMITH_HUMAN_CONTRACT.recordId,
+ kierkegaard_hindsight:B27_KIERKEGAARD_HINDSIGHT.recordId
 });
 const old=catalogueB26();
 const block=(code,reason)=>({status:"blocked",code,reason,
@@ -106,7 +110,30 @@ export function resolveQuoteB27(input){
   return block("provisional_quote_not_public",
    "A new provisional source excerpt requires an explicitly isolated development journey");
  let scenario,selection,sourceRef;
- if(key==="smith_human"){
+ if(key==="kierkegaard_hindsight"){
+  const c=B27_KIERKEGAARD_HINDSIGHT,original=replayB27HindsightBase();
+  if(!original)return block("translation_ancestry_failed",
+   "The original JJ:167 reasoning contract cannot be authenticated");
+  const auth=assessInteractionFamiliesB26(original.recordId);
+  const candidate=old.find(x=>x.key==="kierkegaard_future");
+  if(auth.status!=="research_selected"||auth.selectedFamilyId!=="flip_reveal"||
+     candidate?.familyId!=="flip_reveal")return block("source_warrant_rejected",
+      "The source-authored fictional timeline is not eligible");
+  scenario={...candidate,key,sourceStatus:"research_selected",
+   title:c.scenario.title,intro:c.scenario.description,
+   author:c.source.author,work:c.source.work,
+   quote:c.source.quote,sourceUrl:c.source.referenceUrl,
+   sourceFingerprint:c.contentFingerprint,
+   sourceReview:"founder_provisional_development_only",
+   sourceThesis:c.centralThesis,humanTension:c.humanTension,
+   epistemicLimits:c.scenario.assumptions.join(" "),
+   sourceWarrantIds:["source:central","timeline:authored","source:boundary"],
+   readerAgency:c.scenario.readerAgency,
+   sourceTranslationBridge:c.sourceRelation};
+  sourceRef=c.recordId;
+  selection={status:"research_selected",selectedFamilyId:"flip_reveal",
+    sourceRecordId:c.recordId,sourceVersionHash:c.contentFingerprint};
+ }else if(key==="smith_human"){
   const c=SMITH_HUMAN_CONTRACT;
   const authorized=assessInteractionFamiliesB26(PAIR_SOURCE_RECORDS[1].recordId);
   if(authorized.status!=="research_selected"||
@@ -171,22 +198,33 @@ export function runQuoteEncounterB27(request){
   return block("stale_source","The selected source version has changed; restart Discover");
  let full;
  const key=permitted.record.key;
- if(key==="smith_human")
+ if(key==="smith_human"){
   full=runSmithHumanEncounter(SMITH_HUMAN_CONTRACT,request.canonicalInput);
- else{
+ }else if(key==="kierkegaard_hindsight"){
+  const original=replayB27HindsightBase();
+  if(!original)return block("source_translation_bridge_failed",
+   "Original journal source record cannot be replayed");
+  full=runFourFamilyEncounterB26(original.recordId,
+   assessInteractionFamiliesB26(original.recordId),request.canonicalInput);
+  if(full.status!=="ready")return full;
+  if(full.sourceVersionHash!==original.contentFingerprint||
+     permitted.record.sourceTranslationBridge.originalSourceRecordId!==original.recordId)
+   return block("source_translation_bridge_failed","The two JJ:167 renderings cannot be shown to share an authenticated source");
+ }else{
   const ref=keyRef[key],selection=assessInteractionFamiliesB26(ref);
   full=runFourFamilyEncounterB26(ref,selection,request.canonicalInput);
  }
  if(full.status!=="ready")return full;
  if(full.selectedFamilyId!==permitted.selectedFamilyId||
-    full.sourceVersionHash!==permitted.sourceVersionHash)
+    (key!=="kierkegaard_hindsight"&&
+     full.sourceVersionHash!==permitted.sourceVersionHash))
   return block("semantic_replay_mismatch","A full authoritative Encounter could not be replayed");
  const compact=compactEncounterB27(permitted.record,full);
  if(compact.status!=="ready")return compact;
  return {
   status:"ready",version:B27_ROUTE_VERSION,
   saveKey:fingerprintB25({quoteFingerprint:permitted.quoteFingerprint,
-   sourceVersionHash:full.sourceVersionHash,
+   sourceVersionHash:permitted.sourceVersionHash,
    selectedFamilyId:full.selectedFamilyId,
    canonicalChoice:full.canonical_choice}),
   quoteId:permitted.quoteId,quoteFingerprint:permitted.quoteFingerprint,
@@ -196,7 +234,12 @@ export function runQuoteEncounterB27(request){
   canonical_choice:full.canonical_choice,
   fullExpression:full.expression,fullMeaning:full.meaning,
   emotion:full.emotion,compact,
-  provenance:full.provenance,uncertainty:
+  provenance:{...full.provenance,
+    ...(key==="kierkegaard_hindsight"?{
+     unchangedMeaningSourceVersionHash:full.sourceVersionHash,
+     alternateEnglishExcerptBindsSameJournal:"JJ:167",
+     sourceTranslationIdentityNotClaimed:true}: {})
+   },uncertainty:
    permitted.record.epistemicLimits??full.meaning?.meaning?.limitations??null,
   sourceReview:"founder_provisional_development_only",
   publicationAllowed:false,productionPlayable:false,

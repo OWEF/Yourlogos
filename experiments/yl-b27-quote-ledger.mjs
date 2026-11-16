@@ -660,6 +660,13 @@ export const B27_APP_QUOTES=Object.freeze([
   "Time",
   "Walden · Economy (excerpt)",
   "What does an imagined purchase really cost in time?"
+ ],
+ [
+  "The more one thinks through this clause, the more one concludes that life in temporality never becomes properly understandable…",
+  "Søren Kierkegaard",
+  "Time",
+  "The Essential Kierkegaard · Early Journal Entries, p. 12 (Hong & Hong, 2000; JJ:167 excerpt)",
+  "What is still unknowable even after you have lived through a choice?"
  ]
 ]);
 export const B27_INHERITED_COUNT=91;

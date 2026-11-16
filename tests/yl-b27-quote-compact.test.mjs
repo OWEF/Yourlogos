@@ -37,17 +37,17 @@ const inspect=(id,input,family)=>{
  return result;
 };
 test("91 immutable original app quote records, exactly three development source excerpts appended",()=>{
- assert.equal(B27_APP_QUOTES.length,94);
+ assert.equal(B27_APP_QUOTES.length,95);
  const app=readFileSync(new URL("../app.js",import.meta.url),"utf8");
  const passage=app.slice(app.indexOf("const QUOTES=["),app.indexOf("];\n// Daily first"));
  const parsed=passage.split("\n").filter(x=>x.trim().startsWith("["))
   .map(x=>JSON.parse(x.trim().replace(/,$/,"")));
  assert.equal(parsed.length,91);
  assert.deepEqual(parsed,B27_APP_QUOTES.slice(0,91));
- assert.equal(new Set(B27_APP_QUOTES.map(q=>q[0])).size,94);
+ assert.equal(new Set(B27_APP_QUOTES.map(q=>q[0])).size,95);
 });
 test("exact quote identity, author and source edition never guessed via author name",()=>{
- for(const id of [12,34,91,92,93])ready(id);
+ for(const id of [12,34,91,92,93,94])ready(id);
  for(const id of [12,34,91,92,93]){
   const base=q(id);
   for(const tamper of [
@@ -93,6 +93,15 @@ test("original Dillard, Kierkegaard and source-new Epictetus/Thoreau all reach c
  inspect(92,{pairs:[{aId:"apology",bId:"forgiveness",
   relationId:"agency_boundary"}]},"tap_pair");
  inspect(93,{amounts:[6,6],budgets:[12],focus:"openness",touched:true},"balance_move");
+ const flip=inspect(94,{actions:[
+  {type:"choose_start",optionId:"stay"},
+  {type:"explore_authored",sceneId:"surprise"},
+  {type:"choose_response",optionId:"continue"},
+  {type:"read_retrospective"}
+ ]},"flip_reveal");
+ assert.equal(flip.provenance.alternateEnglishExcerptBindsSameJournal,"JJ:167");
+ assert.equal(flip.provenance.authoredEventCausedByReader,false);
+ assert.equal(flip.provenance.unchosenFutureKnown,false);
 });
 test("stale source and unsupported word/selection attempts fail without saving or fabrication",()=>{
  const src=ready(91),base=q(91);

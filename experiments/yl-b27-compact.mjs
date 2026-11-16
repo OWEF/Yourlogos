@@ -37,6 +37,11 @@ const editorial=Object.freeze({
   limit:"The revealed scene is invented, never predicted.",
   question:"How would you respond without claiming to know the alternative?"
  },
+ kierkegaard_hindsight:{
+  insight:"Kierkegaard's journal denies us complete hindsight: even later, no one stands outside the flow of living.",
+  limit:"The flipped possibility is fictional, not a forecast.",
+  question:"What would you choose without demanding perfect understanding afterward?"
+ },
  epictetus_relations:{
   insight:"Epictetus distinguishes your own chosen action from another person's response, which cannot be guaranteed.",
   limit:"This fictional exchange proves no real forgiveness or virtue.",
