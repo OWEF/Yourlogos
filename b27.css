@@ -85,3 +85,6 @@ body:has(.b27-shell) .discover-cover{
   width:var(--yl-b27-client-width,100vw)!important;
   max-width:var(--yl-b27-client-width,100vw)!important;
 }
+
+.b27-pair-guide{margin:0 0 12px!important;font:500 12px/1.45 "DM Sans",sans-serif;color:#e6d2a3;background:rgba(80,91,67,.28);padding:9px 10px;border:1px solid #57684f;border-radius:10px}
+.b27-concept:disabled{opacity:.38;cursor:not-allowed;box-shadow:none;pointer-events:none}
