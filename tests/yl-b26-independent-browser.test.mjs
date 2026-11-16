@@ -104,7 +104,11 @@ test("Independent visual and interactive mobile acceptance for 4 real tactile fa
    assert.equal(await page.locator(".pair-card").count(),4);
    const first=page.locator('[data-card="division"]');
    await first.focus();await page.keyboard.press("Enter");
+   assert.equal((await st(page)).state.first,"division",
+    "Enter on an accessible concept card must select that first card");
    await page.locator('[data-card="booklet"]').click();
+   assert.equal((await st(page)).state.first,null,
+    "Unsupported connection must clear first selection without inventing a pair");
    assert.equal((await st(page)).state.pairs.length,0,
     "An unadmitted pairing cannot become source-truth");
    assert.match(await page.locator("#feedback").innerText(),/No source-authored link/);
