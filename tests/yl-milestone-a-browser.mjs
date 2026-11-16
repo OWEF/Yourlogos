@@ -56,12 +56,30 @@ try{
     }
     assert.equal(await page.locator("#play-next").isEnabled(),true);
    }else if(game==="token_studio"){
+    // Regression: initial tokens must be UNASSIGNED, not silently counted as Writing.
+    assert.equal(await page.locator("#play-next").isDisabled(),true,
+     "Do not allow a philosophical result before the reader makes an allocation.");
+    assert.equal(await page.locator(".slot").count(),6);
+    assert.equal(await page.locator(".slot").filter({hasText:"Unassigned"}).count(),6);
+    assert.equal(await page.locator(".slot").filter({hasText:"30 min"}).count(),6);
+    assert.equal((await state(page)).canonicalChoice,null);
+    const labels=page.locator(".tokens-legend button");
+    await labels.nth(1).click(); // Answering messages chosen as explicit destination
     await page.locator(".slot").nth(0).click();
     await page.locator(".slot").nth(1).click();
-    assert.equal((await state(page)).canonicalChoice.amounts[1],2);
+    assert.equal(await page.locator("#play-next").isDisabled(),true);
+    assert.equal((await state(page)).allocationPreview[1],2);
     await page.locator("#undo").click();
-    assert.equal((await state(page)).canonicalChoice.amounts[1],1);
+    assert.equal((await state(page)).allocationPreview[1],1);
     await page.locator(".slot").nth(1).click();
+    await labels.nth(0).click();
+    for(let i=2;i<6;i++)await page.locator(".slot").nth(i).click();
+    assert.equal(await page.locator("#play-next").isEnabled(),true);
+    assert.deepEqual((await state(page)).canonicalChoice.amounts,[4,2,0]);
+    // Removing one allocation invalidates the result until the budget is complete.
+    await page.locator(".distribution .activity").nth(0).locator("button").nth(0).click();
+    assert.equal(await page.locator("#play-next").isDisabled(),true);
+    await page.locator("#undo").click();
     assert.equal(await page.locator("#play-next").isEnabled(),true);
    }else{
     for(let stage=0;stage<3;stage++){
