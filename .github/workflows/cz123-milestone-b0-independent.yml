@@ -1,0 +1,32 @@
+name: CZ-123 independent CZ-134 source-gate and gesture QA
+on:
+  push:
+    branches: [qa/cz123-milestone-b0-negative-20261116-v1]
+  pull_request:
+    paths:
+      - "tests/cz123-milestone-b0-independent.mjs"
+      - ".github/workflows/cz123-milestone-b0-independent.yml"
+permissions:
+  contents: read
+jobs:
+  independent-b0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify QA-only files beyond exact B0 candidate
+        run: |
+          set -euo pipefail
+          BASE=c6336144d6779f511fabc731f0242c59861680e3
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/qa.txt
+          test "$(wc -l < /tmp/qa.txt)" -eq 2
+          grep -Fxq 'tests/cz123-milestone-b0-independent.mjs' /tmp/qa.txt
+          grep -Fxq '.github/workflows/cz123-milestone-b0-independent.yml' /tmp/qa.txt
+      - name: Install free browser test runner
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Test source-admission fail closed and real browser interactions
+        run: node --test tests/cz123-milestone-b0-independent.mjs
