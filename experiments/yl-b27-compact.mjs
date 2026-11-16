@@ -55,9 +55,11 @@ function partOne(record,result){
  if(family==="balance_move"){
   const alloc=record.allocation,amt=canonical?.amounts;
   if(!alloc||!Array.isArray(amt)||amt.length!==alloc.choices.length)return null;
-  const choices=alloc.choices;
-  const string=amt.map((x,i)=>x+" "+alloc.unitName+" toward "+choices[i].label).join("; ");
-  return "You allocated "+string+" in this imagined situation. The total remains within the available time.";
+  const choices=alloc.choices,remaining=amt.slice(1).reduce((a,b)=>a+b,0);
+  const others=choices.slice(1).map(x=>x.label).join(" and ");
+  return "You allocated "+amt[0]+" of "+alloc.resourceCapacity+" "+alloc.unitName+
+   " to "+choices[0].label+"; the remaining "+remaining+
+   " went toward "+others+" in this imagined allocation.";
  }
  if(family==="decision_cards"||family==="flip_reveal"){
   const path=canonical?.path,routes=record.timeline;
