@@ -95,6 +95,10 @@ try{
    await page.locator("#result-back").click();
    await page.locator("#result-back").click();
    assert.equal(await page.locator("#play").isVisible(),true);
+   // Returning to source selection must unwind dependent hypothetical steps.
+   for(let back=0;back<5&&(await state(page)).view!=="intro";back++)
+    await page.locator("#play-back").click();
+   assert.equal((await state(page)).view,"intro");
   }
   await page.locator("#source").selectOption(HEGEL_NO_FIT_V21.id);
   await page.locator("#preferred").selectOption("");
