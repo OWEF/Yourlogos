@@ -51,7 +51,7 @@ try{
   assert.equal((await state()).finished,true);
   await page.locator("#back").click();
   assert.equal((await state()).finished,false);
-  await page.getByRole("button",{name:"Change initial decision"}).click();
+  await page.getByRole("button",{name:"Choose a different starting action"}).click();
   assert.equal((await state()).route,null);
   assert.equal((await state()).step,0);
   assert.equal((await state()).maxSeen,0);
