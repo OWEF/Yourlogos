@@ -33,5 +33,16 @@ jobs:
           node --check b27-saved-encounters.js
       - name: Real app-owned persistence, exact idempotency and rollback
         run: node --test tests/yl-b27-app-storage.test.mjs
+      - name: Install free Chrome automation harness
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Browser real app quote-to-My-World, mobile 320/390/430/1024
+        run: node --test tests/yl-b27-actual-app-browser.test.mjs
+      - name: Upload actual app mobile play/result evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz145-b27-real-app-consumer-evidence
+          path: qa-evidence/
+          if-no-files-found: warn
       - name: Preserve B2.6 legacy semantic regressions
         run: node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs tests/yl-b25-generalized-encounter.test.mjs
