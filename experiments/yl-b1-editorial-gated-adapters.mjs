@@ -100,7 +100,7 @@ export function normalizeFuture(record,actions){
   return fail("incompatible_agency","Wrong agency or unknown-future contract");
  let start=null,authoredEvent=null,seen=false,response=null,reflected=false,unlocked=0,view=0;
  for(const a of actions){
-  if(!keys(a,["type","optionId","stage"]))return fail("forged_event","Unknown action data");
+  if(!keys(a,["type","optionId","stage","sceneId"]))return fail("forged_event","Unknown action data");
   if(a.type==="choose_start"||a.type==="revise_start"){
    if(!keys(a,["type","optionId"])||typeof a.optionId!=="string"||
       !routes.some(r=>r.path[0]===a.optionId)||
