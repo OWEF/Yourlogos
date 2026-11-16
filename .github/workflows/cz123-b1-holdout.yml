@@ -1,0 +1,45 @@
+name: CZ-123 B1 QA-only negative and B0 visual evidence
+on:
+  push:
+    branches: [qa/cz123-b1-independent-negative-20261116-v1]
+  pull_request:
+    paths:
+      - "tests/yl-b1-qa-holdout.test.mjs"
+      - "tests/yl-b1-qa-visual.mjs"
+      - ".github/workflows/cz123-b1-holdout.yml"
+permissions:
+  contents: read
+jobs:
+  b1-adversarial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Scope gate against exact developer-reviewed B1 SHA
+        run: |
+          set -euo pipefail
+          BASE=c8b08562177148319c98d9cc8a37b78e73ff9b0c
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b1qa_files
+          while IFS= read -r file; do
+            case "$file" in
+              tests/yl-b1-qa-holdout.test.mjs|tests/yl-b1-qa-visual.mjs|.github/workflows/cz123-b1-holdout.yml) ;;
+              *) echo "QA altered implementation or frozen content: $file"; exit 1 ;;
+            esac
+          done < /tmp/b1qa_files
+      - name: B1 independent adversarial source, hash and event cases
+        run: node --test tests/yl-b1-qa-holdout.test.mjs
+      - name: Browser harness (no production dependency)
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: B0 browser control regression at four viewports; no B1 source admission
+        run: node tests/yl-b1-qa-visual.mjs
+      - name: Attach 390px research-only screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz123-b1-source-neutral-ui-evidence
+          path: qa-evidence/
+          if-no-files-found: warn
