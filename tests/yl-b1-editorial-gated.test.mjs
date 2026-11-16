@@ -44,20 +44,17 @@ test("three-activity schedule cannot be changed into two moral-weight scores",()
  assert.equal(normalizeBalance(DILLARD_V21,{leftSlots:3,touched:true,
   personalityScore:10}).code,"invalid_input");
 });
-test("existing route replay isolates the authored event and prevents skipping",()=>{
+test("existing route has multiple unchosen developments: do not invent which one occurs",()=>{
  const actions=[
   {type:"choose_start",optionId:"change"},
   {type:"reveal_authored"},
   {type:"choose_response",optionId:"adapt"},
   {type:"read_retrospective"}
  ];
- const ok=normalizeFuture(KIERKEGAARD_V21,actions);
- assert.equal(ok.status,"normalized",JSON.stringify(ok));
- assert.deepEqual(ok.canonical.path,["change","surprise","adapt"]);
- assert.deepEqual(ok.provenance.roles,
-  ["USER_DECISION","AUTHORED_DEVELOPMENT","USER_DECISION"]);
- assert.equal(ok.provenance.unchosenFutureKnown,false);
- assert.equal(normalizeFuture(KIERKEGAARD_V21,actions.slice(0,2)).code,"incomplete");
+ const result=normalizeFuture(KIERKEGAARD_V21,actions);
+ assert.equal(result.code,"source_ambiguity",
+  "An initial choice does not determine an unchosen external event");
+ assert.equal(normalizeFuture(KIERKEGAARD_V21,actions.slice(0,1)).code,"incomplete");
  assert.equal(normalizeFuture(KIERKEGAARD_V21,
   [actions[0],{type:"scrub",stage:4},...actions.slice(1)]).code,"stage_locked");
  assert.equal(normalizeFuture(KIERKEGAARD_V21,
@@ -65,12 +62,10 @@ test("existing route replay isolates the authored event and prevents skipping",(
  assert.equal(normalizeFuture(KIERKEGAARD_V21,
   [actions[0],{type:"choose_response",optionId:"adapt"}]).code,"invalid_response");
  assert.equal(normalizeFuture(KIERKEGAARD_V21,
-  [...actions,{type:"revise_start",optionId:"stay"},{type:"scrub",stage:4}]).code,
-  "stage_locked","Revision must discard downstream scene and response");
- const back=normalizeFuture(KIERKEGAARD_V21,[
-  ...actions,{type:"scrub",stage:1},{type:"scrub",stage:4}]);
- assert.equal(back.status,"normalized");
- assert.deepEqual(back.canonical.path,ok.canonical.path);
+  [actions[0],{type:"revise_start",optionId:"stay"},{type:"scrub",stage:2}]).code,
+  "stage_locked","Revision discards the first route's imagined future");
+ assert.equal(normalizeFuture(KIERKEGAARD_V21,
+  [actions[0],{type:"choose_start",optionId:"stay"}]).code,"invalid_decision");
 });
 test("no source-ineligible game can emit an engine result",()=>{
  const out=tryB1Encounter(KIERKEGAARD_V21,"future_reveal",{
