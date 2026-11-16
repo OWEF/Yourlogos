@@ -114,12 +114,14 @@ const QUOTES=[
 ["Nothing is so painful to the human mind as a great and sudden change.","Mary Shelley","Suffering","Frankenstein, Chapter XXIII (1818 edition varies)","Which change have you needed time to understand?"],
 ["The feeling of commiseration is the beginning of humanity.","Mencius","Love","Mencius 2A:6 (translation varies)","Where does empathy begin before deliberate reasoning?"]
 ];
-if(B27_ENABLED)QUOTES.push(...B27_APP_QUOTES.slice(B27_INHERITED_COUNT).map(row=>[...row]));
 // Daily first impressions favor clear, everyday wording. All 91 original
 // quotations remain available in Encounter swipes and Library, with stable IDs.
 // Add future quotes only after an editorial accessibility review.
 const DAILY_FEATURE_IDS=[0,2,3,5,6,7,9,10,12,13,15,16,17,18,19,20,21,22,23,24,26,29,30,33,34,35,36,39,40,41,42,43,45,47,48,49,50,51,52,53,54,57,60,61,68,71,76,77,78,79,81,84,86,87,89,90];
 const THEMES=["Meaning","Suffering","Freedom","Mortality","Love","Doubt","Action","Solitude","Beauty","Time"];
+// Keep the canonical 91-quote literal and historic V2.4 verification isolated;
+// provisional B2.7 excerpts are appended only for an explicitly enabled preview.
+if(B27_ENABLED)QUOTES.push(...B27_APP_QUOTES.slice(B27_INHERITED_COUNT).map(row=>[...row]));
 const PROMPTS={
 Meaning:["Notice where your own 'why' is clear, and where it has gone quiet.","Can meaning be found, or must it be made?"],
 Suffering:["Where is the pain, before you try to explain it?","Does suffering necessarily teach us anything?"],
