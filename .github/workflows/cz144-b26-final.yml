@@ -26,7 +26,7 @@ jobs:
           git diff --name-only "$BASE" HEAD > /tmp/qa_diff
           while IFS= read -r f; do
             case "$f" in
-              tests/cz144-b26-source-holdouts.test.mjs|tests/cz144-b26-browser-holdouts.test.mjs|.github/workflows/cz144-b26-independent.yml) ;;
+              tests/cz144-b26-source-holdouts.test.mjs|tests/cz144-b26-browser-holdouts.test.mjs|.github/workflows/cz144-b26-final.yml) ;;
               *) echo "QA illegally modified an implementation file: $f"; exit 1 ;;
             esac
           done < /tmp/qa_diff
