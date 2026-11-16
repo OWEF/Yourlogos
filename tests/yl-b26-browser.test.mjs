@@ -83,7 +83,10 @@ test("All FOUR are working sources→tactile choice→Reasoning/Emotion/Expressi
 
    // Decision Cards: simple staged source-authored branch, tap only.
    await source(page,"kierkegaard_map","decision_cards");
-   await page.locator('[data-choice="change"]').click();
+   await page.locator('[data-choice="change"]').focus();
+   await page.keyboard.press("Enter");
+   assert.equal((await state(page)).state.start,"change",
+    "Enter must reliably activate a Decision Card exactly once");
    await page.locator('[data-choice="risk"]').click();
    await page.locator('[data-choice="continue"]').click();
    const dec=await discover(page,"decision_cards");

@@ -20,7 +20,16 @@ const make=(tag,text,cls)=>{
  return el;
 };
 const button=(label,fn,cls="control quiet")=>{
- const b=make("button",label,cls);b.type="button";b.addEventListener("click",fn);return b;
+ const b=make("button",label,cls);b.type="button";
+ b.addEventListener("click",fn);
+ // R3 keyboard: Enter/Space must activate exactly once even when this
+ // source-authored stage immediately replaces its own button DOM.
+ b.addEventListener("keydown",event=>{
+  if(event.key!=="Enter"&&event.key!==" ")return;
+  event.preventDefault();
+  if(!event.repeat&&!b.disabled)fn();
+ });
+ return b;
 };
 const svgIcon={
  hand:'<path d="M13 23v-9c0-1.5 2-1.5 2 0v-8c0-2 3-2 3 0v7-10c0-2 3-2 3 0v11-9c0-2 3-2 3 0v9-6c0-2 3-2 3 0v9c0 8-3 12-10 12H12c-4 0-6-2-9-7-1-2 2-4 4-2z" transform="translate(-1 0) scale(.88)"/>',
