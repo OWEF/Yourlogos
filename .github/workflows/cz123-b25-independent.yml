@@ -1,0 +1,47 @@
+name: CZ-123 B2.5 independent exact-SHA product acceptance
+on:
+  push:
+    branches: [qa/cz123-b25-independent-product-final-v1]
+  pull_request:
+    paths:
+      - "tests/yl-b25-independent-holdouts.test.mjs"
+      - "tests/yl-b25-independent-browser.test.mjs"
+      - ".github/workflows/cz123-b25-independent.yml"
+permissions:
+  contents: read
+jobs:
+  exact-sha:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: QA scope exact developer SHA and tests ONLY
+        run: |
+          set -euo pipefail
+          BASE=576743a354a961a35b35bf58f8b61f655c43d190
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/qa_files
+          while IFS= read -r file; do
+            case "$file" in
+              tests/yl-b25-independent-holdouts.test.mjs|tests/yl-b25-independent-browser.test.mjs|.github/workflows/cz123-b25-independent.yml) ;;
+              *) echo "QA modified accepted implementation: $file"; exit 1 ;;
+            esac
+          done </tmp/qa_files
+      - name: Independent held-out two-source positive and hostile no-fit
+        run: node --test tests/yl-b25-independent-holdouts.test.mjs
+      - name: Install no-cost isolated Chrome test harness
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Independent consumer/mobile, preview and QA-mode browser
+        run: node --test tests/yl-b25-independent-browser.test.mjs
+      - name: Independent visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz123-b25-independent-consumer-screenshots
+          path: qa-evidence/
+          if-no-files-found: warn
+      - name: Exact frozen previous Encounter and source gates
+        run: node --test tests/yl-b25-generalized-encounter.test.mjs tests/yl-b24-coherent-encounter.test.mjs tests/yl-b23-founder-six-peer.test.mjs tests/yl-milestone-a.test.mjs tests/yl-b1-editorial-gated.test.mjs
