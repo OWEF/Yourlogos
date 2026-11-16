@@ -1194,7 +1194,7 @@ document.addEventListener("input",e=>{
  const updated=e.target.id==="yl-living-opening"?openingLiving(current,e.target.value):noteLiving(current,e.target.value);
  if(updated){data.livingThreads.sessions[key]=updated;persist();}
 });
-document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsOpen){settingsOpen=false;render()}else if(previewTomorrowOpen){previewTomorrowOpen=false;render()}else if(discoverOpen){discoverOpen=false;render()}});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsOpen){settingsOpen=false;render()}else if(previewTomorrowOpen){previewTomorrowOpen=false;render()}else if(discoverOpen){discoverOpen=false;b27Runtime?.close();render();document.querySelector('[data-action="discover"]')?.focus({preventScroll:true})}});
 document.addEventListener("submit",async e=>{
  if(e.target.id==="profile-name-form"){
   e.preventDefault();const name=String(new FormData(e.target).get("displayName")||"").trim().replace(/\s+/g," ").slice(0,32);
