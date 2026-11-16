@@ -1,0 +1,39 @@
+name: CZ-134 B1 fail-closed source adapter checks
+on:
+  push:
+    branches: [feature/cz134-b1-source-gated-adapters-v1]
+  pull_request:
+    paths:
+      - "experiments/yl-b1-editorial-gated-adapters.mjs"
+      - "tests/yl-b1-editorial-gated.test.mjs"
+      - "research/cz121/B1-SOURCE-ELIGIBILITY.md"
+      - ".github/workflows/cz134-b1-source-gated.yml"
+permissions:
+  contents: read
+jobs:
+  source-gated-intent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Preserve B0 and all frozen source and engine modules
+        run: |
+          set -euo pipefail
+          BASE=c6336144d6779f511fabc731f0242c59861680e3
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b1_changed
+          while IFS= read -r file; do
+            case "$file" in
+              experiments/yl-b1-editorial-gated-adapters.mjs|tests/yl-b1-editorial-gated.test.mjs|research/cz121/B1-SOURCE-ELIGIBILITY.md|.github/workflows/cz134-b1-source-gated.yml) ;;
+              *) echo "Scope violation: $file"; exit 1 ;;
+            esac
+          done < /tmp/b1_changed
+      - name: B1 syntax and adversarial source-event tests
+        run: |
+          node --check experiments/yl-b1-editorial-gated-adapters.mjs
+          node --test tests/yl-b1-editorial-gated.test.mjs
+      - name: Existing frozen-choice and six-peer selector regressions
+        run: node --test tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/content-v212-editorial-regression.test.mjs tests/yl-milestone-a.test.mjs
