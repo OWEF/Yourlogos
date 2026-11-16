@@ -5,6 +5,10 @@ on:
   pull_request:
     paths:
       - "experiments/yl-b27-*"
+      - "b27-*"
+      - "app.js"
+      - "server.mjs"
+      - "index.html"
       - "tests/yl-b27-*"
       - ".github/workflows/cz145-b27.yml"
 permissions:
@@ -20,5 +24,14 @@ jobs:
         with: {node-version: "22"}
       - name: B2.7 exact quote, source, compact, and Adam Smith candidate tests
         run: node --test tests/yl-b27-quote-compact.test.mjs
+      - name: Application and controller JavaScript syntax
+        run: |
+          node --check app.js
+          node --check server.mjs
+          node --check b27-app-runtime.js
+          node --check b27-encounter-ui.js
+          node --check b27-saved-encounters.js
+      - name: Real app-owned persistence, exact idempotency and rollback
+        run: node --test tests/yl-b27-app-storage.test.mjs
       - name: Preserve B2.6 legacy semantic regressions
         run: node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs tests/yl-b25-generalized-encounter.test.mjs

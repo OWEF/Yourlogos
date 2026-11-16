@@ -1,4 +1,8 @@
 import { syncLiquidNavbar } from "./liquid-navbar.js";
+import {B27_APP_QUOTES,B27_INHERITED_COUNT} from "./experiments/yl-b27-quote-ledger.mjs";
+import {createB27AppRuntime} from "./b27-app-runtime.js";
+import {validatedSavedEncounters} from "./b27-saved-encounters.js";
+const B27_ENABLED=new URLSearchParams(location.search).get("b27")==="1";
 import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { availableThoughts, quoteAt, followingThought } from "./encounter-queue.js";
 import { SCHOOL_SCENES } from "./school-scenes.js";
@@ -110,6 +114,7 @@ const QUOTES=[
 ["Nothing is so painful to the human mind as a great and sudden change.","Mary Shelley","Suffering","Frankenstein, Chapter XXIII (1818 edition varies)","Which change have you needed time to understand?"],
 ["The feeling of commiseration is the beginning of humanity.","Mencius","Love","Mencius 2A:6 (translation varies)","Where does empathy begin before deliberate reasoning?"]
 ];
+if(B27_ENABLED)QUOTES.push(...B27_APP_QUOTES.slice(B27_INHERITED_COUNT).map(row=>[...row]));
 // Daily first impressions favor clear, everyday wording. All 91 original
 // quotations remain available in Encounter swipes and Library, with stable IDs.
 // Add future quotes only after an editorial accessibility review.
@@ -159,6 +164,7 @@ let keepPending=null,keepTimer=null;
 if(!Array.isArray(data.thoughtThreadEvents))data.thoughtThreadEvents=[];
 data.livingThreads=normalizeLivingState(data.livingThreads);
 if(!Array.isArray(data.aiDiscoverThreads))data.aiDiscoverThreads=[];
+if(!Array.isArray(data.savedEncounters))data.savedEncounters=[];
 if(!Array.isArray(data.discoverJourneyEvents))data.discoverJourneyEvents=[];
 data.aiDiscoverThreads=data.aiDiscoverThreads.filter(x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<91).slice(-30);
 // A return is a gentle, optional act of presence; not a competitive streak.
@@ -205,6 +211,16 @@ const dailyPick=(dateKey)=>{
 };
 const activeQuote=()=>{const d=today();if(Number.isInteger(data.practice[d]?.quoteId)&&QUOTES[data.practice[d].quoteId])return data.practice[d].quoteId;return dailyPick(d)};
 const persist=()=>localStorage.setItem(KEY,JSON.stringify(data));
+const b27Runtime=B27_ENABLED?createB27AppRuntime({
+ quotes:()=>QUOTES,getData:()=>data,persist,readback:load,render:()=>render(),
+ navigateWorld:()=>{discoverOpen=false;view="profile";universePane="home";render();},
+ notify:message=>toast(message)
+}):null;
+if(B27_ENABLED)window.__YL_B27_QA=Object.freeze({
+ getState:()=>({...b27Runtime.getState(),
+  savedEncounters:validatedSavedEncounters(data.savedEncounters).length,
+  quoteLikeCount:data.saved.length,productionMerged:false})
+});
 function sharedWorldMemory(){
   const cosmos=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();
   return buildWorldMemory(data,QUOTES,Array.isArray(cosmos)?cosmos:[]);
@@ -316,6 +332,7 @@ const DISCOVERY_LENSES=[
 
 function discoverHtml(){
   const id=visibleQuoteId(),q=QUOTES[id];
+  if(B27_ENABLED)return b27Runtime.html(QUOTES[b27Runtime.getState().quoteId]||q);
   return '<div class="discover-cover" data-action="close-discover"></div>'+
     '<section class="discover-sheet discover-v26 v31-discover v32-discover'+(aiDiscoverEnabled&&aiDiscoverMode?' yl-discover-immersive':'')+'" role="dialog" aria-modal="true" aria-label="Discover this thought">'+
       '<div class="sheet-handle"></div>'+
@@ -463,7 +480,8 @@ function profileHtml(){
   if(universePane==="sky")return '<section class="view living-universe-embed" aria-label="Your living sky">'+
     '<iframe id="cosmos-frame" src="/cosmos-v2.html" title="Living sky of ideas" loading="eager"></iframe>'+
     '</section>';
-  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName,encountersHtml:worldHomeEvidence(data.encounterEvents),thinkerCount:philosopherCount(QUOTES)})+worldMemoryHtml(sharedWorldMemory());
+  if(universePane==="home")return worldHomeHtml({saved:data.saved.map(i=>QUOTES[i]).filter(Boolean),discovery:data.discovery,name:data.localName,encountersHtml:worldHomeEvidence(data.encounterEvents),thinkerCount:philosopherCount(QUOTES)})+
+  (B27_ENABLED?b27Runtime.worldHtml(data.savedEncounters):"")+worldMemoryHtml(sharedWorldMemory());
   if(universePane==="philosophers")return '<div class="world-detail">'+worldBack()+
     (Number.isInteger(activePhilosopherIndex)?'<button type="button" data-philosopher-back class="yl-philosopher-gallery-back">← All thinkers</button>'+philosopherProfileHtml(QUOTES,activePhilosopherIndex):philosopherGalleryHtml(QUOTES))+'</div>';
   return '<div class="world-detail">'+worldBack()+(universePane==="saved"?savedHtml():universePane==="fingerprint"?fingerprintHtml():mirrorHtml(data.saved.map(i=>QUOTES[i]).filter(Boolean),data.discovery))+'</div>';
@@ -684,6 +702,15 @@ document.addEventListener("click",e=>{
  }
 });
 document.addEventListener("click",async e=>{
+  if(B27_ENABLED){
+   const control=e.target.closest("[data-b27]");
+   if(control){
+    e.preventDefault();
+    const result=await b27Runtime.action(control);
+    if(result==="open_saved"){discoverOpen=true;render();}
+    return;
+   }
+  }
   const v=e.target.closest("[data-view]");
   if(v){
     const target=v.dataset.view;
@@ -1007,7 +1034,8 @@ document.addEventListener("click",async e=>{
             localName:originalName||remote.name||"",
             personalization:remote.state.personalization&&["completed","skipped"].includes(remote.state.personalization.status)?remote.state.personalization:data.personalization,
             livingThreads:normalizeLivingState(remote.state.livingThreads),
-            aiDiscoverThreads:Array.isArray(remote.state.aiDiscoverThreads)?remote.state.aiDiscoverThreads.filter(x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<QUOTES.length).slice(-30):[]
+            aiDiscoverThreads:Array.isArray(remote.state.aiDiscoverThreads)?remote.state.aiDiscoverThreads.filter(x=>x&&Number.isInteger(x.quoteId)&&x.quoteId>=0&&x.quoteId<QUOTES.length).slice(-30):[],
+            savedEncounters:validatedSavedEncounters(remote.state.savedEncounters)
           };
           data={...data,...safe};persist();
           if(Array.isArray(remote.state.cosmosEvents)){
@@ -1079,11 +1107,20 @@ document.addEventListener("click",async e=>{
     }
     case"discover":discoverStep=0;threadBranch=0;threadAnswer=0;
       aiPrivateForCurrentSheet=false;aiDiscoverMode=false;aiConversation=null;
+      if(B27_ENABLED){
+       const selected=visibleQuoteId();
+       if(selected===null)return;
+       discoverOpen=true;haptic("impact");
+       await b27Runtime.open(selected);
+       document.querySelector(".b27-close")?.focus({preventScroll:true});
+       return;
+      }
       discoverOpen=true;haptic("impact");playEncounterTone("open");
       if(aiDiscoverEnabled)activateDiscoverAI();else render();
       document.querySelector(".sheet-close")?.focus();return;
     case"encounter-sound":{const next=setEncounterSoundEnabled(!encounterSoundEnabled());haptic("selection");if(next)playEncounterTone("open");render();document.querySelector('[data-action="encounter-sound"]')?.focus({preventScroll:true});return;}
-    case"close-discover":discoverOpen=false;discoverStep=0;aiDiscoverMode=false;aiConversation=null;render();document.querySelector('[data-action="discover"]')?.focus();return;
+    case"close-discover":discoverOpen=false;discoverStep=0;aiDiscoverMode=false;aiConversation=null;
+      b27Runtime?.close();render();document.querySelector('[data-action="discover"]')?.focus();return;
     case"discover-universe":discoverOpen=false;universePane="fingerprint";view="profile";detailId=null;render();return;
     case"discover-save":{const id=visibleQuoteId();if(id===null)return;const next=followingThought(daySequence(),id,[...data.saved,id]);if(!data.saved.includes(id)){data.saved.push(id);persist();}quoteCursor=next.cursor;discoverOpen=false;render();toast("Thought kept");return}
     case"discover-again":discoverStep=0;render();return;
@@ -1109,7 +1146,7 @@ document.addEventListener("click",async e=>{
     }
     case"clear-discovery":settingsConfirm=true;render();return;
     case"cancel-clear-discovery":settingsConfirm=false;render();return;
-    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];data.thoughtThreadEvents=[];data.livingThreads=normalizeLivingState(null);data.aiDiscoverThreads=[];settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
+    case"confirm-clear-discovery":data.discovery={};data.encounters={};data.encounterEvents=[];data.thoughtThreadEvents=[];data.livingThreads=normalizeLivingState(null);data.aiDiscoverThreads=[];data.savedEncounters=[];settingsConfirm=false;persist();render();toast("Exploration choices cleared");return;
     case"back":detailId=null;break;
     case"export":{
       const universe=(()=>{try{return JSON.parse(localStorage.getItem("yourlogos-v2-encounters-v1")||"[]")}catch{return []}})();

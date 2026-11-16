@@ -185,6 +185,10 @@ export function runQuoteEncounterB27(request){
  if(compact.status!=="ready")return compact;
  return {
   status:"ready",version:B27_ROUTE_VERSION,
+  saveKey:fingerprintB25({quoteFingerprint:permitted.quoteFingerprint,
+   sourceVersionHash:full.sourceVersionHash,
+   selectedFamilyId:full.selectedFamilyId,
+   canonicalChoice:full.canonical_choice}),
   quoteId:permitted.quoteId,quoteFingerprint:permitted.quoteFingerprint,
   sourceRecordId:permitted.sourceRecordId,
   sourceVersionHash:permitted.sourceVersionHash,
