@@ -1,0 +1,45 @@
+name: CZ-123 B2 exact-SHA independent negative QA
+on:
+  push:
+    branches: [qa/cz123-b2-source-contract-negative-v1]
+  pull_request:
+    paths:
+      - "tests/yl-b2-independent-qa.test.mjs"
+      - "tests/yl-b2-independent-visual.mjs"
+      - ".github/workflows/cz123-b2-independent.yml"
+permissions:
+  contents: read
+jobs:
+  b2-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: QA branch must not change implementation or sources
+        run: |
+          set -euo pipefail
+          BASE=074da155c44d13f600c11b8ba6baf0f9d8b69f30
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b2qa_files
+          while IFS= read -r file; do
+            case "$file" in
+              tests/yl-b2-independent-qa.test.mjs|tests/yl-b2-independent-visual.mjs|.github/workflows/cz123-b2-independent.yml) ;;
+              *) echo "QA modified a product/source file: $file"; exit 1 ;;
+            esac
+          done < /tmp/b2qa_files
+      - name: New SHA-bound source, fraud and existing-four-game tests
+        run: node --test tests/yl-b2-independent-qa.test.mjs
+      - name: Use existing free Chromium harness
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Four viewport original B0 UX checks (not new game admission)
+        run: node tests/yl-b2-independent-visual.mjs
+      - name: Archive 390px screenshots of UNAPPROVED source-neutral B0 lab
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz123-b2-unapproved-ui-evidence
+          path: qa-evidence/
+          if-no-files-found: warn
