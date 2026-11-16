@@ -17,14 +17,15 @@ try{
   assert.equal((await state()).mode,"balance");
   assert.equal(await page.locator("#continue").isDisabled(),true);
   await page.locator(".slider-row button").first().click();
-  assert.equal((await state()).balance,2);
+  assert.equal((await state()).balance,4);
+  assert.match(await page.locator(".slider-row button").first().getAttribute("aria-label"),/Clarity/);
   assert.equal((await state()).balanceTouched,true);
   assert.equal(await page.locator("#continue").isEnabled(),true);
   await page.locator("#back").click();
   assert.equal((await state()).balance,3);
   assert.equal(await page.locator("#continue").isDisabled(),true);
   await page.locator(".slider-row button").last().click();
-  assert.equal((await state()).balance,4);
+  assert.equal((await state()).balance,2);
   await page.locator("#continue").click();
   assert.equal((await state()).finished,true);
   assert.equal(await page.locator("#preview-complete").isVisible(),true);
