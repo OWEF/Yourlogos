@@ -129,7 +129,8 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
    assert.equal((await current(page)).saved,true);
    assert.equal(await page.locator(".b27-result-section").count(),3);
    await page.locator('button[data-action="close-discover"]').click();
-   await page.locator('[data-view="profile"]').first().click();
+   assert.equal(await page.locator(".b27-world-item").count(),1,
+    "Returning from a saved Encounter must preserve My World");
    await page.locator('[data-b27="delete"]').click();
    assert.equal(await page.locator(".b27-world-item").count(),0);
    const end=await page.evaluate(()=>JSON.parse(localStorage.getItem("yourlogos_web_v1")));
