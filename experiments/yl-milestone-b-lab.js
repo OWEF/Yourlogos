@@ -75,7 +75,7 @@
   less.disabled=state.balance===6;
   const input=node("input");input.type="range";input.min="0";input.max="6";
   input.step="1";input.value=String(state.balance);input.id="balance-slider";
-  input.setAttribute("aria-label","Symbolic emphasis from "+f.right+" to "+f.left);
+  input.setAttribute("aria-label","Symbolic emphasis: 0 "+f.right+", 6 "+f.left);
   input.addEventListener("change",e=>balanceAdjust(Number(e.target.value)));
   const more=button("→","",()=>balanceAdjust(Math.max(0,state.balance-1)),
    "Move toward "+f.right);
