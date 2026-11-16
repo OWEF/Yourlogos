@@ -1,0 +1,44 @@
+name: CZ-123 B2.3 final exact-SHA six browser QA
+on:
+  push:
+    branches: [qa/cz123-b23-six-browser-final-review-v1]
+  pull_request:
+    paths:
+      - "tests/yl-b23-final-independent-browser.test.mjs"
+      - ".github/workflows/cz123-b23-final-browser.yml"
+permissions:
+  contents: read
+jobs:
+  browser-holdouts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Preserve reviewed code and exact SHA
+        run: |
+          set -euo pipefail
+          BASE=a7a675d853d5fe9c865683ae3042a95fa70f00bc
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD >/tmp/qa_diff
+          while IFS= read -r f; do
+            case "$f" in
+              tests/yl-b23-final-independent-browser.test.mjs|.github/workflows/cz123-b23-final-browser.yml) ;;
+              *) echo "QA changed a developer file: $f"; exit 1 ;;
+            esac
+          done < /tmp/qa_diff
+      - name: Install browser harness
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Fresh independent source+browser adversarial holdouts
+        run: node --test tests/yl-b23-final-independent-browser.test.mjs
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz123-b23-independent-six-browser-evidence
+          path: qa-evidence/
+          if-no-files-found: warn
+      - name: Positive six engine and inherited source controls
+        run: node --test tests/yl-b23-founder-six-peer.test.mjs tests/yl-milestone-a.test.mjs tests/yl-b1-editorial-gated.test.mjs
