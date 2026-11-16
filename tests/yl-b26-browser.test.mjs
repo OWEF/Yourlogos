@@ -17,7 +17,7 @@ async function source(page,key,family){
 }
 async function discover(page,family){
  const data=page.waitForResponse(r=>
-  r.url().endsWith("/api/run")&&r.request().method()==="POST");
+  r.url().includes("/api/run")&&r.request().method()==="POST");
  assert.equal(await page.locator("#discover").isDisabled(),false);
  await page.locator("#discover").click();
  const payload=await(await data).json();
@@ -32,7 +32,7 @@ async function discover(page,family){
  for(let i=0;i<3;i++)assert.ok(n[i]>=[10,18,9][i]&&n[i]<=[48,65,26][i]);
  assert.equal(await page.locator(".thinker-identity strong").count(),1);
  assert.equal(await page.locator(".source-quote mark").count(),1);
- assert.equal(await page.locator(".teaching-core").innerText(),payload.sections[1].text);
+ assert.equal(await page.locator(".teaching-core").evaluate(el=>el.textContent),payload.sections[1].text);
  assert.equal(payload.accountSaved,false);
  assert.equal(payload.publicationAllowed,false);
  return payload;
