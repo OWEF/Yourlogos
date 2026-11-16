@@ -10,7 +10,7 @@
  const roleNames=["YOUR DECISION","IMAGINED DEVELOPMENT · NOT YOUR ACTION","YOUR RESPONSE"];
  let catalogue=null,current=null,game=null,view="intro",section=0,epoch=0;
  let busy=false,lastRun=null;
- let choiceState=null,history=[],stage=0,selectedActivity=1,preferredGameId=null;
+ let choiceState=null,history=[],stage=0,selectedActivity=0,preferredGameId=null;
  const tokenGame=()=>game==="token_studio";
  const allocationGame=()=>game==="token_studio"||game==="trade_off";
  const showError=(message,error=false)=>{
@@ -53,10 +53,10 @@
   if(history.length>60)history.shift();
  }
  function initialState(){
-  history=[];stage=0;selectedActivity=1;
+  history=[];stage=0;selectedActivity=0;
   const c=current.selection.canonical_choice_contract;
   choiceState=allocationGame()?
-   tokenGame()?{cells:Array.from({length:c.budget.capacity},()=>0)}:
+   tokenGame()?{cells:Array.from({length:c.budget.capacity},()=>-1)}:
    {amounts:Array.from({length:c.choices.length},()=>0)}:
    {path:[]};
   markRevision();
@@ -131,30 +131,35 @@
   $("play-next").disabled=b.capacityMode==="cap"?used>b.capacity:used!==b.capacity;
  }
  function setToken(index,activity){
-  if(!tokenGame()||index<0||index>=choiceState.cells.length)return;
+  if(!tokenGame()||!Number.isSafeInteger(index)||index<0||index>=choiceState.cells.length||
+     !Number.isSafeInteger(activity)||activity< -1||activity>=current.selection.canonical_choice_contract.choices.length)return;
   if(choiceState.cells[index]===activity)return;
   snapshot();choiceState.cells[index]=activity;markRevision();renderGame();
  }
  function moveToken(activity,inc){
   const cells=choiceState.cells;
-  const from=inc?cells.findIndex(v=>v!==activity):cells.findLastIndex(v=>v===activity);
+  const from=inc?
+   (cells.includes(-1)?cells.indexOf(-1):cells.findIndex(v=>v!==activity)):
+   cells.findLastIndex(v=>v===activity);
   if(from<0)return;
-  const to=inc?activity:(activity+1)%current.selection.canonical_choice_contract.choices.length;
+  const to=inc?activity:-1;
   setToken(from,to);
  }
  function renderTokens(target){
   const c=current.selection.canonical_choice_contract,b=c.budget,n=activityCounts();
-  target.append(element("p","Six 30-minute segments. Tap a segment to change it, or drag it onto an activity below.","stage-role"));
+  target.append(element("p","Choose an activity, then tap its 30-minute segments. Drag a segment to another activity, or use + and −.","stage-role"));
   const grid=element("div",null,"slot-grid");
   choiceState.cells.forEach((x,i)=>{
-   const label=c.choices[x].label;
+   const label=x===-1?"Unassigned":c.choices[x].label;
+   const destination=c.choices[selectedActivity].label;
    const btn=elButton(null,"slot",()=>{
     if(dragged)return;
-    setToken(i,(x+1)%c.choices.length);
-   },"Segment "+(i+1)+": "+label+". Tap to choose next activity.");
+    setToken(i,x===selectedActivity?-1:selectedActivity);
+   },"30-minute segment "+(i+1)+": "+label+". Tap to "+
+     (x===selectedActivity?"unassign it.":"assign it to "+destination+"."));
    btn.dataset.slot=String(i);
    btn.draggable=true;
-   btn.append(element("span",String(i+1).padStart(2,"0"),"slot-index"),
+   btn.append(element("span","30 min · "+String(i+1).padStart(2,"0"),"slot-index"),
     element("strong",label));
    btn.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",String(i));});
    grid.append(btn);
@@ -177,13 +182,16 @@
   const dist=element("div",null,"distribution");
   c.choices.forEach((x,i)=>{
    addActivityCard(dist,x,i,n[i],b,{
-    canLess:n[i]>0,canMore:n[i]<b.capacity,
+    canLess:n[i]>0,
+    canMore:n[i]<b.capacity&&choiceState.cells.some(v=>v!==i),
     less:()=>moveToken(i,false),more:()=>moveToken(i,true)
    });
   });
   target.append(dist);
-  target.append(element("p","Distribution: "+allocationSummary()+". The repeated evenings are imagined, not measured habits.","hint"));
-  $("play-next").disabled=false;
+  const unassigned=choiceState.cells.filter(v=>v===-1).length;
+  target.append(element("p",(unassigned?unassigned+" segments still unassigned · ":"All six segments assigned · ")+
+   "Distribution: "+allocationSummary()+". These imagined evenings do not establish actual habits.","hint"));
+  $("play-next").disabled=unassigned!==0;
  }
  let dragged=false,gesture=null;
  document.addEventListener("pointerdown",e=>{
@@ -342,6 +350,7 @@
  function canonicalChoice(){
   const c=current.selection.canonical_choice_contract;
   if(allocationGame()){
+   if(tokenGame()&&choiceState.cells.some(v=>v===-1))return null;
    const amounts=activityCounts();
    return {gameId:game,amounts,...(c.budget.repetitions===null?{}:
     {repetitions:c.budget.repetitions})};
@@ -430,6 +439,8 @@
    sourceVersionHash:current?.record?.versionHash||null,
    selectedContractVersion:current?.selection?.version||null,
    canonicalChoice:current?.adapter?.available?canonicalChoice():null,
+   allocationPreview:current?.adapter?.available&&allocationGame()?activityCounts():null,
+   unassignedSegments:current?.adapter?.available&&tokenGame()?choiceState.cells.filter(v=>v===-1).length:null,
    gameStage:stage,section,resultStatus:lastRun?.status||null,
    wordCount:lastRun?.result?.expression?.wordCount||null,
    publicationAllowed:false,saveAvailable:false}),
