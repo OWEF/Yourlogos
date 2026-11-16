@@ -156,6 +156,10 @@ function identified(input){
   if(c)return same(input,c)?{type:"founder",record:c}:null;
   if(validateContentRecordV21(input).status==="valid_research_record")
    return {type:"legacy",record:input};
+  // A genuinely source-rejected Atlas item must remain a real no_fit, not
+  // be confused with an arbitrary caller-injected forged source.
+  if(input.route==="no_fit"&&selectMiniGameV22(input).status==="no_fit")
+   return {type:"legacy_no_fit",record:input};
  }
  return null;
 }
@@ -167,11 +171,13 @@ export function selectMiniGameB23(recordRef,{preferredGameId=null}={}){
  const {type,record}=matched;
  const capabilities=type==="legacy"?
   assessAllSixPeerGames(record,GAME_IDS):
-  GAME_IDS.map(id=>({id,eligible:id===record.gameId,
-   reason:id===record.gameId?"Exact founder-scoped provisional research scenario":"Source/game mismatch"}));
+  GAME_IDS.map(id=>({id,eligible:type==="founder"&&id===record.gameId,
+   reason:type==="founder"&&id===record.gameId?
+    "Exact founder-scoped provisional research scenario":"Source/game mismatch"}));
  const rows=B23_SIX_PEERS.map((g,i)=>{
   const evidence=capabilities[i];
   const eligible=type==="founder"?evidence.eligible:
+   type==="legacy_no_fit"?false:
    evidence.eligible&&record.gameCompatibility.some(c=>c.id===g.id&&c.eligible)&&
    !g.availableOnlyWithFounderContract&&g.executableInResearch;
   return {id:g.id,eligible,reason:eligible?"Supported by this exact research scenario":evidence.reason,
@@ -241,13 +247,18 @@ export function runSelectedEncounterB23(recordRef,selection,input){
    meaning.sourceAdmission?.independentlySourceVerified!==false)
   return blocked("meaning_refused",meaning.reason||"Frozen reasoning source mismatch");
  let expression=null;
+ const attempted=[];
  for(const tone of [undefined,"reflective","warm","contemplative","challenging"]){
   const r=tone?renderEncounterV20(meaning,{tone}):renderEncounterV20(meaning);
-  if(r.status!=="ready"||validateEncounterV20(meaning,r).status!=="ready")continue;
+  const validity=r.status==="ready"?validateEncounterV20(meaning,r):null;
+  attempted.push({tone:tone||"auto",status:r.status,reason:r.reason||null,
+   wordCount:r.wordCount??null,validity:validity?.status||null});
+  if(r.status!=="ready"||validity?.status!=="ready")continue;
   if(r.wordCount<80||r.wordCount>120||r.sections?.length!==3)continue;
   expression=r;break;
  }
- if(!expression)return blocked("expression_abstained","Frozen Emotion/Expression refuses source or word policy");
+ if(!expression)return blocked("expression_abstained",
+  "Frozen Emotion/Expression refused this source: "+JSON.stringify(attempted));
  return {status:"ready",version:B23_VERSION,selected_game_id:gameId,
   sourceReview:"founder_policy_research_not_scholarly_verified",
   sourceEditorialApproval:"founder_authorized_development_only",
