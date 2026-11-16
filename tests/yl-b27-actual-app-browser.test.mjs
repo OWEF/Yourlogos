@@ -160,6 +160,7 @@ test("Real quotation entry handles Dillard Balance, Kierkegaard Decision, and He
   for(const variant of [
    {quoteId:12,expect:"balance_move"},
    {quoteId:34,expect:"decision_cards"},
+   {quoteId:94,expect:"flip_reveal"},
    {quoteId:31,expect:"no_fit"}
   ]){
    const page=await browser.newPage({viewport:{width:390,height:890},
@@ -180,10 +181,24 @@ test("Real quotation entry handles Dillard Balance, Kierkegaard Decision, and He
      assert.equal((await current(page)).game.owners.filter(x=>x===0).length,4);
     }else{
      await page.locator('[data-b27="branch"][data-value="change"]').click();
+     if(variant.expect==="flip_reveal"){
+      assert.equal(await page.locator(".b27-flip").count(),2);
+      assert.equal(await page.locator(".b27-flip.revealed").count(),0);
+      await page.screenshot({path:"qa-evidence/b27-app-flip-390.png",fullPage:true});
+     }
      await page.locator('[data-b27="branch"][data-value="risk"]').click();
+     if(variant.expect==="flip_reveal"){
+      assert.equal(await page.locator(".b27-flip.revealed").count(),1);
+      assert.equal(await page.locator(".b27-flip:not(.revealed)").count(),1);
+     }
      await page.locator('[data-b27="branch"][data-value="continue"]').click();
     }
-    await finish(page,variant.expect);
+    await page.screenshot({path:"qa-evidence/b27-app-"+variant.expect+"-play-390.png",fullPage:true});
+    const output=await finish(page,variant.expect);
+    if(variant.expect==="flip_reveal"){
+      assert.equal(output.provenance.alternateEnglishExcerptBindsSameJournal,"JJ:167");
+      assert.equal(output.provenance.unchosenFutureKnown,false);
+    }
     assert.equal((await current(page)).quoteLikeCount,0);
    }
    await page.close();
