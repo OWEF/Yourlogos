@@ -45,11 +45,15 @@ const editorial=Object.freeze({
  epictetus_relations:{
   insight:"Epictetus distinguishes your own chosen action from another person's response, which cannot be guaranteed.",
   limit:"This fictional exchange proves no real forgiveness or virtue.",
+  relationLead:"Epictetus separates chosen actions from external outcomes.",
+  relationLimit:"No real forgiveness or virtue is established.",
   question:"Where does your own responsibility end, and another person's begin?"
  },
  smith_human:{
   insight:"Smith's division-of-work example illuminates how separate contributions can depend on one another in a finished product.",
   limit:"The gift is fictional; Smith does not settle trust, fairness or the best personal choice.",
+  relationLead:"Smith studies contributions to a shared result.",
+  relationLimit:"This gift is fictional, not moral proof.",
   question:"What would you share, knowing this model cannot decide for you?"
  }
 });
@@ -100,9 +104,18 @@ export function compactEncounterB27(record,result){
  const note=editorial[record.key],first=partOne(record,result);
  if(!note||!first||!record.quote||!record.sourceFingerprint)
   return deny("No exact authored compact interpretation exists for this source");
+ // A source-authored relationship claim varies with the ACTUAL selected pair.
+ // Never replace the full 80–120-word meaning; this is a brief replay view.
+ const relationClaims=result.meaning?.meaning?.selectedRelations;
+ const sectionTwo=record.familyId==="tap_pair"&&
+   Array.isArray(relationClaims)&&relationClaims.length>=1&&
+   typeof relationClaims[0].claim==="string"&&
+   note.relationLead&&note.relationLimit?
+   note.relationLead+" "+relationClaims[0].claim+" "+note.relationLimit:
+   note.insight+" "+note.limit;
  const sections=[
   {label:"Your Choice",text:first},
-  {label:"Back to the Philosopher",text:note.insight+" "+note.limit},
+  {label:"Back to the Philosopher",text:sectionTwo},
   {label:"One Last Thing…",text:note.question}
  ];
  const lengths=sections.map(x=>count(x.text)),visible=lengths.reduce((a,b)=>a+b,0);
