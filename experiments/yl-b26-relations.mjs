@@ -151,7 +151,7 @@ function compose(ref,input){
  const links=m.meaning.selectedRelations;
  const first="You connected "+links.map(x=>x.left+" and "+x.right).join("; ")+
   ". You chose "+links.length+" relationship"+(links.length>1?"s":"")+
-  " in a fictional situation, not answers to a secret matching puzzle.";
+  " in a fictional situation, not answers to a secret matching puzzle. You can revise any connection freely.";
  const source=m.meaning.centralClaim+" "+
   links.map(x=>x.claim).join(" ")+
   " "+m.meaning.limitations;
