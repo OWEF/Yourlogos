@@ -1,0 +1,35 @@
+name: CZ-123 independent four-game Milestone A adversarial QA
+on:
+  push:
+    branches: [qa/cz123-milestone-a-adversarial-20261116-v1]
+  pull_request:
+    paths:
+      - "tests/cz123-milestone-a-independent.mjs"
+      - ".github/workflows/cz123-milestone-a-independent.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  adversarial-milestone-a:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify exactly two QA-only files beyond fixed research candidate
+        run: |
+          set -euo pipefail
+          BASE=14c4cdbb1ad47b68dca3708b42a55b08895e5422
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/qa_files.txt
+          test "$(wc -l < /tmp/qa_files.txt)" -eq 2
+          grep -Fxq 'tests/cz123-milestone-a-independent.mjs' /tmp/qa_files.txt
+          grep -Fxq '.github/workflows/cz123-milestone-a-independent.yml' /tmp/qa_files.txt
+      - name: Install existing free browser runner
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Independently test first-action, multiple paths and source/agency exclusions
+        run: node --test tests/cz123-milestone-a-independent.mjs
+      - name: Recheck engineering suites after correction
+        run: node --test tests/yl-milestone-a.test.mjs
