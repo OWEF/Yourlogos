@@ -1,0 +1,36 @@
+name: CZ-134 B2.3 founder research six-peer READY integration
+on:
+  push:
+    branches: [feature/cz134-b23-founder-editorial-six-peer-prototype-v1]
+  pull_request:
+    paths:
+      - "experiments/yl-b23-founder-six-peer.mjs"
+      - "tests/yl-b23-founder-six-peer.test.mjs"
+      - ".github/workflows/cz134-b23-six-peer.yml"
+permissions:
+  contents: read
+jobs:
+  six-peer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Protect legacy source and engine implementations
+        run: |
+          set -euo pipefail
+          BASE=a44fbfaa615210fc14edad3df41e1ae70680fb38
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b23_files
+          while IFS= read -r f; do
+            case "$f" in
+              experiments/yl-b23-founder-six-peer.mjs|tests/yl-b23-founder-six-peer.test.mjs|.github/workflows/cz134-b23-six-peer.yml) ;;
+              *) echo "Modified legacy file: $f"; exit 1 ;;
+            esac
+          done < /tmp/b23_files
+      - name: New six-peer source-gated positive research journeys
+        run: node --test tests/yl-b23-founder-six-peer.test.mjs
+      - name: Inherited trusted four-peer and no-fit regressions
+        run: node --test tests/yl-milestone-a.test.mjs tests/yl-b2-source-proposals.test.mjs tests/yl-b1-editorial-gated.test.mjs
