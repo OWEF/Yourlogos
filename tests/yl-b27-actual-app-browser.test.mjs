@@ -97,7 +97,7 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
    const context=await browser.newContext({viewport:{width,height:920},
     reducedMotion:"reduce",isMobile:width<=430,hasTouch:width<=430});
    const page=await context.newPage(),errors=[];
-   page.on("pageerror",e=>errors.push(e.message));
+   page.on("pageerror",e=>errors.push(e.stack||e.message));
    await seed(page,91);
    const source=await openAt(page,app.base,91,"Smith");
    assert.equal(source.status,"ready");
@@ -135,6 +135,7 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
    assert.equal(await page.locator(".b27-world-item").count(),0);
    const end=await page.evaluate(()=>JSON.parse(localStorage.getItem("yourlogos_web_v1")));
    assert.equal(end.savedEncounters.length,0);
+   console.log("B27_JS_ERROR_STACK "+JSON.stringify(errors));
    assert.deepEqual(errors,[]);
    assert.equal(await page.evaluate(()=>
     document.documentElement.scrollWidth>document.documentElement.clientWidth+1),false);
