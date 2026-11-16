@@ -1,0 +1,37 @@
+name: CZ-141 B2.6 four-family contract foundation
+on:
+  push:
+    branches: [feature/cz141-b26-four-interaction-families]
+  pull_request:
+    paths:
+      - "experiments/yl-b26-**"
+      - "tests/yl-b26-**"
+      - "research/cz128/B26-FOUR-FAMILY-INTERACTIONS.md"
+      - ".github/workflows/cz141-b26-family-foundation.yml"
+permissions:
+  contents: read
+jobs:
+  source-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Protect accepted B2.5 and frozen engines
+        run: |
+          set -euo pipefail
+          BASE=576743a354a961a35b35bf58f8b61f655c43d190
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b26_files
+          while IFS= read -r file; do
+            case "$file" in
+              research/cz128/B26-FOUR-FAMILY-INTERACTIONS.md|experiments/yl-b26-*.mjs|tests/yl-b26-*.test.mjs|.github/workflows/cz141-b26-family-foundation.yml) ;;
+              *) echo "Frozen or out-of-scope file changed: $file"; exit 1 ;;
+            esac
+          done </tmp/b26_files
+      - name: Four-family source contract and refusal tests
+        run: node --test tests/yl-b26-four-family-contract.test.mjs
+      - name: Existing B2.5 source and six-game foundation regression
+        run: node --test tests/yl-b25-generalized-encounter.test.mjs tests/yl-b24-coherent-encounter.test.mjs tests/yl-b23-founder-six-peer.test.mjs
