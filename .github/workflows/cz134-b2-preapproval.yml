@@ -1,0 +1,39 @@
+name: CZ-134 B2 source candidate guard and arithmetic rehearsal
+on:
+  push:
+    branches: [feature/cz134-b2-preapproval-contracts-v1]
+  pull_request:
+    paths:
+      - "experiments/yl-b2-source-proposals.mjs"
+      - "tests/yl-b2-source-proposals.test.mjs"
+      - "research/cz121/B2-SOURCE-ADJUDICATION.md"
+      - ".github/workflows/cz134-b2-preapproval.yml"
+permissions:
+  contents: read
+jobs:
+  b2-review-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Strictly protect PR204 frozen accepted code
+        run: |
+          set -euo pipefail
+          BASE=f8f3b38c9ad0ab5db6c9741d6d20766aeda8b7a7
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD > /tmp/b2_files
+          while IFS= read -r file; do
+            case "$file" in
+              experiments/yl-b2-source-proposals.mjs|tests/yl-b2-source-proposals.test.mjs|research/cz121/B2-SOURCE-ADJUDICATION.md|.github/workflows/cz134-b2-preapproval.yml) ;;
+              *) echo "B2 touched previously accepted code: $file"; exit 1 ;;
+            esac
+          done < /tmp/b2_files
+      - name: Syntax and independently reviewable source-proposal fingerprints
+        run: |
+          node --check experiments/yl-b2-source-proposals.mjs
+          node --test tests/yl-b2-source-proposals.test.mjs
+      - name: B1 research adapters and existing source-selector regression
+        run: node --test tests/yl-b1-editorial-gated.test.mjs tests/yl-milestone-a.test.mjs tests/content-v21.test.mjs tests/content-v211-safe-controls.test.mjs tests/content-v212-editorial-regression.test.mjs
