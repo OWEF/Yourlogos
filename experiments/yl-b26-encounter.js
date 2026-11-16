@@ -375,7 +375,12 @@ function choosePair(id){
   saveAnd(s=>{s.first=id;});setMessage("Now tap another idea to connect them.");return;
  }
  if(state.first===id){
-  saveAnd(s=>{s.first=null;});setMessage("Choose any two different ideas.");return;
+  // Idempotent first-card selection. Some native keyboards synthesize
+  // both an Enter keydown and an accessibility click, even when the
+  // card's DOM is rerendered. A duplicate activation must never erase
+  // the intended first concept. Undo provides explicit cancellation.
+  setMessage("That idea is already selected. Choose another idea, or use Undo.");
+  return;
  }
  const e=findEdge(state.first,id);
  if(!e){

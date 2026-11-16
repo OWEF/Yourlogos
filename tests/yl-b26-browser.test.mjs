@@ -108,8 +108,14 @@ test("All FOUR are working sources→tactile choice→Reasoning/Emotion/Expressi
    assert.equal((await state(page)).state.first,"apology",
     "Undo restores the prior selected concept, not a newer blank state");
    await page.locator('[data-card="apology"]').click();
+   assert.equal((await state(page)).state.first,"apology",
+    "Repeated activation must not erase the first concept");
+   await page.locator("#undo").click();
    assert.equal((await state(page)).state.first,null);
-   await page.locator('[data-card="words"]').click();
+   await page.locator('[data-card="words"]').focus();
+   await page.keyboard.press("Enter");
+   assert.equal((await state(page)).state.first,"words",
+    "Enter must select exactly one pair concept");
    await page.locator('[data-card="reaction"]').click();
    assert.equal((await state(page)).state.pairs.length,1);
    const linked=await discover(page,"tap_pair");
