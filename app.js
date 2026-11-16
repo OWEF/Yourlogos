@@ -2,7 +2,7 @@ import { syncLiquidNavbar } from "./liquid-navbar.js";
 import {B27_APP_QUOTES,B27_INHERITED_COUNT} from "./experiments/yl-b27-quote-ledger.mjs";
 import {createB27AppRuntime} from "./b27-app-runtime.js";
 import {validatedSavedEncounters} from "./b27-saved-encounters.js";
-const B27_ENABLED=new URLSearchParams(location.search).get("b27")==="1";
+const B27_ENABLED=typeof window!=="undefined"&&window.__YL_B27_PREVIEW_ENABLED__===true&&new URLSearchParams(location.search).get("b27")==="1";
 import { SCHOOLS, schoolArtwork } from "./schools.js";
 import { availableThoughts, quoteAt, followingThought } from "./encounter-queue.js";
 import { SCHOOL_SCENES } from "./school-scenes.js";
