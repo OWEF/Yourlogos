@@ -17,7 +17,7 @@ import {assessAllSixPeerGames,graphPathsFromContext}
  from "../philosophy-engine/content/content-capabilities-v211.js";
 import {semanticCases,semanticSources}
  from "../philosophy-engine/encounter/semantic-cases-v12.js";
-import {constructScenario,reasonSemantically}
+import {constructScenario,reasonSemantically,expressSemantic}
  from "../philosophy-engine/encounter/semantic-reasoning-v12.js";
 import {renderEncounterV20,validateEncounterV20}
  from "../philosophy-engine/encounter/encounter-v20.js";
@@ -247,6 +247,7 @@ export function runSelectedEncounterB23(recordRef,selection,input){
    meaning.sourceAdmission?.independentlySourceVerified!==false)
   return blocked("meaning_refused",meaning.reason||"Frozen reasoning source mismatch");
  let expression=null;
+ let expressionVerification="frozen_v20";
  const attempted=[];
  for(const tone of [undefined,"reflective","warm","contemplative","challenging"]){
   const r=tone?renderEncounterV20(meaning,{tone}):renderEncounterV20(meaning);
@@ -257,15 +258,37 @@ export function runSelectedEncounterB23(recordRef,selection,input){
   if(r.wordCount<80||r.wordCount>120||r.sections?.length!==3)continue;
   expression=r;break;
  }
+ if(!expression&&gameId==="balance_of_values"&&meaning.meaning?.kind==="conversion"){
+  // The frozen v2.0 composer explicitly excludes source conversion and must
+  // remain unchanged. Reuse the *existing frozen v1.2 semantic expression*
+  // only as a clearly distinguished research path, not a fake v2.0 PASS.
+  const legacy=expressSemantic(meaning,"reflective");
+  attempted.push({tone:"semantic_v12_reflective",status:legacy?.status||"no_result",
+   reason:legacy?.reason||null,wordCount:legacy?.wordCount||null});
+  if(legacy?.status==="ready"){
+   const sections=[
+    {label:"Your Choice",text:legacy.headline+" "+legacy.experience},
+    {label:"Back to the Philosopher",text:legacy.interpretation},
+    {label:"One Last Thing…",text:legacy.proactiveQuestion}
+   ];
+   if(sections.reduce((n,x)=>n+words(x.text),0)===legacy.wordCount){
+    expression={status:"ready",version:"semantic-expression/1.2",
+     wordCount:legacy.wordCount,sections,
+     brief:{strategy:"reflective",version:"semantic-mode/1.2",
+      v20Verified:false}};
+    expressionVerification="frozen_v12_semantic_not_v20";
+   }
+  }
+ }
  if(!expression)return blocked("expression_abstained",
-  "Frozen Emotion/Expression refused this source: "+JSON.stringify(attempted));
+  "Frozen Expression refuses this source: "+JSON.stringify(attempted));
  return {status:"ready",version:B23_VERSION,selected_game_id:gameId,
   sourceReview:"founder_policy_research_not_scholarly_verified",
   sourceEditorialApproval:"founder_authorized_development_only",
   sourceContractFingerprint:contract.contentFingerprint,
   proposalFingerprint:contract.proposalFingerprint,
   canonical_choice:canonical,meaning,emotion:expression.brief,expression,
-  provenance,publicationAllowed:false,productionPlayable:false,
+  expressionVerification,provenance,publicationAllowed:false,productionPlayable:false,
   realHumanReaderGatePassed:false,physicalSafariVoiceOverGatePassed:false,
   accountPersistenceAllowed:false,
   stages:["ONE mini-game selection","User interaction","Reasoning","Emotion","Expression"]
