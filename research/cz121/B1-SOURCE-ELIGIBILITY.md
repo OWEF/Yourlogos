@@ -32,3 +32,39 @@ New experiment module yl-b1-editorial-gated-adapters.mjs contains two untrusted-
 
 ## Remaining
 CZ-121 qualified editorial: BLOCKED. CZ-123 independent exact-SHA adversarial QA: PENDING. CZ-125 first-time novice understanding: PENDING. CZ-126 physical iPhone Safari/VoiceOver: PENDING. CZ-135 account persistence: NOT STARTED. No merge, deployment, public preview, paid service, database migration or human recruitment.
+
+
+## 16 November 2026 — source witnesses and safer B1 resolution submitted for qualified adjudication
+
+This section records **externally inspectable textual evidence and proposed mechanics**, NOT an independent qualified-source PASS. No review status, SHA-bound editorial warrant, published text, or engine admission has been changed.
+
+### Value Balance — revise the metaphor from moral values to a shared material constraint
+
+**Primary-text research lead:** Henry David Thoreau, *Walden* (1854), chapter 1 “Economy.” Public-domain historical text: https://en.wikisource.org/wiki/Walden_%281893%29_Thoreau/Chapter_I ; annotated scholarly manuscript/transcription: https://digitalthoreau.org/walden/fluid/text/01.html . Relevant context asks what part of one's **life** must be exchanged for a material possession; it does **not** supply an objective ranking of moral worth.
+
+**Concrete proposed mechanic:** two source-reviewed **fictional** alternatives to which a fixed, *shared unit* of limited working/living time is allocated. A physical seesaw indicates **hours devoted**, not strength of virtue, psychological identity, or actual human worth. Reuse the validated finite-budget trade-off operation only if a new two-choice record, hypothetical wage/time assumptions, common resource, capacity/cost parity and original passage warrant are approved. If that cannot be established, a qualitative balance with no numbers is a distinct new mechanic requiring separate review and must NOT be forced into canonical numeric decisions.
+
+**Rejected shortcut:** Dillard's existing three-way time model remains eligible for Token Studio/Trade-Off, but must not be silently collapsed to two ranked moral values. Aristotle *Nicomachean Ethics* I.1 and I.7 (W. D. Ross translation, https://classics.mit.edu/Aristotle/nicomachaen.1.i.html) distinguishes means/end kinds without establishing a common quantitative moral scale; retain it as a **negative comparator**, not an admitted numeric Value Balance source.
+
+**Independent CZ-121 decision requested:** select exact authorized *Walden* passage/edition and reviewer identity/date; approve or reject the proposed two-choice shared-life-hours analogy; certify that illustrative assumptions do not attribute a hypothetical wage, preference or moral value to Thoreau; sign exact content fingerprint and game-specific scale definition. No approval inferred from publicly available text.
+
+### Future Reveal — resolve branching ambiguity without fake event agency
+
+**Official original-text witness:** University of Copenhagen Søren Kierkegaard Research Centre, *Journal JJ:167* (1843), *Søren Kierkegaards Skrifter* vol. 18, p. 194:
+https://teol.ku.dk/skc/om-soeren-kierkegaard/soeren-kierkegaard-citater/
+The site's original Danish contains a **third qualification**: temporal life never becomes fully comprehensible because the individual cannot obtain a completely detached retrospective vantage point. The familiar two-clause English slogan is an abridgment, not an adequate complete-text quotation. A qualified translator/editor must sign the final English wording, edition and interpretation before source publication.
+
+**Technical ambiguity discovered:** an initial fictional job decision currently yields **more than one authored possible external event**. The earlier adapter correctly refuses silently determining which event *happened*. Rather than invent a deterministic future or assigning external events to the user, a new isolated B1 adapter exposes only the exact preauthored scenes already present in the frozen graph as an **EXPLORE_ONLY** menu. The user selects what fictional narrative to *view*, not which life event they caused. Event IDs and descriptions must come from the server/source graph; unseen/forged events, step skips, and changing the initial action without resetting the old narrative are rejected. The output declares no causal agency, no prediction and no knowledge of the unchosen future. A unique authored event may still be shown without an explore-menu; ambiguous cases must not silently select.
+
+**Important limitation:** this **solves a technical ambiguity in the research-only adapter**, not the remaining qualified editorial question: Are these exact illustrative job-change events and wordings an appropriate pedagogical analogy for this precise journal note? The controversial “you miss your old friends” remains frozen/unapproved and must not be silently replaced. A reviewer may instead require more neutral and source-consistent event labels, another reviewed hypothetical scenario, or outright rejection.
+
+**Independent CZ-121 decision requested:** review source context and English translation, game-specific pedagogical analogy, the **explore fictional possibility versus cause event** distinction, exact event language, approved branch/version hash and the allowed interpretive claims. If rejected, preserve rejection and no-fit.
+
+### Release decisions explicitly unchanged
+
+- Old four game research baseline: intact.
+- Value Balance and Future Reveal: still **source-ineligible / not production playable**.
+- Qualified warrant allowlist: still empty; the source capability evaluator and selector remain deliberately fail closed.
+- The new hypothetical exploratory path can normalize *existing* canonical route packets during non-human QA only; it may NOT invoke the engines as a new admissible game.
+- CZ-123 exact SHA independent adversarial QA still required, followed by qualified CZ-121 adjudication and a distinct B1 positive integration phase.
+- No acceptance of source rights/translation by code, no account/My World changes, no merge/deployment, no recruitment.
