@@ -5,6 +5,8 @@ import {B27_APP_QUOTES,B27_INHERITED_COUNT}
  from "../experiments/yl-b27-quote-ledger.mjs";
 import {resolveQuoteB27,runQuoteEncounterB27}
  from "../experiments/yl-b27-route.mjs";
+import {B27_EDITORIAL_RECORDS,editorialB27,reportB27Coverage}
+ from "../experiments/yl-b27-editorial-ledger.mjs";
 import {SMITH_HUMAN_CONTRACT,runSmithHumanEncounter}
  from "../experiments/yl-b27-human-content.mjs";
 const q=id=>({quoteId:id,quoteText:B27_APP_QUOTES[id][0],
@@ -112,4 +114,52 @@ test("stale source and unsupported word/selection attempts fail without saving o
   canonicalInput:{pairs:[{aId:"sketch",bId:"friend",relationId:"morality"}]}}).status,"ready");
  assert.equal(runQuoteEncounterB27({...q(31),sourceVersionHash:"irrelevant",
   canonicalInput:{amounts:[1],budgets:[1]}}).status,"no_fit");
+});
+
+test("CZ-145 editorial coverage counts original and provisional sources, plus genuine no_fit",()=>{
+ const coverage=reportB27Coverage();
+ assert.equal(coverage.total,95);
+ assert.equal(coverage.original,91);
+ assert.equal(coverage.developmentOnly,4);
+ assert.deepEqual(coverage.counts,{
+  playable:6,reading_first:74,awaiting_source_review:8,
+  awaiting_reasoning_capability:5,no_fit:2
+ });
+ assert.equal(coverage.rows.filter(x=>x.status==="playable"&&x.quoteId<91).length,2);
+ assert.equal(coverage.rows.filter(x=>x.status==="playable"&&x.developmentOnly).length,4);
+ assert.equal(coverage.rows.filter(x=>x.status==="no_fit").length,2);
+ assert.equal(B27_EDITORIAL_RECORDS.length,21);
+ assert.equal(new Set(B27_EDITORIAL_RECORDS.map(x=>x.quoteId)).size,21);
+ for(const record of B27_EDITORIAL_RECORDS){
+  const src=B27_APP_QUOTES[record.quoteId];
+  assert.equal(record.quoteText,src[0]);
+  assert.equal(record.author,src[1]);
+  assert.equal(record.work,src[3]);
+  assert.equal(record.publicationAllowed,false);
+  if(record.status==="playable")assert.ok(record.familyId);
+  else{
+   assert.equal(record.familyId,undefined);
+   assert.equal(record.consideredAdaptations.length,2);
+   assert.equal(record.consideredAdaptations[1].verdict,"REJECTED");
+   assert.ok(record.consideredAdaptations[1].reason.length>20);
+  }
+ }
+});
+test("Unseen author-compatible and operator-incompatible examples cannot inherit game rights",()=>{
+ for(const id of [46,47,53,63,70,71,76,77,88,89,90]){
+  const response=resolveQuoteB27(q(id));
+  assert.equal(response.status,"no_fit",JSON.stringify(response));
+  assert.equal(response.readingFirst,true);
+  assert.equal(response.productionPlayable,false);
+  assert.equal(response.capabilityGap,editorialB27(id)?.gap||"source_specific_semantic_admission");
+ }
+ assert.equal(resolveQuoteB27(q(31)).editorialCoverageStatus,"no_fit");
+ assert.equal(resolveQuoteB27(q(69)).editorialCoverageStatus,"no_fit");
+ assert.equal(resolveQuoteB27(q(47)).editorialCoverageStatus,"awaiting_source_review");
+ assert.equal(resolveQuoteB27(q(71)).editorialCoverageStatus,"awaiting_reasoning_capability");
+ for(const id of [12,34,91,92,93,94]){
+  const readyRecord=ready(id),unchanged=q(id);
+  assert.equal(readyRecord.record.key,editorialB27(id).key);
+  assert.notEqual(resolveQuoteB27({...unchanged,quoteWork:"invented source"}).status,"ready");
+ }
 });
