@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="color-scheme" content="dark"/>
+<title>YourLogos · Four Games · Milestone A Research</title>
+<link rel="stylesheet" href="/cz128-milestone-a.css"/>
+<script src="/cz128-milestone-a-ui.js" defer></script>
+</head>
+<body>
+<div class="ambient" aria-hidden="true"></div>
+<main class="shell">
+ <header class="topline">
+  <div class="brand"><span class="brand-icon" aria-hidden="true">✧</span><span>YourLogos</span></div>
+  <span class="small-tag">ISOLATED RESEARCH · MILESTONE A</span>
+ </header>
+ <div class="progress" role="group" aria-label="Journey progress"><span id="dot-0" class="on"></span><span id="dot-1"></span><span id="dot-2"></span></div>
+ <div id="status" class="status" role="status" aria-live="polite">Checking the accepted source contracts…</div>
+ <section id="intro" aria-labelledby="intro-title">
+  <div class="eyebrow">DISCOVER · A QUESTION WORTH EXPLORING</div>
+  <h1 id="intro-title">What would you choose?</h1>
+  <p id="dilemma" class="hero-question"></p>
+  <blockquote class="quotation"><p id="quote"></p><footer id="quote-source"></footer></blockquote>
+  <div class="intro-explainer">Choose in an imagined situation. Discover what your choice can—and cannot—tell us.</div>
+  <div class="picker">
+   <label for="source">Explore a different passage</label>
+   <select id="source" disabled><option>Loading…</option></select>
+  </div>
+  <div id="refusal" class="refusal" hidden></div>
+  <div class="bottom"><span class="minor">Source material is provisional, not for publication.</span><button id="start" class="primary" disabled>Let's play <span aria-hidden="true">→</span></button></div>
+ </section>
+ <section id="play" class="hidden" aria-labelledby="game-title">
+  <div class="eyebrow" id="game-eyebrow">PLAY · A SMALL CHOICE</div>
+  <h1 id="game-title"></h1>
+  <p id="game-prompt" class="hero-question"></p>
+  <div id="game-content" class="game-content" aria-live="polite"></div>
+  <div class="game-tools"><button id="undo" class="tool" type="button">Undo</button><button id="reset" class="tool" type="button">Reset</button></div>
+  <div class="bottom"><button id="play-back" class="secondary">Back</button><button id="play-next" class="primary" disabled>Discover <span aria-hidden="true">→</span></button></div>
+ </section>
+ <section id="result" class="hidden" aria-labelledby="reading-title">
+  <div class="eyebrow">DISCOVER · THE MEANING</div>
+  <h1 id="reading-title">What became visible?</h1>
+  <p id="path-summary" class="path-summary"></p>
+  <article class="reading" tabindex="-1" aria-live="polite">
+   <div class="reading-counter" id="section-counter">01 / 03</div>
+   <h2 id="section-title">Your Choice.</h2>
+   <p id="section-text"></p>
+  </article>
+  <details class="source-details"><summary>Source & limits</summary><p id="limits"></p></details>
+  <div class="bottom"><button id="result-back" class="secondary">Back</button><button id="result-next" class="primary">Continue <span aria-hidden="true">→</span></button></div>
+  <div id="save-notice" class="minor" hidden>Saving is intentionally unavailable in Milestone A. Real Encounter → My World persistence belongs to Milestone C.</div>
+ </section>
+ <details class="qa-panel" id="qa-controls">
+  <summary>Research controls · source fit & game equivalence</summary>
+  <div class="picker"><label for="preferred">Inspect another eligible game (QA only)</label>
+   <select id="preferred"><option value="">Automatic selection</option></select>
+  </div>
+  <div id="trace" class="trace" role="list"></div>
+  <p class="minor">This is a local-only browser study, not the real Discover/My World product. No storage, accounts, analytics, paid APIs, or live user data.</p>
+ </details>
+ <footer class="sitefoot">Play a choice. Discover a question. Remember without pretending to know more than we do.</footer>
+</main>
+</body></html>
