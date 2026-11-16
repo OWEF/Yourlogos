@@ -41,7 +41,7 @@
 .b27-lenses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .b27-lens{font-size:12px;line-height:1.3}.b27-lens.selected{border-color:#e8cb88;background:#464332}
 .b27-concepts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;position:relative}
-.b27-concept{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:9px;min-height:116px;text-align:center;background:linear-gradient(140deg,#394b39,#2c3b2d);border:1px solid #59755a}
+.b27-concept{position:relative;z-index:2;pointer-events:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:9px;min-height:116px;text-align:center;background:linear-gradient(140deg,#394b39,#2c3b2d);border:1px solid #59755a}
 .b27-concept strong{font-size:13px;line-height:1.2}.b27-concept-icon{font:normal 26px Georgia,serif;color:#e4c890}
 .b27-concept.active{outline:2px solid #e0c78c;box-shadow:0 0 20px #d9c49125}.b27-concept.connected{border-color:#a9c9a4}
 .b27-connections{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;min-height:24px}

@@ -109,6 +109,12 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
    await page.locator('[data-b27="pair"][data-value="sketch"]').focus();
    await page.keyboard.press("Enter");
    assert.equal((await current(page)).game.first,"sketch");
+   console.log("B27_CARD_HIT_TEST "+JSON.stringify(await page.locator('[data-b27="pair"][data-value="friend"]').evaluate(el=>{
+    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+    return {rect:{x:r.x,y:r.y,w:r.width,h:r.height},
+      hit:document.elementFromPoint(x,y)?.outerHTML?.slice(0,250),
+      overlays:document.elementsFromPoint(x,y).slice(0,4).map(e=>e.className)};
+   })));
    await page.locator('[data-b27="pair"][data-value="friend"]').click();
    assert.equal((await current(page)).game.pairs.length,1);
    const result=await finish(page,"tap_pair");
