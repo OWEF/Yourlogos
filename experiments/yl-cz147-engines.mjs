@@ -696,7 +696,8 @@ function philosophicalQuestions(packet,emotion,source){
     "How could "+lowerFirst(primary.a)+" relate to "+lowerFirst(primary.b)+
     " without turning support into control?":null;
    const autonomyContrast=op.kind==="self_governance"&&primary.type==="contrast"?
-    "In this choice, who should make the decision, and how is that different from controlling someone else?":null;
+    "When a choice is contested, what separates "+lowerFirst(primary.a)+
+    " from "+lowerFirst(primary.b)+"?":null;
    const claimQuestion="If "+lowerClaim+", what does this leave open?";
    const specific="What does the “"+label+"” connection clarify about "+op.focus+"?";
    const neutral="What does the chosen “"+label+"” relation establish, and what remains uncertain?";
