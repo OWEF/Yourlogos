@@ -220,7 +220,8 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      assert.doesNotMatch(admitted.situationText,
       /community group|authority over men/i);
     }else if(spec.family==="decision_cards"){
-     assert.equal(await page.locator(".b27-dilemma").count(),1);
+     assert.equal(await page.locator(".b27-dilemma").count(),0);
+     assert.match(await page.locator(".b27-play-prompt").innerText(),/plan|reconsider/i);
      assert.equal(await page.locator(".b27-choice").count(),2);
      await page.screenshot({path:OUT+"/decision-"+variant+"-dilemma-390.png",fullPage:true});
      await branch(page,variant?"revisit":"maintain");
