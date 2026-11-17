@@ -359,8 +359,8 @@ function describeChoice(packet,source,brief=false){
 function minimalChoice(packet,source){
  if(source.familyId==="decision_cards"||source.familyId==="flip_reveal"){
   const t=packet.meaning.selectedTimeline;
-  return "You first chose "+quoteAction(t.startLabel)+
-   "; later you chose "+quoteAction(t.responseLabel)+".";
+  return "You chose "+quoteAction(t.startLabel)+
+   ", then "+quoteAction(t.responseLabel)+".";
  }
  return describeChoice(packet,source,true);
 }
@@ -446,7 +446,7 @@ function dynamicReading(packet,emotion,source){
  const short=retrospective?
   "After choosing to "+opening+", “"+scene+"” cannot reveal the unchosen life.":
   "After choosing to "+opening+", the invented “"+scene+"” cannot certify that commitment.";
- const minimal="The imagined “"+scene+"” does not settle the choice to "+opening+".";
+ const minimal="The imagined “"+scene+"” cannot validate choosing to "+opening+".";
  return {long,short,minimal,
   focus:{initial:start,development:scene,response,stance,
    inventedNotCaused:true,unchosenUnknown:true},
@@ -491,7 +491,8 @@ function reflectionQuestions(packet,emotion,source){
  const detailed="After the invented “"+scene+"”, "+after.charAt(0).toLowerCase()+after.slice(1);
  const anchored="You first chose “"+first+"”. What might the imagined “"+scene+"” leave unresolved?";
  const short="After “"+scene+"”, what remains uncertain about your opening choice?";
- return [detailed,anchored,short];
+ const concise="What does “"+scene+"” still leave unresolved?";
+ return [detailed,anchored,short,concise];
 }
 function typedWordPolicy(sections,lo,hi,min,max){
  const n=sections.map(x=>count(x.text)),total=n.reduce((x,y)=>x+y,0);
