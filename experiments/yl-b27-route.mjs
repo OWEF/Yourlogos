@@ -26,6 +26,8 @@ import {B27_KIERKEGAARD_HINDSIGHT,replayB27HindsightBase}
 import {compactEncounterB27}
  from "./yl-b27-compact.mjs";
 import {editorialB27,reportB27Coverage} from "./yl-b27-editorial-ledger.mjs";
+import {makeUniversalRegistry} from "./yl-cz147-engines.mjs";
+import {CZ147_SOURCE_RECORDS} from "./yl-cz147-sources.mjs";
 export {reportB27Coverage} from "./yl-b27-editorial-ledger.mjs";
 export const B27_ROUTE_VERSION="quote-direct-source-bound/2.7.0";
 const obj=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
@@ -38,6 +40,12 @@ const keyRef=Object.freeze({
  kierkegaard_hindsight:B27_KIERKEGAARD_HINDSIGHT.recordId
 });
 const old=catalogueB26();
+// The accepted B2.7 sources retain their exact historical path. Only newly
+// admitted provisional quotations enter the shared three-engine registry.
+// A compatible source needs DATA, never a new author-specific engine branch.
+const generalized=makeUniversalRegistry(
+ CZ147_SOURCE_RECORDS.filter(r=>r.exposeInApp),B27_APP_QUOTES);
+export const CZ147_APP_ADMITTED_IDS=Object.freeze([...generalized.ids]);
 const block=(code,reason)=>({status:"blocked",code,reason,
  publicationAllowed:false,productionPlayable:false});
 const sourceReasoning=Object.freeze({
@@ -78,6 +86,7 @@ function trustedQuoteInput(input){
  return quote;
 }
 export function resolveQuoteB27(input){
+ if(generalized.ids.includes(input?.quoteId))return generalized.resolve(input);
  const quote=trustedQuoteInput(input);
  if(!quote)return block("quote_identity_mismatch",
   "An exact existing quotation ID, text, author and source is required");
@@ -187,6 +196,7 @@ export function resolveQuoteB27(input){
  };
 }
 export function runQuoteEncounterB27(request){
+ if(generalized.ids.includes(request?.quoteId))return generalized.run(request);
  if(!obj(request)||!obj(request.canonicalInput)||
     !Number.isSafeInteger(request.quoteId)||
     typeof request.sourceVersionHash!=="string"||
