@@ -370,6 +370,8 @@ function dynamicReading(packet,emotion,source){
     "Giving "+high+" the largest share leaves less time for "+low+".";
   const brief=equal?
    "Equal shares still carry a cost if one grows.":
+   a.excluded.length&&a.primary.length===1?
+    "Giving every slot to "+high+" excludes "+low+" from this imagined plan.":
    a.primary.length>1?
     "The shared lead for "+high+" leaves less for "+low+".":
     "Prioritizing "+high+" limits time for "+low+".";
