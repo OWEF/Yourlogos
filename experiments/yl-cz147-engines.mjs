@@ -23,6 +23,49 @@ const quoteAction=label=>{
   "the option “"+v+"”";
 };
 const size=(x,lo,hi)=>Array.isArray(x)&&x.length>=lo&&x.length<=hi;
+// A philosophical operation is separately authenticated source DATA.
+// Multiple philosophers may share an operation, and the same game family
+// can realize incompatible operations. Missing/unsupported kinds fail closed.
+const OPERATION_FAMILIES=Object.freeze({
+ habitual_pattern:"balance_move",deliberate_use:"balance_move",
+ attention_evasion:"balance_move",
+ coordinated_work:"tap_pair",self_governance:"tap_pair",
+ source_relation:"tap_pair",
+ retrospective_limits:["decision_cards","flip_reveal"],
+ independent_judgment:"decision_cards",incremental_beginning:"decision_cards",
+ event_acceptance:"flip_reveal",anticipated_vs_actual:"flip_reveal"
+});
+function validateOperation(r){
+ const op=r.philosophicalOperation;
+ if(!obj(op)||!Object.keys(op).every(k=>["kind","focus","contrast",
+  "sourceWarrantIds","activityRoles","startRoles"].includes(k))||
+  !Object.hasOwn(OPERATION_FAMILIES,op.kind)||
+  ![].concat(OPERATION_FAMILIES[op.kind]).includes(r.familyId)||
+  !txt(op.focus,3)||!txt(op.contrast,4)||
+  !size(op.sourceWarrantIds,1,8)||
+  !op.sourceWarrantIds.every(id=>r.evidenceIds.includes(id)))return false;
+ if(op.activityRoles!==undefined){
+  if(r.familyId!=="balance_move"||!Array.isArray(op.activityRoles)||
+   op.activityRoles.length!==r.allocation?.choices?.length||
+   op.activityRoles.some(x=>!obj(x)||!txt(x.id,1)||
+    !["deliberate_practice","possible_distraction","restorative_pause",
+      "quiet_attention","social_contact","necessary_task"].includes(x.role))||
+   op.activityRoles.some(x=>!r.allocation.choices.some(c=>c.id===x.id))||
+   new Set(op.activityRoles.map(x=>x.id)).size!==op.activityRoles.length)
+   return false;
+ }
+ if(op.startRoles!==undefined){
+  const starts=[...new Set(r.timeline?.map(x=>x.startId)??[])];
+  if(!["decision_cards","flip_reveal"].includes(r.familyId)||
+   !Array.isArray(op.startRoles)||op.startRoles.length!==starts.length||
+   op.startRoles.some(x=>!obj(x)||!txt(x.id,1)||
+    !["retain_prior","reexamine_prior","begin_modestly","prepare_carefully",
+      "deliberate_action","uncertain_commitment"].includes(x.role)||
+    !starts.includes(x.id))||
+   new Set(op.startRoles.map(x=>x.id)).size!==op.startRoles.length)return false;
+ }
+ return true;
+}
 function validateRecord(r){
  if(!obj(r)||!Number.isSafeInteger(r.quoteId)||r.quoteId<0||
   !txt(r.recordId,1)||!txt(r.version,1)||r.status!=="development_provisional"||
@@ -33,7 +76,7 @@ function validateRecord(r){
   !txt(r.counterexample,6)||!txt(r.evidenceClaim,6)||
   !size(r.evidenceIds,2,12)||!r.evidenceIds.includes("source:central")||
   !size(r.prohibitedInferences,1,10)||!size(r.supportedConclusions,1,8)||
-  typeof r.developmentOnly!=="boolean"||
+  !validateOperation(r)||typeof r.developmentOnly!=="boolean"||
   !obj(r.source)||!txt(r.source.text,4)||!txt(r.source.author,1)||
   !txt(r.source.work,1)||typeof r.source.referenceUrl!=="string"||
   !size(r.affordances,0,5)||r.publicationAllowed!==false)return false;
@@ -272,6 +315,7 @@ export function reasonUniversal(source,input){
   sourceRecordId:source.recordId,sourceVersionHash:source.sourceFingerprint,
   selectedFamilyId:source.familyId,canonical_choice:canonical,
   meaning:{kind:source.familyId,centralClaim:source.sourceThesis,
+   philosophicalOperation:structuredClone(source.philosophicalOperation),
    sourceClaim:source.evidenceClaim,selectedClaim:claim,choiceAnalysis:analysis,
    selectedTimeline:source.familyId==="tap_pair"?null:route,
    selectedRelations:source.familyId==="tap_pair"?route:null,
