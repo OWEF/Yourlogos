@@ -34,6 +34,14 @@ jobs:
         run: |
           node --test tests/yl-cz147-r1-contrasts.test.mjs tests/yl-cz147-engine.test.mjs
           node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+      - name: Preserve all legacy four-family and 84-allocation/eight-route regressions
+        run: node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs tests/yl-b25-generalized-encounter.test.mjs
+      - name: Install browser driver, no Chrome download
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Eight independently driven real consumer A/B paths at 390px
+        run: node --test tests/yl-cz147-r1-independent-browser.test.mjs
+      - name: Replay all four game families on 320, 390, 430 and 1024px
+        run: node --test tests/yl-cz147-browser.test.mjs
       - name: Preserve existing full/compact and old holdout evidence
         if: always()
         uses: actions/upload-artifact@v4
