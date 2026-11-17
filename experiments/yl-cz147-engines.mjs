@@ -471,8 +471,9 @@ function philosophicalReading(packet,emotion,source){
    return {long:choice+". "+lens+". Deliberate living depends on how the time is approached, not just filling the hours.",
     short:choice+". "+lens+".",
     minimal:emotion.strategy==="neutral_reflection"?
-     choice+". Imagined amounts cannot establish a person's intention.":
-     choice+". Choosing a purpose matters more than merely being busy.",
+     "Giving every slot to "+high+" excludes "+low+"; the intention remains unknown.":
+     "Giving every slot to "+high+" excludes "+low+
+      "; this priority alone does not reveal deliberate purpose.",
     focus:{kind:op.kind,leading:high,role,excluded:a.excluded.map(x=>x.label)},
     evidence:bound};
   }
