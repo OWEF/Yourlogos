@@ -148,14 +148,26 @@ async function play(page,v,width){
    await t("rechoose",()=>src().dragTo(dest()));
   }
  } else if(v.family==="tap_pair"){
-  await t("select",()=>page.locator('[data-b27="pair"][data-value="education"]').click());
+  await t("select",async()=>{
+   await page.locator('[data-b27="pair"][data-value="education"]').click();
+   await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education");
+  });
   assert.equal(await page.locator(".b27-concept.active").count(),1);
-  await t("connect",()=>page.locator('[data-b27="pair"][data-value="judgment"]').click());
+  await t("connect",async()=>{
+   await page.locator('[data-b27="pair"][data-value="judgment"]').click();
+   await page.waitForFunction(()=>document.querySelectorAll(".b27-link-lines path").length===1);
+  });
   assert.equal(await page.locator(".b27-link-lines path").count(),1);
   if(width===390){
-   await t("undo",()=>page.locator('[data-b27="undo"]').click());
+   await t("undo",async()=>{
+    await page.locator('[data-b27="undo"]').click();
+    await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.pairs.length===0);
+   });
    assert.equal(await page.locator(".b27-link-lines path").count(),0);
-   await t("reconnect",()=>page.locator('[data-b27="pair"][data-value="judgment"]').click());
+   await t("reconnect",async()=>{
+    await page.locator('[data-b27="pair"][data-value="judgment"]').click();
+    await page.waitForFunction(()=>document.querySelectorAll(".b27-link-lines path").length===1);
+   });
   }
  } else if(v.family==="decision_cards"){
   await t("choose",()=>branch(page,"maintain"));
