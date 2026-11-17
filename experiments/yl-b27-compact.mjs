@@ -52,7 +52,7 @@ const editorial=Object.freeze({
  smith_human:{
   insight:"Smith's division-of-work example illuminates how separate contributions can depend on one another in a finished product.",
   limit:"The gift is fictional; Smith does not settle trust, fairness or the best personal choice.",
-  relationLead:"Smith studies contributions to a shared result.",
+  relationLead:"Smith describes productivity from divided, coordinated work.",
   relationLimit:"This gift is fictional, not moral proof.",
   question:"What would you share, knowing this model cannot decide for you?"
  }
@@ -64,11 +64,13 @@ function partOne(record,result){
  if(family==="balance_move"){
   const alloc=record.allocation,amt=canonical?.amounts;
   if(!alloc||!Array.isArray(amt)||amt.length!==alloc.choices.length)return null;
-  const choices=alloc.choices,remaining=amt.slice(1).reduce((a,b)=>a+b,0);
-  const others=choices.slice(1).map(x=>x.label).join(" and ");
-  return "You allocated "+amt[0]+" of "+alloc.resourceCapacity+" "+alloc.unitName+
-   " to "+choices[0].label+"; the remaining "+remaining+
-   " went toward "+others+" in this imagined allocation.";
+  // Every valid allocation affects the reader’s visible account. The earlier
+  // summary grouped all but the first choice, erasing differences in the
+  // actual choices for 3-option games.
+  const choices=alloc.choices;
+  return "You allocated "+alloc.resourceCapacity+" "+alloc.unitName+
+   " in this invented plan: "+choices.map((choice,i)=>
+    amt[i]+" to “"+choice.label+"”").join("; ")+".";
  }
  if(family==="decision_cards"||family==="flip_reveal"){
   const path=canonical?.path,routes=record.timeline;
