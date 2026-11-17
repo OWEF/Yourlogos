@@ -180,7 +180,18 @@ export function createB27AppRuntime({
   if(["move","pair","branch","focus"].includes(kind)){
    const value=kind==="move"?el.dataset.b27Piece:el.dataset.value;
    const changed=adjustB27Game(sheet,kind,value);
-   if(changed)epoch++;draw();return changed;
+   if(changed)epoch++;
+   draw();
+   if(changed)requestAnimationFrame(()=>{
+    let next=null;
+    if(kind==="pair"||kind==="focus")
+     next=[...document.querySelectorAll('[data-b27="'+kind+'"]')]
+      .find(x=>x.dataset.value===value&&!x.disabled);
+    else if(kind==="move")
+     next=document.querySelector('[data-b27-piece="'+value+'"]');
+    (next||document.querySelector(".b27-game"))?.focus({preventScroll:true});
+   });
+   return changed;
   }
   if(kind==="complete"){
    if(!canFinishB27(sheet)||sheet.saving)return false;
