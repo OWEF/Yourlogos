@@ -116,7 +116,7 @@ body:has(.b27-shell) .discover-cover{
 .b27-buckets.b27-three .b27-piece{width:44px}
 .b27-touch-ghost{position:fixed!important;pointer-events:none;z-index:99999!important;display:grid;place-items:center;width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#f6e8bc,#c7a46c);border:2px solid #ffebba;color:#293125;font-size:23px;box-shadow:0 15px 26px #050e0677;transform:translate(-50%,-50%) rotate(-8deg);will-change:top,left}
 .b27-bucket.b27-snap{animation:b27-bucket-snap .32s cubic-bezier(.18,1.6,.4,1) both}
-@keyframes b27-bucket-snap{0%{transform:scale(.98)}55%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes b27-bucket-snap{0%{transform:scale(1)}55%{transform:scale(1.02)}100%{transform:scale(1)}}
 .b27-concepts{isolation:isolate;gap:13px}
 .b27-concept{min-height:135px;padding:15px 12px;border-radius:18px;background:linear-gradient(150deg,#3c4f3d,#23352a);box-shadow:0 6px 0 #18251a,0 11px 18px #0e1a1138;transition:transform .19s,box-shadow .19s,border-color .19s;z-index:2}
 .b27-concept:active:not(:disabled){transform:translateY(3px);box-shadow:0 3px 0 #18251a}
@@ -239,7 +239,7 @@ body:has(.b27-shell) .discover-cover{
 .b27-bucket.b27-snap .b27-piece:last-of-type{animation:b27-token-land .38s cubic-bezier(.18,1.65,.24,1) both}
 @keyframes b27-token-land{
  0%{transform:translateY(-12px) scale(1.12)}
- 58%{transform:translateY(2px) scale(.96)}
+ 58%{transform:translateY(2px) scale(1)}
  100%{transform:translateY(0) scale(1)}
 }
 .b27-touch-ghost{border-radius:50%;transform:translate(-50%,-50%) rotate(-12deg)}
