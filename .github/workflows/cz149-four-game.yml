@@ -1,0 +1,54 @@
+name: CZ-149 Authentic Four-Game Consumer and Semantic Acceptance
+on:
+  push:
+    branches: [feature/cz149-authentic-four-games, qa/cz149-independent-founder]
+  pull_request:
+    paths:
+      - "b27-encounter-ui.js"
+      - "b27-app-runtime.js"
+      - "b27.css"
+      - "experiments/yl-cz147-sources.mjs"
+      - "tests/yl-cz149-*"
+      - ".github/workflows/cz149-four-game.yml"
+permissions:
+  contents: read
+jobs:
+  authentic-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Authenticate source routing and JS syntax
+        run: |
+          node --check b27-encounter-ui.js
+          node --check b27-app-runtime.js
+          node --check experiments/yl-cz147-sources.mjs
+          node --check tests/yl-cz149-gestures.test.mjs
+      - name: Exact-source 3-engine regression and R2.1 semantics
+        run: |
+          node --test tests/yl-cz147-engine.test.mjs tests/yl-cz147-r1-contrasts.test.mjs
+          node --test tests/yl-cz147-r2-operation.test.mjs tests/yl-cz147-r2-exposed-epicurus-regression.test.mjs
+          node --test tests/yl-cz147-r21-directional-relations.test.mjs
+      - name: B2.7 identity, 84 source allocations, 8 decisions, My World storage, existing paths
+        run: |
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs
+          node --test tests/yl-b25-generalized-encounter.test.mjs
+      - name: Install Chrome driver without downloading browser
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Founder P0 four distinct tactile gestures, real API and full/compact results
+        run: node --test tests/yl-cz149-gestures.test.mjs
+      - name: Four game types x 320/390/430/1024 actual consumer apps
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Evidence for human visual/semantic inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz149-authentic-four-game-evidence
+          path: |
+            qa-evidence-cz149/
+            qa-evidence-cz147/
+          if-no-files-found: warn
