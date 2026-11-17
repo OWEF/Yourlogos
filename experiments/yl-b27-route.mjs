@@ -28,6 +28,7 @@ import {compactEncounterB27}
 import {editorialB27,reportB27Coverage} from "./yl-b27-editorial-ledger.mjs";
 import {makeUniversalRegistry} from "./yl-cz147-engines.mjs";
 import {CZ147_SOURCE_RECORDS} from "./yl-cz147-sources.mjs";
+import {validateCZ152Bridge} from "./yl-cz152-bridge.mjs";
 export {reportB27Coverage} from "./yl-b27-editorial-ledger.mjs";
 export const B27_ROUTE_VERSION="quote-direct-source-bound/2.7.0";
 const obj=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
@@ -54,28 +55,56 @@ const sourceReasoning=Object.freeze({
   sourceThesis:"How repeated days can form a pattern of living.",
   sourceWarrantIds:["source:central","allocation:repetition"],
   epistemicLimits:"These repeated evenings are fictional, not your real habits.",
-  readerAgency:"Allocate six half-hour slots among three ordinary uses of time."
+  readerAgency:"Allocate six half-hour slots among three ordinary uses of time.",
+  narrativeBridge:{
+   version:"cz152-narrative/1",
+   bridgeFromSource:"Dillard considers how the repeated pattern of ordinary days can shape the way a life is spent.",
+   situationHook:"An imagined evening has six half-hours. Making something, answering messages, and resting all use the same time; one evening cannot establish the pattern of your life.",
+   playPrompt:"Shift the pieces between uses of time; notice what repetition might change.",
+   sourceWarrantIds:["source:central","allocation:repetition"]
+  },
  },
  kierkegaard_map:{
   humanTension:"The safety of staying versus an unknown possibility after changing work.",
   sourceThesis:"One must choose before later understanding; the unchosen path stays unknown.",
   sourceWarrantIds:["source:central","route:authored"],
   epistemicLimits:"Future developments are written possibilities, not predicted consequences.",
-  readerAgency:"Make an initial choice and then respond to a fictional later development."
+  readerAgency:"Make an initial choice and then respond to a fictional later development.",
+  narrativeBridge:{
+   version:"cz152-narrative/1",
+   bridgeFromSource:"Kierkegaard considers how we must make a choice before hindsight can give us even partial understanding.",
+   situationHook:"You could stay in familiar work or explore another path. Stability matters, but you cannot know in advance what the path left behind would have brought.",
+   playPrompt:"Choose a path, meet one fictional turn, then respond.",
+   sourceWarrantIds:["source:central","route:authored"]
+  },
  },
  thoreau_weekend:{
   humanTension:"Earn an imagined extra amount or keep hours open for other possibilities.",
   sourceThesis:"A monetary option also involves an exchange of finite living time.",
   sourceWarrantIds:["source:central","allocation:resource"],
   epistemicLimits:"The pay and available hours are invented and cannot rank your values.",
-  readerAgency:"Allocate fictional hours and choose what aspect of the exchange to notice."
+  readerAgency:"Allocate fictional hours and choose what aspect of the exchange to notice.",
+  narrativeBridge:{
+   version:"cz152-narrative/1",
+   bridgeFromSource:"Thoreau questions the living time exchanged for money when an apparently simple earning opportunity appears.",
+   situationHook:"An extra weekend shift offers imagined pay, but takes hours from other possibilities. The money and free time matter differently, and neither settles what you value.",
+   playPrompt:"Move the limited hours and feel the competing uses.",
+   sourceWarrantIds:["source:central","allocation:resource"]
+  },
  },
  epictetus_relations:{
   humanTension:"You may control offering an apology, but cannot require someone else to forgive.",
   sourceThesis:"The limits of agency distinguish chosen action from external outcome.",
   sourceWarrantIds:["source:central","relation:authored"],
   epistemicLimits:"This illustration does not establish actual forgiveness or someone's character.",
-  readerAgency:"Connect the action to the external outcome it cannot determine."
+  readerAgency:"Connect the action to the external outcome it cannot determine.",
+  narrativeBridge:{
+   version:"cz152-narrative/1",
+   bridgeFromSource:"Epictetus distinguishes an action you can choose from another person's response that you cannot command.",
+   situationHook:"After an argument, you might offer an apology. Whether the other person forgives you remains outside your choice, even if your words are sincere.",
+   playPrompt:"Connect a chosen action to what remains beyond it.",
+   sourceWarrantIds:["source:central","relation:authored"]
+  },
  }
 });
 function trustedQuoteInput(input){
@@ -138,6 +167,11 @@ export function resolveQuoteB27(input){
    epistemicLimits:c.scenario.assumptions.join(" "),
    sourceWarrantIds:["source:central","timeline:authored","source:boundary"],
    readerAgency:c.scenario.readerAgency,
+   narrativeBridge:{version:"cz152-narrative/1",
+    bridgeFromSource:"Kierkegaard separates choosing a life now from understanding it only after events have unfolded.",
+    situationHook:"You can change work or stay with what is familiar. One imagined later event might teach you something, but cannot reveal the life you did not choose.",
+    playPrompt:"Choose your approach, reveal a fictional possibility, and respond.",
+    sourceWarrantIds:["source:central","timeline:authored"]},
    sourceTranslationBridge:c.sourceRelation};
   sourceRef=c.recordId;
   selection={status:"research_selected",selectedFamilyId:"flip_reveal",
@@ -163,6 +197,11 @@ export function resolveQuoteB27(input){
    ...{sourceThesis:c.sourceThesis,humanTension:c.humanTension,
     epistemicLimits:c.warrant.limitations,
     sourceWarrantIds:c.sourceWarrantIds,
+    narrativeBridge:{version:"cz152-narrative/1",
+     bridgeFromSource:"Smith shows how a shared result can depend on different practical contributions working together.",
+     situationHook:"You promised a birthday gift with a friend. Doing everything alone preserves control; sharing the tasks depends on both contributions being completed in time.",
+     playPrompt:"Connect the different contributions that bring the shared gift together.",
+     sourceWarrantIds:["source:central","scenario:fictional"]},
     readerAgency:"Connect two contributions to an imagined shared birthday gift."}
   };
   sourceRef=c.recordId;
@@ -179,6 +218,10 @@ export function resolveQuoteB27(input){
    return block("source_ineligible","Quote's canonical source and selection did not replay");
   scenario={...scenario,...sourceReasoning[key]};
  }
+ // A visible narrative is only admissible when its authored beats carry the
+ // same source warrants as the authenticated playable record. No UI guessing.
+ if(!validateCZ152Bridge(scenario))return block("narrative_source_invalid",
+  "The source has no validated short narrative connecting its idea to this game");
  if(scenario.quote!==quote[0]||scenario.author!==quote[1])
   return block("source_quote_divergence","The research excerpt does not match the clicked quotation");
  return {
