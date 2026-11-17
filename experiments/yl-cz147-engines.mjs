@@ -439,11 +439,14 @@ function briefResponseChoice(packet,source){
 }
 const lowerFirst=s=>s.charAt(0).toLowerCase()+s.slice(1);
 function humanTensionSentence(raw){
- // Some source records state the dilemma as a noun/gerund phrase.
- // Give it a grammatical subject rather than turning it into a fragment.
+ // A participial opening with a subordinate finite clause is not a
+ // standalone sentence ("Choosing ... while later understanding remains...").
+ const phrase=lowerFirst(clean(raw));
+ if(/^[a-z]+ing\b.*\b(?:while|without|rather than|or)\b/i.test(raw))
+  return "The dilemma involves "+phrase+".";
  if(/\b(?:is|are|does|can|cannot|may|must|offers|competes|remains|matters|means|asks|includes|consumes|supports)\b/i.test(raw))
-  return "In this fictional situation, "+lowerFirst(clean(raw))+".";
- return "The dilemma involves "+lowerFirst(clean(raw))+".";
+  return "In this fictional situation, "+phrase+".";
+ return "The dilemma involves "+phrase+".";
 }
 
 const activityRole=(source,id)=>source.philosophicalOperation.activityRoles?.find(x=>x.id===id)?.role??null;
@@ -512,7 +515,7 @@ function philosophicalReading(packet,emotion,source){
   const brief=a.links.length===1?
    selected.claim:
    "Your selected links concern "+a.links.map(x=>lowerFirst(x.label)).join(" and ");
-  return {long:sentence(claim)+" "+anchor+". "+sentence(op.contrast),
+  return {long:sentence(claim)+" "+anchor+".",
    short:sentence(brief)+" "+anchor+".",
    minimal:"The "+lowerFirst(selected.label)+" link concerns "+op.focus+".",
    focus:{kind:op.kind,relationTypes:a.relationTypes,
@@ -604,10 +607,16 @@ function philosophicalQuestions(packet,emotion,source){
    return ["If days like this repeated, what pattern would "+high+" create without defining your whole life?",
     "What pattern might repeated time for "+high+" form?",
     "If "+high+" became routine, what would that pattern mean?"];
-  if(op.kind==="attention_evasion")
-   return ["What could you notice about undistracted attention when choosing "+high+", without assuming solitude is always better?",
-    "How might "+high+" leave space for quiet attention?",
-    "What might quiet attention reveal without judging "+high+"?"];
+  if(op.kind==="attention_evasion"){
+   const leadingRole=activityRole(source,a.primary[0].id);
+   if(leadingRole==="quiet_attention")
+    return ["With "+high+" receiving the most time, what could quiet reflection reveal without judging companionship or rest?",
+     "Having made room for "+high+", what might you notice without blaming other uses?",
+     "What could you notice in "+high+" without judging company?"];
+   return ["How might "+high+" coexist with undistracted attention rather than displace it?",
+    "If "+high+" takes the most time, what room remains for quiet attention?",
+    "What might be missed when "+high+" displaces reflection?"];
+  }
  }
  if(a.operation==="source_relation"){
   const e=a.links[0],first=lowerFirst(e.a),second=lowerFirst(e.b);
