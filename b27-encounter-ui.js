@@ -69,7 +69,7 @@ export function adjustB27Game(enc,action,value,other=null){
    target=Number.isSafeInteger(Number(other))&&other!==null?
     Number(other):(g.owners[piece]+1)%(n+(record.allocation.resourceType==="cap"?1:0));
   changed=assignPiece(record,g,piece,target);
-  notice="Moved one shared resource; no new resources were created.";
+  notice="Token moved.";
  }
  if(action==="slider"&&family==="balance_move"){
   const next=Number(value),n=record.allocation.resourceCapacity;
@@ -86,30 +86,30 @@ export function adjustB27Game(enc,action,value,other=null){
    changed=need===0;
    if(changed)g.touched=true;
   }
-  notice="Slider and pieces now reflect the same conserved choice.";
+  notice="Balance adjusted.";
  }
  if(action==="focus"&&family==="balance_move"&&
     record.allocation.lenses?.some(x=>x.id===value)&&g.focus!==value){
-  g.focus=value;changed=true;notice="A different reading of the same resource choice.";
+  g.focus=value;changed=true;notice="A new perspective selected.";
  }
  if(action==="pair"&&family==="tap_pair"&&record.relation?.cards.some(x=>x.id===value)){
-  if(g.first===null){g.first=value;changed=true;notice="Tap another idea to explore its relationship.";}
+  if(g.first===null){g.first=value;changed=true;notice="One idea selected.";}
   else if(g.first===value){
    // Native Enter+click must be idempotent (B2.6 accessibility fix).
-   notice="Already selected. Choose another idea or Undo.";
+   notice="Choose a second idea.";
   }else{
    const edge=record.relation.edges.find(x=>
     (x.aId===g.first&&x.bId===value)||(x.aId===value&&x.bId===g.first));
    if(!edge){
     g.first=null;changed=true;
-    notice="No source-supported connection is established for those two cards.";
+    notice="These ideas have no supported connection here.";
    }else if(g.pairs.length>=2||g.pairs.some(p=>
     [p.aId,p.bId].sort().join("|")===[edge.aId,edge.bId].sort().join("|"))){
-    g.first=null;changed=true;notice="Already connected or two links reached; Undo to revise.";
+    g.first=null;changed=true;notice="Connection already made. Undo to revise.";
    }else{
     g.pairs.push({aId:edge.aId,bId:edge.bId,relationId:edge.relationId});
     g.first=null;g.touched=true;changed=true;
-    notice="Source-supported connection made. There is no hidden matching score.";
+    notice="Connection made.";
    }
   }
  }
@@ -124,9 +124,9 @@ export function adjustB27Game(enc,action,value,other=null){
    g.response=value;changed=true;
   }
   if(changed){g.touched=true;
-   notice=g.scene===null?"Choose a fictional possibility to examine.":
-    g.response===null?"The development is authored, not something you caused.":
-     "You can now discover the argument behind your choices.";}
+   notice=g.scene===null?"Your direction is set.":
+    g.response===null?"A new possibility appears.":
+     "Your response is set.";}
  }
  if(!changed){if(notice)enc.message=notice;return false;}
  enc.history=arr(enc.history);
@@ -181,12 +181,12 @@ function balanceHtml(enc){
   '<input id="b27-slider" type="range" min="0" max="'+a.resourceCapacity+
   '" step="1" value="'+amounts[0]+'" data-b27-slider aria-label="Allocate '+e(a.unitName)+' to '+e(a.choices[0].label)+'"/>';
  const lenses=arr(a.lenses);
- return '<p class="b27-instruction">Drag a token onto a tray, or tap it to transfer.</p>'+
+ return '<p class="b27-instruction">Move the tokens. Every choice uses the same limited supply.</p>'+
   '<div class="b27-resource-status" role="status"><strong>'+total+' of '+a.resourceCapacity+
   ' placed</strong><span>'+free+' unassigned</span></div>'+
   '<div class="b27-buckets '+(size===3?"b27-three":"")+'" aria-label="Destination areas for finite resources">'+
   buckets+'</div>'+
-  '<div class="b27-allocation-meta"><div class="b27-tuning">'+slider+'</div></div>'+
+  '<details class="b27-allocation-meta b27-tuning"><summary>Fine-tune balance</summary>'+slider+'</details>'+
   (lenses.length?'<div class="b27-lenses">'+lenses.map(l=>
    b("focus",e(l.label),"b27-lens"+(g.focus===l.id?" selected":""),
     'data-value="'+e(l.id)+'" aria-pressed="'+(g.focus===l.id)+'"')).join("")+'</div>':"");
@@ -201,7 +201,7 @@ function pairHtml(enc){
    e((first?.label||edge.aId)+' connected with '+(second?.label||edge.bId))+'">'+
    '<span>'+e(first?.label||edge.aId)+'</span><i class="b27-bridge-trail" aria-hidden="true"></i>'+
    '<span>'+e(second?.label||edge.bId)+'</span></div>'+
-   '<strong>✧ '+e(edge.label)+'</strong><p>'+e(edge.claim)+'</p></div>';
+   '<strong>✧ '+e(edge.label)+'</strong><details class="b27-link-explain"><summary>Why these connect</summary><p>'+e(edge.claim)+'</p></details></div>';
  }).join("");
  const candidates=g.first===null?[]:r.edges.filter(edge=>
   edge.aId===g.first||edge.bId===g.first);
@@ -209,10 +209,10 @@ function pairHtml(enc){
   edge.aId===g.first?edge.bId:edge.aId));
  const labels=r.cards.filter(c=>allowedIds.has(c.id)).map(c=>e(c.label));
  const guide=g.pairs.length>=2?
-  '<p class="b27-pair-guide" role="status">Two source-backed connections are recorded. Undo to try another.</p>':
+  '<p class="b27-pair-guide" role="status">Two connections made.</p>':
   g.first===null?
-   '<p class="b27-pair-guide">Tap two ideas to draw a connection.</p>':
-   '<p class="b27-pair-guide" role="status">Now connect it with: '+labels.join(', ')+'.</p>';
+   '<p class="b27-pair-guide">Tap two ideas to connect them.</p>':
+   '<p class="b27-pair-guide" role="status">Choose the connected idea.</p>';
  return guide+
   '<div class="b27-concepts" role="group" aria-label="Four large source-authorized concept cards">'+
   r.cards.map((c,i)=>{
@@ -237,40 +237,36 @@ function dilemmaCard(kicker,title,detail){
 }
 function decisionHtml(enc){
  const g=enc.game,r=enc.record,recap=selectedChoiceRecap(r,g);
- if(g.start===null)return dilemmaCard("THE DILEMMA","What is your first move?",r.humanTension||r.intro)+
-  '<p class="b27-instruction">Pick one of the two possibilities below.</p>'+
-  tile(starts(r),"Two possible opening decisions");
+ if(g.start===null)return dilemmaCard("YOUR MOVE",r.title||"Which path would you take?","")+
+  tile(starts(r),"Choose your opening decision");
  if(g.scene===null)return recap+
-  dilemmaCard("AN UNWRITTEN TURN","What happens next is not in your control.",
-   "Explore one fictional development; neither option is caused by your choice.")+
-  tile(scenes(r,g.start),"Two independently authored fictional developments");
+  dilemmaCard("AN UNEXPECTED TURN","What might happen next?","")+
+  tile(scenes(r,g.start),"Explore one independently authored hypothetical development");
  if(g.response===null){
   const scene=scenes(r,g.start).find(x=>x.id===g.scene);
-  return recap+dilemmaCard("THE SITUATION CHANGED",
-   scene?.label||"A new detail appears",scene?.authoredText)+
-   '<p class="b27-instruction">Your next response is yours to choose.</p>'+
-   tile(responses(r,g.start,g.scene),"Two possible reader responses");
+  return recap+dilemmaCard("A NEW POSSIBILITY",scene?.label||"Something changes",
+   conciseDilemma({intro:scene?.authoredText||""}))+
+   tile(responses(r,g.start,g.scene),"Choose your response");
  }
- const happened=scenes(r,g.start).find(x=>x.id===g.scene)?.label;
- const response=responses(r,g.start,g.scene).find(x=>x.id===g.response)?.label;
- return recap+dilemmaCard("YOUR PATH","You chose, learned, and responded.",
-  "Imagined event: "+(happened||"")+" · Your response: "+(response||"")+
-   ". This is not proof of what another future would have contained.")+
-   '<p class="b27-authored">The fictional development was independently authored. Your agency remains in your own decisions.</p>';
+ const scene=scenes(r,g.start).find(x=>x.id===g.scene);
+ const response=responses(r,g.start,g.scene).find(x=>x.id===g.response);
+ return '<div class="b27-path-echo" role="status"><span aria-hidden="true">✦</span>'+
+  '<p>When <strong>'+e(scene?.label||"the situation")+
+  '</strong> appeared, you chose <strong>'+e(response?.label||"a response")+
+  '</strong>.</p></div>';
 }
 function flipHtml(enc){
  const g=enc.game,r=enc.record;
  if(g.start===null)return dilemmaCard("BEFORE THE UNKNOWN",
-  "What can you choose before the event?",r.humanTension||"Your next action is yours.")+
+  r.title||"What can you choose?",null)+
   tile(starts(r),"Choose one opening action");
  const possible=scenes(r,g.start),recap=selectedChoiceRecap(r,g);
  const cards='<div class="b27-flips" role="group" aria-label="Face-down fictional possibility cards">'+
   possible.slice(0,3).map((item,i)=>{
    const selected=g.scene===item.id,locked=g.scene!==null&&!selected;
-   // Never put the unopened event, its written detail, or its name in
-   // hidden card DOM/aria. An unopened card has only an opaque ordinal.
+   // Unopened events and authored text must not enter DOM or aria.
    const back=selected?
-     '<strong>'+e(item.label)+'</strong><small>'+e(item.authoredText)+'</small>':
+     '<strong>'+e(item.label)+'</strong><small>'+e(conciseDilemma({intro:item.authoredText}))+'</small>':
      '<strong>Unknown</strong>';
    return b("branch",
     '<span class="b27-flip-interior"><span class="b27-flip-front">'+
@@ -284,30 +280,22 @@ function flipHtml(enc){
     '"'+(locked?' disabled aria-disabled="true"':""));
   }).join("")+'</div>';
  if(g.scene===null)return recap+
-  '<p class="b27-instruction">Two sealed cards. Choose one to flip—the written possibility is concealed until your tap.</p>'+cards;
- const revealed=possible.find(x=>x.id===g.scene);
+  '<p class="b27-instruction">Pick a sealed card to reveal what changes.</p>'+cards;
  if(g.response===null)return recap+cards+
-  '<p class="b27-authored">Revealed fictional possibility: '+e(revealed?.label||"")+
-   '. You did not cause this event by choosing a card.</p>'+
-  dilemmaCard("AFTER THE REVEAL","What remains your decision?",
-   "The external scene is fictional. Your response is not predetermined.")+
-  tile(responses(r,g.start,g.scene),"Choose your own response");
- const response=responses(r,g.start,g.scene).find(x=>x.id===g.response)?.label;
- return recap+cards+'<p class="b27-authored">Your response: '+e(response)+
-  '. This event was not your doing. No unchosen outcome is established.</p>';
+  dilemmaCard("YOUR RESPONSE","What will you do now?",null)+
+  tile(responses(r,g.start,g.scene),"Choose your response");
+ const response=responses(r,g.start,g.scene).find(x=>x.id===g.response);
+ return cards+'<div class="b27-path-echo" role="status"><span aria-hidden="true">✦</span>'+
+  '<p>You responded: <strong>'+e(response?.label||"")+'</strong></p></div>';
 }
 function conciseDilemma(record){
- // Show one or two source-authored sentences; do not generate substitute claims.
- // The full scenario and its epistemic caveat remain available in the disclosure.
- const text=String(record.intro||record.relation?.prompt||"An imagined dilemma").trim();
- const sentences=text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map(x=>x.trim())||[text];
- const selected=[];
- for(const sentence of sentences){
-  if(selected.length&&(selected.length>=2||
-   (selected.join(" ").length+sentence.length+1)>190))break;
-  selected.push(sentence);
- }
- return selected.join(" ");
+ // One legible source-authored sentence. Full claims remain in About the idea.
+ const text=String(record.humanTension||record.intro||record.relation?.prompt||
+  "An imagined dilemma").trim();
+ const sentence=(text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[text])[0].trim();
+ if(sentence.length<=172)return sentence;
+ const cut=sentence.slice(0,169).replace(/\s+\S*$/,"").trim();
+ return cut+"…";
 }
 function gameHtml(enc){
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
@@ -317,61 +305,75 @@ function gameHtml(enc){
 }
 function resultHtml(enc){
  const v=enc.result?.compact;
- if(!v||v.status!=="ready")return '<p>Unable to display a faithful interpretation.</p>';
- const sections=v.sections;
+ if(!v||v.status!=="ready"||!Array.isArray(v.sections)||v.sections.length!==3)
+  return '<p>Unable to display a faithful interpretation.</p>';
+ const sections=v.sections,ph=v.philosopher||{};
  return '<div class="b27-result" aria-label="Three-part philosophical discovery">'+
-  '<p class="b27-kicker">DISCOVER · REMEMBER</p>'+
-  '<article class="b27-result-section"><h3>'+e(sections[0].label)+'</h3><p>'+e(sections[0].text)+'</p></article>'+
-  '<article class="b27-result-section b27-education"><h3>'+e(sections[1].label)+'</h3>'+
-   '<div class="b27-thinker"><span class="b27-portrait" aria-hidden="true">'+philosopherPortrait(v.philosopher.author)+'</span>'+
-   '<div><strong>'+e(v.philosopher.author)+'</strong><small>'+e(v.philosopher.work)+'</small></div></div>'+
-   '<div class="b27-quote-fragment" aria-label="An authentic opening phrase from the quotation">“'+e(v.philosopher.highlight)+'…”</div>'+
-   '<p>'+e(sections[1].text)+'</p>'+
-   '<details class="b27-deepen"><summary>Go deeper · source and qualifications</summary>'+
-   '<p>'+e(v.deepening.sourceQualification)+'</p>'+
-   '<p>Full source-grounded interpretation: '+v.fullWordCount+' words. This example is fictional, not evidence about your actual character or future.</p>'+
-   (v.philosopher.sourceUrl?.startsWith("https://")?'<a href="'+e(v.philosopher.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Read source text</a>':"")+
-   '</details></article>'+
-  '<article class="b27-result-section"><h3>'+e(sections[2].label)+'</h3><p>'+e(sections[2].text)+'</p></article>'+
-  '<div class="b27-buttons">'+b("revise","← Revise choice","b27-secondary")+
-   (enc.saved?b("world","View in My World ↗","b27-primary"):
-    b("save","Finish &amp; Save ↗","b27-primary",enc.saving?"disabled":""))+
-   '</div>'+
-   '<p class="b27-save-state" role="status">'+e(enc.message||"This is not saved until you choose Finish & Save.")+'</p>'+
+  '<p class="b27-kicker">03 / DISCOVER</p>'+
+  '<h2 class="b27-result-headline">A different way to see it.</h2>'+
+  '<article class="b27-result-section b27-result-personal"><h3>'+e(sections[0].label)+'</h3><p>'+e(sections[0].text)+'</p></article>'+
+  '<article class="b27-result-section b27-result-philosophy"><h3>'+e(sections[1].label)+'</h3><p>'+e(sections[1].text)+'</p></article>'+
+  '<article class="b27-result-section b27-result-question"><h3>'+e(sections[2].label)+'</h3><p>'+e(sections[2].text)+'</p></article>'+
+  '<details class="b27-deepen"><summary>Go deeper</summary>'+
+   '<div class="b27-thinker"><span class="b27-portrait" aria-hidden="true">'+philosopherPortrait(ph.author||"")+'</span>'+
+   '<div><strong>'+e(ph.author||"")+'</strong><small>'+e(ph.work||"")+'</small></div></div>'+
+   (ph.highlight?'<div class="b27-quote-fragment">“'+e(ph.highlight)+'…”</div>':"")+
+   '<p>'+e(v.deepening?.sourceQualification||"")+'</p>'+
+   '<p>Full source-grounded interpretation: '+e(v.fullWordCount||"")+
+   ' words. This imagined situation does not establish facts about your life or an alternative future.</p>'+
+   (ph.sourceUrl?.startsWith("https://")?'<a href="'+e(ph.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Read source text</a>':"")+
+   '</details>'+
+  '<div class="b27-buttons">'+b("revise","Revise","b27-secondary")+
+   (enc.saved?b("world","View in My World","b27-primary"):
+    b("save","Finish &amp; Save","b27-primary",enc.saving?"disabled":""))+
+  '</div>'+
+  (enc.message?'<p class="b27-save-state" role="status">'+e(enc.message)+'</p>':"")+
   '</div>';
 }
 export function renderB27Encounter(enc,quote){
  const start='<div class="discover-cover" data-action="close-discover"></div>'+
   '<section class="discover-sheet b27-shell" role="dialog" aria-modal="true" aria-label="YourLogos Encounter">'+
-  '<div class="b27-head"><span>YOURLOGOS · ENCOUNTER</span>'+
+  '<div class="b27-head"><span>YOURLOGOS <i aria-hidden="true">✦</i> DISCOVER</span>'+
    '<button type="button" data-action="close-discover" class="b27-close" aria-label="Close Encounter">×</button></div>';
  if(!enc||enc.stage==="loading")
-  return start+'<div class="b27-main"><p class="b27-kicker">FINDING THE SOURCE</p><h2>From this thought, a possibility.</h2><p role="status">Checking which philosophical interpretation the source can support…</p></div></section>';
+  return start+'<div class="b27-main b27-situation"><p class="b27-kicker">FINDING THE SOURCE</p><h2>From this thought, a possibility.</h2><p role="status">Finding a source-grounded experience…</p></div></section>';
  if(enc.stage==="error")
   return start+'<div class="b27-main"><h2>That thought needs another look.</h2><p role="alert">'+e(enc.message)+'</p></div></section>';
  if(enc.stage==="reading")
-  return start+'<div class="b27-main"><p class="b27-kicker">A READING FIRST · NO GAME FIT</p>'+
-   '<h2>Stay with the thought.</h2><blockquote>“'+e(quote?.[0]||enc.quote?.text)+'”</blockquote>'+
+  return start+'<div class="b27-main"><p class="b27-kicker">ABOUT THIS THOUGHT</p>'+
+   '<h2>Stay with the idea.</h2><blockquote>“'+e(quote?.[0]||enc.quote?.text)+'”</blockquote>'+
    '<p>— '+e(quote?.[1]||enc.quote?.author)+'</p><p>'+e(enc.quote?.question||"What does this idea ask us to examine?")+'</p>'+
    '<p class="b27-source-note">'+e(enc.reason||"This quotation does not yet have a source-warranted mini-game.")+'</p>'+
-   '<p class="b27-caveat">The quotation remains in the Library; no philosophical result was fabricated.</p></div></section>';
- const r=enc.record;
- if(enc.stage==="result")return start+'<div class="b27-main">'+resultHtml(enc)+'</div></section>';
- return start+'<div class="b27-main b27-play"><p class="b27-kicker">'+e(pretty[r.familyId]||"ENCOUNTER")+' · PLAY</p>'+
-  '<div class="b27-source"><blockquote>“'+e(enc.quote?.text||quote?.[0])+'”</blockquote>'+
-  '<span>— '+e(enc.quote?.author||quote?.[1])+'</span></div>'+
-  '<h2>'+e(r.title||"Try a different angle")+'</h2>'+
-  '<p class="b27-scenario">'+e(conciseDilemma(r))+'</p>'+
-
+   '<p class="b27-caveat">No philosophical result was invented.</p></div></section>';
+ if(enc.stage==="result")
+  return start+'<div class="b27-main b27-reveal">'+resultHtml(enc)+'</div></section>';
+ const r=enc.record,author=e(enc.quote?.author||quote?.[1]||"");
+ const context='<details class="b27-context"><summary>About the idea</summary>'+
+  '<blockquote>“'+e(enc.quote?.text||quote?.[0])+'”</blockquote>'+
+  '<p>— '+author+'</p><p>'+e(r.intro||"")+'</p>'+
+  '<p>'+e(r.epistemicLimits||"This is an imagined illustration, not evidence about your actual life.")+'</p>'+
+  '</details>';
+ if(enc.beat==="situation")
+  return start+'<div class="b27-main b27-situation">'+
+   '<p class="b27-kicker">01 / SITUATION</p>'+
+   '<h2>'+e(r.title||"A choice worth considering")+'</h2>'+
+   '<p class="b27-scenario">'+e(conciseDilemma(r))+'</p>'+
+   '<div class="b27-situation-symbol" aria-hidden="true"><span>✦</span><i></i><span>◇</span></div>'+
+   '<div class="b27-buttons">'+b("begin","Begin","b27-primary")+'</div>'+
+   '<p class="b27-byline">'+author+'</p>'+context+'</div></section>';
+ const done=canFinishB27(enc);
+ return start+'<div class="b27-main b27-play">'+
+  '<p class="b27-kicker">02 / PLAY <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
+  (r.familyId==="balance_move"||r.familyId==="tap_pair"?
+   '<h2 class="b27-play-title">'+e(r.title||"Make your move")+'</h2>':"")+
   '<div class="b27-game" data-b27-family="'+e(r.familyId)+'">'+gameHtml(enc)+'</div>'+
-  '<div class="b27-buttons">'+b("undo","Undo","b27-secondary",arr(enc.history).length?"":"disabled")+
-   b("reset","Reset","b27-secondary")+
-   b("complete","Discover ↗","b27-primary",canFinishB27(enc)&&!enc.saving?"":"disabled")+
-  '</div><p class="b27-feedback" role="status" aria-live="polite">'+e(enc.message||"Your choice is yours to revise.")+'</p>'+
-  '<details class="b27-context"><summary>About this imagined situation</summary>'+
-  '<p>'+e(r.intro||"")+'</p><p>'+e(r.epistemicLimits||"This is an imagined illustration, not evidence about your actual life.")+'</p>'+
-  '</details>'+
-  '</div></section>';
+  '<div class="b27-buttons">'+
+   (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
+   (enc.game?.touched?b("reset","Reset","b27-secondary"):"")+
+   (done?b("complete","Reveal insight","b27-primary",enc.saving?"disabled":""):"")+
+  '</div>'+
+  (enc.message?'<p class="b27-feedback" role="status" aria-live="polite">'+e(enc.message)+'</p>':"")+
+  context+'</div></section>';
 }
 export function savedB27WorldHtml(entries){
  const saved=arr(entries).slice().reverse();
