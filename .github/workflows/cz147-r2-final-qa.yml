@@ -1,0 +1,55 @@
+name: CZ-147 R2 Final Independent Operation Acceptance
+on:
+  push:
+    branches: [qa/cz147-r2-final-independent]
+  pull_request:
+    paths:
+      - "tests/yl-cz147-r2-fresh-pascal-hume.test.mjs"
+      - "tests/yl-cz147-r2-independent-browser.test.mjs"
+      - ".github/workflows/cz147-r2-final-qa.yml"
+permissions:
+  contents: read
+jobs:
+  independent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Enforce QA-only diff from the corrected frozen SHA
+        run: |
+          git cat-file -e 7f6cc8c09309ad08ced6b65928007bc3c2b53c1c^{commit}
+          changed="$(git diff --name-only 7f6cc8c09309ad08ced6b65928007bc3c2b53c1c HEAD)"
+          test -n "$changed"
+          if printf "%s\n" "$changed" | grep -vE '^(tests/yl-cz147-r2-fresh-pascal-hume\.test\.mjs|tests/yl-cz147-r2-independent-browser\.test\.mjs|\.github/workflows/cz147-r2-final-qa\.yml)$'; then
+            echo "QA branch contains changes outside tests/workflow"; exit 1
+          fi
+      - name: FRESH first-reveal Pascal and Hume source operation challenges
+        run: node --test tests/yl-cz147-r2-fresh-pascal-hume.test.mjs
+      - name: EXPOSED Aristotle and Epicurus compact failure — REGRESSION ONLY
+        run: node --test tests/yl-cz147-r2-exposed-epicurus-regression.test.mjs
+      - name: Recheck same-family philosophical distinctions and all older source states
+        run: |
+          node --test tests/yl-cz147-r2-operation.test.mjs tests/yl-cz147-r1-contrasts.test.mjs
+          node --test tests/yl-cz147-engine.test.mjs
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs
+      - name: Browser automation driver
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Actual consumer 8 A/B journeys with section II and III relevance and My World
+        run: node --test tests/yl-cz147-r2-independent-browser.test.mjs
+      - name: All four game families in actual browser at 320, 390, 430 and 1024
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Archive original choice and source-philosophy evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz147-r2-final-qa-evidence
+          path: |
+            qa-evidence-cz147-r2-fresh/
+            qa-evidence-cz147-r1-independent/
+            qa-evidence-cz147/
+            qa-evidence-cz147-r2/
+          if-no-files-found: warn
