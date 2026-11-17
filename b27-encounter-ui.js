@@ -290,7 +290,7 @@ function flipHtml(enc){
 }
 function conciseDilemma(record){
  // One legible source-authored sentence. Full claims remain in About the idea.
- const text=String(record.humanTension||record.intro||record.relation?.prompt||
+ const text=String(record.intro||record.humanTension||record.relation?.prompt||
   "An imagined dilemma").trim();
  const sentence=(text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[text])[0].trim();
  if(sentence.length<=172)return sentence;
