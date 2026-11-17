@@ -294,9 +294,9 @@ test("R2.1 INDEPENDENT: adversarial SUPPORT label cannot reverse authorship of e
  const edge=variant.relation.edges.find(e=>e.aId==="reason"&&e.bId==="evidence");
  edge.claim="Reasoning examines available evidence; examining it neither creates the facts nor causes those facts";
  const registry2=makeUniversalRegistry([variant],B27_APP_QUOTES);
- const source=registry2.resolve(identity(variant));
+ const source=registry2.resolve(id(variant));
  const canonical={pairs:[{aId:edge.aId,bId:edge.bId,relationId:edge.relationId}]};
- const a=registry2.run({...identity(variant),sourceVersionHash:source.sourceVersionHash,
+ const a=registry2.run({...id(variant),sourceVersionHash:source.sourceVersionHash,
   canonicalInput:canonical});
  assert.equal(a.status,"ready",JSON.stringify(a).slice(0,800));
  assert.match(a.fullMeaning.meaning.selectedClaim,/examines available evidence/i);
