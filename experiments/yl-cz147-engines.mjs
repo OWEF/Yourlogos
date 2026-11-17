@@ -722,9 +722,9 @@ function philosophicalQuestions(packet,emotion,source){
   // Authored developments are clauses (e.g. a listener stays silent).
   // "When [clause] happens" is stilted and can imply a predicted future.
   // Name the specific reader action instead of reciting the game mechanics.
-  return ["If "+event+", how could you "+response+" while leaving that outcome outside your control?",
-   "If "+event+", what remains yours to decide about your next response?",
-   "How might you "+response+" without demanding a different outcome?"];
+  return ["If "+event+", can you "+response+" without claiming control over the event?",
+   "If "+event+", what response remains yours to choose?",
+   "What can you control when "+event+"?"];
  if(op.kind==="independent_judgment"){
   const retained=startRole(source,a.initial.id)==="retain_prior";
   // Preserving a position and revising it are distinct exercises of
