@@ -103,7 +103,7 @@ async function verifyLayout(page,width){
 const variants=[
  {id:49,family:"balance_move",author:"Seneca",scenario:"half-hour"},
  {id:23,family:"tap_pair",author:"Wollstonecraft",scenario:"education"},
- {id:55,family:"decision_cards",author:"Emerson",scenario:"public plan",
+ {id:55,family:"decision_cards",author:"Emerson",scenario:"neighborhood plan",
   start:"maintain",scene:"details",response:"consider"},
  {id:48,family:"flip_reveal",author:"Epictetus",scenario:"uncomfortable exchange",
   start:"prepare",scene:"silence",response:"respond"}
