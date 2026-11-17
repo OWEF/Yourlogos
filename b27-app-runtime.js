@@ -109,7 +109,7 @@ export function createB27AppRuntime({
    }else if(res.ok&&json.status==="ready"){
     const game=initializeB27Game(json.record);
     if(!game)throw Error("No valid source-authorized input contract was found");
-    sheet={...sheet,stage:"play",quote:json.quote,game,history:[],
+    sheet={...sheet,stage:"play",beat:"situation",quote:json.quote,game,history:[],
      record:json.record,sourceVersionHash:json.sourceVersionHash,
      quoteFingerprint:json.quoteFingerprint};
    }else throw Error(json.reason||"Source admission failed");
@@ -154,21 +154,25 @@ export function createB27AppRuntime({
   }
   if(!sheet)return false;
   if(kind==="world"){close();navigateWorld();return true;}
+  if(kind==="begin"){
+   if(sheet.stage!=="play"||sheet.beat!=="situation")return false;
+   sheet.beat="play";sheet.message="";epoch++;draw();return true;
+  }
   if(kind==="revise"){
    if(!sheet.game)return false;
-   epoch++;sheet.stage="play";sheet.saved=false;
+   epoch++;sheet.stage="play";sheet.beat="play";sheet.saved=false;
    sheet.message="You can revise what you chose.";draw();return true;
   }
   if(kind==="undo"){
    if(!sheet.history.length)return false;
    epoch++;sheet.game=sheet.history.pop();sheet.result=null;
-   sheet.stage="play";sheet.message="Your previous choice is restored.";
+   sheet.stage="play";sheet.beat="play";sheet.message="Your previous choice is restored.";
    draw();return true;
   }
   if(kind==="reset"){
    if(!sheet.record)return false;
    epoch++;sheet.game=initializeB27Game(sheet.record);sheet.history=[];
-   sheet.result=null;sheet.saved=false;sheet.stage="play";
+   sheet.result=null;sheet.saved=false;sheet.stage="play";sheet.beat="play";
    sheet.message="A fresh start. Nothing was saved.";draw();return true;
   }
   if(["move","pair","branch","focus"].includes(kind)){
@@ -327,7 +331,7 @@ export function createB27AppRuntime({
  install();
  const api={open,close,html,worldHtml,action,
   getState:()=>({
-   stage:sheet?.stage??null,quoteId:sheet?.quoteId??null,
+   stage:sheet?.stage??null,beat:sheet?.beat??null,quoteId:sheet?.quoteId??null,
    familyId:sheet?.record?.familyId??sheet?.result?.selectedFamilyId??null,
    game:sheet?.game?structuredClone(sheet.game):null,
    saved:sheet?.saved??false,historyLength:sheet?.history?.length??0,
