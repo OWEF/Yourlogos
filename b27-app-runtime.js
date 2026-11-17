@@ -200,9 +200,77 @@ export function createB27AppRuntime({
  }
  function install(){
   window.addEventListener("resize",()=>{if(sheet)syncViewport()});
+  // iOS Safari does not offer reliable HTML native drag/drop. Pointer
+  // gestures use the exact same conserved canonical "move" operation.
+  const clearZones=()=>document.querySelectorAll(".b27-bucket.b27-over")
+   .forEach(x=>x.classList.remove("b27-over"));
+  const cleanupTouch=()=>{touchDrag?.ghost?.remove();clearZones();touchDrag=null;};
+  document.addEventListener("pointerdown",evt=>{
+   if(sheet?.stage!=="play"||sheet.record?.familyId!=="balance_move"||
+    evt.pointerType==="mouse")return;
+   const piece=evt.target.closest?.("[data-b27-piece]");
+   if(!piece)return;
+   touchDrag={pointerId:evt.pointerId,piece:piece.dataset.b27Piece,
+    x:evt.clientX,y:evt.clientY,dragged:false,ghost:null};
+   piece.setPointerCapture?.(evt.pointerId);
+  });
+  document.addEventListener("pointermove",evt=>{
+   if(!touchDrag||evt.pointerId!==touchDrag.pointerId)return;
+   if(!touchDrag.dragged&&Math.hypot(evt.clientX-touchDrag.x,evt.clientY-touchDrag.y)<7)return;
+   evt.preventDefault();touchDrag.dragged=true;
+   if(!touchDrag.ghost){
+    const ghost=document.createElement("div");
+    ghost.className="b27-touch-ghost";ghost.textContent="✦";
+    ghost.setAttribute("aria-hidden","true");
+    document.body.append(ghost);touchDrag.ghost=ghost;
+   }
+   touchDrag.ghost.style.left=evt.clientX+"px";
+   touchDrag.ghost.style.top=evt.clientY+"px";
+   clearZones();
+   document.elementFromPoint(evt.clientX,evt.clientY)?
+    .closest?.("[data-b27-bucket]")?.classList.add("b27-over");
+  },{passive:false});
+  document.addEventListener("pointerup",evt=>{
+   if(!touchDrag||evt.pointerId!==touchDrag.pointerId)return;
+   const prior=touchDrag,wasDragged=prior.dragged;
+   const target=wasDragged?document.elementFromPoint(evt.clientX,evt.clientY)?
+    .closest?.("[data-b27-bucket]"):null;
+   if(wasDragged){evt.preventDefault();suppressPieceClicksUntil=performance.now()+450;}
+   cleanupTouch();
+   if(!wasDragged)return;
+   if(!target){
+    sheet.message="Release the piece over a destination area.";draw();return;
+   }
+   const id=target.dataset.b27Bucket;
+   const changed=adjustB27Game(sheet,"move",prior.piece,id);
+   if(changed){epoch++;draw();
+    requestAnimationFrame(()=>document.querySelector('[data-b27-bucket="'+id+'"]')?.classList.add("b27-snap"));
+   }
+  });
+  document.addEventListener("pointercancel",evt=>{
+   if(touchDrag?.pointerId===evt.pointerId)cleanupTouch();
+  });
+  document.addEventListener("click",evt=>{
+   if(performance.now()>suppressPieceClicksUntil)return;
+   if(evt.target.closest?.("[data-b27-piece]")||
+     evt.target.closest?.("[data-b27-bucket]")){
+    evt.preventDefault();evt.stopImmediatePropagation();
+   }
+  },true);
+  // Accessible deliberate destination: keyboard-focus a piece and press
+  // 1/2/3. Enter or Space remains the simpler one-step alternate control.
+  document.addEventListener("keydown",evt=>{
+   if(sheet?.stage!=="play"||sheet.record?.familyId!=="balance_move")return;
+   const piece=evt.target.closest?.("[data-b27-piece]"),dest=Number(evt.key)-1;
+   if(!piece||!Number.isInteger(dest)||dest<0||
+    dest>=sheet.record.allocation.choices.length)return;
+   evt.preventDefault();
+   if(adjustB27Game(sheet,"move",piece.dataset.b27Piece,dest)){epoch++;draw();}
+  });
   document.addEventListener("dragstart",evt=>{
    const piece=evt.target.closest?.("[data-b27-piece]");
    if(sheet?.stage!=="play"||!piece||!evt.dataTransfer)return;
+   evt.dataTransfer.effectAllowed="move";
    evt.dataTransfer.setData("text/plain",piece.dataset.b27Piece);
   });
   document.addEventListener("dragover",evt=>{
@@ -218,8 +286,14 @@ export function createB27AppRuntime({
    if(!Number.isSafeInteger(piece))return;
    const changed=adjustB27Game(sheet,"move",String(piece),
     bucket.dataset.b27Bucket);
-   if(changed)epoch++;draw();
+   clearZones();
+   if(changed){epoch++;draw();
+    requestAnimationFrame(()=>document.querySelector('[data-b27-bucket="'+bucket.dataset.b27Bucket+'"]')
+     ?.classList.add("b27-snap"));
+   }
   });
+  document.addEventListener("dragend",clearZones);
+  window.addEventListener("resize",()=>requestAnimationFrame(drawSourceLinks));
   document.addEventListener("change",evt=>{
    if(sheet?.stage!=="play")return;
    const slider=evt.target.closest?.("[data-b27-slider]");
