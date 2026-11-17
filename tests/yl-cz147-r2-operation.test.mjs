@@ -174,13 +174,13 @@ test("Qualitative review: no participial full-sentence fragments, naked source c
  const pas=run(10,{amounts:[3,2,1],budgets:[6],touched:true});
  for(const value of [kyr,epi]){
   assert.doesNotMatch(value.fullExpression.sections[0].text,
-   /In this fictional situation, (choosing|preparing) .*\\./i,
+   /In this fictional situation, (choosing|preparing) .*\./i,
    "Gerund opening may contain a subordinate verb but not a complete main clause");
   assert.match(value.fullExpression.sections[0].text,/The dilemma involves/i);
  }
  for(const value of [smith,wool]){
   assert.doesNotMatch(value.fullExpression.sections[1].text,
-   /\\. (division of work versus moral endorsement|self-government rather than domination)\\./i);
+   /\. (division of work versus moral endorsement|self-government rather than domination)\./i);
  }
  assert.doesNotMatch(pas.compact.sections[2].text,/quiet attention leave space for quiet attention/i);
  assert.match(pas.compact.sections[2].text,/quiet|reflection|notice/i);
