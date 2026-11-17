@@ -657,8 +657,8 @@ function philosophicalQuestions(packet,emotion,source){
   if(op.kind==="self_governance"){
    const respect="How could separating "+first+" from "+second+
     " protect "+op.focus+"?";
-   const support="How might "+first+" relate to "+second+
-    " while respecting "+op.focus+"?";
+   const support="How could "+first+" support "+second+
+    " without turning support into control?";
    return ["contrast","agency_boundary"].includes(e.type)?
     [respect,support]:[support,respect];
   }
