@@ -1,7 +1,7 @@
 name: CZ-147 R2 Philosophical Operation Fidelity
 on:
   push:
-    branches: [feature/cz147-r2-operation-fidelity, qa/cz147-r2-independent]
+    branches: [feature/cz147-r2-operation-fidelity, qa/cz147-r2-independent, feature/cz147-r2-compact-holdout-correction, qa/cz147-r2-final-independent]
   pull_request:
     paths:
       - "experiments/yl-cz147-engines.mjs"
@@ -27,6 +27,8 @@ jobs:
       - name: R2 same-family philosophical operation and 4 R1 same-source choice contrasts
         run: |
           node --test tests/yl-cz147-r2-operation.test.mjs tests/yl-cz147-r1-contrasts.test.mjs
+      - name: Exposed Epicurus/Aristotle 20-state regression — not fresh holdout
+        run: node --test tests/yl-cz147-r2-exposed-epicurus-regression.test.mjs
       - name: Complete shared-engine reachable-state and legacy contract regressions
         run: |
           node --test tests/yl-cz147-engine.test.mjs
