@@ -208,3 +208,34 @@ test("Emerson consistency and Seneca deliberate rest do not become generic uncer
   assert.doesNotMatch(out.compact.sections[1].text,/rest.+morally inferior/i);
  }
 });
+
+test("No invented exclusivity or dominance in ANY source-authorized finite-resource allocation",()=>{
+ for(const source of records.filter(r=>r.familyId==="balance_move")){
+  const a=source.allocation,n=a.resourceCapacity,count=a.choices.length;
+  const all=[];
+  if(count===2)for(let x=0;x<=n;x++)all.push([x,n-x]);
+  else for(let x=0;x<=n;x++)for(let y=0;y<=n-x;y++)
+   all.push([x,y,n-x-y]);
+  for(const amounts of all){
+   const out=run(source.quoteId,{
+    amounts,budgets:[n],touched:true,
+    ...(a.repetitions===null?{}:{repetitions:a.repetitions})
+   });
+   const semantic=out.compact.sections[1].text+" "+out.fullExpression.sections[1].text;
+   const positive=amounts.filter(x=>x>0).length;
+   if(positive>1)assert.doesNotMatch(semantic,
+    /giving every slot to|all slots (?:to|for)|the entire budget (?:to|for)/i,
+    "Mixed allocation must never be described as exclusive: "+JSON.stringify({
+      id:source.quoteId,amounts,semantic}));
+   if(amounts.every(x=>x===amounts[0]))assert.doesNotMatch(semantic,
+    /largest share went to|giving most time to|prioritizing .+ over /i,
+    "Equal shares cannot be described as a leading priority: "+JSON.stringify({
+      id:source.quoteId,amounts,semantic}));
+   assert.deepEqual(out.fullMeaning.meaning.choiceAnalysis.shares.map(x=>x.amount),amounts);
+  }
+ }
+ const mixed=run(49,{amounts:[4,2,2],budgets:[8],touched:true});
+ assert.doesNotMatch(mixed.compact.sections[1].text,/every slot to study/i);
+ const equal=run(12,{amounts:[2,2,2],budgets:[6],repetitions:5,touched:true});
+ assert.doesNotMatch(equal.compact.sections[1].text,/giving most time to/i);
+});
