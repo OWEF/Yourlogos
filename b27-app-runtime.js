@@ -15,7 +15,7 @@ import {B27_INHERITED_COUNT} from "./experiments/yl-b27-quote-ledger.mjs";
 export function createB27AppRuntime({
  quotes,getData,persist,readback,render,navigateWorld,notify
 }){
- let sheet=null,epoch=0;
+ let sheet=null,epoch=0, touchDrag=null, suppressPieceClicksUntil=0;
  // Some emulated/mobile browsers report window.innerWidth including the
  // scrollbar gutter. Position the app-owned sheet against the actual visible
  // document box instead of centering it in that wider layout viewport.
@@ -29,7 +29,42 @@ export function createB27AppRuntime({
    quoteWork:q[3],b27DevelopmentOnly:id>=B27_INHERITED_COUNT};
  };
  const same=token=>token===epoch;
- const draw=()=>render();
+ const draw=()=>{
+  render();
+  requestAnimationFrame(()=>{
+   drawSourceLinks();
+   document.querySelectorAll(".b27-flip-pending").forEach(el=>el.classList.add("b27-flipped"));
+  });
+ };
+ function drawSourceLinks(){
+  if(sheet?.stage!=="play"||sheet.record?.familyId!=="tap_pair")return;
+  const board=document.querySelector(".b27-concepts");
+  const svg=board?.querySelector("[data-b27-link-layer]");
+  if(!board||!svg)return;
+  const rect=board.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  svg.replaceChildren();svg.setAttribute("viewBox","0 0 "+rect.width+" "+rect.height);
+  const center=id=>{
+   const btn=[...board.querySelectorAll('[data-b27="pair"]')].find(x=>x.dataset.value===id);
+   if(!btn)return null;
+   const c=btn.getBoundingClientRect();
+   return {x:c.left+c.width/2-rect.left,y:c.top+c.height/2-rect.top};
+  };
+  const add=(tag,attrs)=>{
+   const node=document.createElementNS("http://www.w3.org/2000/svg",tag);
+   Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));
+   svg.append(node);
+  };
+  sheet.game?.pairs?.forEach((pair,i)=>{
+   const a=center(pair.aId),b=center(pair.bId);
+   if(!a||!b)return;
+   const cx=(a.x+b.x)/2+(i? -9:9),cy=(a.y+b.y)/2-9;
+   add("path",{d:"M "+a.x+" "+a.y+" Q "+cx+" "+cy+" "+b.x+" "+b.y,
+    pathLength:1,"data-b27-link":pair.relationId});
+   [a,b].forEach(p=>add("circle",{cx:p.x,cy:p.y,r:5}));
+  });
+ }
+
  async function open(id){
   const q=qRequest(id);
   if(!q)return false;
