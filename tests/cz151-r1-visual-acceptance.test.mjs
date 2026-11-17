@@ -339,3 +339,47 @@ test("CZ-151 keyboard and reduced-motion: first selection, link, and no-fit",asy
   await browser.close();await app.close();
  }
 });
+
+
+test("CZ-151 physical-keyboard emulation at narrow and desktop widths",async()=>{
+ const app=await server(),browser=await chromium.launch({channel:"chrome",args:["--no-sandbox"]});
+ try{
+  for(const width of [320,430,1024]){
+   const context=await browser.newContext({viewport:{width,height:890},
+    isMobile:width<=430,hasTouch:width<=430,reducedMotion:"reduce"});
+   const page=await context.newPage();
+   await seed(page,23);
+   await page.goto(app.base+"/?b27=1",{waitUntil:"domcontentloaded"});
+   await page.waitForFunction(()=>window.__YL_B27_QA?.getState&&
+    document.querySelector('[data-action="discover"]'));
+   await page.evaluate(()=>window.dispatchEvent(new Event("yourlogos:skip-entrance")));
+   const p=page.waitForResponse(x=>x.url().endsWith("/api/b27/start"));
+   await page.locator('[data-action="discover"]').click();
+   assert.equal((await(await p).json()).status,"ready");
+   await page.locator('[data-b27="begin"]').click();
+   const first=page.locator('[data-b27="pair"][data-value="education"]');
+   await first.focus();
+   const before=await page.evaluate(()=>({active:document.activeElement?.getAttribute("data-value"),
+    first:window.__YL_B27_QA.getState().game.first}));
+   await page.keyboard.press("Enter");
+   let selected=false;
+   try{
+    await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education",
+      null,{timeout:3000});selected=true;
+   }catch{}
+   const after=await page.evaluate(()=>({active:document.activeElement?.getAttribute("data-value"),
+    first:window.__YL_B27_QA.getState().game.first,visible:document.querySelector(".b27-pair-guide")?.textContent}));
+   await snap(page,"keyboard-"+width+"-after-enter");
+   RECORD.notes.push({test:"keyboard-width",width,before,after,selected});
+   assert.equal(selected,true,"Physical Enter activation at "+width+" failed "+JSON.stringify({before,after}));
+   const other=page.locator('[data-b27="pair"][data-value="judgment"]');
+   await other.focus();await page.keyboard.press("Space");
+   await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.pairs.length===1,null,{timeout:3000});
+   await snap(page,"keyboard-"+width+"-after-space");
+   await context.close();
+  }
+ }finally{
+  writeFileSync(OUT+"/qa-run-summary.json",JSON.stringify(RECORD,null,2));
+  await browser.close();await app.close();
+ }
+});
