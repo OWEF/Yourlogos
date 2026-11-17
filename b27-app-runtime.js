@@ -174,7 +174,7 @@ export function createB27AppRuntime({
   if(kind==="reset"){
    if(!sheet.record)return false;
    epoch++;sheet.game=initializeB27Game(sheet.record);sheet.history=[];
-   sheet.result=null;sheet.saved=false;sheet.stage="play";sheet.beat="play";
+   sheet.result=null;sheet.saved=false;sheet.stage="play";sheet.beat="play";sheet.tunerOpen=false;
    sheet.message="A fresh start. Nothing was saved.";draw();return true;
   }
   if(["move","pair","branch","focus"].includes(kind)){
@@ -332,6 +332,10 @@ export function createB27AppRuntime({
    }
   });
   document.addEventListener("dragend",clearZones);
+  document.addEventListener("click",evt=>{
+   const summary=evt.target.closest?.(".b27-tuning > summary");
+   if(sheet?.stage==="play"&&summary)sheet.tunerOpen=!summary.parentElement.open;
+  },true);
   window.addEventListener("resize",()=>requestAnimationFrame(drawSourceLinks));
   document.addEventListener("change",evt=>{
    if(sheet?.stage!=="play")return;
