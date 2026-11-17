@@ -724,7 +724,7 @@ function philosophicalQuestions(packet,emotion,source){
   // Name the specific reader action instead of reciting the game mechanics.
   return ["If "+event+", can you "+response+" without claiming control over the event?",
    "If "+event+", what response remains yours to choose?",
-   "What can you control when "+event+"?"];
+   "If "+event+", how can you "+response+" without requiring a certain outcome?"];
  if(op.kind==="independent_judgment"){
   const retained=startRole(source,a.initial.id)==="retain_prior";
   // Preserving a position and revising it are distinct exercises of
