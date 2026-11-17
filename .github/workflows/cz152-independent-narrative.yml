@@ -1,0 +1,53 @@
+name: CZ-152 Independent Narrative and Visual Acceptance
+
+on:
+  push:
+    branches:
+      - qa/cz152-independent-narrative-r1
+  pull_request:
+    branches:
+      - feature/cz152-narrative-bridge
+    paths:
+      - 'tests/cz152-independent-narrative.test.mjs'
+      - '.github/workflows/cz152-independent-narrative.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  independent-narrative-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact QA-only revision
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Assert QA source is identical to frozen engineering SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          ENGINEERING_SHA="807d4470675cc5b9a007285e903eb7ab26300771"
+          git cat-file -e "$ENGINEERING_SHA"
+          EDITS="$(git diff --name-only "$ENGINEERING_SHA" HEAD)"
+          printf 'QA-only changes:\n%s\n' "$EDITS"
+          if printf '%s\n' "$EDITS" | grep -Ev '^(tests/cz152-independent-narrative.test.mjs|\.github/workflows/cz152-independent-narrative.yml)$' | grep -q . ; then
+            echo "::error::Independent QA changed source application code"
+            exit 1
+          fi
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install local Playwright browser driver
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Real-app five-source narrative and four-family visual challenge
+        run: node --test tests/cz152-independent-narrative.test.mjs
+      - name: Upload screenshot and source/gesture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz152-independent-narrative-evidence
+          path: qa-evidence-cz152/
+          if-no-files-found: warn
+          retention-days: 14
