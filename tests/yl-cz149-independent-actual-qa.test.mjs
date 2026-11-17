@@ -154,9 +154,10 @@ test("INDEPENDENT: sixteen real browser journeys across four games and four widt
      /power over others|self-government/i);
     await page.locator('[data-b27="undo"]').click();
     assert.equal(await page.locator(".b27-link-lines path").count(),0);
-    await page.locator('[data-b27="pair"][data-value="agency"]').click();
+    // First selection itself has a history step. Undo again to clear it,
+    // then prove reverse endpoint selection resolves the same authored edge.
     await page.locator('[data-b27="undo"]').click();
-    // Reversed selection points at the exact same source edge.
+    assert.equal(await page.locator(".b27-concept.active").count(),0);
     await page.locator('[data-b27="pair"][data-value="agency"]').click();
     await page.locator('[data-b27="pair"][data-value="dominance"]').click();
     await page.waitForFunction(()=>document.querySelectorAll(".b27-link-lines path").length===1);
