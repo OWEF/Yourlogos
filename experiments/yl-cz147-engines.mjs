@@ -33,6 +33,7 @@ function validateRecord(r){
   !txt(r.counterexample,6)||!txt(r.evidenceClaim,6)||
   !size(r.evidenceIds,2,12)||!r.evidenceIds.includes("source:central")||
   !size(r.prohibitedInferences,1,10)||!size(r.supportedConclusions,1,8)||
+  typeof r.developmentOnly!=="boolean"||
   !obj(r.source)||!txt(r.source.text,4)||!txt(r.source.author,1)||
   !txt(r.source.work,1)||typeof r.source.referenceUrl!=="string"||
   !size(r.affordances,0,5)||r.publicationAllowed!==false)return false;
@@ -94,7 +95,7 @@ export function makeUniversalRegistry(records,quotes){
   const r=byId.get(input.quoteId),q=quotes[input.quoteId];
   if(!r)return null; // No admission; the caller must keep reading-first.
   if(!q||q[0]!==input.quoteText||q[1]!==input.quoteAuthor||
-    q[3]!==input.quoteWork||input.b27DevelopmentOnly!==false)
+    q[3]!==input.quoteWork||input.b27DevelopmentOnly!==r.developmentOnly)
    return deny("source_identity_mismatch","The clicked immutable quotation/edition was altered");
   const quoteFingerprint=fingerprintB25({quoteId:r.quoteId,quote:q});
   return {status:"ready",version:CZ147_ENGINE_VERSION,
