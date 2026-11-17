@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import {chromium} from "playwright-core";
 // CZ-150: run lightweight source-preserving presenter contracts in CI too.
 import "../experiments/yl-cz150-ui.test.mjs";
+import "../experiments/yl-cz152-bridge.test.mjs";
 import {spawn} from "node:child_process";
 import {createServer as netServer} from "node:net";
 import {mkdirSync,writeFileSync} from "node:fs";
