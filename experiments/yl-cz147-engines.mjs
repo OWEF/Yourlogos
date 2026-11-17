@@ -508,20 +508,29 @@ function philosophicalReading(packet,emotion,source){
   }
  }
  if(a.operation==="source_relation"){
-  const selected=a.links[0],claim=a.links.map(x=>x.claim).join(" ");
-  const anchor=op.kind==="self_governance"?
-   "The issue is agency without domination":
-   op.kind==="coordinated_work"?
-    "This is about coordinating distinct work, not assigning moral worth":
-    "The relevant philosophical distinction is "+op.focus;
-  const brief=a.links.length===1?
-   selected.claim:
-   "Your selected links concern "+a.links.map(x=>lowerFirst(x.label)).join(" and ");
-  return {long:sentence(claim)+" "+anchor+".",
-   short:sentence(brief)+" "+anchor+".",
-   minimal:"The "+lowerFirst(selected.label)+" link concerns "+op.focus+".",
+  const selected=a.links[0],claims=a.links.map(x=>sentence(x.claim)).join(" ");
+  const tension="This brings "+op.contrast+" into view.";
+  const anchor=op.kind==="coordinated_work"?
+   "The link concerns contributions to a finished task, not anyone's moral worth.":
+   op.kind==="self_governance"?
+    "What matters is "+op.focus+", not automatic approval or domination.":
+    "A conceptual link alone does not decide a person's actual situation.";
+  const relationMeaning=selected.type==="contrast"||
+   selected.type==="agency_boundary"?
+    "Contrasting "+lowerFirst(selected.a)+" with "+lowerFirst(selected.b)+
+     " brings "+op.contrast+" into view.":
+   selected.type==="complementarity"?
+    "Bringing "+lowerFirst(selected.a)+" alongside "+lowerFirst(selected.b)+
+     " illustrates "+op.focus+".":sentence(selected.claim);
+  const brief=a.links.length===1?relationMeaning:
+   "The chosen links connect "+a.links.map(x=>lowerFirst(x.label)).join(" and ")+
+    " under the source's argument about "+op.focus+".";
+  return {long:claims+" "+tension+" "+anchor,
+   short:sentence(brief),
+   minimal:sentence(relationMeaning),
    focus:{kind:op.kind,relationTypes:a.relationTypes,
-    selectedClaims:a.links.map(x=>x.claim)},evidence:a.sourceWarrantIds};
+    selectedClaims:a.links.map(x=>x.claim),sourceContrast:op.contrast},
+   evidence:a.sourceWarrantIds};
  }
  const t=a.development.label,initial=a.initial.label,response=a.response.label;
  const opening=lowerFirst(clean(initial).replace(/^You\s+/i,""));
@@ -625,15 +634,36 @@ function philosophicalQuestions(packet,emotion,source){
  }
  if(a.operation==="source_relation"){
   const e=a.links[0],first=lowerFirst(e.a),second=lowerFirst(e.b);
-  if(op.kind==="self_governance")
-   return ["In the link between "+first+" and "+second+", how is self-government different from power over another?",
-    "How could "+first+" relate to "+second+" without reducing anyone else's agency?",
-    "Where does "+first+" leave room for "+second+" and self-government?"];
+  if(a.links.length===2){
+   const next=a.links[1];
+   const combined="What changes when "+lowerFirst(e.label)+
+    " is considered alongside "+lowerFirst(next.label)+"?";
+   const follow="Can the "+lowerFirst(e.label)+" and "+lowerFirst(next.label)+
+    " links together establish more than either alone?";
+   return [combined,follow];
+  }
+  if(op.kind==="self_governance"){
+   const respect="How could separating "+first+" from "+second+
+    " protect "+op.focus+"?";
+   const support="How might "+first+" relate to "+second+
+    " while respecting "+op.focus+"?";
+   return ["contrast","agency_boundary"].includes(e.type)?
+    [respect,support]:[support,respect];
+  }
   if(op.kind==="coordinated_work")
-   return ["How does the link between "+first+" and "+second+" enable work together without establishing fairness?",
+   return ["How does the link between "+first+" and "+second+
+    " enable work together without establishing fairness?",
     "What does joining "+first+" with "+second+" contribute to the finished work?",
     "How does "+first+" depend on "+second+" in this example?"];
-  return ["What does connecting "+first+" with "+second+" reveal about "+op.focus+"?",
+  const inquiry=["contrast","agency_boundary"].includes(e.type)?
+   "What would be misunderstood by treating "+first+" as the same as "+second+"?":
+   e.type==="complementarity"?
+    "What do "+first+" and "+second+" explain together that neither alone establishes?":
+    e.type==="support"?
+     "What would still need to be true for "+first+" to support "+second+"?":
+     "What exactly does the link between "+first+" and "+second+" establish?";
+  return [inquiry,
+   "What does connecting "+first+" with "+second+" reveal about "+op.focus+"?",
    "Where does the link between "+first+" and "+second+" stop supporting a conclusion?"];
  }
  const event=clean(a.development.label),response=lowerFirst(clean(a.response.label).replace(/^You\s+/i,""));
