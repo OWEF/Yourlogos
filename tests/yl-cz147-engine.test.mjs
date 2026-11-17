@@ -169,8 +169,11 @@ test("Emotion Strategy actually changes rhetorical framing without altering the 
  assert.equal(a.emotion.strategy,"choice_awareness");
  assert.equal(b.emotion.strategy,"tradeoff_attention");
  assert.notEqual(a.compact.sections[1].text,b.compact.sections[1].text);
- assert.match(a.compact.sections[1].text,/Seneca's emphasis:/);
- assert.match(b.compact.sections[1].text,/Seneca's trade-off:/);
+ assert.match(a.compact.sections[1].text,/every slot to rest excludes/i);
+ assert.match(b.compact.sections[1].text,/Prioritizing rest limits time/i);
+ assert.notEqual(a.fullMeaning.meaning.choiceAnalysis.excluded.length,
+  b.fullMeaning.meaning.choiceAnalysis.excluded.length);
+ assert.notEqual(a.fullExpression.sections[1].text,b.fullExpression.sections[1].text);
  for(const x of [a,b]){
   assert.equal(x.fullMeaning.meaning.centralClaim,r.sourceThesis);
   assert.equal(x.emotion.inferredActualEmotion,false);

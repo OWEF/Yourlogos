@@ -1,0 +1,47 @@
+name: CZ-147 R1 Choice-Sensitive Philosophical Discovery
+on:
+  push:
+    branches: [feature/cz147-r1-choice-sensitive, qa/cz147-r1-independent-acceptance]
+  pull_request:
+    paths:
+      - "experiments/yl-cz147-engines.mjs"
+      - "tests/yl-cz147-r1-*"
+      - "tests/yl-cz147-engine.test.mjs"
+      - ".github/workflows/cz147-r1.yml"
+permissions:
+  contents: read
+jobs:
+  choice-sensitive-source-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Source-neutral R1 engine syntax and anti-philosopher routing
+        run: |
+          node --check experiments/yl-cz147-engines.mjs
+          node --check tests/yl-cz147-r1-contrasts.test.mjs
+          node -e "const x=require('fs').readFileSync('experiments/yl-cz147-engines.mjs','utf8');for(const name of ['Kierkegaard','Seneca','Emerson','Wollstonecraft','Epictetus','Thoreau','Dillard','Smith'])if(x.includes(name))throw Error('Source-specific branch: '+name)"
+      - name: All four R1 contrast cases and every source-compatible canonical state
+        run: |
+          node --test tests/yl-cz147-r1-contrasts.test.mjs
+          node --test tests/yl-cz147-engine.test.mjs
+      - name: Full accepted B2.7 historical meaning/source/storage regressions
+        run: |
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs tests/yl-b25-generalized-encounter.test.mjs
+      - name: Install browser automation without downloading Chrome
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: 16 actual consumer encounters at four widths, Finish and Save and My World
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Archive four before-after choice reasoning emotion expression comparisons
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz147-r1-comparative-philosophical-evidence
+          path: |
+            qa-evidence-cz147-r1/
+            qa-evidence-cz147/
+          if-no-files-found: warn
