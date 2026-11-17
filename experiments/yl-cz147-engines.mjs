@@ -664,11 +664,17 @@ function philosophicalQuestions(packet,emotion,source){
   const lowerClaim=lowerFirst(clean(primary.claim));
   const label=clean(primary.label);
   if(a.links.length===1){
+   // Where the source operation expressly concerns self-government against
+   // domination, retain that authenticated boundary. "Relate" is
+   // deliberately neutral; a display category never establishes causation.
+   const autonomy=op.kind==="self_governance"&&primary.type==="support"?
+    "How could "+lowerFirst(primary.a)+" relate to "+lowerFirst(primary.b)+
+    " without turning support into control?":null;
    const claimQuestion="If "+lowerClaim+", what does this leave open?";
    const specific="What does the “"+label+"” connection clarify about "+op.focus+"?";
    const neutral="What does the chosen “"+label+"” relation establish, and what remains uncertain?";
    const compact="What remains open about the “"+label+"” connection?";
-   return [claimQuestion,specific,neutral,compact];
+   return [...(autonomy?[autonomy]:[]),claimQuestion,specific,neutral,compact];
   }
   const other=a.links[1],secondLabel=clean(other.label);
   const specific="How do “"+label+"” and “"+secondLabel+
