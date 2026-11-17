@@ -27,11 +27,14 @@ jobs:
           node --check b27-app-runtime.js
           node --check experiments/yl-cz147-sources.mjs
           node --check tests/yl-cz149-gestures.test.mjs
+          node --check tests/yl-cz149-philosophy.test.mjs
       - name: Exact-source 3-engine regression and R2.1 semantics
         run: |
           node --test tests/yl-cz147-engine.test.mjs tests/yl-cz147-r1-contrasts.test.mjs
           node --test tests/yl-cz147-r2-operation.test.mjs tests/yl-cz147-r2-exposed-epicurus-regression.test.mjs
           node --test tests/yl-cz147-r21-directional-relations.test.mjs
+      - name: Four-philosophy source-specific study rest scrolling and mixed reasoning
+        run: node --test tests/yl-cz149-philosophy.test.mjs
       - name: B2.7 identity, 84 source allocations, 8 decisions, My World storage, existing paths
         run: |
           node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
