@@ -173,3 +173,107 @@ body:has(.b27-shell) .discover-cover{
 /* R2/B2.7 legacy "revealed" is retained for persistence and accessibility.
    The pending frame stays face-down until RAF adds b27-flipped. */
 .b27-flip.revealed.b27-flip-pending:not(.b27-flipped) .b27-flip-interior{transform:none}
+
+/* CZ-149 R3 founder-experience: make the game the primary mobile content.
+   All changes stay inside the Encounter sheet; source and decision contracts unchanged. */
+.b27-play{padding-top:13px;padding-bottom:22px}
+.b27-play>.b27-kicker{margin-bottom:7px;font-size:10px}
+.b27-play .b27-source{padding:10px 13px;border-radius:12px}
+.b27-play .b27-source blockquote{font-size:17px;line-height:1.28;margin-bottom:5px}
+.b27-play .b27-source span{font-size:11px}
+.b27-play h2{font-size:clamp(24px,5.8vw,31px);margin:9px 0 4px}
+.b27-play .b27-scenario{font-size:13px;line-height:1.43;margin:2px 0 7px;color:#e6e2d2}
+.b27-play .b27-game{margin-top:9px;padding:11px;border-radius:16px}
+.b27-context{margin:12px 0 0;border-top:1px solid #39483c;color:#b7c6b2}
+.b27-context summary,.b27-tuning summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:#c2d2bf;font:500 12px/1.3 "DM Sans",system-ui,sans-serif}
+.b27-context p{font-size:12px;line-height:1.5;margin:4px 0 8px;color:#cdd7c7}
+.b27-play .b27-instruction{font-size:12px;line-height:1.3;margin:0 0 7px;color:#c5d0bd}
+.b27-resource-status{padding:6px 10px;margin-bottom:8px;font-size:11px}
+.b27-resource-status span{font-size:11px}
+.b27-buckets{gap:9px}
+.b27-bucket{overflow:visible}
+.b27-buckets.b27-three{grid-template-columns:minmax(0,1fr);gap:8px}
+.b27-buckets.b27-three .b27-bucket{
+ min-height:134px;padding:10px 13px;border-radius:17px;
+ border-style:solid;background:linear-gradient(165deg,#344739,#222f26);
+ box-shadow:inset 0 0 0 1px #a7bb9255,inset 0 -16px 24px #111b1555,0 5px 0 #101a13
+}
+.b27-buckets.b27-three .b27-bucket:nth-child(2){
+ background:linear-gradient(165deg,#454333,#2b332a);
+ box-shadow:inset 0 0 0 1px #bda7754f,inset 0 -16px 24px #111b1555,0 5px 0 #181c15
+}
+.b27-buckets.b27-three .b27-bucket:nth-child(3){
+ background:linear-gradient(165deg,#483c38,#302e2a);
+ box-shadow:inset 0 0 0 1px #c89b8b50,inset 0 -16px 24px #111b1555,0 5px 0 #1b1816
+}
+.b27-bucket-heading{align-items:center;gap:8px}
+.b27-bucket-heading small{min-height:auto;font-size:13px;line-height:1.25;letter-spacing:.005em}
+.b27-bucket-heading strong{font-size:23px}
+.b27-pieces,.b27-buckets.b27-three .b27-pieces{
+ position:relative;display:flex;flex-wrap:wrap;gap:5px;
+ justify-content:flex-start;align-items:center;align-content:center;
+ flex:1;min-height:55px;margin:7px 0 4px;padding:7px 9px 9px;
+ background:radial-gradient(ellipse at 50% 120%,#08130d3d,#0d1e1319 65%,transparent 80%);
+ border-radius:38px
+}
+.b27-pieces::before{
+ content:"";position:absolute;left:8px;right:8px;bottom:2px;height:14px;
+ background:radial-gradient(ellipse,#050d0870,transparent 70%);
+ border-radius:50%;pointer-events:none
+}
+.b27-piece,.b27-buckets.b27-three .b27-piece{
+ position:relative;z-index:1;min-width:44px;min-height:44px;
+ width:44px;height:44px;border-radius:50%!important;
+ border:2px solid #ecd7a4!important;flex:0 0 44px;
+ box-shadow:inset 0 2px 2px #fff4ce77,inset 0 -4px 0 #614e2c66,
+ 0 4px 0 #6b5835,0 7px 9px #0008!important
+}
+.b27-piece:nth-child(2n){transform:translateY(2px) rotate(8deg)}
+.b27-piece:nth-child(3n){transform:translateY(-1px) rotate(-6deg)}
+.b27-piece.b27-lifted,.b27-piece:active{
+ transform:translateY(-7px) scale(1.08)!important;
+ box-shadow:0 9px 0 #745b3b,0 18px 24px #07110aa0!important
+}
+.b27-bucket-drop{border-top:0;text-align:right;color:#a9bea8;font-size:9px;padding:0 3px 2px}
+.b27-bucket-drop span{font-size:12px}
+.b27-bucket.b27-snap .b27-piece:last-of-type{animation:b27-token-land .38s cubic-bezier(.18,1.65,.24,1) both}
+@keyframes b27-token-land{
+ 0%{transform:translateY(-12px) scale(1.12)}
+ 58%{transform:translateY(2px) scale(.96)}
+ 100%{transform:translateY(0) scale(1)}
+}
+.b27-touch-ghost{border-radius:50%;transform:translate(-50%,-50%) rotate(-12deg)}
+.b27-allocation-meta{margin-top:5px}
+.b27-tuning{border-top:1px solid #50624c;margin:7px 0 0}
+.b27-tuning[open]{padding:0 8px 7px;background:#27392b;border-radius:10px}
+.b27-tuning .b27-slider-label{padding-top:4px}
+.b27-tuning p{font-size:11px}
+.b27-pair-guide{padding:7px 9px;margin-bottom:8px!important;background:transparent;border:0;color:#d9d7b9}
+.b27-concepts{gap:13px}
+.b27-concept{min-height:119px;padding:10px}
+.b27-concept-icon{width:38px;height:38px;font-size:23px}
+.b27-link-lines{z-index:7;isolation:isolate;overflow:visible!important;filter:drop-shadow(0 0 6px #fbe2abbb)}
+.b27-link-lines path{stroke:#ffe4a9!important;stroke-width:5!important;opacity:1;fill:none!important;stroke-dasharray:1;stroke-dashoffset:0;animation:b27-draw-line .55s cubic-bezier(.22,.77,.2,1) both}
+.b27-link-lines circle{fill:#fff1ca;stroke:#8e7750;stroke-width:3}
+.b27-relation-evidence{padding:10px 12px}
+.b27-link-bridge{display:flex;align-items:center;justify-content:space-between;gap:7px;margin:0 0 10px;padding:8px;
+ background:linear-gradient(120deg,#344f39,#354d3b);border:1px solid #829977;border-radius:9px}
+.b27-link-bridge span{font:600 11px/1.25 "DM Sans",system-ui,sans-serif;color:#f2e7cf;max-width:40%;overflow-wrap:break-word}
+.b27-bridge-trail{height:3px;min-width:22px;flex:1;position:relative;border-radius:8px;
+ background:linear-gradient(90deg,#d6c38e,#fce4a9,#a6ce9d);
+ box-shadow:0 0 10px #ead69a88;transform-origin:left center;animation:b27-link-trail .55s ease both}
+.b27-bridge-trail::after{content:"✦";position:absolute;right:-5px;top:-11px;color:#f4ddad;font-size:18px}
+@keyframes b27-link-trail{from{transform:scaleX(0);opacity:.25}to{transform:scaleX(1);opacity:1}}
+@media(max-width:359px){
+ .b27-play{padding:12px 12px 20px}
+ .b27-play .b27-game{padding:9px}
+ .b27-buckets.b27-three .b27-bucket{padding:9px 10px}
+ .b27-pieces,.b27-buckets.b27-three .b27-pieces{gap:4px;padding-left:5px;padding-right:5px}
+ .b27-piece,.b27-buckets.b27-three .b27-piece{width:44px;height:44px;flex-basis:44px}
+ .b27-play .b27-source blockquote{font-size:16px}
+ .b27-link-bridge span{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .b27-bucket.b27-snap .b27-piece:last-of-type,
+ .b27-link-lines path,.b27-bridge-trail{animation:none!important;transform:none!important;opacity:1!important}
+}
