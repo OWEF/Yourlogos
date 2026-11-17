@@ -356,6 +356,14 @@ function describeChoice(packet,source,brief=false){
   ", encountered the invented scene “"+clean(t.sceneLabel)+
   "”, then chose "+next+".";
 }
+function minimalChoice(packet,source){
+ if(source.familyId==="decision_cards"||source.familyId==="flip_reveal"){
+  const t=packet.meaning.selectedTimeline;
+  return "You first chose "+quoteAction(t.startLabel)+
+   "; afterward you chose "+quoteAction(t.responseLabel)+".";
+ }
+ return describeChoice(packet,source,true);
+}
 function dynamicReading(packet,emotion,source){
  const a=packet.meaning.choiceAnalysis;
  if(a.operation==="finite_resource"){
@@ -425,8 +433,8 @@ function dynamicReading(packet,emotion,source){
    "reconsideration need not prove the first choice wrong.":
    "continuing need not prove the first choice right.");
  const minimal=retrospective?
-  "The invented “"+scene+"” cannot reveal the unchosen future.":
-  "The invented “"+scene+"” cannot prove a decision correct.";
+  "The invented “"+scene+"” reveals no alternative future.":
+  "The invented “"+scene+"” proves no decision correct.";
  return {long,short,minimal,
   focus:{initial:start,development:scene,response,stance,
    inventedNotCaused:true,unchosenUnknown:true},
@@ -497,7 +505,7 @@ export function expressUniversal(packet,emotion,source){
  const uncertainty=sentence(source.epistemicLimits);
  const counter=sentence(source.counterexample);
  const sourceClaim=sentence(source.evidenceClaim);
- const firsts=unique([chosen,choiceBrief]);
+ const firsts=unique([chosen,choiceBrief,minimalChoice(packet,source)]);
  // A compact output always contains an authenticated thesis AND a
  // choice-sensitive consequence; no source-key-specific fixed conclusions.
  const compactSeconds=unique([
