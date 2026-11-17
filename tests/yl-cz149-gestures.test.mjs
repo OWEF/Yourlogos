@@ -130,9 +130,26 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
     page.on("pageerror",e=>errors.push(String(e)));
     page.setDefaultTimeout(12000);
     const admitted=await enter(page,app.base,spec.id,spec.family);
+    const firstView=await page.evaluate(()=>({
+     top:document.querySelector(".b27-game")?.getBoundingClientRect().top,
+     scenario:document.querySelector(".b27-scenario")?.innerText,
+     collapsed:!document.querySelector(".b27-context")?.open
+    }));
+    assert.ok(firstView.top<490,"Game not visible near top on 390px screen: "+JSON.stringify(firstView));
+    assert.equal(firstView.collapsed,true);
+    assert.ok(firstView.scenario.length>20&&firstView.scenario.length<215);
     if(spec.family==="balance_move"){
      assert.equal(await page.locator(".b27-bucket").count(),3);
      assert.deepEqual(await amounts(page),[3,2,3]);
+     const widths=await page.locator(".b27-bucket").evaluateAll(els=>
+      els.map(el=>Math.round(el.getBoundingClientRect().width)));
+     assert.ok(widths.every(w=>w>=240),"Three source-authorized trays must be broad: "+widths);
+     const token=await page.locator(".b27-piece").first().evaluate(el=>({
+      radius:getComputedStyle(el).borderRadius,w:el.getBoundingClientRect().width
+     }));
+     assert.equal(token.radius,"50%");
+     assert.ok(token.w>=44);
+     await page.screenshot({path:OUT+"/r3-balance-initial-game-first-390.png",fullPage:true});
      const first=page.locator('[data-b27-bucket="0"] .b27-piece').first();
      const destination=page.locator('[data-b27-bucket="'+(variant?"2":"1")+'"]');
      if(variant===0)await first.dragTo(destination);
@@ -142,6 +159,7 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      assert.deepEqual(await amounts(page),variant?[2,2,4]:[2,3,3]);
      assert.match(await page.locator(".b27-resource-status").innerText(),/8 of 8 placed/);
      assert.match(await page.locator(".b27-resource-status").innerText(),/0 unassigned/);
+     await page.waitForTimeout(430);
      await page.screenshot({path:OUT+"/balance-"+variant+"-gesture-390.png",fullPage:true});
      await page.locator('[data-b27="undo"]').click();
      assert.deepEqual(await amounts(page),[3,2,3]);
@@ -159,10 +177,29 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      await page.locator('[data-b27="pair"][data-value="'+pair[1]+'"]').click();
      await page.waitForFunction(()=>document.querySelectorAll(
       '.b27-link-lines path').length===1);
+     // Assert actual painted path after the 550ms animation, not DOM insertion.
+     await page.waitForTimeout(800);
+     const painted=await page.locator(".b27-link-lines path").evaluate(el=>{
+      const style=getComputedStyle(el),svg=el.ownerSVGElement;
+      return {length:el.getTotalLength(),stroke:style.stroke,
+       opacity:parseFloat(style.opacity),dashOffset:style.strokeDashoffset,
+       svgWidth:svg.getBoundingClientRect().width,
+       svgHeight:svg.getBoundingClientRect().height,
+       from:el.getAttribute("data-b27-link-from"),
+       to:el.getAttribute("data-b27-link-to")};
+     });
+     assert.ok(painted.length>60&&painted.svgWidth>200&&painted.svgHeight>180,
+      "Connector too short or SVG collapsed: "+JSON.stringify(painted));
+     assert.ok(painted.opacity>.9&&painted.stroke!=="none"&&
+      painted.stroke!=="rgba(0, 0, 0, 0)",
+      "SVG path must visibly paint after animation: "+JSON.stringify(painted));
+     assert.equal(await page.locator(".b27-link-bridge").count(),1);
      assert.equal(await page.locator(".b27-relation-evidence").count(),1);
      const claim=await page.locator(".b27-relation-evidence p").innerText();
      assert.ok(claim.length>35);
      await page.screenshot({path:OUT+"/pair-"+variant+"-linked-390.png",fullPage:true});
+     writeFileSync(OUT+"/r3-pair-"+variant+"-painted-svg.json",
+      JSON.stringify({settledAfterMs:800,painted,sourceClaim:claim},null,2));
      await page.locator('[data-b27="undo"]').click();
      assert.equal(await page.locator(".b27-link-lines path").count(),0);
      // Undo the first card selection as well: each tap is independently reversible.

@@ -719,20 +719,23 @@ function philosophicalQuestions(packet,emotion,source){
    "What could hindsight teach after “"+event+"” without revealing the alternative?",
    "What can hindsight teach without showing the unchosen life?"];
  if(op.kind==="event_acceptance")
-  return ["After the imagined “"+event+"”, how can you "+response+" without requiring the event to have obeyed your wishes?",
-   "After “"+event+"”, what remains within your response rather than the other person's control?",
-   "Which response is still yours when “"+event+"” happens?"];
+  // Authored developments are clauses (e.g. a listener stays silent).
+  // "When [clause] happens" is stilted and can imply a predicted future.
+  // Name the specific reader action instead of reciting the game mechanics.
+  return ["If "+event+", can you "+response+" without claiming control over the event?",
+   "If "+event+", what response remains yours to choose?",
+   "If "+event+", how can you "+response+" without requiring a certain outcome?"];
  if(op.kind==="independent_judgment"){
   const retained=startRole(source,a.initial.id)==="retain_prior";
   // Preserving a position and revising it are distinct exercises of
   // present judgment. The philosopher cannot assess either by its label.
   return retained?[
-   "After the imagined “"+event+"”, what present reason warrants keeping the plan rather than defending your earlier words?",
-   "Which evidence still supports the plan after “"+event+"”?",
-   "What makes keeping the plan a considered decision now?"]:[
-   "After the imagined “"+event+"”, what evidence warrants revising the plan rather than simply avoiding criticism?",
-   "What changed enough to justify revision after “"+event+"”?",
-   "What would make revision an independent judgment rather than a reaction?"];
+   "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?",
+   "After considering the imagined development, what evidence still warrants keeping the plan?",
+   "What makes keeping the plan a judgment rather than loyalty to your past statement?"]:[
+   "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?",
+   "If no one judged your consistency, would present reasons still lead you to revise the plan?",
+   "What evidence makes revising the plan your own judgment, rather than a reaction to criticism?"];
  }
  if(op.kind==="incremental_beginning"){
   const role=startRole(source,a.initial.id);

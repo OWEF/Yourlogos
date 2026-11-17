@@ -44,24 +44,43 @@ export function createB27AppRuntime({
   const rect=board.getBoundingClientRect();
   if(!rect.width||!rect.height)return;
   svg.replaceChildren();svg.setAttribute("viewBox","0 0 "+rect.width+" "+rect.height);
-  const center=id=>{
+  const frame=id=>{
    const btn=[...board.querySelectorAll('[data-b27="pair"]')].find(x=>x.dataset.value===id);
    if(!btn)return null;
    const c=btn.getBoundingClientRect();
-   return {x:c.left+c.width/2-rect.left,y:c.top+c.height/2-rect.top};
+   return {x:c.left+c.width/2-rect.left,y:c.top+c.height/2-rect.top,
+    left:c.left-rect.left,right:c.right-rect.left,top:c.top-rect.top,
+    bottom:c.bottom-rect.top,width:c.width,height:c.height};
+  };
+  // Keep the line clear of card text by entering through the perimeter.
+  // Curved arcs extend into the negative space even between adjacent cards.
+  const endpoint=(a,b)=>{
+   const dx=b.x-a.x,dy=b.y-a.y;
+   if(Math.abs(dy)<a.height*.5)
+    return {x:dx>=0?a.right-12:a.left+12,y:a.top+23};
+   if(Math.abs(dx)<a.width*.55)
+    return {x:a.x,y:dy>=0?a.bottom-10:a.top+10};
+   return {x:dx>=0?a.right-12:a.left+12,
+    y:dy>=0?a.bottom-15:a.top+15};
   };
   const add=(tag,attrs)=>{
    const node=document.createElementNS("http://www.w3.org/2000/svg",tag);
    Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));
    svg.append(node);
   };
-  sheet.game?.pairs?.forEach((pair,i)=>{
-   const a=center(pair.aId),b=center(pair.bId);
-   if(!a||!b)return;
-   const cx=(a.x+b.x)/2+(i? -9:9),cy=(a.y+b.y)/2-9;
-   add("path",{d:"M "+a.x+" "+a.y+" Q "+cx+" "+cy+" "+b.x+" "+b.y,
-    pathLength:1,"data-b27-link":pair.relationId});
-   [a,b].forEach(p=>add("circle",{cx:p.x,cy:p.y,r:5}));
+  sheet.game?.pairs?.forEach((pair,index)=>{
+   const ar=frame(pair.aId),br=frame(pair.bId);
+   if(!ar||!br)return;
+   const a=endpoint(ar,br),b=endpoint(br,ar);
+   const sameRow=Math.abs(ar.y-br.y)<ar.height*.5;
+   const sameColumn=Math.abs(ar.x-br.x)<ar.width*.55;
+   const cx=sameColumn?Math.max(a.x,b.x)+42:
+    (a.x+b.x)/2+(sameRow?0:(index?-14:14));
+   const cy=sameRow?Math.min(a.y,b.y)-56:(a.y+b.y)/2;
+   const d="M "+a.x+" "+a.y+" Q "+cx+" "+cy+" "+b.x+" "+b.y;
+   add("path",{d,pathLength:1,"data-b27-link":pair.relationId,
+    "data-b27-link-from":pair.aId,"data-b27-link-to":pair.bId});
+   [a,b].forEach(p=>add("circle",{cx:p.x,cy:p.y,r:7}));
   });
  }
 

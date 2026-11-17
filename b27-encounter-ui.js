@@ -169,26 +169,24 @@ function balanceHtml(enc){
    'data-b27-bucket="'+i+'" data-b27-destination="'+e(x.id)+'" tabindex="0">'+
   '<div class="b27-bucket-heading"><small>'+e(x.label)+'</small>'+
   '<strong aria-label="'+amounts[i]+' pieces">'+amounts[i]+'</strong></div>'+
-  '<div class="b27-pieces" aria-label="Stack of '+amounts[i]+' movable pieces">'+
+  '<div class="b27-pieces" role="group" aria-label="Stack of '+amounts[i]+' movable pieces">'+
    g.owners.map((owner,piece)=>owner===i?
     b("move",'<span aria-hidden="true">✦</span>',"b27-piece",
      'draggable="true" data-b27-piece="'+piece+
      '" aria-label="Move '+e(a.unitName)+' piece '+(piece+1)+
      ' from '+e(x.label)+'; drag it into another destination, or tap to transfer"'):"").join("")+
-  '</div><div class="b27-bucket-drop" aria-hidden="true">DROP HERE <span>↘</span></div></div>').join("");
+  '</div><div class="b27-bucket-drop" aria-hidden="true"><span>↘</span> DROP OR TAP</div></div>').join("");
  const slider='<label class="b27-slider-label" for="b27-slider">Adjust '+e(a.choices[0].label)+
   ' <strong>'+amounts[0]+' / '+a.resourceCapacity+' '+e(a.unitName)+'</strong></label>'+
   '<input id="b27-slider" type="range" min="0" max="'+a.resourceCapacity+
   '" step="1" value="'+amounts[0]+'" data-b27-slider aria-label="Allocate '+e(a.unitName)+' to '+e(a.choices[0].label)+'"/>';
  const lenses=arr(a.lenses);
- return '<p class="b27-instruction">Move a piece between the destinations. Each piece is the same finite time—no new time appears.</p>'+
+ return '<p class="b27-instruction">Drag a token onto a tray, or tap it to transfer.</p>'+
   '<div class="b27-resource-status" role="status"><strong>'+total+' of '+a.resourceCapacity+
-  ' placed</strong><span>'+free+' unassigned · '+a.resourceCapacity+' movable pieces</span></div>'+
+  ' placed</strong><span>'+free+' unassigned</span></div>'+
   '<div class="b27-buckets '+(size===3?"b27-three":"")+'" aria-label="Destination areas for finite resources">'+
   buckets+'</div>'+
-  '<div class="b27-allocation-meta">'+slider+
-  '<p>Reallocate freely · '+(a.repetitions===null?"one imagined period":
-   a.repetitions+" imagined repetitions")+'. Use Undo or Reset to reconsider.</p></div>'+
+  '<div class="b27-allocation-meta"><div class="b27-tuning">'+slider+'</div></div>'+
   (lenses.length?'<div class="b27-lenses">'+lenses.map(l=>
    b("focus",e(l.label),"b27-lens"+(g.focus===l.id?" selected":""),
     'data-value="'+e(l.id)+'" aria-pressed="'+(g.focus===l.id)+'"')).join("")+'</div>':"");
@@ -198,8 +196,12 @@ function pairHtml(enc){
  const links=g.pairs.map(p=>{
   const edge=r.edges.find(x=>(x.aId===p.aId&&x.bId===p.bId&&x.relationId===p.relationId));
   if(!edge)return "";
-  return '<div class="b27-relation-evidence"><strong>✧ '+e(edge.label)+'</strong>'+
-   '<p>'+e(edge.claim)+'</p></div>';
+  const first=r.cards.find(c=>c.id===edge.aId),second=r.cards.find(c=>c.id===edge.bId);
+  return '<div class="b27-relation-evidence"><div class="b27-link-bridge" aria-label="'+
+   e((first?.label||edge.aId)+' connected with '+(second?.label||edge.bId))+'">'+
+   '<span>'+e(first?.label||edge.aId)+'</span><i class="b27-bridge-trail" aria-hidden="true"></i>'+
+   '<span>'+e(second?.label||edge.bId)+'</span></div>'+
+   '<strong>✧ '+e(edge.label)+'</strong><p>'+e(edge.claim)+'</p></div>';
  }).join("");
  const candidates=g.first===null?[]:r.edges.filter(edge=>
   edge.aId===g.first||edge.bId===g.first);
@@ -209,10 +211,9 @@ function pairHtml(enc){
  const guide=g.pairs.length>=2?
   '<p class="b27-pair-guide" role="status">Two source-backed connections are recorded. Undo to try another.</p>':
   g.first===null?
-   '<p class="b27-pair-guide">Choose two concepts. Source-backed links light up.</p>':
+   '<p class="b27-pair-guide">Tap two ideas to draw a connection.</p>':
    '<p class="b27-pair-guide" role="status">Now connect it with: '+labels.join(', ')+'.</p>';
- return '<p class="b27-instruction">Connect two ideas. There is no hidden score.</p>'+
-  guide+
+ return guide+
   '<div class="b27-concepts" role="group" aria-label="Four large source-authorized concept cards">'+
   r.cards.map((c,i)=>{
    const eligible=g.pairs.length<2&&(g.first===null||c.id===g.first||allowedIds.has(c.id));
@@ -295,6 +296,19 @@ function flipHtml(enc){
  return recap+cards+'<p class="b27-authored">Your response: '+e(response)+
   '. This event was not your doing. No unchosen outcome is established.</p>';
 }
+function conciseDilemma(record){
+ // Show one or two source-authored sentences; do not generate substitute claims.
+ // The full scenario and its epistemic caveat remain available in the disclosure.
+ const text=String(record.intro||record.relation?.prompt||"An imagined dilemma").trim();
+ const sentences=text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map(x=>x.trim())||[text];
+ const selected=[];
+ for(const sentence of sentences){
+  if(selected.length&&(selected.length>=2||
+   (selected.join(" ").length+sentence.length+1)>190))break;
+  selected.push(sentence);
+ }
+ return selected.join(" ");
+}
 function gameHtml(enc){
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
  if(enc.record.familyId==="tap_pair")return pairHtml(enc);
@@ -347,13 +361,16 @@ export function renderB27Encounter(enc,quote){
   '<div class="b27-source"><blockquote>“'+e(enc.quote?.text||quote?.[0])+'”</blockquote>'+
   '<span>— '+e(enc.quote?.author||quote?.[1])+'</span></div>'+
   '<h2>'+e(r.title||"Try a different angle")+'</h2>'+
-  '<p class="b27-scenario">'+e(r.intro||r.relation?.prompt||"An imagined dilemma")+'</p>'+
-  '<p class="b27-limits">A fictional illustration, not a fact about your real life.</p>'+
+  '<p class="b27-scenario">'+e(conciseDilemma(r))+'</p>'+
+
   '<div class="b27-game" data-b27-family="'+e(r.familyId)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+b("undo","Undo","b27-secondary",arr(enc.history).length?"":"disabled")+
    b("reset","Reset","b27-secondary")+
    b("complete","Discover ↗","b27-primary",canFinishB27(enc)&&!enc.saving?"":"disabled")+
   '</div><p class="b27-feedback" role="status" aria-live="polite">'+e(enc.message||"Your choice is yours to revise.")+'</p>'+
+  '<details class="b27-context"><summary>About this imagined situation</summary>'+
+  '<p>'+e(r.intro||"")+'</p><p>'+e(r.epistemicLimits||"This is an imagined illustration, not evidence about your actual life.")+'</p>'+
+  '</details>'+
   '</div></section>';
 }
 export function savedB27WorldHtml(entries){
