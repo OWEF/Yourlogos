@@ -1,0 +1,47 @@
+name: CZ-147 R2.1 Source-Faithful Relations and Attribution
+on:
+  push:
+    branches: [feature/cz147-r21-source-faithful-relations, qa/cz147-r21-independent]
+  pull_request:
+    paths:
+      - "experiments/yl-cz147-engines.mjs"
+      - "tests/yl-cz147-r21-*"
+      - ".github/workflows/cz147-r21.yml"
+permissions:
+  contents: read
+jobs:
+  source-semantic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Source-neutral engine syntax and no author hardcodes
+        run: |
+          node --check experiments/yl-cz147-engines.mjs
+          node --check tests/yl-cz147-r21-directional-relations.test.mjs
+          node -e "const s=require('fs').readFileSync('experiments/yl-cz147-engines.mjs','utf8');for(const n of ['Blaise Pascal','David Hume','Wollstonecraft','Adam Smith','Epictetus','Kierkegaard'])if(s.includes(n))throw Error('Author hardcoded in shared engine: '+n)"
+      - name: R2.1 Hume Pascal Wollstonecraft Smith directional relation and attribution regression
+        run: node --test tests/yl-cz147-r21-directional-relations.test.mjs
+      - name: Accepted R2 philosophical operations and 20 exposed QA source cases
+        run: |
+          node --test tests/yl-cz147-r2-operation.test.mjs tests/yl-cz147-r2-exposed-epicurus-regression.test.mjs
+          node --test tests/yl-cz147-r1-contrasts.test.mjs tests/yl-cz147-engine.test.mjs
+      - name: B2.7 legacy source contracts and My World storage
+        run: |
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs tests/yl-b25-generalized-encounter.test.mjs
+      - name: Install browser automation
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: All four original game families 320 390 430 and 1024 consumer journeys
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Capture R2.1 philosophical source and browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz147-r21-engineering-evidence
+          path: |
+            qa-evidence-cz147-r21/
+            qa-evidence-cz147/
+          if-no-files-found: warn

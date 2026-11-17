@@ -544,7 +544,7 @@ function philosophicalReading(packet,emotion,source){
    ["contrast","agency_boundary"].includes(selected.type)?
     "This distinguishes "+lowerFirst(selected.a)+" from "+lowerFirst(selected.b)+".":
     selected.type==="support"?
-     "This shows how "+lowerFirst(selected.a)+" supports "+lowerFirst(selected.b)+".":
+     "The “"+clean(selected.label)+"” relation concerns "+op.focus+".":
      "This links "+lowerFirst(selected.a)+" with "+lowerFirst(selected.b)+".":
    "The selected relations involve "+a.links.map(x=>lowerFirst(x.label)).join(" and ")+".";
   return {long:claims+" "+tension+" "+anchor,
@@ -655,38 +655,33 @@ function philosophicalQuestions(packet,emotion,source){
   }
  }
  if(a.operation==="source_relation"){
-  const e=a.links[0],first=lowerFirst(e.a),second=lowerFirst(e.b);
-  if(a.links.length===2){
-   const next=a.links[1];
-   const combined="What changes when "+lowerFirst(e.label)+
-    " is considered alongside "+lowerFirst(next.label)+"?";
-   const follow="Can the "+lowerFirst(e.label)+" and "+lowerFirst(next.label)+
-    " links together establish more than either alone?";
-   return [combined,follow];
+  // Relation labels are editorial display categories, not logical verbs.
+  // In particular, "support" may mean examining evidence, supplying
+  // context, or contributing to a task; it must never be automatically
+  // rewritten as A supporting/causing B. The exact source-authored edge
+  // CLAIM is authoritative, and neutral questions remain the fallback.
+  const primary=a.links[0];
+  const lowerClaim=lowerFirst(clean(primary.claim));
+  const label=clean(primary.label);
+  if(a.links.length===1){
+   // Where the source operation expressly concerns self-government against
+   // domination, retain that authenticated boundary. "Relate" is
+   // deliberately neutral; a display category never establishes causation.
+   const autonomy=op.kind==="self_governance"&&primary.type==="support"?
+    "How could "+lowerFirst(primary.a)+" relate to "+lowerFirst(primary.b)+
+    " without turning support into control?":null;
+   const claimQuestion="If "+lowerClaim+", what does this leave open?";
+   const specific="What does the “"+label+"” connection clarify about "+op.focus+"?";
+   const neutral="What does the chosen “"+label+"” relation establish, and what remains uncertain?";
+   const compact="What remains open about the “"+label+"” connection?";
+   return [...(autonomy?[autonomy]:[]),claimQuestion,specific,neutral,compact];
   }
-  if(op.kind==="self_governance"){
-   const respect="How could separating "+first+" from "+second+
-    " protect "+op.focus+"?";
-   const support="How could "+first+" support "+second+
-    " without turning support into control?";
-   return ["contrast","agency_boundary"].includes(e.type)?
-    [respect,support]:[support,respect];
-  }
-  if(op.kind==="coordinated_work")
-   return ["How does the link between "+first+" and "+second+
-    " enable work together without establishing fairness?",
-    "What does joining "+first+" with "+second+" contribute to the finished work?",
-    "How does "+first+" depend on "+second+" in this example?"];
-  const inquiry=["contrast","agency_boundary"].includes(e.type)?
-   "What would be misunderstood by treating "+first+" as the same as "+second+"?":
-   e.type==="complementarity"?
-    "What do "+first+" and "+second+" explain together that neither alone establishes?":
-    e.type==="support"?
-     "What would still need to be true for "+first+" to support "+second+"?":
-     "What exactly does the link between "+first+" and "+second+" establish?";
-  return [inquiry,
-   "What does connecting "+first+" with "+second+" reveal about "+op.focus+"?",
-   "Where does the link between "+first+" and "+second+" stop supporting a conclusion?"];
+  const other=a.links[1],secondLabel=clean(other.label);
+  const specific="How do “"+label+"” and “"+secondLabel+
+   " relate to "+op.focus+" without proving more than the source claims?";
+  const neutral="What do the “"+label+"” and “"+secondLabel+"” relations establish together?";
+  const compact="What remains open about these two chosen source-backed connections?";
+  return [specific,neutral,compact];
  }
  const event=clean(a.development.label),response=lowerFirst(clean(a.response.label).replace(/^You\s+/i,""));
  if(op.kind==="retrospective_limits")
@@ -862,6 +857,25 @@ function selectSections(firsts,seconds,thirds,lo,hi,min,max){
  }
  return null;
 }
+/**
+ * A source thesis may already name its author (including via their
+ * surname or a phrase such as "For Aristotle"). Add the display-name
+ * prefix only when the source text does not already carry attribution.
+ * No author-specific exceptions or edits to authenticated theses.
+ */
+function formatSourceAttribution(author,thesis){
+ const full=author.trim().toLocaleLowerCase();
+ const surname=full.split(/\s+/).at(-1)??"";
+ const leading=thesis.trim().replace(/^(?:for|according to)\s+/i,"").toLocaleLowerCase();
+ const names=[full,surname].filter(Boolean);
+ // Do not mistake a shared prefix for an author's name.
+ const alreadyAttributed=names.some(name=>{
+  if(!leading.startsWith(name))return false;
+  const following=leading.slice(name.length);
+  return following===""||/^[\s,:;.!?'’]/.test(following);
+ });
+ return alreadyAttributed?thesis:author+": "+thesis;
+}
 export function expressUniversal(packet,emotion,source){
  if(packet?.status!=="ready"||emotion?.status!=="ready"||
   packet.sourceVersionHash!==source?.sourceFingerprint||
@@ -875,6 +889,7 @@ export function expressUniversal(packet,emotion,source){
  const interpretation=dynamicReading(packet,emotion,source);
  const questions=unique(reflectionQuestions(packet,emotion,source));
  const thesis=sentence(source.sourceThesis);
+ const attributedThesis=formatSourceAttribution(author,thesis);
  const limit=sentence(source.compactLimit);
  const uncertainty=sentence(source.epistemicLimits);
  const counter=sentence(source.counterexample);
@@ -884,12 +899,12 @@ export function expressUniversal(packet,emotion,source){
  // A compact output always contains an authenticated thesis AND a
  // choice-sensitive consequence; no source-key-specific fixed conclusions.
  const compactSeconds=unique([
-  author+": "+thesis+" "+sentence(interpretation.short)+" "+limit,
+  attributedThesis+" "+sentence(interpretation.short)+" "+limit,
   thesis+" "+sentence(interpretation.short)+" "+limit,
-  author+": "+thesis+" "+sentence(interpretation.minimal)+" "+limit,
+  attributedThesis+" "+sentence(interpretation.minimal)+" "+limit,
   thesis+" "+sentence(interpretation.minimal)+" "+limit,
   ...(interpretation.micro?[
-   author+": "+thesis+" "+sentence(interpretation.micro)+" "+limit,
+   attributedThesis+" "+sentence(interpretation.micro)+" "+limit,
    thesis+" "+sentence(interpretation.micro)+" "+limit
   ]:[])
  ]);
@@ -906,12 +921,12 @@ export function expressUniversal(packet,emotion,source){
   chosen,choiceBrief
  ]);
  const fullSeconds=unique([
-  author+": "+thesis+" "+sentence(interpretation.long)+" "+uncertainty+" "+counter,
-  author+": "+thesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
-  author+": "+thesis+" "+sentence(interpretation.short)+" "+uncertainty,
-  author+": "+thesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+counter,
-  author+": "+thesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+sourceClaim,
-  author+": "+thesis+" "+sentence(interpretation.minimal)+" "+uncertainty,
+  attributedThesis+" "+sentence(interpretation.long)+" "+uncertainty+" "+counter,
+  attributedThesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
+  attributedThesis+" "+sentence(interpretation.short)+" "+uncertainty,
+  attributedThesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+counter,
+  attributedThesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+sourceClaim,
+  attributedThesis+" "+sentence(interpretation.minimal)+" "+uncertainty,
   thesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
   thesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+counter,
   thesis+" "+sentence(interpretation.short)+" "+uncertainty,
