@@ -348,9 +348,13 @@ export function renderB27Encounter(enc,quote){
  if(enc.stage==="result")
   return start+'<div class="b27-main b27-reveal">'+resultHtml(enc)+'</div></section>';
  const r=enc.record,author=e(enc.quote?.author||quote?.[1]||"");
+ const chosenScene=(r.familyId==="decision_cards"||r.familyId==="flip_reveal")&&enc.game?.start&&enc.game?.scene?
+  scenes(r,enc.game.start).find(x=>x.id===enc.game.scene):null;
  const context='<details class="b27-context"><summary>About the idea</summary>'+
   '<blockquote>“'+e(enc.quote?.text||quote?.[0])+'”</blockquote>'+
-  '<p>— '+author+'</p><p>'+e(r.intro||"")+'</p>'+
+  '<p>— '+author+'</p><p>'+e(r.intro||"")+'</p>'+ 
+  (chosenScene?'<p><strong>About the imagined development:</strong> '+e(chosenScene.authoredText)+
+  '. The hypothetical development was authored independently of your decision.</p>':"")+
   '<p>'+e(r.epistemicLimits||"This is an imagined illustration, not evidence about your actual life.")+'</p>'+
   '</details>';
  if(enc.beat==="situation")
