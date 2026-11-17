@@ -38,6 +38,7 @@ function routes(starts,scenes,responses){
 }
 export const CZ147_SOURCE_RECORDS=Object.freeze([
  make(12,{
+  philosophicalOperation:{"kind":"habitual_pattern","focus":"repeated daily practices","contrast":"one invented evening versus a lived pattern","sourceWarrantIds":["source:central"]},
   exposeInApp:false,familyId:"balance_move",title:"The shape of an ordinary evening",
   intro:"Imagine six fictional half-hour slots. You can make something, answer messages, or rest; each possibility uses time that cannot be spent twice.",
   humanTension:"A creative intention competes with everyday messages and the need to rest.",
@@ -53,6 +54,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   allocation:allocation(6,"half-hour slots",["making something","answering messages","resting"],[2,2,2],5)
  }),
  make(49,{
+  philosophicalOperation:{"kind":"deliberate_use","focus":"deliberate use of finite time","contrast":"chosen purpose versus automatic busyness","activityRoles":[{"id":"activity_0","role":"deliberate_practice"},{"id":"activity_1","role":"possible_distraction"},{"id":"activity_2","role":"restorative_pause"}],"sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"balance_move",title:"Where the evening goes",
   intro:"After a demanding day you have eight imagined half-hour slots. Study, idle scrolling and needed rest each draw on the same evening; this is not a productivity judgment.",
   humanTension:"Having time does not settle how to use it well; rest is not automatically waste.",
@@ -69,6 +71,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   allocation:allocation(8,"half-hour slots",["study","idle scrolling","rest"],[3,2,3])
  }),
  make(91,{
+  philosophicalOperation:{"kind":"coordinated_work","focus":"distinct contributions to a completed result","contrast":"division of work versus moral endorsement","sourceWarrantIds":["source:central"]},
   exposeInApp:false,familyId:"tap_pair",title:"A shared gift before tomorrow",
   intro:"Two friends need a gift by tomorrow. Keeping the design to yourself preserves control; dividing the practical tasks makes completion depend on several contributions.",
   humanTension:"Maintaining control of a personal idea or relying on a friend's complementary contribution.",
@@ -94,6 +97,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ])
  }),
  make(23,{
+  philosophicalOperation:{"kind":"self_governance","focus":"independent judgment and agency","contrast":"self-government rather than domination","sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"tap_pair",title:"Whose freedom does this serve?",
   intro:"Imagine a community group discussing girls' access to education. Some members confuse women's independence with having authority over men. Explore the distinction rather than choosing anyone's worth.",
   humanTension:"Supporting self-government without making another person's subordination the goal.",
@@ -120,6 +124,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ])
  }),
  make(34,{
+  philosophicalOperation:{"kind":"retrospective_limits","focus":"forward commitment and partial hindsight","contrast":"lived path versus unobserved alternatives","sourceWarrantIds":["source:central"]},
   exposeInApp:false,familyId:"decision_cards",title:"Before hindsight arrives",
   intro:"Imagine deciding whether to remain at familiar work or explore a change. You will see one invented later possibility, not a prediction of what either decision will cause.",
   humanTension:"A known commitment offers stability while an untested future remains uncertain.",
@@ -144,6 +149,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ])
  }),
  make(55,{
+  philosophicalOperation:{"kind":"independent_judgment","focus":"present reasons behind a commitment","contrast":"independent judgment versus foolish consistency","startRoles":[{"id":"maintain","role":"retain_prior"},{"id":"revisit","role":"reexamine_prior"}],"sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"decision_cards",title:"When a past opinion meets today",
   intro:"A neighborhood group must revisit a public plan. New details emerge, and everyone remembers what you previously said. The dilemma is whether consistency is serving the question or merely your reputation.",
   humanTension:"Keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
@@ -169,6 +175,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ])
  }),
  make(94,{
+  philosophicalOperation:{"kind":"retrospective_limits","focus":"the partial view gained by looking back","contrast":"lived path versus unobserved alternatives","sourceWarrantIds":["source:central"]},
   exposeInApp:false,familyId:"flip_reveal",title:"The limits of looking back",
   intro:"Imagine choosing a working life before everything unfolds. One of two made-up scenes will be revealed; it cannot stand for the future you did not live.",
   humanTension:"Choosing amid uncertainty while later understanding remains partial.",
@@ -193,6 +200,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ])
  }),
  make(48,{
+  philosophicalOperation:{"kind":"event_acceptance","focus":"agency over responses to events","contrast":"chosen response versus externally determined occurrence","sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"flip_reveal",title:"An outcome you cannot command",
   intro:"Imagine preparing for an uncomfortable exchange. You can choose your approach, but another person's actions are not yours to script. Reveal one fictional development, then decide what response remains available.",
   humanTension:"Preparing carefully while accepting that the other person's response is not under your control.",
