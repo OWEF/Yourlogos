@@ -1,0 +1,54 @@
+name: CZ-147 R1 Independent Adversarial Acceptance
+on:
+  push:
+    branches: [qa/cz147-r1-independent-acceptance]
+  pull_request:
+    paths:
+      - "tests/yl-cz147-sealed-holdout.test.mjs"
+      - "tests/yl-cz147-r1-independent-*"
+      - ".github/workflows/cz147-r1-independent-qa.yml"
+permissions:
+  contents: read
+jobs:
+  qa-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Enforce QA-only diff pinned to exact frozen engineering SHA
+        run: |
+          git cat-file -e 989ebacd37879dc2edc2ac0c76f55fe807357bc8^{commit}
+          changed="$(git diff --name-only 989ebacd37879dc2edc2ac0c76f55fe807357bc8 HEAD)"
+          test -n "$changed"
+          if printf "%s\n" "$changed" | grep -vE '^(tests/yl-cz147-sealed-holdout\.test\.mjs|tests/yl-cz147-r1-independent-[a-z-]+\.test\.mjs|\.github/workflows/cz147-r1-independent-qa\.yml)$'; then
+            echo "Independent QA-only branch contains modified product code"; exit 1
+          fi
+      - name: Pre-existing 33-state unfamiliar-source fixture — REGRESSION ONLY
+        run: node --test tests/yl-cz147-sealed-holdout.test.mjs
+      - name: Fresh unfamiliar source quartets, 54 states and four A/B distinctions
+        run: node --test tests/yl-cz147-r1-independent-holdouts.test.mjs
+      - name: Replay all developer same-quote decision distinctions and authenticated source boundaries
+        run: |
+          node --test tests/yl-cz147-r1-contrasts.test.mjs tests/yl-cz147-engine.test.mjs
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+      - name: Preserve all legacy four-family and 84-allocation/eight-route regressions
+        run: node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs tests/yl-b25-generalized-encounter.test.mjs
+      - name: Install browser driver, no Chrome download
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Eight independently driven real consumer A/B paths at 390px
+        run: node --test tests/yl-cz147-r1-independent-browser.test.mjs
+      - name: Replay all four game families on 320, 390, 430 and 1024px
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Preserve existing full/compact and old holdout evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz147-r1-independent-complete
+          path: |
+            qa-evidence-cz147-independent/
+            qa-evidence-cz147-r1/
+            qa-evidence-cz147-r1-independent/
+          if-no-files-found: warn
