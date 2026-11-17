@@ -102,9 +102,15 @@ test("Every reachable canonical state across all source/authored families has co
       out.compact.sections[0].text.includes(cards.get(edge.bId)));
    }
    if(r.familyId==="balance_move"){
-    for(let i=0;i<input.amounts.length;i++)
-     assert.ok(out.compact.sections[0].text.includes(
-      input.amounts[i]+" to "+r.allocation.choices[i].label));
+    const words=out.compact.sections[0].text,positive=input.amounts.filter(n=>n>0);
+    for(let i=0;i<input.amounts.length;i++){
+     const n=input.amounts[i],label=r.allocation.choices[i].label;
+     assert.ok(words.includes(label),"Every activity must appear: "+label);
+     if(n>0)assert.ok(positive.length===1?
+      words.includes("all "+r.allocation.resourceCapacity):
+      words.includes(n+" for "+label));
+     else assert.match(words,/none for/);
+    }
    }
    if(seen.size===1) evidence.push({quoteId:r.quoteId,source:r.source,
     family:r.familyId,choice:input,meaning:out.fullMeaning,
@@ -152,6 +158,24 @@ test("Equivalent pair choice order has exact semantic parity; different choices 
  assert.notEqual(x.saveKey,z.saveKey);
  assert.notEqual(x.compact.sections[0].text,z.compact.sections[0].text);
  assert.equal(x.emotion.strategy,y.emotion.strategy);
+});
+test("Emotion Strategy actually changes rhetorical framing without altering the source's meaning",()=>{
+ const r=CZ147_SOURCE_RECORDS.find(x=>x.quoteId===49);
+ const input=amounts=>({amounts,budgets:[8],touched:true});
+ const src=registry.resolve(request(r,null));
+ const a=registry.run({...request(r,input([0,0,8])),sourceVersionHash:src.sourceVersionHash});
+ const b=registry.run({...request(r,input([2,2,4])),sourceVersionHash:src.sourceVersionHash});
+ assertReady(r,input([0,0,8]),a);assertReady(r,input([2,2,4]),b);
+ assert.equal(a.emotion.strategy,"choice_awareness");
+ assert.equal(b.emotion.strategy,"tradeoff_attention");
+ assert.notEqual(a.compact.sections[1].text,b.compact.sections[1].text);
+ assert.match(a.compact.sections[1].text,/Seneca's emphasis:/);
+ assert.match(b.compact.sections[1].text,/Seneca's trade-off:/);
+ for(const x of [a,b]){
+  assert.equal(x.fullMeaning.meaning.centralClaim,r.sourceThesis);
+  assert.equal(x.emotion.inferredActualEmotion,false);
+  assert.ok(x.compact.sections[1].text.includes(r.compactLimit));
+ }
 });
 test("Strict source boundary and rhetorical abstention block forgery without judging real people",()=>{
  const r=CZ147_SOURCE_RECORDS.find(x=>x.quoteId===49),src=sealUniversalSource(r);
