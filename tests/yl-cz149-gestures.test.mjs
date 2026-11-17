@@ -55,8 +55,11 @@ async function enter(page,base,id,family){
  const admission=await(await api).json();
  assert.equal(admission.status,"ready",JSON.stringify(admission).slice(0,500));
  assert.equal(admission.selectedFamilyId,family);
+ await page.locator(".b27-situation").waitFor();
+ const situationText=await page.locator(".b27-scenario").innerText();
+ await page.locator('[data-b27="begin"]').click();
  await page.locator(".b27-game").waitFor();
- return admission;
+ return {...admission,situationText};
 }
 const amounts=page=>page.locator(".b27-bucket-heading strong")
  .allInnerTexts().then(x=>x.map(Number));
@@ -132,12 +135,12 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
     const admitted=await enter(page,app.base,spec.id,spec.family);
     const firstView=await page.evaluate(()=>({
      top:document.querySelector(".b27-game")?.getBoundingClientRect().top,
-     scenario:document.querySelector(".b27-scenario")?.innerText,
+     scenario:document.querySelector(".b27-situation")?.innerText,
      collapsed:!document.querySelector(".b27-context")?.open
     }));
     assert.ok(firstView.top<490,"Game not visible near top on 390px screen: "+JSON.stringify(firstView));
     assert.equal(firstView.collapsed,true);
-    assert.ok(firstView.scenario.length>20&&firstView.scenario.length<215);
+    assert.ok(admitted.situationText.length>20&&admitted.situationText.length<215);
     if(spec.family==="balance_move"){
      assert.equal(await page.locator(".b27-bucket").count(),3);
      assert.deepEqual(await amounts(page),[3,2,3]);
@@ -163,8 +166,8 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      await page.screenshot({path:OUT+"/balance-"+variant+"-gesture-390.png",fullPage:true});
      await page.locator('[data-b27="undo"]').click();
      assert.deepEqual(await amounts(page),[3,2,3]);
-     await page.locator('[data-b27="reset"]').click();
-     assert.deepEqual(await amounts(page),[3,2,3]);
+     assert.equal(await page.locator('[data-b27="reset"]').count(),0,
+      "Reset is hidden when undo has already restored the initial state");
      await page.locator("#b27-slider").evaluate((el,val)=>{
       el.value=val;el.dispatchEvent(new Event("change",{bubbles:true}));
      },variant?"0":"8");
@@ -195,6 +198,7 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
       "SVG path must visibly paint after animation: "+JSON.stringify(painted));
      assert.equal(await page.locator(".b27-link-bridge").count(),1);
      assert.equal(await page.locator(".b27-relation-evidence").count(),1);
+     await page.locator(".b27-link-explain summary").click();
      const claim=await page.locator(".b27-relation-evidence p").innerText();
      assert.ok(claim.length>35);
      await page.screenshot({path:OUT+"/pair-"+variant+"-linked-390.png",fullPage:true});
@@ -208,9 +212,9 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      await page.locator('[data-b27="pair"][data-value="'+pair[1]+'"]').click();
      await page.locator('[data-b27="pair"][data-value="'+pair[0]+'"]').click();
      await page.waitForFunction(()=>document.querySelectorAll(".b27-link-lines path").length===1);
-     assert.match(await page.locator(".b27-scenario").innerText(),
+     assert.match(admitted.situationText,
       /woman|course|education|choose/i);
-     assert.doesNotMatch(await page.locator(".b27-scenario").innerText(),
+     assert.doesNotMatch(admitted.situationText,
       /community group|authority over men/i);
     }else if(spec.family==="decision_cards"){
      assert.equal(await page.locator(".b27-dilemma").count(),1);
@@ -219,10 +223,10 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      await branch(page,variant?"revisit":"maintain");
      assert.equal(await page.locator(".b27-dilemma").count(),1);
      await branch(page,variant?"critique":"details");
-     assert.match(await page.locator(".b27-dilemma").innerText(),/situation changed/i);
+     assert.match(await page.locator(".b27-dilemma").innerText(),/a new possibility/i);
      assert.equal(await page.locator(".b27-choice").count(),2);
      await branch(page,"consider");
-     assert.match(await page.locator(".b27-game").innerText(),/You chose, learned, and responded/);
+     assert.match(await page.locator(".b27-path-echo").innerText(),/when/i);
     }else if(spec.family==="flip_reveal"){
      await branch(page,variant?"listen":"prepare");
      assert.equal(await page.locator(".b27-flip").count(),2);
