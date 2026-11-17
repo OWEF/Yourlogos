@@ -209,9 +209,9 @@ function pairHtml(enc){
  const guide=g.pairs.length>=2?
   '<p class="b27-pair-guide" role="status">Two source-backed connections are recorded. Undo to try another.</p>':
   g.first===null?
-   '<p class="b27-pair-guide">Choose one concept, then another. A connection appears only where the source supports it.</p>':
+   '<p class="b27-pair-guide">Choose two concepts. Source-backed links light up.</p>':
    '<p class="b27-pair-guide" role="status">Now connect it with: '+labels.join(', ')+'.</p>';
- return '<p class="b27-instruction">Make a philosophical connection. No secret correct-answer score.</p>'+
+ return '<p class="b27-instruction">Connect two ideas. There is no hidden score.</p>'+
   guide+
   '<div class="b27-concepts" role="group" aria-label="Four large source-authorized concept cards">'+
   r.cards.map((c,i)=>{
