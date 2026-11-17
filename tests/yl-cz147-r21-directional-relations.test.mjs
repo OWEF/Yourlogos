@@ -296,3 +296,35 @@ test("R2.1: adversarial SUPPORT label is not converted into a directional source
  assert.ok(out.compact.sections[2].text.includes("Reason and evidence")||
   /Available evidence can be assessed/i.test(out.compact.sections[2].text));
 });
+
+test("R2.1: export authenticated full and compact philosophical examples for QA review",()=>{
+ const examples=[];
+ const selected=[
+  {r:fresh.find(x=>x.quoteId===26),edgeIds:["reason","evidence"]},
+  {r:fresh.find(x=>x.quoteId===25),edgeIds:["care","attachment"]},
+  {r:CZ147_SOURCE_RECORDS.find(x=>x.quoteId===23),edgeIds:["education","judgment"]},
+  {r:CZ147_SOURCE_RECORDS.find(x=>x.quoteId===91),edgeIds:["friend","assembly"]}
+ ];
+ for(const {r,edgeIds} of selected){
+  const reg=makeUniversalRegistry([r],B27_APP_QUOTES);
+  const identity={quoteId:r.quoteId,quoteText:r.source.text,quoteAuthor:r.source.author,
+   quoteWork:r.source.work,b27DevelopmentOnly:r.developmentOnly};
+  const admissible=reg.resolve(identity);
+  const edge=r.relation.edges.find(e=>[e.aId,e.bId].sort().join("|")===edgeIds.slice().sort().join("|"));
+  assert.ok(edge,r.source.author);
+  const canonical={pairs:[{aId:edge.aId,bId:edge.bId,relationId:edge.relationId}]};
+  const o=reg.run({...identity,sourceVersionHash:admissible.sourceVersionHash,canonicalInput:canonical});
+  assert.equal(o.status,"ready",JSON.stringify(o).slice(0,900));
+  examples.push({
+   quoteId:r.quoteId,author:r.source.author,authoredThesis:r.sourceThesis,
+   authoredRelationClaim:edge.claim,relationType:edge.relationId,
+   canonicalChoice:canonical,fullMeaning:o.fullMeaning,
+   emotion:o.emotion,full:o.fullExpression,compact:o.compact
+  });
+ }
+ mkdirSync("qa-evidence-cz147-r21",{recursive:true});
+ writeFileSync("qa-evidence-cz147-r21/actual-source-faithful-expressions.json",
+  JSON.stringify({engineering:"CZ-147 R2.1",
+   examples,provisionalSources:true,productionAllowed:false},null,2));
+ assert.equal(examples.length,4);
+});
