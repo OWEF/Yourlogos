@@ -186,7 +186,7 @@ function balanceHtml(enc){
   ' placed</strong><span>'+free+' unassigned</span></div>'+
   '<div class="b27-buckets '+(size===3?"b27-three":"")+'" aria-label="Destination areas for finite resources">'+
   buckets+'</div>'+
-  '<details class="b27-allocation-meta b27-tuning"><summary>Fine-tune balance</summary>'+slider+'</details>'+
+  '<details class="b27-allocation-meta b27-tuning" '+(enc.tunerOpen?'open':'')+'><summary>Fine-tune balance</summary>'+slider+'</details>'+
   (lenses.length?'<div class="b27-lenses">'+lenses.map(l=>
    b("focus",e(l.label),"b27-lens"+(g.focus===l.id?" selected":""),
     'data-value="'+e(l.id)+'" aria-pressed="'+(g.focus===l.id)+'"')).join("")+'</div>':"");
