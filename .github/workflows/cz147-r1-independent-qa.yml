@@ -46,7 +46,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cz147-r1-independent-preflight
+          name: cz147-r1-independent-complete
           path: |
             qa-evidence-cz147-independent/
             qa-evidence-cz147-r1/
