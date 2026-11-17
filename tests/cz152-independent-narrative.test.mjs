@@ -178,7 +178,7 @@ async function play(page,v,width){
   const act=async(label,id)=>{
    let choiceId;
    await t(label,async()=>{
-    const btn=dynamic?page.locator('.b27-game [data-b27="branch"]:not(:disabled)').first():
+    const btn=dynamic?page.locator('.b27-game .b27-choice[data-b27="branch"]:not(:disabled)').first():
      page.locator('[data-b27="branch"][data-value="'+id+'"]');
     choiceId=await btn.getAttribute("data-value");await btn.click();
    });
@@ -197,7 +197,7 @@ async function play(page,v,width){
   const act=async(label,id)=>{
    let choiceId;
    await t(label,async()=>{
-    const btn=dynamic?page.locator('.b27-game [data-b27="branch"]:not(:disabled)').first():
+    const btn=dynamic?page.locator('.b27-game .b27-choice[data-b27="branch"]:not(:disabled)').first():
      page.locator('[data-b27="branch"][data-value="'+id+'"]');
     choiceId=await btn.getAttribute("data-value");await btn.click();
    });
