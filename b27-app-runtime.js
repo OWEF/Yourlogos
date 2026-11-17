@@ -109,7 +109,7 @@ export function createB27AppRuntime({
    }else if(res.ok&&json.status==="ready"){
     const game=initializeB27Game(json.record);
     if(!game)throw Error("No valid source-authorized input contract was found");
-    sheet={...sheet,stage:"play",quote:json.quote,game,history:[],
+    sheet={...sheet,stage:"play",beat:"situation",quote:json.quote,game,history:[],
      record:json.record,sourceVersionHash:json.sourceVersionHash,
      quoteFingerprint:json.quoteFingerprint};
    }else throw Error(json.reason||"Source admission failed");
@@ -154,27 +154,51 @@ export function createB27AppRuntime({
   }
   if(!sheet)return false;
   if(kind==="world"){close();navigateWorld();return true;}
+  if(kind==="begin"){
+   if(sheet.stage!=="play"||sheet.beat!=="situation")return false;
+   sheet.beat="play";sheet.message="";epoch++;draw();
+   requestAnimationFrame(()=>{
+    const game=document.querySelector(".b27-game");
+    // A fast keyboard user may already have focused a new game control.
+    // Never steal focus away from that live control during this first frame.
+    const active=document.activeElement;
+    if(!game||(active&&active!==document.body&&active.closest?.(".b27-shell")))return;
+    game.focus({preventScroll:true});
+   });
+   return true;
+  }
   if(kind==="revise"){
    if(!sheet.game)return false;
-   epoch++;sheet.stage="play";sheet.saved=false;
+   epoch++;sheet.stage="play";sheet.beat="play";sheet.saved=false;
    sheet.message="You can revise what you chose.";draw();return true;
   }
   if(kind==="undo"){
    if(!sheet.history.length)return false;
    epoch++;sheet.game=sheet.history.pop();sheet.result=null;
-   sheet.stage="play";sheet.message="Your previous choice is restored.";
+   sheet.stage="play";sheet.beat="play";sheet.message="Your previous choice is restored.";
    draw();return true;
   }
   if(kind==="reset"){
    if(!sheet.record)return false;
    epoch++;sheet.game=initializeB27Game(sheet.record);sheet.history=[];
-   sheet.result=null;sheet.saved=false;sheet.stage="play";
+   sheet.result=null;sheet.saved=false;sheet.stage="play";sheet.beat="play";sheet.tunerOpen=false;
    sheet.message="A fresh start. Nothing was saved.";draw();return true;
   }
   if(["move","pair","branch","focus"].includes(kind)){
    const value=kind==="move"?el.dataset.b27Piece:el.dataset.value;
    const changed=adjustB27Game(sheet,kind,value);
-   if(changed)epoch++;draw();return changed;
+   if(changed)epoch++;
+   draw();
+   if(changed)requestAnimationFrame(()=>{
+    let next=null;
+    if(kind==="pair"||kind==="focus")
+     next=[...document.querySelectorAll('[data-b27="'+kind+'"]')]
+      .find(x=>x.dataset.value===value&&!x.disabled);
+    else if(kind==="move")
+     next=document.querySelector('[data-b27-piece="'+value+'"]');
+    (next||document.querySelector(".b27-game"))?.focus({preventScroll:true});
+   });
+   return changed;
   }
   if(kind==="complete"){
    if(!canFinishB27(sheet)||sheet.saving)return false;
@@ -201,7 +225,10 @@ export function createB27AppRuntime({
     if(same(token))sheet.message="No unsupported insight was produced: "+
      String(err?.message||err);
    }finally{
-    if(same(token)){sheet.saving=false;draw();}
+    if(same(token)){sheet.saving=false;draw();
+     if(sheet.stage==="result")requestAnimationFrame(()=>
+      document.querySelector(".b27-result-headline")?.focus({preventScroll:true}));
+    }
    }
    return true;
   }
@@ -312,6 +339,10 @@ export function createB27AppRuntime({
    }
   });
   document.addEventListener("dragend",clearZones);
+  document.addEventListener("click",evt=>{
+   const summary=evt.target.closest?.(".b27-tuning > summary");
+   if(sheet?.stage==="play"&&summary)sheet.tunerOpen=!summary.parentElement.open;
+  },true);
   window.addEventListener("resize",()=>requestAnimationFrame(drawSourceLinks));
   document.addEventListener("change",evt=>{
    if(sheet?.stage!=="play")return;
@@ -327,7 +358,7 @@ export function createB27AppRuntime({
  install();
  const api={open,close,html,worldHtml,action,
   getState:()=>({
-   stage:sheet?.stage??null,quoteId:sheet?.quoteId??null,
+   stage:sheet?.stage??null,beat:sheet?.beat??null,quoteId:sheet?.quoteId??null,
    familyId:sheet?.record?.familyId??sheet?.result?.selectedFamilyId??null,
    game:sheet?.game?structuredClone(sheet.game):null,
    saved:sheet?.saved??false,historyLength:sheet?.history?.length??0,

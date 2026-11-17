@@ -48,16 +48,23 @@ async function seed(page,id){
 }
 async function play(page,v){
  if(v.family==="balance_move"){
+  await page.locator(".b27-tuning summary").click();
   const slider=page.locator("#b27-slider");
   await slider.focus();
   await slider.evaluate(el=>{el.value="4";el.dispatchEvent(new Event("change",{bubbles:true}));});
   assert.equal(await page.locator("#b27-slider:focus").count(),1);
  }else if(v.family==="tap_pair"){
-  await page.locator('[data-b27="pair"][data-value="education"]').focus();
+  const first=page.locator('[data-b27="pair"][data-value="education"]');
+  // Deliberately use page.keyboard instead of Locator.press: this exposes
+  // focus-stealing requestAnimationFrame races after Begin.
+  await first.focus();
   await page.keyboard.press("Enter");
-  assert.match(await page.locator(".b27-pair-guide").innerText(),/Independent judgment/);
-  await page.locator('[data-b27="pair"][data-value="judgment"]').focus();
+  await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education");
+  assert.match(await page.locator(".b27-pair-guide").innerText(),/Choose the connected idea/);
+  const second=page.locator('[data-b27="pair"][data-value="judgment"]');
+  await second.focus();
   await page.keyboard.press("Space");
+  await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.pairs.length===1);
   assert.equal(await page.locator(".b27-shell button:focus").count(),1);
  }else{
   await page.locator('[data-b27="branch"][data-value="'+v.start+'"]').click();
@@ -66,7 +73,7 @@ async function play(page,v){
    assert.equal(await page.locator(".b27-flip").count(),2);
   await page.locator('[data-b27="branch"][data-value="'+v.scene+'"]').click();
   await page.locator('[data-b27="branch"][data-value="'+v.response+'"]').click();
-  assert.match(await page.locator(".b27-game").innerText(),/Your response/);
+  assert.match(await page.locator(".b27-game").innerText(),/You responded|When/i);
  }
 }
 async function verifyLayout(page,width){
@@ -131,8 +138,10 @@ test("Four NEW exact original quotations run through real app at four widths and
    assert.equal(source.selectedFamilyId,v.family);
    assert.equal(source.record.sourceFingerprint,source.sourceVersionHash);
    assert.equal(source.record.sourceReview,"development_provisional");
-   await page.locator(".b27-game").waitFor();
+   await page.locator(".b27-situation").waitFor();
    assert.match(await page.locator(".b27-scenario").innerText(),new RegExp(v.scenario,"i"));
+   await page.locator('[data-b27="begin"]').click();
+   await page.locator(".b27-game").waitFor();
    await verifyLayout(page,width);
    await play(page,v);
    if(width===390)await page.screenshot({
