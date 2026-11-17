@@ -1,0 +1,65 @@
+name: CZ-147 R2 Independent Philosophical Operation QA
+on:
+  push:
+    branches: [qa/cz147-r2-independent]
+  pull_request:
+    paths:
+      - "tests/yl-cz147-r2-independent-*"
+      - "tests/yl-cz147-sealed-holdout.test.mjs"
+      - "tests/yl-cz147-r1-independent-*"
+      - ".github/workflows/cz147-r2-independent.yml"
+permissions:
+  contents: read
+jobs:
+  source-philosophy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Prove only independent test and workflow files changed from frozen engineering SHA
+        run: |
+          git cat-file -e d15e934eef4624723bdfcf41029383c08cef43ce^{commit}
+          changed="$(git diff --name-only d15e934eef4624723bdfcf41029383c08cef43ce HEAD)"
+          test -n "$changed"
+          if printf "%s\n" "$changed" | grep -vE '^(tests/yl-cz147-sealed-holdout\.test\.mjs|tests/yl-cz147-r1-independent-holdouts\.test\.mjs|tests/yl-cz147-r1-independent-browser\.test\.mjs|tests/yl-cz147-r2-independent-sources\.test\.mjs|tests/yl-cz147-r2-postfreeze-sources\.test\.mjs|tests/yl-cz147-r2-final-unseen\.test\.mjs|tests/yl-cz147-r2-ultimate-sealed\.test\.mjs|\.github/workflows/cz147-r2-independent\.yml)$'; then
+            echo "Non-QA file changed after engineering freeze"; exit 1
+          fi
+      - name: Previously disclosed Montaigne/Socrates source regression plus truthful allocation audit
+        run: node --test tests/yl-cz147-r2-ultimate-sealed.test.mjs
+      - name: Previously disclosed Aristotle and Zhuangzi 20-state source regression
+        run: node --test tests/yl-cz147-r2-final-unseen.test.mjs
+      - name: Previously disclosed Confucian and Daoist source regression — 20 states
+        run: node --test tests/yl-cz147-r2-postfreeze-sources.test.mjs
+      - name: Previously revealed source trio and explicit source-review no-fit cases — REGRESSION
+        run: node --test tests/yl-cz147-r2-independent-sources.test.mjs
+      - name: Previously disclosed 33/54 state QA fixtures, tagged REGRESSION ONLY
+        run: |
+          node --test tests/yl-cz147-sealed-holdout.test.mjs tests/yl-cz147-r1-independent-holdouts.test.mjs
+      - name: Four R2 same-family operation contrasts, old R1 A/B and universal source regressions
+        run: |
+          node --test tests/yl-cz147-r2-operation.test.mjs tests/yl-cz147-r1-contrasts.test.mjs
+          node --test tests/yl-cz147-engine.test.mjs
+      - name: Preserve accepted B2.7 historical meaning source and storage
+        run: |
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs
+      - name: Install Chrome automation driver
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Eight real A/B consumer choices, actual text readback, save and delete
+        run: node --test tests/yl-cz147-r1-independent-browser.test.mjs
+      - name: Four real games at widths 320 390 430 1024
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Archive actual consumer screenshots, meaning packets and source matrix
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz147-r2-independent-preflight-regression
+          path: |
+            qa-evidence-cz147-r2-independent/
+            qa-evidence-cz147-r2/
+            qa-evidence-cz147-r1-independent/
+            qa-evidence-cz147/
+          if-no-files-found: warn
