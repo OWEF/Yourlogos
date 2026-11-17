@@ -76,7 +76,7 @@ export function createB27AppRuntime({
    const sameColumn=Math.abs(ar.x-br.x)<ar.width*.55;
    const cx=sameColumn?Math.max(a.x,b.x)+42:
     (a.x+b.x)/2+(sameRow?0:(index?-14:14));
-   const cy=sameRow?Math.min(a.y,b.y)-42:(a.y+b.y)/2;
+   const cy=sameRow?Math.min(a.y,b.y)-56:(a.y+b.y)/2;
    const d="M "+a.x+" "+a.y+" Q "+cx+" "+cy+" "+b.x+" "+b.y;
    add("path",{d,pathLength:1,"data-b27-link":pair.relationId,
     "data-b27-link-from":pair.aId,"data-b27-link-to":pair.bId});
