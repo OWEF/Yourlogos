@@ -20,6 +20,11 @@ const timeline=[
   responseId:"review",responseLabel:"Reconsider with reasons"}
 ];
 const generic={title:"What would you do?",intro:"A promise matters, and new information arrives.",
+ narrativeBridge:{version:"cz152-narrative/1",
+  bridgeFromSource:"An earlier promise does not always settle what careful judgment requires now.",
+  situationHook:"You promised to keep a plan. New facts cast doubt on it, and neighbors expect you to remain consistent.",
+  playPrompt:"Choose what you would do as the moment unfolds.",
+  sourceWarrantIds:["source:central","scenario:fictional"]},
  humanTension:"Your promise matters, but you learn something new.",
  epistemicLimits:"The event was authored independently; no causal future is established."};
 const balance={...generic,familyId:"balance_move",allocation:{
@@ -47,7 +52,11 @@ function choose(enc,...seq){
 }
 test("Situation is one concise screen and gates game controls",()=>{
  const enc=current(decision,"situation"),markup=html(enc);
- assert.match(markup,/01 \/ SITUATION/);
+ assert.match(markup,/FROM THE PHILOSOPHER/);
+ assert.match(markup,/IMAGINE THIS/);
+ assert.match(markup,/An earlier promise does not always settle/);
+ assert.match(markup,/New facts cast doubt on it/);
+ assert.match(markup,/Step into the moment/);
  assert.match(markup,/data-b27="begin"/);
  assert.doesNotMatch(markup,/data-b27="branch"/);
  assert.match(markup,/About the idea/);
