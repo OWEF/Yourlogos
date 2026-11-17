@@ -468,7 +468,8 @@ function philosophicalReading(packet,emotion,source){
      role==="deliberate_practice"?
       "A chosen practice can serve a purpose, yet busyness alone proves little":
       "The purpose of an activity is not visible from its duration";
-   const choice=a.excluded.length&&a.primary.length===1?
+   const exclusive=a.shares.filter(x=>x.amount>0).length===1;
+   const choice=exclusive?
     "Giving every slot to "+high+" excludes "+low+" from this imagined plan":
     a.equalPriority?
      "Sharing time equally leaves the question of deliberate use open":
