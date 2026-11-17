@@ -252,8 +252,16 @@ function describeChoice(packet,source){
  const choice=packet.canonical_choice;
  if(source.familyId==="balance_move"){
   const a=source.allocation;
-  const items=choice.amounts.map((n,i)=>n+" to "+a.choices[i].label);
-  return "You divided "+a.resourceCapacity+" "+a.unitName+": "+items.join("; ")+".";
+  const selected=choice.amounts.map((n,i)=>({amount:n,label:a.choices[i].label}));
+  const positive=selected.filter(x=>x.amount>0),unused=selected.filter(x=>x.amount===0);
+  if(positive.length===1)
+   return "You reserved all "+a.resourceCapacity+" "+a.unitName+
+    " for "+positive[0].label+"; none for "+unused.map(x=>x.label).join(" or ")+".";
+  const uses=positive.map(x=>x.amount+" for "+x.label);
+  const formatted=uses.length===2?uses.join(" and "):
+   uses.slice(0,-1).join(", ")+", and "+uses.at(-1);
+  return "You divided "+a.resourceCapacity+" "+a.unitName+": "+formatted+
+   (unused.length?"; none for "+unused.map(x=>x.label).join(" or "):"")+".";
  }
  if(source.familyId==="tap_pair"){
   const cards=new Map(source.relation.cards.map(c=>[c.id,c.label]));
@@ -279,12 +287,24 @@ export function expressUniversal(packet,emotion,source){
  const author=source.source.author;
  // The same three source-linked facts, not an authored full-response template,
  // power compact and complete views. No hidden inspirational assertion.
- const thesis=author+"'s argument: "+sentence(source.sourceThesis);
+ // A supported rhetorical strategy changes the *framing* of the same
+ // authenticated argument. It cannot add a source claim or predict feelings.
+ const frame={
+  tradeoff_attention:"trade-off",choice_awareness:"emphasis",
+  curious_reflection:"distinction",boundary_awareness:"boundary",
+  revisability:"challenge",uncertainty_awareness:"caution",
+  neutral_reflection:"argument"
+ }[emotion.strategy]??"argument";
+ const thesis=author+"'s "+frame+": "+sentence(source.sourceThesis);
  const selected=sentence(packet.meaning.selectedClaim);
  const qualifier=sentence(source.compactLimit);
  const shortBase=thesis+" "+qualifier;
  const shortWithEvidence=thesis+" "+selected+" "+qualifier;
- const compactVariants=[shortWithEvidence,shortBase];
+ // Boundary/uncertainty rhetoric prioritizes an honest qualification;
+ // trade-off and revision rhetoric prioritize the choice-linked evidence.
+ const compactVariants=["boundary_awareness","uncertainty_awareness","neutral_reflection"]
+  .includes(emotion.strategy)?[shortBase,shortWithEvidence]:
+  [shortWithEvidence,shortBase];
  let compact=null;
  for(const middle of compactVariants){
   let sections=[
