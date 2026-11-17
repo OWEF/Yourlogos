@@ -368,7 +368,9 @@ function dynamicReading(packet,emotion,source){
    a.primary.length>1?
     "Giving "+high+" a joint lead leaves less room for "+low+".":
     "Giving "+high+" the largest share leaves less time for "+low+".";
-  const brief=equal?
+  const brief=emotion.strategy==="neutral_reflection"?
+   "This fictional allocation shows "+high+" receiving more room than "+low+"; it does not establish actual habits.":
+   equal?
    "Equal shares still carry a cost if one grows.":
    a.excluded.length&&a.primary.length===1?
     "Giving every slot to "+high+" excludes "+low+" from this imagined plan.":
