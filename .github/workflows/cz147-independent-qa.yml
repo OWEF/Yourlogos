@@ -1,0 +1,47 @@
+name: CZ-147 Independent Sealed-Source Acceptance
+on:
+  push:
+    branches: [qa/cz147-independent-holdout]
+  pull_request:
+    paths:
+      - "tests/yl-cz147-sealed-holdout.test.mjs"
+      - ".github/workflows/cz147-independent-qa.yml"
+permissions:
+  contents: read
+jobs:
+  independent-holdout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Enforce QA-only diff from exact frozen engineering SHA
+        run: |
+          git cat-file -e 2eafd7c4edb4bf454a7d301eb51817a3bbfde9ed^{commit}
+          changed="$(git diff --name-only 2eafd7c4edb4bf454a7d301eb51817a3bbfde9ed HEAD)"
+          test -n "$changed"
+          if printf "%s\n" "$changed" | grep -vE '^(tests/yl-cz147-sealed-holdout\.test\.mjs|\.github/workflows/cz147-independent-qa\.yml)$'; then
+            echo "Non-QA changes are forbidden on the independent review branch"; exit 1
+          fi
+      - name: Unseen quartet, full choice enumeration, evidence constraints and honest refusals
+        run: node --test tests/yl-cz147-sealed-holdout.test.mjs
+      - name: Independent replay of developer complete state matrix and inherited quote flows
+        run: |
+          node --test tests/yl-cz147-engine.test.mjs
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs
+      - name: Install Chromium automation driver
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Real user-facing quote-to-game-to-My World through all four screen sizes
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Attach source-diverse complete independent reasoning/emotion/expression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz147-independent-sealed-source-qa
+          path: |
+            qa-evidence-cz147-independent/
+            qa-evidence-cz147/
+          if-no-files-found: warn
