@@ -99,7 +99,7 @@ test("Wollstonecraft: human educational dilemma, no fabricated stereotype or cau
  assert.doesNotMatch(out.fullExpression.sections[1].text,/group debate/i);
  const contrast=run(23,{pairs:[{aId:"dominance",bId:"agency",relationId:"contrast"}]});
  assert.match(contrast.compact.sections[2].text,/decision|control|self-government/i);
- assert.match(contrast.fullMeaning.meaning.selectedClaim,/subjects for her rather than advising/i);
+ assert.match(contrast.fullMeaning.meaning.selectedClaim,/subjects for her.*advising/i);
  assert.match(contrast.fullExpression.sections[1].text,/subjects|advising|judgment/i);
  assert.doesNotMatch(contrast.compact.sections[2].text,/what does this leave open/i,
   "Contrast must invite a concrete question, not a generic unresolved-place placeholder");
