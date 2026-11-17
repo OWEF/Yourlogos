@@ -33,7 +33,9 @@ const OPERATION_FAMILIES=Object.freeze({
  source_relation:"tap_pair",
  retrospective_limits:["decision_cards","flip_reveal"],
  independent_judgment:"decision_cards",incremental_beginning:"decision_cards",
- event_acceptance:"flip_reveal",anticipated_vs_actual:"flip_reveal"
+ practical_commitment:"decision_cards",
+ event_acceptance:"flip_reveal",anticipated_vs_actual:"flip_reveal",
+ non_retaliation:"flip_reveal"
 });
 function validateOperation(r){
  const op=r.philosophicalOperation;
@@ -60,7 +62,7 @@ function validateOperation(r){
    !Array.isArray(op.startRoles)||op.startRoles.length!==starts.length||
    op.startRoles.some(x=>!obj(x)||!txt(x.id,1)||
     !["retain_prior","reexamine_prior","begin_modestly","prepare_carefully",
-      "deliberate_action","uncertain_commitment"].includes(x.role)||
+      "deliberate_action","uncertain_commitment","retaliate","deescalate"].includes(x.role)||
     !starts.includes(x.id))||
    new Set(op.startRoles.map(x=>x.id)).size!==op.startRoles.length)return false;
  }
@@ -555,6 +557,24 @@ function philosophicalReading(packet,emotion,source){
    minimal:result+".",
    focus:{kind:op.kind,beginning:begun,development:t},evidence:bound};
  }
+ if(op.kind==="practical_commitment"){
+  return {long:"Your initial choice to "+opening+
+   " meets the fictional “"+clean(t)+"”. The distinction is between discussing a good action and undertaking one; this imaginary choice certifies no actual virtue.",
+   short:"Choosing to "+opening+" raises the gap between arguments and lived action.",
+   minimal:"Words about virtue and acting on them are not interchangeable.",
+   focus:{kind:op.kind,opening,development:t},evidence:bound};
+ }
+ if(op.kind==="non_retaliation"){
+  const role=startRole(source,a.initial.id);
+  const stance=role==="retaliate"?
+   "Answering with hostility risks repeating the conflict":
+   "Declining to retaliate may interrupt a cycle without guaranteeing peace";
+  return {long:stance+". The invented “"+clean(t)+
+   "” was not caused by this choice, and protecting oneself remains possible.",
+   short:stance+" after the imagined “"+clean(t)+"”.",
+   minimal:stance+".",
+   focus:{kind:op.kind,opening,development:t,stance:role},evidence:bound};
+ }
  if(op.kind==="anticipated_vs_actual"){
   return {long:"Choosing to "+opening+" before the fictional “"+clean(t)+
    "” puts an expectation beside an invented event, not beside real evidence. "+
@@ -619,6 +639,14 @@ function philosophicalQuestions(packet,emotion,source){
   return ["After the invented “"+event+"”, what small beginning avoids forcing a promised outcome?",
    "What is a modest next step after “"+event+"”, without grasping at success?",
    "Which small beginning can you attempt without guaranteeing success?"];
+ if(op.kind==="practical_commitment")
+  return ["After the invented “"+event+"”, what action could test your words without proving your moral worth?",
+   "How might you act on your argument after “"+event+"”?",
+   "What practice would go beyond arguing about virtue?"];
+ if(op.kind==="non_retaliation")
+  return ["After the imagined “"+event+"”, how could you "+response+" without reproducing hostility or promising reconciliation?",
+   "How might your response avoid repeating hostility after “"+event+"”?",
+   "What response could resist hostility without guaranteeing peace?"];
  if(op.kind==="anticipated_vs_actual")
   return ["What does the imagined “"+event+"” fail to prove about the outcome you expected?",
    "How would you distinguish expecting “"+event+"” from knowing it will happen?",
