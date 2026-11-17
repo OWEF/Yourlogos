@@ -65,6 +65,10 @@ test("Epictetus: Reasoning packet distinguishes external authored event from cho
  assert.equal(source.fullMeaning.meaning.choiceAnalysis.development.causedByInitialChoice,false);
  assert.match(source.compact.sections[1].text,/event|response|control/i);
  assert.doesNotMatch(source.compact.sections[1].text,/unchosen life/i);
+ assert.match(source.fullMeaning.meaning.choiceAnalysis.response.label,/specific follow-up question/i);
+ const alternative=run(48,flip("listen","delay","try"));
+ assert.match(alternative.fullMeaning.meaning.choiceAnalysis.response.label,/invite another conversation later/i);
+ assert.doesNotMatch(alternative.fullExpression.sections[0].text,/attend to your response/i);
 });
 test("Emerson: independent judgment concerns present reasons rather than generic uncertainty",()=>{
  const one=run(55,{path:["maintain","details","consider"]});
@@ -95,6 +99,8 @@ test("Wollstonecraft: human educational dilemma, no fabricated stereotype or cau
  assert.doesNotMatch(out.fullExpression.sections[1].text,/group debate/i);
  const contrast=run(23,{pairs:[{aId:"dominance",bId:"agency",relationId:"contrast"}]});
  assert.match(contrast.compact.sections[2].text,/decision|control|self-government/i);
+ assert.match(contrast.fullMeaning.meaning.selectedClaim,/subjects for her rather than advising/i);
+ assert.match(contrast.fullExpression.sections[1].text,/subjects|advising|judgment/i);
  assert.doesNotMatch(contrast.compact.sections[2].text,/what does this leave open/i,
   "Contrast must invite a concrete question, not a generic unresolved-place placeholder");
 });
