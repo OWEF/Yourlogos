@@ -56,6 +56,13 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
  make(49,{
   philosophicalOperation:{"kind":"deliberate_use","focus":"deliberate use of finite time","contrast":"chosen purpose versus automatic busyness","activityRoles":[{"id":"activity_0","role":"deliberate_practice"},{"id":"activity_1","role":"possible_distraction"},{"id":"activity_2","role":"restorative_pause"}],"sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"balance_move",title:"Where the evening goes",
+  narrativeBridge:{
+   version:"cz152-narrative/1",
+   bridgeFromSource:"Seneca asks whether constant busyness means the time of a life has actually been used deliberately.",
+   situationHook:"After a demanding day, you have eight imagined half-hours. Study, idle scrolling and necessary rest draw from the same evening; rest is not automatically waste.",
+   playPrompt:"Move the half-hour pieces between purposes; notice what each choice makes room for.",
+   sourceWarrantIds:["source:central","scenario:fictional"]
+  },
   intro:"After a demanding day you have eight imagined half-hour slots. Study, idle scrolling and needed rest each draw on the same evening; this is not a productivity judgment.",
   humanTension:"Having time does not settle how to use it well; rest is not automatically waste.",
   sourceThesis:"A lifetime may be consumed by busyness without deliberate direction",
@@ -100,6 +107,13 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   philosophicalOperation:{"kind":"self_governance","focus":"independent judgment and agency","contrast":"self-government rather than domination","sourceWarrantIds":["source:central"]},
   version:"cz149-wollstonecraft-human-dilemma/4",
   exposeInApp:true,familyId:"tap_pair",title:"Who chooses her education?",
+  narrativeBridge:{
+   version:"cz152-narrative/1",
+   bridgeFromSource:"Wollstonecraft argues that education should strengthen women's independent judgment, not give someone else authority over them.",
+   situationHook:"A woman wants to choose what she studies. A relative offers helpful advice, then insists on choosing her subjects. When does support become control?",
+   playPrompt:"Connect the ideas that illuminate who gets to decide.",
+   sourceWarrantIds:["source:central","scenario:fictional"]
+  },
   intro:"A woman is deciding what to study as part of her education. A relative offers advice but also wants to choose her subjects. She values the help yet wants the final say. When does support become control?",
   humanTension:"Accepting genuine help with education while retaining the right to decide what to learn and how to live.",
   sourceThesis:"Women's independence concerns governing themselves, not dominating men",
@@ -152,6 +166,13 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
  make(55,{
   philosophicalOperation:{"kind":"independent_judgment","focus":"present reasons behind a commitment","contrast":"independent judgment versus foolish consistency","startRoles":[{"id":"maintain","role":"retain_prior"},{"id":"revisit","role":"reexamine_prior"}],"sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"decision_cards",title:"When a past opinion meets today",
+  narrativeBridge:{
+   version:"cz152-narrative/1",
+   bridgeFromSource:"Emerson questions whether yesterday's public opinion must govern the judgment you make with today's reasons.",
+   situationHook:"You publicly supported a neighborhood plan. New facts raise doubts, but neighbors expect you to stand by it. Changing course might help—or might not.",
+   playPrompt:"Keep the plan, or open it to reconsideration?",
+   sourceWarrantIds:["source:central","scenario:fictional"]
+  },
   intro:"A neighborhood group must revisit a public plan. New details emerge, and everyone remembers what you previously said. The dilemma is whether consistency is serving the question or merely your reputation.",
   humanTension:"Keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
   sourceThesis:"Fidelity to earlier words is not always faithful to present judgment",
@@ -204,6 +225,13 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   version:"cz149-epictetus-concrete-response/1",
   philosophicalOperation:{"kind":"event_acceptance","focus":"agency over responses to events","contrast":"chosen response versus externally determined occurrence","sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"flip_reveal",title:"An outcome you cannot command",
+  narrativeBridge:{
+   version:"cz152-narrative/1",
+   bridgeFromSource:"Epictetus distinguishes how you choose to meet an event from the event itself, which you cannot command.",
+   situationHook:"You prepare for a difficult conversation. You can choose your approach, but the other person may stay silent or postpone it; neither outcome is yours to dictate.",
+   playPrompt:"Choose an approach, reveal an outside event, then respond.",
+   sourceWarrantIds:["source:central","scenario:fictional"]
+  },
   intro:"Imagine preparing for an uncomfortable exchange. You can choose your approach, but another person's actions are not yours to script. Reveal one fictional development, then decide what response remains available.",
   humanTension:"Preparing carefully while accepting that the other person's response is not under your control.",
   sourceThesis:"Wisdom asks us to meet events as they occur, rather than require our preferred outcome",
