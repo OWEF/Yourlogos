@@ -474,7 +474,8 @@ function reflectionQuestions(packet,emotion,source){
     "How could "+aLabel+" support "+bLabel+" without guaranteeing it?":
     "What does connecting "+aLabel+" with "+bLabel+" explain, and what remains uncertain?";
   const brief="What remains unresolved about "+aLabel+" and "+bLabel+" here?";
-  return [question,brief,"What does this chosen relationship explain, and what does it not establish?"];
+  const compactFallback="What could "+aLabel+" and "+bLabel+" clarify together?";
+  return [question,brief,compactFallback];
  }
  const first=clean(a.initial.label),scene=clean(a.development.label);
  const after=emotion.strategy==="revisability"?
