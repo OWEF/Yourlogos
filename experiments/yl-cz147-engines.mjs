@@ -858,16 +858,17 @@ function selectSections(firsts,seconds,thirds,lo,hi,min,max){
  * No author-specific exceptions or edits to authenticated theses.
  */
 function formatSourceAttribution(author,thesis){
- const normalized=author.trim().split(/\s+/);
- const last=normalized.at(-1)??"";
- const escapeRegex=x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\export function expressUniversal(packet,emotion,source){");
- const authorPattern=[author.trim(),last].filter(Boolean)
-  .map(escapeRegex).sort((a,b)=>b.length-a.length).join("|");
- const leading=thesis.trim().replace(/^(?:for|according to)\s+/i,"");
- const hasName=authorPattern&&new RegExp(
-  "^(?:"+authorPattern+")(?:['’]s)?(?=\\s|[,:;.!?]|$)","i"
- ).test(leading);
- return hasName?thesis:attributedThesis;
+ const full=author.trim().toLocaleLowerCase();
+ const surname=full.split(/\s+/).at(-1)??"";
+ const leading=thesis.trim().replace(/^(?:for|according to)\s+/i,"").toLocaleLowerCase();
+ const names=[full,surname].filter(Boolean);
+ // Do not mistake a shared prefix for an author's name.
+ const alreadyAttributed=names.some(name=>{
+  if(!leading.startsWith(name))return false;
+  const following=leading.slice(name.length);
+  return following===""||/^[\s,:;.!?'’]/.test(following);
+ });
+ return alreadyAttributed?thesis:author+": "+thesis;
 }
 export function expressUniversal(packet,emotion,source){
  if(packet?.status!=="ready"||emotion?.status!=="ready"||
