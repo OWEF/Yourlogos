@@ -230,7 +230,10 @@ function decisionHtml(enc){
   return recap+'<p class="b27-authored">Author-written possibility: '+e(scene?.authoredText||scene?.label)+
    '</p>'+tile(responses(r,g.start,g.scene),"Choose your own response");
  }
- return recap+'<p class="b27-authored">You chose, explored one fictional possibility, and responded. The unchosen future remains unknown.</p>';
+ const happened=scenes(r,g.start).find(x=>x.id===g.scene)?.label;
+ const response=responses(r,g.start,g.scene).find(x=>x.id===g.response)?.label;
+ return recap+'<p class="b27-authored">Imagined development: '+e(happened)+
+  '. Your response: '+e(response)+'. The unchosen future remains unknown.</p>';
 }
 function flipHtml(enc){
  const g=enc.game,r=enc.record;
@@ -250,7 +253,9 @@ function flipHtml(enc){
  if(g.scene===null)return recap+'<p class="b27-instruction">Flip a card to explore a fictional possibility—not your actual future.</p>'+cards;
  if(g.response===null)return recap+cards+'<p class="b27-authored">This was written as a possible development. You did not cause it.</p>'+
   tile(responses(r,g.start,g.scene),"Choose what you would do after this fictional event");
- return recap+cards+'<p class="b27-authored">You chose a response. No unchosen outcome has been established.</p>';
+ const response=responses(r,g.start,g.scene).find(x=>x.id===g.response)?.label;
+ return recap+cards+'<p class="b27-authored">Your response: '+e(response)+
+  '. No unchosen outcome has been established.</p>';
 }
 function gameHtml(enc){
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
