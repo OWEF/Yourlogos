@@ -1,0 +1,55 @@
+name: CZ-147 R2.1 Independent Semantic Fidelity QA
+on:
+  push:
+    branches: [qa/cz147-r21-independent-semantics]
+  pull_request:
+    paths:
+      - "tests/yl-cz147-r21-independent-*"
+      - ".github/workflows/cz147-r21-independent.yml"
+permissions:
+  contents: read
+jobs:
+  independent-semantic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Enforce QA-only diff pinned to exact engineering SHA
+        run: |
+          git cat-file -e 3fd239be1561f86f498f462783c1f875a1a662de^{commit}
+          changed="$(git diff --name-only 3fd239be1561f86f498f462783c1f875a1a662de HEAD)"
+          test -n "$changed"
+          if printf "%s\n" "$changed" | grep -vE '^(tests/yl-cz147-r21-independent-(adversarial|browser)\.test\.mjs|\.github/workflows/cz147-r21-independent\.yml)$'; then
+            echo "Non-QA product/engine changes are forbidden"; exit 1
+          fi
+      - name: Independent authored-direction Hume Pascal Smith Wollstonecraft and adversarial relation cases
+        run: node --test tests/yl-cz147-r21-independent-adversarial.test.mjs
+      - name: Replay developer R2.1 full compact source meaning and attribution tests
+        run: |
+          node --test tests/yl-cz147-r21-directional-relations.test.mjs
+          node --test tests/yl-cz147-r2-operation.test.mjs tests/yl-cz147-r2-exposed-epicurus-regression.test.mjs
+          node --test tests/yl-cz147-engine.test.mjs tests/yl-cz147-r1-contrasts.test.mjs
+      - name: Historical B2.7 source families and My World storage remain intact
+        run: |
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs
+      - name: Install independent Chrome driver
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Independent eight real consumer A B journeys with My World readback delete
+        run: node --test tests/yl-cz147-r21-independent-browser.test.mjs
+      - name: All 16 four-game four-width consumer journeys and feature-disabled gate
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Attach original independent and engineering philosophical evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz147-r21-independent-qa-evidence
+          path: |
+            qa-evidence-cz147-r21-independent/
+            qa-evidence-cz147-r21/
+            qa-evidence-cz147-r1-independent/
+            qa-evidence-cz147/
+          if-no-files-found: warn
