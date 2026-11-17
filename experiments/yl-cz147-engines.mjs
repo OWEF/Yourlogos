@@ -154,6 +154,7 @@ export function makeUniversalRegistry(records,quotes){
     sourceThesis:r.sourceThesis,humanTension:r.humanTension,
     epistemicLimits:r.epistemicLimits,sourceWarrantIds:r.evidenceIds,
     readerAgency:r.readerAgency,sourceReview:r.status,
+    philosophicalOperation:r.philosophicalOperation,
     publicationAllowed:false},
    publicationAllowed:false,productionPlayable:false,
    sourceReview:"founder_provisional_development_only"};
@@ -334,6 +335,21 @@ export function emotionUniversal(packet,source){
     packet.sourceVersionHash!==source.sourceFingerprint)
   return deny("meaning_required","A verified source meaning packet is required");
  const allowed=source.affordances;
+ const kind=packet.meaning.philosophicalOperation?.kind;
+ // Philosophical operation can override a family-derived rhetorical default.
+ // A source still has to explicitly authorize each strategy.
+ const priority=kind==="event_acceptance"?
+  ["uncertainty_awareness","boundary_awareness","choice_awareness"]:
+  kind==="retrospective_limits"?
+   ["uncertainty_awareness","revisability","choice_awareness"]:
+  kind==="independent_judgment"?
+   ["revisability","choice_awareness","uncertainty_awareness"]:
+  kind==="incremental_beginning"?
+   ["choice_awareness","revisability","uncertainty_awareness"]:
+  kind==="habitual_pattern"?
+   ["tradeoff_attention","choice_awareness","curious_reflection"]:
+  kind==="attention_evasion"?
+   ["curious_reflection","choice_awareness","tradeoff_attention"]:null;
  const preference=packet.choiceFeature==="boundary"?
   ["boundary_awareness","curious_reflection"]:
   packet.choiceFeature==="revision"?
@@ -349,7 +365,7 @@ export function emotionUniversal(packet,source){
   packet.choiceFeature==="relation"?
    ["curious_reflection","boundary_awareness"]:
   ["choice_awareness","uncertainty_awareness"];
- const strategy=preference.find(x=>allowed.includes(x))??"neutral_reflection";
+ const strategy=(priority??preference).find(x=>allowed.includes(x))??"neutral_reflection";
  const moves={
   tradeoff_attention:"surface_opportunity_cost",
   choice_awareness:"examine_chosen_priority",
@@ -362,6 +378,7 @@ export function emotionUniversal(packet,source){
  return {status:"ready",version:"emotion:"+CZ147_ENGINE_VERSION,
   strategy,move:moves[strategy],chosenFrom:packet.choiceFeature,
   attention:{operation:packet.meaning.choiceAnalysis.operation,
+   philosophicalOperation:kind,
    primary:packet.meaning.choiceAnalysis.primary?.map(x=>x.id)??[],
    selectedRelations:packet.meaning.choiceAnalysis.links?.map(x=>x.type)??[],
    initialAction:packet.meaning.choiceAnalysis.initial?.id??null,
