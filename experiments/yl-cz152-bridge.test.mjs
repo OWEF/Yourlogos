@@ -13,9 +13,9 @@ const cases=[
  [23,"Wollstonecraft","tap_pair",["education","control","advice"]],
  [49,"Seneca","balance_move",["half-hour","rest","scrolling"]],
  [48,"Epictetus","flip_reveal",["exchange","silent","approach"]],
- [34,"Kierkegaard","decision_cards",["work","path","knowing"]],
+ [34,"Kierkegaard","decision_cards",["work","path","know"]],
  [94,"Kierkegaard","flip_reveal",["work","later","choose"]],
- [12,"Dillard","balance_move",["half-hour","rest","repetit"]],
+ [12,"Dillard","balance_move",["half-hour","rest","pattern"]],
  [91,"Smith","tap_pair",["gift","friend","contributions"]],
  [92,"Epictetus","tap_pair",["argument","apology","forgives"]],
  [93,"Thoreau","balance_move",["weekend","pay","hours"]]
