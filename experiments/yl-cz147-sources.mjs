@@ -110,7 +110,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   narrativeBridge:{
    version:"cz152-narrative/1",
    bridgeFromSource:"Wollstonecraft argues that education should strengthen women's independent judgment, not give someone else authority over them.",
-   situationHook:"A woman wants to choose what she studies. A relative offers helpful advice, then insists on choosing her subjects. When does support become control?",
+   situationHook:"A woman wants to choose her education. A relative offers helpful advice, then insists on choosing her subjects. When does support become control?",
    playPrompt:"Connect the ideas that illuminate who gets to decide.",
    sourceWarrantIds:["source:central","scenario:fictional"]
   },
@@ -228,7 +228,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   narrativeBridge:{
    version:"cz152-narrative/1",
    bridgeFromSource:"Epictetus distinguishes how you choose to meet an event from the event itself, which you cannot command.",
-   situationHook:"You prepare for a difficult conversation. You can choose your approach, but the other person may stay silent or postpone it; neither outcome is yours to dictate.",
+   situationHook:"You prepare for an uncomfortable exchange. You can choose your approach, but the other person may stay silent or postpone it; neither outcome is yours to dictate.",
    playPrompt:"Choose an approach, reveal an outside event, then respond.",
    sourceWarrantIds:["source:central","scenario:fictional"]
   },
