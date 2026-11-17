@@ -310,7 +310,7 @@ function resultHtml(enc){
  const sections=v.sections,ph=v.philosopher||{};
  return '<div class="b27-result" aria-label="Three-part philosophical discovery">'+
   '<p class="b27-kicker">03 / DISCOVER</p>'+
-  '<h2 class="b27-result-headline">A different way to see it.</h2>'+
+  '<h2 class="b27-result-headline" tabindex="-1">A different way to see it.</h2>'+
   '<article class="b27-result-section b27-result-personal"><h3>'+e(sections[0].label)+'</h3><p>'+e(sections[0].text)+'</p></article>'+
   '<article class="b27-result-section b27-result-philosophy"><h3>'+e(sections[1].label)+'</h3><p>'+e(sections[1].text)+'</p></article>'+
   '<article class="b27-result-section b27-result-question"><h3>'+e(sections[2].label)+'</h3><p>'+e(sections[2].text)+'</p></article>'+
@@ -370,7 +370,7 @@ export function renderB27Encounter(enc,quote){
   '<p class="b27-kicker">02 / PLAY <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
   (r.familyId==="balance_move"||r.familyId==="tap_pair"?
    '<h2 class="b27-play-title">'+e(r.title||"Make your move")+'</h2>':"")+
-  '<div class="b27-game" data-b27-family="'+e(r.familyId)+'">'+gameHtml(enc)+'</div>'+
+  '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+
    (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
    (enc.game?.touched?b("reset","Reset","b27-secondary"):"")+
