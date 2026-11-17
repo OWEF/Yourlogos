@@ -475,12 +475,15 @@ function philosophicalReading(packet,emotion,source){
      "Prioritizing "+high+" limits time for "+low;
    return {long:choice+". "+lens+". Deliberate living depends on how the time is approached, not just filling the hours.",
     short:choice+". "+lens+".",
-    minimal:a.shares.length===2?
-     "Time assigned to "+high+" raises a question of deliberate use.":
-     emotion.strategy==="neutral_reflection"?
-      "Giving every slot to "+high+" excludes "+low+"; the intention remains unknown.":
+    minimal:a.equalPriority?
+     "An equal time split still raises a question of deliberate use.":
+     a.shares.length===2?
+      "Giving more time to "+high+" than "+low+" raises a question of purpose.":
+     a.excluded.length===a.shares.length-1?
       "Giving every slot to "+high+" excludes "+low+
-       "; this priority alone does not reveal deliberate purpose.",
+       "; the intention behind that priority remains unknown.":
+      "Prioritizing "+high+" over "+low+
+       " does not reveal whether the time was spent deliberately.",
     focus:{kind:op.kind,leading:high,role,excluded:a.excluded.map(x=>x.label)},
     evidence:bound};
   }
@@ -488,10 +491,18 @@ function philosophicalReading(packet,emotion,source){
    const point=a.repetitions?
     "If this fictional distribution repeated, it could form a visible daily pattern":
     "One imagined evening cannot establish a repeated daily pattern";
-   return {long:"The largest share went to "+high+" rather than "+low+". "+point+
+   const distribution=a.equalPriority?
+    "This imagined time is divided equally among "+high:
+    "The largest share went to "+high+" rather than "+low;
+   const brief=a.equalPriority?
+    "Repeating equal time for "+high+" could shape the pattern of ordinary days.":
+    "Giving most time to "+high+" could matter if repeated across ordinary days.";
+   return {long:distribution+". "+point+
      "; the pattern, not any isolated activity's moral worth, is the philosophical issue.",
-    short:"Giving most time to "+high+" could matter if repeated across ordinary days.",
-    minimal:"Repeated time for "+high+" could shape a daily pattern.",
+    short:brief,
+    minimal:a.equalPriority?
+     "A repeated equal division of time could form a daily pattern.":
+     "Repeated time for "+high+" could shape a daily pattern.",
     focus:{kind:op.kind,repetitions:a.repetitions,leading:high},evidence:bound};
   }
   if(op.kind==="attention_evasion"){
