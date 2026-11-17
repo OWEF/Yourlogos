@@ -28,6 +28,8 @@ jobs:
           fi
       - name: Pre-existing 33-state unfamiliar-source fixture — REGRESSION ONLY
         run: node --test tests/yl-cz147-sealed-holdout.test.mjs
+      - name: Fresh unfamiliar source quartets, 54 states and four A/B distinctions
+        run: node --test tests/yl-cz147-r1-independent-holdouts.test.mjs
       - name: Replay all developer same-quote decision distinctions and authenticated source boundaries
         run: |
           node --test tests/yl-cz147-r1-contrasts.test.mjs tests/yl-cz147-engine.test.mjs
@@ -40,4 +42,5 @@ jobs:
           path: |
             qa-evidence-cz147-independent/
             qa-evidence-cz147-r1/
+            qa-evidence-cz147-r1-independent/
           if-no-files-found: warn
