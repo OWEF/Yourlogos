@@ -396,6 +396,9 @@ function describeChoice(packet,source,brief=false){
   const chosen=choice.amounts.map((n,i)=>({n,label:a.choices[i].label}));
   const used=chosen.filter(x=>x.n>0),zero=chosen.filter(x=>x.n===0);
   const list=used.map(x=>x.n+" for "+x.label);
+  if(brief&&used.length===1)
+   return "You reserved all "+a.resourceCapacity+" "+a.unitName+" for "+
+    used[0].label+"; none for "+zero.map(x=>x.label).join(" or ")+".";
   if(brief)return "You set "+list.join(", ")+
    (zero.length?"; none for "+zero.map(x=>x.label).join(" or "):"")+".";
   if(used.length===1)return "You reserved all "+a.resourceCapacity+" "+a.unitName+
