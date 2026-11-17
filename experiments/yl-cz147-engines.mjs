@@ -475,10 +475,12 @@ function philosophicalReading(packet,emotion,source){
      "Prioritizing "+high+" limits time for "+low;
    return {long:choice+". "+lens+". Deliberate living depends on how the time is approached, not just filling the hours.",
     short:choice+". "+lens+".",
-    minimal:emotion.strategy==="neutral_reflection"?
-     "Giving every slot to "+high+" excludes "+low+"; the intention remains unknown.":
-     "Giving every slot to "+high+" excludes "+low+
-      "; this priority alone does not reveal deliberate purpose.",
+    minimal:a.shares.length===2?
+     "Time assigned to "+high+" raises a question of deliberate use.":
+     emotion.strategy==="neutral_reflection"?
+      "Giving every slot to "+high+" excludes "+low+"; the intention remains unknown.":
+      "Giving every slot to "+high+" excludes "+low+
+       "; this priority alone does not reveal deliberate purpose.",
     focus:{kind:op.kind,leading:high,role,excluded:a.excluded.map(x=>x.label)},
     evidence:bound};
   }
