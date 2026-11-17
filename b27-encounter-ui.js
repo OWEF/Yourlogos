@@ -181,7 +181,7 @@ function balanceHtml(enc){
   '<input id="b27-slider" type="range" min="0" max="'+a.resourceCapacity+
   '" step="1" value="'+amounts[0]+'" data-b27-slider aria-label="Allocate '+e(a.unitName)+' to '+e(a.choices[0].label)+'"/>';
  const lenses=arr(a.lenses);
- return '<p class="b27-instruction">Move the tokens. Every choice uses the same limited supply.</p>'+
+ return '<p class="b27-instruction">Drag or tap a piece to move it.</p>'+
   '<div class="b27-resource-status" role="status"><strong>'+total+' of '+a.resourceCapacity+
   ' placed</strong><span>'+free+' unassigned</span></div>'+
   '<div class="b27-buckets '+(size===3?"b27-three":"")+'" aria-label="Destination areas for finite resources">'+
@@ -209,10 +209,10 @@ function pairHtml(enc){
   edge.aId===g.first?edge.bId:edge.aId));
  const labels=r.cards.filter(c=>allowedIds.has(c.id)).map(c=>e(c.label));
  const guide=g.pairs.length>=2?
-  '<p class="b27-pair-guide" role="status">Two connections made.</p>':
+  '<p class="b27-pair-guide" role="status">Two connections to explore.</p>':
   g.first===null?
-   '<p class="b27-pair-guide">Tap two ideas to connect them.</p>':
-   '<p class="b27-pair-guide" role="status">Choose the connected idea.</p>';
+   '<p class="b27-pair-guide">Tap an idea to begin a connection.</p>':
+   '<p class="b27-pair-guide" role="status">Choose an idea to link with it.</p>';
  return guide+
   '<div class="b27-concepts" role="group" aria-label="Four large source-authorized concept cards">'+
   r.cards.map((c,i)=>{
@@ -229,7 +229,7 @@ function pairHtml(enc){
 }
 function selectedChoiceRecap(record,game){
  const start=starts(record).find(x=>x.id===game.start);
- return start?'<p class="b27-choice-recap">Your initial choice: <strong>'+e(start.label)+'</strong></p>':"";
+ return start?'<p class="b27-choice-recap">You chose <strong>'+e(start.label)+'</strong></p>':"";
 }
 function dilemmaCard(kicker,title,detail){
  return '<div class="b27-dilemma"><span class="b27-dilemma-kicker">'+e(kicker)+
@@ -237,15 +237,14 @@ function dilemmaCard(kicker,title,detail){
 }
 function decisionHtml(enc){
  const g=enc.game,r=enc.record,recap=selectedChoiceRecap(r,g);
- if(g.start===null)return dilemmaCard("YOUR MOVE",r.title||"Which path would you take?","")+
-  tile(starts(r),"Choose your opening decision");
+ if(g.start===null)return tile(starts(r),"Choose an opening action in this imagined situation");
  if(g.scene===null)return recap+
-  dilemmaCard("AN UNEXPECTED TURN","What might happen next?","")+
-  tile(scenes(r,g.start),"Explore one independently authored hypothetical development");
+  dilemmaCard("A POSSIBLE TURN","What unfolds next?","")+
+  tile(scenes(r,g.start),"Reveal an imagined development, not a prediction");
  if(g.response===null){
   const scene=scenes(r,g.start).find(x=>x.id===g.scene);
   return recap+dilemmaCard("A NEW POSSIBILITY",scene?.label||"Something changes",
-   conciseDilemma({intro:scene?.authoredText||""}))+
+   fullAuthoredDetail({intro:scene?.authoredText||""}))+
    tile(responses(r,g.start,g.scene),"Choose your response");
  }
  const scene=scenes(r,g.start).find(x=>x.id===g.scene);
@@ -257,16 +256,14 @@ function decisionHtml(enc){
 }
 function flipHtml(enc){
  const g=enc.game,r=enc.record;
- if(g.start===null)return dilemmaCard("BEFORE THE UNKNOWN",
-  r.title||"What can you choose?",null)+
-  tile(starts(r),"Choose one opening action");
+ if(g.start===null)return tile(starts(r),"Choose your approach to this imagined situation");
  const possible=scenes(r,g.start),recap=selectedChoiceRecap(r,g);
  const cards='<div class="b27-flips" role="group" aria-label="Face-down fictional possibility cards">'+
   possible.slice(0,3).map((item,i)=>{
    const selected=g.scene===item.id,locked=g.scene!==null&&!selected;
    // Unopened events and authored text must not enter DOM or aria.
    const back=selected?
-     '<strong>'+e(item.label)+'</strong><small>'+e(conciseDilemma({intro:item.authoredText}))+'</small>':
+     '<strong>'+e(item.label)+'</strong><small>'+e(fullAuthoredDetail({intro:item.authoredText}))+'</small>':
      '<strong>Unknown</strong>';
    return b("branch",
     '<span class="b27-flip-interior"><span class="b27-flip-front">'+
@@ -280,7 +277,7 @@ function flipHtml(enc){
     '"'+(locked?' disabled aria-disabled="true"':""));
   }).join("")+'</div>';
  if(g.scene===null)return recap+
-  '<p class="b27-instruction">Pick a sealed card to reveal what changes.</p>'+cards;
+  '<p class="b27-instruction">Flip a sealed card to uncover a fictional turn.</p>'+cards;
  if(g.response===null)return recap+cards+
   dilemmaCard("YOUR RESPONSE","What will you do now?",null)+
   tile(responses(r,g.start,g.scene),"Choose your response");
@@ -288,14 +285,10 @@ function flipHtml(enc){
  return cards+'<div class="b27-path-echo" role="status"><span aria-hidden="true">✦</span>'+
   '<p>You responded: <strong>'+e(response?.label||"")+'</strong></p></div>';
 }
-function conciseDilemma(record){
- // One legible source-authored sentence. Full claims remain in About the idea.
- const text=String(record.intro||record.humanTension||record.relation?.prompt||
-  "An imagined dilemma").trim();
- const sentence=(text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[text])[0].trim();
- if(sentence.length<=172)return sentence;
- const cut=sentence.slice(0,169).replace(/\s+\S*$/,"").trim();
- return cut+"…";
+function fullAuthoredDetail(record){
+ // Do not trim a source-authored narrative to its first sentence: later
+ // sentences can carry the true tension, causality boundary or limitation.
+ return String(record.intro||record.humanTension||record.relation?.prompt||"").trim();
 }
 function gameHtml(enc){
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
@@ -309,7 +302,7 @@ function resultHtml(enc){
   return '<p>Unable to display a faithful interpretation.</p>';
  const sections=v.sections,ph=v.philosopher||{};
  return '<div class="b27-result" aria-label="Three-part philosophical discovery">'+
-  '<p class="b27-kicker">03 / DISCOVER</p>'+
+  '<p class="b27-kicker">DISCOVER THE MEANING</p>'+
   '<h2 class="b27-result-headline" tabindex="-1">A different way to see it.</h2>'+
   '<article class="b27-result-section b27-result-personal"><h3>'+e(sections[0].label)+'</h3><p>'+e(sections[0].text)+'</p></article>'+
   '<article class="b27-result-section b27-result-philosophy"><h3>'+e(sections[1].label)+'</h3><p>'+e(sections[1].text)+'</p></article>'+
@@ -348,6 +341,9 @@ export function renderB27Encounter(enc,quote){
  if(enc.stage==="result")
   return start+'<div class="b27-main b27-reveal">'+resultHtml(enc)+'</div></section>';
  const r=enc.record,author=e(enc.quote?.author||quote?.[1]||"");
+ const bridge=r.narrativeBridge;
+ if(!bridge||!bridge.bridgeFromSource||!bridge.situationHook||!bridge.playPrompt)
+  return start+'<div class="b27-main"><h2>Stay with the quotation.</h2><p>Its imagined situation needs further source review.</p></div></section>';
  const chosenScene=(r.familyId==="decision_cards"||r.familyId==="flip_reveal")&&enc.game?.start&&enc.game?.scene?
   scenes(r,enc.game.start).find(x=>x.id===enc.game.scene):null;
  const context='<details class="b27-context"><summary>About the idea</summary>'+
@@ -359,17 +355,18 @@ export function renderB27Encounter(enc,quote){
   '</details>';
  if(enc.beat==="situation")
   return start+'<div class="b27-main b27-situation">'+
-   '<p class="b27-kicker">01 / SITUATION</p>'+
-   '<h2>'+e(r.title||"A choice worth considering")+'</h2>'+
-   '<p class="b27-scenario">'+e(conciseDilemma(r))+'</p>'+
-   '<div class="b27-situation-symbol" aria-hidden="true"><span>✦</span><i></i><span>◇</span></div>'+
-   '<div class="b27-buttons">'+b("begin","Begin","b27-primary")+'</div>'+
+   '<div class="b27-story-thread" aria-label="The philosopher’s idea as a human situation">'+
+   '<div class="b27-bridge-source"><p class="b27-bridge-label">FROM THE PHILOSOPHER</p>'+
+   '<h2 class="b27-bridge-idea">'+e(bridge.bridgeFromSource)+'</h2></div>'+
+   '<div class="b27-bridge-link" aria-hidden="true"><span>✦</span><i></i><span>◇</span></div>'+
+   '<div class="b27-bridge-scene"><h3 class="b27-bridge-label">IMAGINE THIS</h3>'+
+   '<p class="b27-scenario">'+e(bridge.situationHook)+'</p></div></div>'+
+   '<div class="b27-buttons">'+b("begin","Step into the moment","b27-primary")+'</div>'+
    '<p class="b27-byline">'+author+'</p>'+context+'</div></section>';
  const done=canFinishB27(enc);
  return start+'<div class="b27-main b27-play">'+
-  '<p class="b27-kicker">02 / PLAY <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
-  (r.familyId==="balance_move"||r.familyId==="tap_pair"?
-   '<h2 class="b27-play-title">'+e(r.title||"Make your move")+'</h2>':"")+
+  '<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
+  '<p class="b27-play-prompt">'+e(bridge.playPrompt)+'</p>'+
   '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+
    (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
