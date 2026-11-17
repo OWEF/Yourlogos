@@ -182,7 +182,10 @@ async function play(page,v,width){
   assert.equal(await page.locator(".b27-flip").count(),2);
   assert.equal(await page.locator(".b27-flipped").count(),0);
   await snap(page,v.name+"-"+width+"-sealed");
-  await t("flip-card",()=>branch(page,"silence"));
+  await t("flip-card",async()=>{
+   await branch(page,"silence");
+   await page.locator(".b27-flipped").waitFor({state:"visible"});
+  });
   assert.equal(await page.locator(".b27-flipped").count(),1);
   await t("response",()=>branch(page,"respond"));
   if(width===390){
