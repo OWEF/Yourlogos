@@ -198,7 +198,12 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      await page.screenshot({path:OUT+"/flip-"+variant+"-sealed-390.png",fullPage:true});
      await branch(page,variant?"delay":"silence");
      await page.locator(".b27-flipped").waitFor();
+     // Capture the settled reverse face, not the transitional first frame.
+     await page.waitForTimeout(650);
      assert.equal(await page.locator(".b27-flipped").count(),1);
+     const matrix=await page.locator(".b27-flipped .b27-flip-interior").evaluate(el=>
+      getComputedStyle(el).transform);
+     assert.ok(matrix!=="none","The selected card must genuinely rotate into view");
      assert.equal(await page.locator(".b27-flip-locked").count(),1);
      assert.match(await page.locator(".b27-flip-back strong").allInnerTexts().then(x=>x.join(" ")),
       /silent|postponed/i);
