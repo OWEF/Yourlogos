@@ -5,6 +5,7 @@
  * source contract. There is no open-ended LLM inference or personal profiling.
  */
 import {fingerprintB25} from "./yl-b25-authored-scenarios.mjs";
+import {validateCZ152Bridge} from "./yl-cz152-bridge.mjs";
 export const CZ147_ENGINE_VERSION="universal-three-engine/1.0.0";
 const FAMILIES=["balance_move","decision_cards","tap_pair","flip_reveal"];
 const LABELS=["Your Choice","Back to the Philosopher","One Last Thing…"];
@@ -78,7 +79,8 @@ function validateRecord(r){
   !txt(r.counterexample,6)||!txt(r.evidenceClaim,6)||
   !size(r.evidenceIds,2,12)||!r.evidenceIds.includes("source:central")||
   !size(r.prohibitedInferences,1,10)||!size(r.supportedConclusions,1,8)||
-  !validateOperation(r)||typeof r.developmentOnly!=="boolean"||
+  !validateOperation(r)||r.exposeInApp===true&&!validateCZ152Bridge(r)||
+  typeof r.developmentOnly!=="boolean"||
   !obj(r.source)||!txt(r.source.text,4)||!txt(r.source.author,1)||
   !txt(r.source.work,1)||typeof r.source.referenceUrl!=="string"||
   !size(r.affordances,0,5)||r.publicationAllowed!==false)return false;
@@ -150,6 +152,7 @@ export function makeUniversalRegistry(records,quotes){
    selectedFamilyId:r.familyId,
    record:{key:r.recordId,title:r.title,intro:r.intro,
     familyId:r.familyId,quote:r.source.text,author:r.source.author,
+    narrativeBridge:r.narrativeBridge??null,
     work:r.source.work,sourceUrl:r.source.referenceUrl,
     allocation:r.allocation??null,timeline:r.timeline??null,
     relation:r.relation??null,sourceFingerprint:r.sourceFingerprint,
