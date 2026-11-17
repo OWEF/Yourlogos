@@ -264,7 +264,7 @@ test("R2.1: Smith dependencies and Wollstonecraft's self-government use selected
    assert.deepEqual(a.compact.sections,b.compact.sections);
    assert.equal(a.fullMeaning.meaning.choiceAnalysis.links[0].claim,e.claim);
    assert.equal(a.compact.sections.length,3);
-   assert.match(a.compact.sections[1].text,new RegExp(r.sourceThesis.replace(/[.*+?^\\${}()|[\\]\\\\]/g,"\\\\$&"),"i"));
+   assert.ok(a.compact.sections[1].text.includes(r.sourceThesis));
    assert.ok(a.compact.sections[2].text.includes(e.label)||
     a.compact.sections[2].text.includes(e.claim.slice(0,18).toLowerCase())||
     a.compact.sections[2].text.toLowerCase().includes("connection"),
