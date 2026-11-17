@@ -3,6 +3,7 @@ import {readFile,stat} from "node:fs/promises";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {handleDiscoverAI, discoverAIEnabled} from "./discover-ai-server.mjs";
+import {resolveQuoteB27, runQuoteEncounterB27} from "./experiments/yl-b27-route.mjs";
 
 const ROOT=path.dirname(fileURLToPath(import.meta.url));
 const PORT=Number(process.env.PORT)||3000;
@@ -91,6 +92,37 @@ async function getStudioFeed(){
 createServer(async(req,res)=>{
   const raw=(req.url||"/").split("?")[0];let pathname;
   try{pathname=decodeURIComponent(raw)}catch{res.writeHead(400);res.end();return}
+  // Feature-isolated B2.7 app bridge. Disabled in production unless explicitly
+  // enabled on a local/QA server. No data is saved by these computation routes.
+  if(pathname==="/api/b27/start"||pathname==="/api/b27/run"){
+    if(process.env.YOURLOGOS_B27_PREVIEW!=="1"){res.writeHead(404);res.end();return}
+    if(req.method!=="POST"){res.writeHead(405,{"Allow":"POST"});res.end();return}
+    try{
+      let body="",size=0;
+      for await(const chunk of req){
+        size+=chunk.length;
+        if(size>16000){res.writeHead(413);res.end();return}
+        body+=chunk;
+      }
+      const request=JSON.parse(body);
+      const result=pathname==="/api/b27/start"?
+        resolveQuoteB27(request):runQuoteEncounterB27(request);
+      const status=result.status==="blocked"?422:
+        result.status==="needs_editorial_review"?422:200;
+      res.writeHead(status,{"Content-Type":"application/json; charset=utf-8",
+        "Cache-Control":"private, no-store",
+        "X-Content-Type-Options":"nosniff",
+        "Content-Security-Policy":"default-src 'none'",
+        "Referrer-Policy":"no-referrer"});
+      res.end(JSON.stringify(result));
+    }catch{
+      res.writeHead(400,{"Content-Type":"application/json; charset=utf-8",
+        "Cache-Control":"no-store"});
+      res.end(JSON.stringify({status:"blocked",code:"malformed",
+        reason:"Malformed Encounter request"}));
+    }
+    return;
+  }
   if(pathname==="/api/studio-feed"){
     if(req.method!=="GET"&&req.method!=="HEAD"){res.writeHead(405,{"Allow":"GET, HEAD"});res.end();return}
     try{
@@ -139,8 +171,17 @@ createServer(async(req,res)=>{
   if(!file.startsWith(ROOT+path.sep)){res.writeHead(403);res.end();return}
   try{
     const info=await stat(file);if(!info.isFile())throw new Error("not file");
-    const body=await readFile(file);
-    res.writeHead(200,{"Content-Type":MIME[path.extname(file)]||"application/octet-stream","X-Content-Type-Options":"nosniff","Cache-Control":file.endsWith("sw.js")||file.endsWith("auth-config.js")?"no-cache":"public,max-age=60"});
+    const isEntry=name==="/index.html";
+    // An opt-in query alone must NEVER enable unpublished B2.7 on a server
+    // where the feature is disabled. Static host entry HTML has no gate and
+    // therefore also safely defaults to legacy behavior.
+    const rawBody=await readFile(file);
+    const body=isEntry?Buffer.from(String(rawBody).replace("</head>",
+      '<script>window.__YL_B27_PREVIEW_ENABLED__='+
+      (process.env.YOURLOGOS_B27_PREVIEW==="1"?"true":"false")+
+      ';</script></head>')):rawBody;
+    res.writeHead(200,{"Content-Type":MIME[path.extname(file)]||"application/octet-stream","X-Content-Type-Options":"nosniff",
+      "Cache-Control":isEntry?"no-store":file.endsWith("sw.js")||file.endsWith("auth-config.js")?"no-cache":"public,max-age=60"});
     res.end(req.method==="HEAD"?undefined:body);
   }catch{res.writeHead(404);res.end("Not found")}
 }).listen(PORT,"0.0.0.0",()=>{
