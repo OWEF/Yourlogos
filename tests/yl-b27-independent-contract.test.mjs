@@ -116,6 +116,34 @@ test("Independent audit: each four-family source produces replayed 80-120 full, 
  assert.notEqual(first.saveKey,revised.saveKey);
  assert.notEqual(first.compact.sections[0].text,revised.compact.sections[0].text);
 });
+test("Adversarial reachable-state audit: all source-authorized Tap & Pair combinations must finish honestly",()=>{
+ for(const id of [91,92]){
+  const route=resolveQuoteB27(q(id));
+  assert.equal(route.status,"ready");
+  const edges=route.record.relation.edges;
+  assert.ok(edges.length>=4);
+  const choices=[...edges.map(e=>[e])];
+  for(let i=0;i<edges.length;i++)for(let j=i+1;j<edges.length;j++)
+   choices.push([edges[i],edges[j]]);
+  for(const pair of choices){
+   const canonicalInput={pairs:pair.map(({aId,bId,relationId})=>({aId,bId,relationId}))};
+   const result=runQuoteEncounterB27({...q(id),sourceVersionHash:route.sourceVersionHash,
+    canonicalInput});
+   assert.equal(result.status,"ready",
+    "Every UI-authorized source edge should finish: "+JSON.stringify({
+      quoteId:id,pairs:canonicalInput.pairs,status:result.status,
+      reason:result.reason,counts:result.counts,total:result.total}).slice(0,650));
+   assert.ok(result.compact.visibleWordCount>=40&&result.compact.visibleWordCount<=65);
+   const visible=result.compact.sections.map(s=>s.text).join(" ");
+   for(const selected of pair){
+    const a=route.record.relation.cards.find(x=>x.id===selected.aId).label;
+    const b=route.record.relation.cards.find(x=>x.id===selected.bId).label;
+    assert.ok(visible.includes(a)&&visible.includes(b),
+     "Every chosen relationship must retain both labels in visible result");
+   }
+  }
+ }
+});
 test("Independent qualitative gate: natural choices and all allocated activities change visible meaning",()=>{
  const uncertain=accepted(34,{path:["change","risk","continue"]}).result;
  const hindsight=accepted(94,{actions:[
