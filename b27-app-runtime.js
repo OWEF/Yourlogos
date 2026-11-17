@@ -227,14 +227,14 @@ export function createB27AppRuntime({
    touchDrag.ghost.style.left=evt.clientX+"px";
    touchDrag.ghost.style.top=evt.clientY+"px";
    clearZones();
-   document.elementFromPoint(evt.clientX,evt.clientY)?
-    .closest?.("[data-b27-bucket]")?.classList.add("b27-over");
+   document.elementFromPoint(evt.clientX,evt.clientY)
+    ?.closest?.("[data-b27-bucket]")?.classList.add("b27-over");
   },{passive:false});
   document.addEventListener("pointerup",evt=>{
    if(!touchDrag||evt.pointerId!==touchDrag.pointerId)return;
    const prior=touchDrag,wasDragged=prior.dragged;
-   const target=wasDragged?document.elementFromPoint(evt.clientX,evt.clientY)?
-    .closest?.("[data-b27-bucket]"):null;
+   const target=wasDragged?document.elementFromPoint(evt.clientX,evt.clientY)
+    ?.closest?.("[data-b27-bucket]"):null;
    if(wasDragged){evt.preventDefault();suppressPieceClicksUntil=performance.now()+450;}
    cleanupTouch();
    if(!wasDragged)return;
