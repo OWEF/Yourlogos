@@ -56,6 +56,7 @@ async function play(page,v){
  }else if(v.family==="tap_pair"){
   await page.locator('[data-b27="pair"][data-value="education"]').focus();
   await page.keyboard.press("Enter");
+  await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education");
   assert.match(await page.locator(".b27-pair-guide").innerText(),/Choose the connected idea/);
   await page.locator('[data-b27="pair"][data-value="judgment"]').focus();
   await page.keyboard.press("Space");
