@@ -735,7 +735,7 @@ function philosophicalQuestions(packet,emotion,source){
    "What makes keeping the plan a judgment rather than loyalty to your past statement?"]:[
    "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?",
    "If no one judged your consistency, would present reasons still lead you to revise the plan?",
-   "What makes revision an independent judgment rather than a reaction?"];
+   "What evidence makes revising the plan your own judgment, rather than a reaction to criticism?"];
  }
  if(op.kind==="incremental_beginning"){
   const role=startRole(source,a.initial.id);
