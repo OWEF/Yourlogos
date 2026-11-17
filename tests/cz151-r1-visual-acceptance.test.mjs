@@ -272,3 +272,70 @@ test("CZ-151 R1 frozen production-code, real browser, 3 widths and four games",a
   await browser.close();await app.close();
  }
 });
+
+
+test("CZ-151 keyboard and reduced-motion: first selection, link, and no-fit",async()=>{
+ const app=await server(),browser=await chromium.launch({channel:"chrome",args:["--no-sandbox"]});
+ try{
+  const context=await browser.newContext({viewport:{width:390,height:890},
+   isMobile:true,hasTouch:true,reducedMotion:"reduce"});
+  const page=await context.newPage();
+  await seed(page,23);
+  await page.goto(app.base+"/?b27=1",{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>window.__YL_B27_QA?.getState&&
+   document.querySelector('[data-action="discover"]'));
+  await page.evaluate(()=>window.dispatchEvent(new Event("yourlogos:skip-entrance")));
+  const start=page.waitForResponse(x=>x.url().endsWith("/api/b27/start"));
+  await page.locator('[data-action="discover"]').click();
+  assert.equal((await(await start).json()).status,"ready");
+  await page.locator('[data-b27="begin"]').click();
+  const first=page.locator('[data-b27="pair"][data-value="education"]');
+  await first.focus();
+  const before=await page.evaluate(()=>({
+   active:document.activeElement?.getAttribute("data-value"),
+   first:window.__YL_B27_QA.getState().game.first
+  }));
+  await page.keyboard.press("Enter");
+  let selected=false;
+  try{
+   await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education",
+    null,{timeout:3500});
+   selected=true;
+  }catch{}
+  const after=await page.evaluate(()=>({
+   active:document.activeElement?.getAttribute("data-value"),
+   first:window.__YL_B27_QA.getState().game.first,
+   text:document.querySelector(".b27-pair-guide")?.textContent
+  }));
+  await snap(page,"keyboard-reduced-motion-first");
+  RECORD.notes.push({test:"keyboard-Enter",before,after,selected});
+  assert.equal(selected,true,
+   "Enter must select focused education card. Debug: "+JSON.stringify({before,after}));
+  const other=page.locator('[data-b27="pair"][data-value="judgment"]');
+  await other.focus();await page.keyboard.press("Space");
+  await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.pairs.length===1,
+   null,{timeout:3500});
+  await snap(page,"keyboard-reduced-motion-connected");
+  assert.equal(await page.locator(".b27-link-lines path").count(),1);
+  assert.equal(await page.evaluate(()=>
+   getComputedStyle(document.querySelector(".b27-shell")).animationName),"none");
+  await context.close();
+  const nofit=await browser.newPage({viewport:{width:390,height:890}});
+  await seed(nofit,31);
+  await nofit.goto(app.base+"/?b27=1",{waitUntil:"domcontentloaded"});
+  await nofit.waitForFunction(()=>window.__YL_B27_QA?.getState&&
+   document.querySelector('[data-action="discover"]'));
+  await nofit.evaluate(()=>window.dispatchEvent(new Event("yourlogos:skip-entrance")));
+  const p=nofit.waitForResponse(x=>x.url().endsWith("/api/b27/start"));
+  await nofit.locator('[data-action="discover"]').click();
+  const admitted=await(await p).json();
+  assert.equal(admitted.status,"no_fit");
+  assert.equal(await nofit.locator(".b27-game").count(),0);
+  await snap(nofit,"no-fit-source-honesty");
+  RECORD.notes.push({test:"no-fit",status:admitted.status});
+  await nofit.close();
+ }finally{
+  writeFileSync(OUT+"/qa-run-summary.json",JSON.stringify(RECORD,null,2));
+  await browser.close();await app.close();
+ }
+});
