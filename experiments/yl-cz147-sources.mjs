@@ -98,7 +98,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
  }),
  make(23,{
   philosophicalOperation:{"kind":"self_governance","focus":"independent judgment and agency","contrast":"self-government rather than domination","sourceWarrantIds":["source:central"]},
-  version:"cz149-wollstonecraft-human-dilemma/2",
+  version:"cz149-wollstonecraft-human-dilemma/3",
   exposeInApp:true,familyId:"tap_pair",title:"Who chooses her education?",
   intro:"A woman is deciding what to study as part of her education. A relative offers advice but also wants to choose her subjects. She values the help yet wants the final say. When does support become control?",
   humanTension:"Accepting genuine help with education while retaining the right to decide what to learn and how to live.",
@@ -120,7 +120,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ],[
    edge("education","judgment","support","Education and judgment","Access to education can support the exercise of independent judgment"),
    edge("judgment","agency","dependence","Agency through judgment","Reasoning for oneself is part of governing oneself in this illustration"),
-   edge("dominance","agency","contrast","Domination is different","Power over others is not equivalent to a woman's self-government"),
+   edge("dominance","agency","contrast","Domination is different","Deciding her subjects for her rather than advising her would replace independent judgment with someone else's control"),
    edge("education","agency","support","Education for independence","Education can support women's independence rather than a claim to dominate men")
   ])
  }),
@@ -201,6 +201,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ])
  }),
  make(48,{
+  version:"cz149-epictetus-concrete-response/1",
   philosophicalOperation:{"kind":"event_acceptance","focus":"agency over responses to events","contrast":"chosen response versus externally determined occurrence","sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"flip_reveal",title:"An outcome you cannot command",
   intro:"Imagine preparing for an uncomfortable exchange. You can choose your approach, but another person's actions are not yours to script. Reveal one fictional development, then decide what response remains available.",
@@ -222,8 +223,8 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
    {id:"silence",label:"the other person stays silent",text:"The imaginary listener says nothing in this authored possibility"},
    {id:"delay",label:"the meeting is postponed",text:"An invented delay occurs independently of your initial preparation"}
   ],[
-   {id:"respond",label:"You attend to your response",stance:"observe"},
-   {id:"try",label:"You try another careful action",stance:"hold"}
+   {id:"respond",label:"You ask a specific follow-up question",stance:"observe"},
+   {id:"try",label:"You invite another conversation later",stance:"hold"}
   ])
  })
 ]);
