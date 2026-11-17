@@ -186,8 +186,7 @@ function balanceHtml(enc){
   ' placed</strong><span>'+free+' unassigned</span></div>'+
   '<div class="b27-buckets '+(size===3?"b27-three":"")+'" aria-label="Destination areas for finite resources">'+
   buckets+'</div>'+
-  '<div class="b27-allocation-meta"><details class="b27-tuning"><summary>Prefer a slider?</summary>'+slider+
-  '<p>The slider and tokens adjust the same conserved resource. Undo and Reset restore earlier choices.</p></details></div>'+
+  '<div class="b27-allocation-meta"><div class="b27-tuning">'+slider+'</div></div>'+
   (lenses.length?'<div class="b27-lenses">'+lenses.map(l=>
    b("focus",e(l.label),"b27-lens"+(g.focus===l.id?" selected":""),
     'data-value="'+e(l.id)+'" aria-pressed="'+(g.focus===l.id)+'"')).join("")+'</div>':"");
@@ -213,7 +212,7 @@ function pairHtml(enc){
   '<p class="b27-pair-guide" role="status">Two source-backed connections are recorded. Undo to try another.</p>':
   g.first===null?
    '<p class="b27-pair-guide">Tap two ideas to draw a connection.</p>':
-   '<p class="b27-pair-guide" role="status">Choose a highlighted idea to connect.</p>';
+   '<p class="b27-pair-guide" role="status">Now connect it with: '+labels.join(', ')+'.</p>';
  return guide+
   '<div class="b27-concepts" role="group" aria-label="Four large source-authorized concept cards">'+
   r.cards.map((c,i)=>{
