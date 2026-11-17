@@ -155,8 +155,14 @@ export function reasonUniversal(source,input){
  if(source.familyId==="balance_move"){
   const a=source.allocation;
   const keys=Object.keys(input).sort().join("|");
-  const expected=a.repetitions===null?"amounts|budgets|touched":"amounts|budgets|repetitions|touched";
-  if(keys!==expected||input.touched!==true||!size(input.amounts,a.choices.length,a.choices.length)||
+  const expected=a.repetitions===null?
+   ["amounts|budgets|touched","amounts|budgets|repetitions|touched"]:
+   ["amounts|budgets|repetitions|touched"];
+  // The untouched B2.7 UI sends repetitions:null for non-repeating source
+  // records. Normalize this semantically equivalent client representation.
+  if(!expected.includes(keys)||
+    (a.repetitions===null&&Object.hasOwn(input,"repetitions")&&input.repetitions!==null)||
+    input.touched!==true||!size(input.amounts,a.choices.length,a.choices.length)||
     !input.amounts.every(n=>Number.isSafeInteger(n)&&n>=0)||
     !size(input.budgets,1,1)||input.budgets[0]!==a.resourceCapacity||
     input.amounts.reduce((x,y)=>x+y,0)!==a.resourceCapacity||
