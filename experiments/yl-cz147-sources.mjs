@@ -100,7 +100,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   philosophicalOperation:{"kind":"self_governance","focus":"independent judgment and agency","contrast":"self-government rather than domination","sourceWarrantIds":["source:central"]},
   version:"cz149-wollstonecraft-human-dilemma/1",
   exposeInApp:true,familyId:"tap_pair",title:"Who chooses her education?",
-  intro:"A woman is choosing which course to study. A relative offers helpful advice but also wants to select her subjects and decide on her behalf. She wants to weigh that advice while making the choice herself. When does support for education become control over another person's judgment?",
+  intro:"A woman is choosing her courses. A relative offers advice but also wants to select the subjects for her. She values the help, yet wants the final choice. When does support become control?",
   humanTension:"Accepting genuine help with education while retaining the right to decide what to learn and how to live.",
   sourceThesis:"Women's independence concerns governing themselves, not dominating men",
   evidenceClaim:"Education supports the exercise of independent judgment and equal standing",
