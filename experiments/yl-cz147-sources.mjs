@@ -97,7 +97,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ])
  }),
  make(23,{
-  philosophicalOperation:{"kind":"self_governance","focus":"independent judgment and agency","contrast":"self-government versus domination","sourceWarrantIds":["source:central"]},
+  philosophicalOperation:{"kind":"self_governance","focus":"independent judgment and agency","contrast":"self-government rather than domination","sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"tap_pair",title:"Whose freedom does this serve?",
   intro:"Imagine a community group discussing girls' access to education. Some members confuse women's independence with having authority over men. Explore the distinction rather than choosing anyone's worth.",
   humanTension:"Supporting self-government without making another person's subordination the goal.",
