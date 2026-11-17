@@ -423,7 +423,187 @@ function humanTensionSentence(raw){
   return "In this fictional situation, "+lowerFirst(clean(raw))+".";
  return "The dilemma involves "+lowerFirst(clean(raw))+".";
 }
+
+const activityRole=(source,id)=>source.philosophicalOperation.activityRoles?.find(x=>x.id===id)?.role??null;
+const startRole=(source,id)=>source.philosophicalOperation.startRoles?.find(x=>x.id===id)?.role??null;
+function philosophicalReading(packet,emotion,source){
+ const op=source.philosophicalOperation,a=packet.meaning.choiceAnalysis;
+ const bound=["source:central","scenario:fictional","source:boundary"];
+ if(a.operation==="finite_resource"){
+  const high=a.primary.map(x=>x.label).join(" and ");
+  const low=a.constrained.map(x=>x.label).join(" and ");
+  const lead=a.primary[0],role=activityRole(source,lead.id);
+  if(op.kind==="deliberate_use"){
+   const lens=role==="restorative_pause"?
+    "Necessary recovery is not automatically wasted time":
+    role==="possible_distraction"?
+     "Time given to distraction invites scrutiny, not a diagnosis":
+     role==="deliberate_practice"?
+      "A chosen practice can serve a purpose, yet busyness alone proves little":
+      "The purpose of an activity is not visible from its duration";
+   const choice=a.excluded.length&&a.primary.length===1?
+    "Giving every slot to "+high+" excludes "+low+" from this imagined plan":
+    a.equalPriority?
+     "Sharing time equally leaves the question of deliberate use open":
+     "Prioritizing "+high+" limits time for "+low;
+   return {long:choice+". "+lens+". Deliberate living depends on how the time is approached, not just filling the hours.",
+    short:choice+". "+lens+".",
+    minimal:choice+". Choosing a purpose matters more than merely being busy.",
+    focus:{kind:op.kind,leading:high,role,excluded:a.excluded.map(x=>x.label)},
+    evidence:bound};
+  }
+  if(op.kind==="habitual_pattern"){
+   const point=a.repetitions?
+    "If this fictional distribution repeated, it could form a visible daily pattern":
+    "One imagined evening cannot establish a repeated daily pattern";
+   return {long:"The largest share went to "+high+" rather than "+low+". "+point+
+     "; the pattern, not any isolated activity's moral worth, is the philosophical issue.",
+    short:"Giving most time to "+high+" could matter if repeated across ordinary days.",
+    minimal:"Repeated time for "+high+" could shape a daily pattern.",
+    focus:{kind:op.kind,repetitions:a.repetitions,leading:high},evidence:bound};
+  }
+  if(op.kind==="attention_evasion"){
+   const quiet=a.shares.filter(x=>activityRole(source,x.id)==="quiet_attention");
+   const quietShare=quiet.reduce((n,x)=>n+x.amount,0);
+   const point=quiet.length?
+    "This leaves "+quietShare+" of "+a.capacity+" slots for quiet attention":
+    "The allocation cannot establish whether any attention was avoided";
+   return {long:point+". A fictional choice of "+high+
+    " can raise questions about distraction without diagnosing aversion to solitude or discounting companionship.",
+    short:point+". A schedule cannot reveal why someone seeks distraction.",
+    minimal:"The amount of quiet time does not reveal why a person avoids or welcomes it.",
+    focus:{kind:op.kind,quietShare,leading:high},evidence:bound};
+  }
+ }
+ if(a.operation==="source_relation"){
+  const selected=a.links[0],claim=a.links.map(x=>x.claim).join(" ");
+  const anchor=op.kind==="self_governance"?
+   "The issue is agency without domination":
+   op.kind==="coordinated_work"?
+    "This is about coordinating distinct work, not assigning moral worth":
+    "The relevant philosophical distinction is "+op.focus;
+  const brief=a.links.length===1?
+   selected.claim:
+   "Your selected links concern "+a.links.map(x=>lowerFirst(x.label)).join(" and ");
+  return {long:sentence(claim)+" "+anchor+". "+sentence(op.contrast),
+   short:sentence(brief)+" "+anchor+".",
+   minimal:"The "+lowerFirst(selected.label)+" link concerns "+op.focus+".",
+   focus:{kind:op.kind,relationTypes:a.relationTypes,
+    selectedClaims:a.links.map(x=>x.claim)},evidence:a.sourceWarrantIds};
+ }
+ const t=a.development.label,initial=a.initial.label,response=a.response.label;
+ const opening=lowerFirst(clean(initial).replace(/^You\s+/i,""));
+ const action=lowerFirst(clean(response).replace(/^You\s+/i,""));
+ if(op.kind==="retrospective_limits"){
+  return {long:"You chose to "+opening+" before the invented “"+clean(t)+"”. Looking back at that scene may change what the choice means, but cannot reveal the life not lived.",
+   short:"After choosing to "+opening+", the invented “"+clean(t)+"” cannot show the unchosen life.",
+   minimal:"The imagined “"+clean(t)+"” cannot reveal the life you did not live.",
+   focus:{kind:op.kind,opening,development:t},evidence:bound};
+ }
+ if(op.kind==="event_acceptance"){
+  return {long:"You could choose to "+opening+" and later "+action+
+   ", but the imagined “"+clean(t)+"” was not a result you controlled. Acceptance concerns meeting the event, not surrendering your next action.",
+   short:"After “"+clean(t)+"”, your response remains yours; the event was not yours to command.",
+   minimal:"Your response to “"+clean(t)+"” is distinct from control over its occurrence.",
+   focus:{kind:op.kind,opening,response:action,externalEvent:t},evidence:bound};
+ }
+ if(op.kind==="independent_judgment"){
+  const role=startRole(source,a.initial.id);
+  const maintained=role==="retain_prior";
+  const claim=maintained?
+   "Keeping the earlier position calls for present reasons rather than loyalty to past words":
+   "Reopening the earlier position may express independent judgment rather than mere inconsistency";
+  return {long:"After the fictional “"+clean(t)+"”, "+lowerFirst(claim)+
+   ". Neither maintaining nor revising the plan proves wisdom by itself.",
+   short:claim+" after the invented “"+clean(t)+"”.",
+   minimal:claim+".",
+   focus:{kind:op.kind,startingRole:role,development:t,response:action},evidence:bound};
+ }
+ if(op.kind==="incremental_beginning"){
+  const begun=startRole(source,a.initial.id)==="begin_modestly";
+  const result=begun?
+   "A modest beginning makes a task actionable without ensuring its completion":
+   "Planning can prepare a small beginning, but preparation alone has not yet begun the task";
+  return {long:result+". The fictional “"+clean(t)+
+   "” adds circumstances, not a guarantee; acting without forcing the result remains important.",
+   short:result+"; the imagined “"+clean(t)+"” cannot promise success.",
+   minimal:result+".",
+   focus:{kind:op.kind,beginning:begun,development:t},evidence:bound};
+ }
+ if(op.kind==="anticipated_vs_actual"){
+  return {long:"Choosing to "+opening+" before the fictional “"+clean(t)+
+   "” puts an expectation beside an invented event, not beside real evidence. "+
+   "Fearful anticipation and later happenings need not coincide.",
+   short:"The fictional “"+clean(t)+"” is not evidence that the expected trouble will occur.",
+   minimal:"Imagining “"+clean(t)+"” is not evidence of a real future.",
+   focus:{kind:op.kind,opening,development:t},evidence:bound};
+ }
+ return null;
+}
+function philosophicalQuestions(packet,emotion,source){
+ const op=source.philosophicalOperation,a=packet.meaning.choiceAnalysis;
+ if(a.operation==="finite_resource"){
+  const high=a.primary.map(x=>x.label).join(" and ");
+  if(op.kind==="deliberate_use"){
+   const role=activityRole(source,a.primary[0].id);
+   const focus=role==="restorative_pause"?
+    "deliberate recovery rather than automatic avoidance":
+    role==="possible_distraction"?
+     "chosen enjoyment rather than habitual distraction":
+     "deliberate use rather than another form of busyness";
+   return ["With "+high+" receiving the most time, how would you distinguish "+focus+"?",
+    "How would you tell whether "+high+" served a purpose you had chosen?",
+    "What would make your time for "+high+" deliberate?"];
+  }
+  if(op.kind==="habitual_pattern")
+   return ["If days like this repeated, what pattern would "+high+" create without defining your whole life?",
+    "What pattern might repeated time for "+high+" form?",
+    "If "+high+" became routine, what would that pattern mean?"];
+  if(op.kind==="attention_evasion")
+   return ["What could you notice about undistracted attention when choosing "+high+", without assuming solitude is always better?",
+    "How might "+high+" leave space for quiet attention?",
+    "What might quiet attention reveal without judging "+high+"?"];
+ }
+ if(a.operation==="source_relation"){
+  const e=a.links[0],first=lowerFirst(e.a),second=lowerFirst(e.b);
+  if(op.kind==="self_governance")
+   return ["In the link between "+first+" and "+second+", how is self-government different from power over another?",
+    "How could "+first+" relate to "+second+" without reducing anyone else's agency?",
+    "Where does "+first+" leave room for "+second+" and self-government?"];
+  if(op.kind==="coordinated_work")
+   return ["How does the link between "+first+" and "+second+" enable work together without establishing fairness?",
+    "What does joining "+first+" with "+second+" contribute to the finished work?",
+    "How does "+first+" depend on "+second+" in this example?"];
+  return ["What does connecting "+first+" with "+second+" reveal about "+op.focus+"?",
+   "Where does the link between "+first+" and "+second+" stop supporting a conclusion?"];
+ }
+ const event=clean(a.development.label),response=lowerFirst(clean(a.response.label).replace(/^You\s+/i,""));
+ if(op.kind==="retrospective_limits")
+  return ["What can the invented “"+event+"” help you understand without disclosing the life you did not choose?",
+   "What could hindsight teach after “"+event+"” without revealing the alternative?",
+   "What can hindsight teach without showing the unchosen life?"];
+ if(op.kind==="event_acceptance")
+  return ["After the imagined “"+event+"”, how can you "+response+" without requiring the event to have obeyed your wishes?",
+   "After “"+event+"”, what remains within your response rather than the other person's control?",
+   "Which response is still yours when “"+event+"” happens?"];
+ if(op.kind==="independent_judgment")
+  return ["After the invented “"+event+"”, what current reason could justify your commitment without obeying your past words?",
+   "Would your reasons survive “"+event+"” without mere consistency?",
+   "How would present judgment answer “"+event+"”?"];
+ if(op.kind==="incremental_beginning")
+  return ["After the invented “"+event+"”, what small beginning avoids forcing a promised outcome?",
+   "What is a modest next step after “"+event+"”, without grasping at success?",
+   "Which small beginning can you attempt without guaranteeing success?"];
+ if(op.kind==="anticipated_vs_actual")
+  return ["What does the imagined “"+event+"” fail to prove about the outcome you expected?",
+   "How would you distinguish expecting “"+event+"” from knowing it will happen?",
+   "What evidence would separate anticipation from what actually occurs?"];
+ return [];
+}
+
 function dynamicReading(packet,emotion,source){
+ const specified=philosophicalReading(packet,emotion,source);
+ if(specified)return specified;
  const a=packet.meaning.choiceAnalysis;
  if(a.operation==="finite_resource"){
   const high=a.primary.map(x=>x.label).join(" and ");
@@ -497,6 +677,8 @@ function dynamicReading(packet,emotion,source){
   evidence:["source:central","scenario:fictional","source:boundary"]};
 }
 function reflectionQuestions(packet,emotion,source){
+ const specified=philosophicalQuestions(packet,emotion,source);
+ if(specified.length)return specified;
  const a=packet.meaning.choiceAnalysis;
  if(a.operation==="finite_resource"){
   const high=a.primary.map(x=>x.label).join(" and ");
