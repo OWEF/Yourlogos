@@ -537,9 +537,19 @@ function philosophicalReading(packet,emotion,source){
   const brief=a.links.length===1?relationMeaning:
    "The chosen links connect "+a.links.map(x=>lowerFirst(x.label)).join(" and ")+
     " under the source's argument about "+op.focus+".";
+  // Preserve the exact source-owned thesis and each selected edge. A
+  // short relation-specific bridge is allowed when the original bridge
+  // would breach the strict 40–65-word consumer composition limit.
+  const micro=a.links.length===1?
+   ["contrast","agency_boundary"].includes(selected.type)?
+    "This distinguishes "+lowerFirst(selected.a)+" from "+lowerFirst(selected.b)+".":
+    selected.type==="support"?
+     "This shows how "+lowerFirst(selected.a)+" supports "+lowerFirst(selected.b)+".":
+     "This links "+lowerFirst(selected.a)+" with "+lowerFirst(selected.b)+".":
+   "The selected relations involve "+a.links.map(x=>lowerFirst(x.label)).join(" and ")+".";
   return {long:claims+" "+tension+" "+anchor,
    short:sentence(brief),
-   minimal:sentence(relationMeaning),
+   minimal:sentence(relationMeaning),micro:sentence(micro),
    focus:{kind:op.kind,relationTypes:a.relationTypes,
     selectedClaims:a.links.map(x=>x.claim),sourceContrast:op.contrast},
    evidence:a.sourceWarrantIds};
@@ -877,7 +887,11 @@ export function expressUniversal(packet,emotion,source){
   author+": "+thesis+" "+sentence(interpretation.short)+" "+limit,
   thesis+" "+sentence(interpretation.short)+" "+limit,
   author+": "+thesis+" "+sentence(interpretation.minimal)+" "+limit,
-  thesis+" "+sentence(interpretation.minimal)+" "+limit
+  thesis+" "+sentence(interpretation.minimal)+" "+limit,
+  ...(interpretation.micro?[
+   author+": "+thesis+" "+sentence(interpretation.micro)+" "+limit,
+   thesis+" "+sentence(interpretation.micro)+" "+limit
+  ]:[])
  ]);
  const compact=selectSections(firsts,compactSeconds,questions,
   40,65,[1,1,9],[48,65,26]);
