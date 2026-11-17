@@ -1,0 +1,53 @@
+name: CZ-151 R1 Independent Visual Acceptance
+
+on:
+  push:
+    branches:
+      - qa/cz151-r1-engineering-b00a1a52
+  pull_request:
+    branches:
+      - feature/cz150-waterline-game-first
+    paths:
+      - 'tests/cz151-r1-visual-acceptance.test.mjs'
+      - '.github/workflows/cz151-r1-visual-acceptance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  independent-mobile-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact QA branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Confirm reviewer branch keeps frozen engineering source unaltered
+        shell: bash
+        run: |
+          set -euo pipefail
+          ENGINEERING_SHA="b00a1a52bafff73cb71661de32c1061f0186da2e"
+          git cat-file -e "$ENGINEERING_SHA"
+          EDITS="$(git diff --name-only "$ENGINEERING_SHA" HEAD)"
+          printf 'QA branch changes from frozen engineering SHA:\n%s\n' "$EDITS"
+          if printf '%s\n' "$EDITS" | grep -Ev '^(tests/cz151-r1-visual-acceptance.test.mjs|\.github/workflows/cz151-r1-visual-acceptance.yml)$' | grep -q . ; then
+            echo "::error::QA branch changes application code or unrelated files"
+            exit 1
+          fi
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser driver only
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Capture real-app mobile screenshot and 0/50/100/250ms timelines
+        run: node --test tests/cz151-r1-visual-acceptance.test.mjs
+      - name: Upload independently generated screenshots and observed timestamps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz151-r1-visual-acceptance
+          path: qa-evidence-cz151-r1/
+          if-no-files-found: warn
+          retention-days: 14
