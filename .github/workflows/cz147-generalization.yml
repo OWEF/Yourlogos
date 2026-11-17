@@ -30,6 +30,10 @@ jobs:
         run: |
           node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
           node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs tests/yl-b25-generalized-encounter.test.mjs
+      - name: Install Chrome automation driver without browser download
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Actual app 4 new sources x 4 viewports with saved My World readback
+        run: node --test tests/yl-cz147-browser.test.mjs
       - name: Preserve source capability matrix and complete three-engine examples
         if: always()
         uses: actions/upload-artifact@v4
