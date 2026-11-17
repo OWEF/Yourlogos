@@ -169,3 +169,7 @@ body:has(.b27-shell) .discover-cover{
  .b27-flip.b27-flipped .b27-flip-front{display:none!important}
  .b27-flip.b27-flipped .b27-flip-back{transform:none!important}
 }
+
+/* R2/B2.7 legacy "revealed" is retained for persistence and accessibility.
+   The pending frame stays face-down until RAF adds b27-flipped. */
+.b27-flip.revealed.b27-flip-pending:not(.b27-flipped) .b27-flip-interior{transform:none}
