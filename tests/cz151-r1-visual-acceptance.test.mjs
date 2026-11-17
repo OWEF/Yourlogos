@@ -383,3 +383,33 @@ test("CZ-151 physical-keyboard emulation at narrow and desktop widths",async()=>
   await browser.close();await app.close();
  }
 });
+
+
+test("CZ-151 repeated immediate Begin→keyboard choice focus-stability stress",async()=>{
+ const app=await server(),browser=await chromium.launch({channel:"chrome",args:["--no-sandbox"]});
+ try{
+  for(let n=0;n<5;n++){
+   const context=await browser.newContext({viewport:{width:390,height:890},isMobile:true,hasTouch:true});
+   const page=await context.newPage();
+   await seed(page,23);
+   await page.goto(app.base+"/?b27=1",{waitUntil:"domcontentloaded"});
+   await page.waitForFunction(()=>window.__YL_B27_QA?.getState&&
+    document.querySelector('[data-action="discover"]'));
+   await page.evaluate(()=>window.dispatchEvent(new Event("yourlogos:skip-entrance")));
+   const admission=page.waitForResponse(x=>x.url().endsWith("/api/b27/start"));
+   await page.locator('[data-action="discover"]').click();
+   assert.equal((await(await admission).json()).status,"ready");
+   await page.locator('[data-b27="begin"]').click();
+   const first=page.locator('[data-b27="pair"][data-value="education"]');
+   await first.focus();
+   await page.keyboard.press("Enter");
+   await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education",
+     null,{timeout:5000});
+   RECORD.notes.push({test:"fast-focus-stress",trial:n+1,status:"pass"});
+   await context.close();
+  }
+ }finally{
+  writeFileSync(OUT+"/qa-run-summary.json",JSON.stringify(RECORD,null,2));
+  await browser.close();await app.close();
+ }
+});
