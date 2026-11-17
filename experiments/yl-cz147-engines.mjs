@@ -451,7 +451,9 @@ function philosophicalReading(packet,emotion,source){
   const low=a.constrained.map(x=>x.label).join(" and ");
   const lead=a.primary[0],role=activityRole(source,lead.id);
   if(op.kind==="deliberate_use"){
-   const lens=role==="restorative_pause"?
+   const lens=emotion.strategy==="neutral_reflection"?
+    "The imagined allocation cannot establish why this activity was chosen":
+    role==="restorative_pause"?
     "Necessary recovery is not automatically wasted time":
     role==="possible_distraction"?
      "Time given to distraction invites scrutiny, not a diagnosis":
@@ -465,7 +467,9 @@ function philosophicalReading(packet,emotion,source){
      "Prioritizing "+high+" limits time for "+low;
    return {long:choice+". "+lens+". Deliberate living depends on how the time is approached, not just filling the hours.",
     short:choice+". "+lens+".",
-    minimal:choice+". Choosing a purpose matters more than merely being busy.",
+    minimal:emotion.strategy==="neutral_reflection"?
+     choice+". Imagined amounts cannot establish a person's intention.":
+     choice+". Choosing a purpose matters more than merely being busy.",
     focus:{kind:op.kind,leading:high,role,excluded:a.excluded.map(x=>x.label)},
     evidence:bound};
   }
