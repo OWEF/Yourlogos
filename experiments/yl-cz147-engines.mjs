@@ -543,6 +543,7 @@ function philosophicalReading(packet,emotion,source){
     "A conceptual link alone does not decide a person's actual situation.";
   const relationMeaning=selected.type==="contrast"||
    selected.type==="agency_boundary"?
+    op.kind==="self_governance"?sentence(selected.claim):
     "Contrasting "+lowerFirst(selected.a)+" with "+lowerFirst(selected.b)+
      " brings "+op.contrast+" into view.":
    selected.type==="complementarity"?
