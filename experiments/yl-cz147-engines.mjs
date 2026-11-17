@@ -309,6 +309,12 @@ export function expressUniversal(packet,emotion,source){
   if(count(fullSecond)+count(extra)<=65)
    full[1].text=fullSecond+" "+extra;
   policy=typedWordPolicy(full,80,120,[10,18,9],[48,65,26]);
+  if(!policy&&full.reduce((sum,section)=>sum+count(section.text),0)<80){
+   const contextual="The link or action is a constructed illustration, not proof about any person or situation beyond it.";
+   if(count(full[0].text)+count(contextual)<=48)
+    full[0].text+=" "+contextual;
+   policy=typedWordPolicy(full,80,120,[10,18,9],[48,65,26]);
+  }
  }
  if(!policy)return deny("full_policy_overflow","The authenticated full 80–120-word interpretation cannot meet all section limits","needs_editorial_review");
  const compactCounts=typedWordPolicy(compact,40,65,[1,1,1],[48,65,26]);
