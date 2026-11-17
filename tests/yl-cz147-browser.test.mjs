@@ -54,12 +54,15 @@ async function play(page,v){
   await slider.evaluate(el=>{el.value="4";el.dispatchEvent(new Event("change",{bubbles:true}));});
   assert.equal(await page.locator("#b27-slider:focus").count(),1);
  }else if(v.family==="tap_pair"){
-  await page.locator('[data-b27="pair"][data-value="education"]').focus();
-  await page.keyboard.press("Enter");
+  const first=page.locator('[data-b27="pair"][data-value="education"]');
+  // Locator.press ensures the intended control still owns focus even after
+  // the newly staged Play transition replaces its ancestor DOM.
+  await first.press("Enter");
   await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education");
   assert.match(await page.locator(".b27-pair-guide").innerText(),/Choose the connected idea/);
-  await page.locator('[data-b27="pair"][data-value="judgment"]').focus();
-  await page.keyboard.press("Space");
+  const second=page.locator('[data-b27="pair"][data-value="judgment"]');
+  await second.press("Space");
+  await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.pairs.length===1);
   assert.equal(await page.locator(".b27-shell button:focus").count(),1);
  }else{
   await page.locator('[data-b27="branch"][data-value="'+v.start+'"]').click();
