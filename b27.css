@@ -305,9 +305,17 @@ body:has(.b27-shell) .discover-cover{
  overflow-x:hidden!important;
  overscroll-behavior-y:contain;
  scrollbar-color:#58544b transparent;
- animation:b27-glass-arrive .22s ease-out both!important
+ /* renderB27Encounter reconstructs the dialog on every choice.
+    A root fade would re-run from opacity:0, revealing the page underneath. */
+ animation:none!important;
+ opacity:1!important
 }
-@keyframes b27-glass-arrive{from{opacity:0}to{opacity:1}}
+/* The sibling cover is likewise reconstructed on every internal render.
+   Keep its dimming constant, while allowing game-local snap/flip/link motion. */
+body:has(.b27-shell) .discover-cover{
+ animation:none!important;
+ opacity:1!important
+}
 .b27-head{
  position:relative;top:auto;z-index:2;
  padding:11px 18px 9px;
