@@ -695,11 +695,14 @@ function philosophicalQuestions(packet,emotion,source){
    const autonomy=op.kind==="self_governance"&&primary.type==="support"?
     "How could "+lowerFirst(primary.a)+" relate to "+lowerFirst(primary.b)+
     " without turning support into control?":null;
+   const autonomyContrast=op.kind==="self_governance"&&primary.type==="contrast"?
+    "In this choice, who should make the decision, and how is that different from controlling someone else?":null;
    const claimQuestion="If "+lowerClaim+", what does this leave open?";
    const specific="What does the “"+label+"” connection clarify about "+op.focus+"?";
    const neutral="What does the chosen “"+label+"” relation establish, and what remains uncertain?";
    const compact="What remains open about the “"+label+"” connection?";
-   return [...(autonomy?[autonomy]:[]),claimQuestion,specific,neutral,compact];
+   return [...(autonomy?[autonomy]:[]),...(autonomyContrast?[autonomyContrast]:[]),
+    claimQuestion,specific,neutral,compact];
   }
   const other=a.links[1],secondLabel=clean(other.label);
   const specific="How do “"+label+"” and “"+secondLabel+
@@ -717,10 +720,18 @@ function philosophicalQuestions(packet,emotion,source){
   return ["After the imagined “"+event+"”, how can you "+response+" without requiring the event to have obeyed your wishes?",
    "After “"+event+"”, what remains within your response rather than the other person's control?",
    "Which response is still yours when “"+event+"” happens?"];
- if(op.kind==="independent_judgment")
-  return ["After the invented “"+event+"”, what current reason could justify your commitment without obeying your past words?",
-   "Would your reasons survive “"+event+"” without mere consistency?",
-   "How would present judgment answer “"+event+"”?"];
+ if(op.kind==="independent_judgment"){
+  const retained=startRole(source,a.initial.id)==="retain_prior";
+  // Preserving a position and revising it are distinct exercises of
+  // present judgment. The philosopher cannot assess either by its label.
+  return retained?[
+   "After the imagined “"+event+"”, what present reason warrants keeping the plan rather than defending your earlier words?",
+   "Which evidence still supports the plan after “"+event+"”?",
+   "What makes keeping the plan a considered decision now?"]:[
+   "After the imagined “"+event+"”, what evidence warrants revising the plan rather than simply avoiding criticism?",
+   "What changed enough to justify revision after “"+event+"”?",
+   "What would make revision an independent judgment rather than a reaction?"];
+ }
  if(op.kind==="incremental_beginning"){
   const role=startRole(source,a.initial.id);
   const concise=role==="begin_modestly"?
