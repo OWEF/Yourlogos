@@ -474,8 +474,13 @@ function reflectionQuestions(packet,emotion,source){
     "How could "+aLabel+" support "+bLabel+" without guaranteeing it?":
     "What does connecting "+aLabel+" with "+bLabel+" explain, and what remains uncertain?";
   const brief="What remains unresolved about "+aLabel+" and "+bLabel+" here?";
+  const reflective=["agency_boundary","contrast"].includes(first.type)?
+   "If "+aLabel+" differs from "+bLabel+", what does that distinction allow us to conclude, and what must remain unsettled?":
+   first.type==="support"?
+    "If "+aLabel+" supports "+bLabel+", what else would need to be known before relying on this relationship?":
+    "What can the chosen relation between "+aLabel+" and "+bLabel+" establish in this fictional example, and what is still untested?";
   const compactFallback="What could "+aLabel+" and "+bLabel+" clarify together?";
-  return [question,brief,compactFallback];
+  return [reflective,question,brief,compactFallback];
  }
  const first=clean(a.initial.label),scene=clean(a.development.label);
  const after=emotion.strategy==="revisability"?
