@@ -360,9 +360,24 @@ function minimalChoice(packet,source){
  if(source.familyId==="decision_cards"||source.familyId==="flip_reveal"){
   const t=packet.meaning.selectedTimeline;
   return "You first chose "+quoteAction(t.startLabel)+
-   "; afterward you chose "+quoteAction(t.responseLabel)+".";
+   "; later you chose "+quoteAction(t.responseLabel)+".";
  }
  return describeChoice(packet,source,true);
+}
+function briefResponseChoice(packet,source){
+ if(source.familyId==="decision_cards"||source.familyId==="flip_reveal"){
+  const t=packet.meaning.selectedTimeline;
+  return "After one imagined development, you chose "+quoteAction(t.responseLabel)+".";
+ }
+ return minimalChoice(packet,source);
+}
+const lowerFirst=s=>s.charAt(0).toLowerCase()+s.slice(1);
+function humanTensionSentence(raw){
+ // Some source records state the dilemma as a noun/gerund phrase.
+ // Give it a grammatical subject rather than turning it into a fragment.
+ if(/\b(?:is|are|does|can|cannot|may|must|offers|competes|remains|matters|means|asks|includes|consumes|supports)\b/i.test(raw))
+  return "In this fictional situation, "+lowerFirst(clean(raw))+".";
+ return "The dilemma involves "+lowerFirst(clean(raw))+".";
 }
 function dynamicReading(packet,emotion,source){
  const a=packet.meaning.choiceAnalysis;
@@ -403,8 +418,8 @@ function dynamicReading(packet,emotion,source){
    "The source-backed link marks a boundary: "+claims:
    "Your selected relation carries this specific claim: "+claims;
   const brief=a.links.length===1?
-   "The "+clean(first.label).toLowerCase()+" link connects "+first.a+" and "+first.b+".":
-   "These two links concern "+a.links.map(x=>clean(x.label).toLowerCase()).join(" and ")+".";
+   sentence(first.claim):
+   "These selected links concern "+a.links.map(x=>clean(x.label).toLowerCase()).join(" and ")+".";
   const minimal=a.links.length===1?
    "The selected link concerns "+first.label.toLowerCase()+".":
    "The two selected links have distinct source-owned claims.";
@@ -413,6 +428,7 @@ function dynamicReading(packet,emotion,source){
    evidence:a.sourceWarrantIds};
  }
  const start=clean(a.initial.label),scene=clean(a.development.label);
+ const opening=lowerFirst(start.replace(/^You\s+/i,""));
  const response=clean(a.response.label),stance=a.response.stance;
  const retrospective=a.operation==="authored_retrospective";
  const startClause="Your initial choice “"+start+"”";
@@ -428,13 +444,9 @@ function dynamicReading(packet,emotion,source){
  const long=startClause+" precedes "+sceneClause+", which "+principle+". "+
   responseClause+" Your selected response is “"+response+"”.";
  const short=retrospective?
-  "After “"+scene+"”, one imagined outcome cannot reveal the alternative.":
-  "After “"+scene+"”, "+(stance==="reconsider"?
-   "reconsideration need not prove the first choice wrong.":
-   "continuing need not prove the first choice right.");
- const minimal=retrospective?
-  "The invented “"+scene+"” reveals no alternative future.":
-  "The invented “"+scene+"” proves no decision correct.";
+  "After choosing to "+opening+", “"+scene+"” cannot reveal the unchosen life.":
+  "After choosing to "+opening+", the invented “"+scene+"” cannot certify that commitment.";
+ const minimal="The imagined “"+scene+"” does not settle the choice to "+opening+".";
  return {long,short,minimal,
   focus:{initial:start,development:scene,response,stance,
    inventedNotCaused:true,unchosenUnknown:true},
@@ -455,10 +467,13 @@ function reflectionQuestions(packet,emotion,source){
  }
  if(a.operation==="source_relation"){
   const first=a.links[0],label=clean(first.label).toLowerCase();
-  const question=emotion.strategy==="boundary_awareness"?
-   "Where does the "+label+" link between "+first.a+" and "+first.b+" stop supporting a conclusion?":
-   "What does the "+label+" link between "+first.a+" and "+first.b+" help you notice?";
-  const brief="What remains uncertain about the selected "+label+" connection?";
+  const aLabel=lowerFirst(first.a),bLabel=lowerFirst(first.b);
+  const question=["agency_boundary","contrast"].includes(first.type)?
+   "What becomes clearer when you distinguish "+aLabel+" from "+bLabel+"?":
+   first.type==="support"?
+    "How could "+aLabel+" support "+bLabel+" without guaranteeing it?":
+    "What does connecting "+aLabel+" with "+bLabel+" explain, and what remains uncertain?";
+  const brief="What remains unresolved about "+aLabel+" and "+bLabel+" here?";
   return [question,brief,"What does this chosen relationship explain, and what does it not establish?"];
  }
  const first=clean(a.initial.label),scene=clean(a.development.label);
@@ -505,7 +520,8 @@ export function expressUniversal(packet,emotion,source){
  const uncertainty=sentence(source.epistemicLimits);
  const counter=sentence(source.counterexample);
  const sourceClaim=sentence(source.evidenceClaim);
- const firsts=unique([chosen,choiceBrief,minimalChoice(packet,source)]);
+ const firsts=unique([chosen,choiceBrief,minimalChoice(packet,source),
+  briefResponseChoice(packet,source)]);
  // A compact output always contains an authenticated thesis AND a
  // choice-sensitive consequence; no source-key-specific fixed conclusions.
  const compactSeconds=unique([
@@ -520,8 +536,8 @@ export function expressUniversal(packet,emotion,source){
   "No concise source-grounded path-sensitive rendering satisfies the 40–65-word policy",
   "needs_editorial_review");
  const fullFirsts=unique([
-  chosen+" "+sentence(source.humanTension),
-  choiceBrief+" "+sentence(source.humanTension),
+  chosen+" "+humanTensionSentence(source.humanTension),
+  choiceBrief+" "+humanTensionSentence(source.humanTension),
   chosen+" This fictional choice does not establish what you actually do.",
   choiceBrief+" This fictional choice does not establish what you actually do.",
   chosen,choiceBrief
