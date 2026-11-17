@@ -170,7 +170,7 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      assert.equal(await page.locator(".b27-concept.active").count(),0);
      await page.locator('[data-b27="pair"][data-value="'+pair[1]+'"]').click();
      await page.locator('[data-b27="pair"][data-value="'+pair[0]+'"]').click();
-     assert.equal(await page.locator(".b27-link-lines path").count(),1);
+     await page.waitForFunction(()=>document.querySelectorAll(".b27-link-lines path").length===1);
      assert.match(await page.locator(".b27-scenario").innerText(),
       /woman|course|education|choose/i);
      assert.doesNotMatch(await page.locator(".b27-scenario").innerText(),
