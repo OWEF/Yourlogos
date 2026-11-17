@@ -73,6 +73,12 @@ test("Emerson: independent judgment concerns present reasons rather than generic
  assert.match(other.fullMeaning.meaning.selectedClaim,/present reasons/i);
  assert.notEqual(one.fullMeaning.meaning.selectedClaim,other.fullMeaning.meaning.selectedClaim);
  assert.match(other.compact.sections[1].text,/present judgment|independent judgment|past words/i);
+ const retainQuestion=one.compact.sections[2].text;
+ const reviseQuestion=other.compact.sections[2].text;
+ assert.notEqual(retainQuestion,reviseQuestion,
+  "Maintaining versus revising must produce distinct questions, not a change of fictional event only");
+ assert.match(retainQuestion,/keep|keeping|support|considered/i);
+ assert.match(reviseQuestion,/revis|revision/i);
 });
 test("Wollstonecraft: human educational dilemma, no fabricated stereotype or causal dominance",()=>{
  const r=CZ147_SOURCE_RECORDS.find(x=>x.quoteId===23);
@@ -84,4 +90,11 @@ test("Wollstonecraft: human educational dilemma, no fabricated stereotype or cau
  const out=run(23,{pairs:[{aId:"education",bId:"judgment",relationId:"support"}]});
  assert.match(out.compact.sections[1].text,/independent judgment/i);
  assert.doesNotMatch(out.compact.sections[2].text,/girls' education causes domination/i);
+ assert.doesNotMatch(r.epistemicLimits,/group debate/i,
+  "The source uncertainty contract must match the new educational situation");
+ assert.doesNotMatch(out.fullExpression.sections[1].text,/group debate/i);
+ const contrast=run(23,{pairs:[{aId:"dominance",bId:"agency",relationId:"contrast"}]});
+ assert.match(contrast.compact.sections[2].text,/decision|control|self-government/i);
+ assert.doesNotMatch(contrast.compact.sections[2].text,/what does this leave open/i,
+  "Contrast must invite a concrete question, not a generic unresolved-place placeholder");
 });
