@@ -209,6 +209,14 @@ test("Emerson consistency and Seneca deliberate rest do not become generic uncer
  }
 });
 
+test("Self-governance support question does not repeat its own concepts or turn help into domination",()=>{
+ const autonomy=run(23,pairs("education","judgment","support"));
+ assert.match(autonomy.compact.sections[2].text,/without turning support into control/i);
+ assert.match(autonomy.compact.sections[2].text,/girls' education/i);
+ assert.match(autonomy.compact.sections[2].text,/independent judgment/i);
+ assert.doesNotMatch(autonomy.compact.sections[2].text,
+  /independent judgment.*independent judgment/i);
+});
 test("No invented exclusivity or dominance in ANY source-authorized finite-resource allocation",()=>{
  for(const source of records.filter(r=>r.familyId==="balance_move")){
   const a=source.allocation,n=a.resourceCapacity,count=a.choices.length;
