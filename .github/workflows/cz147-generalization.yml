@@ -1,0 +1,43 @@
+name: CZ-147 Universal Three-Engine Generalization
+on:
+  push:
+    branches: [feature/cz147-universal-three-engine, qa/cz147-independent-holdout]
+  pull_request:
+    paths:
+      - "experiments/yl-cz147-*"
+      - "experiments/yl-b27-route.mjs"
+      - "tests/yl-cz147-*"
+      - ".github/workflows/cz147-generalization.yml"
+permissions:
+  contents: read
+jobs:
+  universal-source-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Source-neutral engine syntax and anti-hardcode audit
+        run: |
+          node --check experiments/yl-cz147-engines.mjs
+          node --check experiments/yl-cz147-sources.mjs
+          node --check experiments/yl-b27-route.mjs
+          node -e "const x=require('fs').readFileSync('experiments/yl-cz147-engines.mjs','utf8');for(const name of ['Kierkegaard','Seneca','Emerson','Wollstonecraft','Epictetus','Thoreau','Dillard','Smith'])if(x.includes(name))throw Error('Hardcoded philosopher in shared logic: '+name)"
+      - name: All editorial sources, all reachable choices, three engines, source refusal and legacy route
+        run: node --test tests/yl-cz147-engine.test.mjs
+      - name: Legacy B2.7 immutable quote, compact, historical semantics and persistence
+        run: |
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs tests/yl-b25-generalized-encounter.test.mjs
+      - name: Install Chrome automation driver without browser download
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Actual app 4 new sources x 4 viewports with saved My World readback
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Preserve source capability matrix and complete three-engine examples
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz147-source-matrix-and-engine-output
+          path: qa-evidence-cz147/
+          if-no-files-found: warn
