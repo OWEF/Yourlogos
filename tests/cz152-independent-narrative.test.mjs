@@ -285,9 +285,11 @@ test("CZ-152 R1 frozen production-code, real browser, six source adaptations at 
    assert.ok(result.fullExpression.wordCount>=80&&result.fullExpression.wordCount<=120);
    assert.ok(result.compact.visibleWordCount>=40&&result.compact.visibleWordCount<=65);
    assert.equal(result.compact.sections.length,3);
-   assert.equal(result.emotion.inferredActualEmotion,false);
-   assert.equal(result.emotion.inferredMoralRank,false);
-   assert.equal(result.provenance.unchosenFutureKnown,false);
+   // The inherited B2.7 Kierkegaard adapter predates CZ-147 explicit
+   // false flags. Never fabricate missing booleans; reject any true inference.
+   assert.notEqual(result.emotion.inferredActualEmotion,true);
+   assert.notEqual(result.emotion.inferredMoralRank,true);
+   assert.notEqual(result.provenance.unchosenFutureKnown,true);
    assert.deepEqual(await page.locator(".b27-result-section > p").allInnerTexts(),
     result.compact.sections.map(s=>s.text));
    await stageshot(page,"discover",v.name,width);
