@@ -1,0 +1,58 @@
+name: CZ-149 Independent Founder Fidelity QA
+on:
+  push:
+    branches: [qa/cz149-independent-corrected]
+  pull_request:
+    paths:
+      - "tests/yl-cz149-independent-actual-qa.test.mjs"
+      - ".github/workflows/cz149-independent-founder.yml"
+permissions:
+  contents: read
+jobs:
+  qa-only-real-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Reject any product/source/engine modifications after engineering freeze
+        run: |
+          git cat-file -e 37f2f275060c88c81b4a06309baeecd88fba1056^{commit}
+          changed="$(git diff --name-only 37f2f275060c88c81b4a06309baeecd88fba1056 HEAD)"
+          test -n "$changed"
+          if printf "%s\n" "$changed" | grep -vE '^(tests/yl-cz149-independent-actual-qa\.test\.mjs|\.github/workflows/cz149-independent-founder\.yml)$'; then
+            echo "QA-only frozen SHA branch contains prohibited changes"; exit 1
+          fi
+      - name: Source and gesture test syntax
+        run: |
+          node --check tests/yl-cz149-independent-actual-qa.test.mjs
+          node --check experiments/yl-cz147-engines.mjs
+          node --check b27-app-runtime.js
+          node --check b27-encounter-ui.js
+      - name: Authentic source operations, prior philosophical and B2.7 contract regression
+        run: |
+          node --test tests/yl-cz149-philosophy.test.mjs
+          node --test tests/yl-cz147-r21-directional-relations.test.mjs
+          node --test tests/yl-cz147-r2-operation.test.mjs
+          node --test tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs
+          node --test tests/yl-b26-four-family-functional.test.mjs tests/yl-b26-four-family-contract.test.mjs
+      - name: Browser driver
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Freshly authored 16 actual consumer journeys and all four distinct games
+        run: node --test tests/yl-cz149-independent-actual-qa.test.mjs
+      - name: Replay developer finger drag drop and full API source output tests
+        run: node --test tests/yl-cz149-gestures.test.mjs
+      - name: Replay all four game families at 320 390 430 1024 with My World
+        run: node --test tests/yl-cz147-browser.test.mjs
+      - name: Archive all QA screenshots and authentic meaning packets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz149-independent-corrected-exact-sha-evidence
+          path: |
+            qa-evidence-cz149-independent/
+            qa-evidence-cz149/
+            qa-evidence-cz147/
+          if-no-files-found: warn
