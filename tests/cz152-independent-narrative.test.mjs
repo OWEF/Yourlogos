@@ -142,6 +142,7 @@ async function play(page,v,width){
   const dest=()=>page.locator('[data-b27-bucket="1"]');
   const before=await page.locator(".b27-bucket-heading strong").allInnerTexts();
   await t("choose",()=>src().dragTo(dest()));
+  await stageshot(page,"interaction",v.name,width);
   assert.equal(await page.locator('[data-b27="complete"]').count(),1);
   assert.notDeepEqual(await page.locator(".b27-bucket-heading strong").allInnerTexts(),before);
   if(width===390){
@@ -160,6 +161,7 @@ async function play(page,v,width){
    await page.waitForFunction(()=>document.querySelectorAll(".b27-link-lines path").length===1);
   });
   assert.equal(await page.locator(".b27-link-lines path").count(),1);
+  await stageshot(page,"interaction",v.name,width);
   if(width===390){
    await t("undo",async()=>{
     await page.locator('[data-b27="undo"]').click();
@@ -172,33 +174,57 @@ async function play(page,v,width){
    });
   }
  } else if(v.family==="decision_cards"){
-  await t("choose",()=>branch(page,"maintain"));
-  await t("external-development",()=>branch(page,"details"));
-  await t("response",()=>branch(page,"consider"));
+  const dynamic=v.id!==55;
+  const act=async(label,id)=>{
+   let choiceId;
+   await t(label,async()=>{
+    const btn=dynamic?page.locator('.b27-game [data-b27="branch"]:not(:disabled)').first():
+     page.locator('[data-b27="branch"][data-value="'+id+'"]');
+    choiceId=await btn.getAttribute("data-value");await btn.click();
+   });
+   return choiceId;
+  };
+  await act("choose","maintain");
+  await stageshot(page,"interaction",v.name,width);
+  await act("external-development","details");
+  const response=await act("response","consider");
   if(width===390){
    await t("undo",()=>page.locator('[data-b27="undo"]').click());
-   await t("rechoose-response",()=>branch(page,"consider"));
+   await act("rechoose-response",dynamic?response:"consider");
   }
  } else {
-  await t("choose",()=>branch(page,"prepare"));
-  assert.equal(await page.locator(".b27-flip").count(),2);
+  const dynamic=v.id!==48;
+  const act=async(label,id)=>{
+   let choiceId;
+   await t(label,async()=>{
+    const btn=dynamic?page.locator('.b27-game [data-b27="branch"]:not(:disabled)').first():
+     page.locator('[data-b27="branch"][data-value="'+id+'"]');
+    choiceId=await btn.getAttribute("data-value");await btn.click();
+   });
+   return choiceId;
+  };
+  await act("choose","prepare");
+  assert.ok((await page.locator(".b27-flip").count())>=2);
   assert.equal(await page.locator(".b27-flipped").count(),0);
   await snap(page,v.name+"-"+width+"-sealed");
   await t("flip-card",async()=>{
-   await branch(page,"silence");
+   const btn=dynamic?page.locator(".b27-flip:not(:disabled)").first():
+    page.locator('[data-b27="branch"][data-value="silence"]');
+   await btn.click();
    await page.locator(".b27-flipped").waitFor({state:"visible"});
   });
   assert.equal(await page.locator(".b27-flipped").count(),1);
-  await t("response",()=>branch(page,"respond"));
+  await stageshot(page,"interaction",v.name,width);
+  const response=await act("response","respond");
   if(width===390){
    await t("undo",()=>page.locator('[data-b27="undo"]').click());
-   await t("rechoose-response",()=>branch(page,"respond"));
+   await act("rechoose-response",dynamic?response:"respond");
   }
  }
  assert.equal(await page.locator('[data-b27="complete"]').count(),1,
   v.name+": valid canonical decision does not permit actual result");
 }
-test("CZ-152 R1 frozen production-code, real browser, 3 widths and four games",async()=>{
+test("CZ-152 R1 frozen production-code, real browser, six source adaptations at three widths",async()=>{
  const app=await server();
  const browser=await chromium.launch({channel:"chrome",args:["--no-sandbox"]});
  try{
