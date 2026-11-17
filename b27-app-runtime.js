@@ -157,7 +157,14 @@ export function createB27AppRuntime({
   if(kind==="begin"){
    if(sheet.stage!=="play"||sheet.beat!=="situation")return false;
    sheet.beat="play";sheet.message="";epoch++;draw();
-   requestAnimationFrame(()=>document.querySelector(".b27-game")?.focus({preventScroll:true}));
+   requestAnimationFrame(()=>{
+    const game=document.querySelector(".b27-game");
+    // A fast keyboard user may already have focused a new game control.
+    // Never steal focus away from that live control during this first frame.
+    const active=document.activeElement;
+    if(!game||(active&&active!==document.body&&active.closest?.(".b27-shell")))return;
+    game.focus({preventScroll:true});
+   });
    return true;
   }
   if(kind==="revise"){
