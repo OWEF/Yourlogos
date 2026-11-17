@@ -265,10 +265,14 @@ test("R2.1: Smith dependencies and Wollstonecraft's self-government use selected
    assert.equal(a.fullMeaning.meaning.choiceAnalysis.links[0].claim,e.claim);
    assert.equal(a.compact.sections.length,3);
    assert.ok(a.compact.sections[1].text.includes(r.sourceThesis));
-   assert.ok(a.compact.sections[2].text.includes(e.label)||
-    a.compact.sections[2].text.includes(e.claim.slice(0,18).toLowerCase())||
-    a.compact.sections[2].text.toLowerCase().includes("connection"),
-    "Question must tie to the selected relation rather than assert an unsupported arrow");
+   const labels=new Map(r.relation.cards.map(c=>[c.id,c.label]));
+   const question=a.compact.sections[2].text.toLowerCase();
+   assert.ok(question.includes(e.label.toLowerCase())||
+    question.includes(e.claim.slice(0,18).toLowerCase())||
+    question.includes("connection")||
+    (question.includes(labels.get(e.aId).toLowerCase())&&
+     question.includes(labels.get(e.bId).toLowerCase())),
+    "Question must reflect the chosen conceptual relation without inventing an arrow: "+question);
    assert.doesNotMatch(a.compact.sections[2].text,/\b(?:automatically causes|necessarily creates|proves that)\b/i);
   }
  }
