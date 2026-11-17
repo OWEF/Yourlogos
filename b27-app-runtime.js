@@ -156,7 +156,9 @@ export function createB27AppRuntime({
   if(kind==="world"){close();navigateWorld();return true;}
   if(kind==="begin"){
    if(sheet.stage!=="play"||sheet.beat!=="situation")return false;
-   sheet.beat="play";sheet.message="";epoch++;draw();return true;
+   sheet.beat="play";sheet.message="";epoch++;draw();
+   requestAnimationFrame(()=>document.querySelector(".b27-game")?.focus({preventScroll:true}));
+   return true;
   }
   if(kind==="revise"){
    if(!sheet.game)return false;
@@ -205,7 +207,10 @@ export function createB27AppRuntime({
     if(same(token))sheet.message="No unsupported insight was produced: "+
      String(err?.message||err);
    }finally{
-    if(same(token)){sheet.saving=false;draw();}
+    if(same(token)){sheet.saving=false;draw();
+     if(sheet.stage==="result")requestAnimationFrame(()=>
+      document.querySelector(".b27-result-headline")?.focus({preventScroll:true}));
+    }
    }
    return true;
   }
