@@ -532,3 +532,72 @@ body:has(.b27-shell) .discover-cover{
 @media(prefers-reduced-motion:reduce){
  .b27-shell,.b27-situation-symbol span{animation:none!important}
 }
+
+
+/* CZ-152 — source → imagined scene → playful action; one existing Situation
+   stage, no extra mandatory click. Uses Waterline tokens, not a new palette.
+   Crucially never animate the reconstructed shell or its backdrop. */
+.b27-situation{display:block;min-height:0;padding-top:clamp(22px,5vw,32px)}
+.b27-story-thread{position:relative;display:grid;gap:0;isolation:isolate}
+.b27-bridge-source{padding:1px 2px 0}
+.b27-bridge-label{
+ color:var(--b27-gold)!important;font:700 10px/1.35 "DM Sans",system-ui,sans-serif!important;
+ letter-spacing:.17em;text-transform:uppercase;margin:0 0 11px!important
+}
+.b27-situation .b27-bridge-idea{
+ color:var(--b27-ivory);font:500 clamp(24px,6.6vw,36px)/1.18
+ "Cormorant Garamond",Georgia,serif;
+ margin:0!important;max-width:34ch;overflow-wrap:break-word
+}
+.b27-bridge-link{
+ display:flex;align-items:center;gap:11px;min-height:43px;
+ color:var(--b27-gold);font:normal 15px Georgia,serif;padding:4px 1px
+}
+.b27-bridge-link i{
+ height:1px;flex:1;max-width:110px;
+ background:linear-gradient(90deg,rgba(202,181,141,.55),transparent)
+}
+.b27-bridge-link span:last-child{opacity:.55;font-size:12px}
+.b27-bridge-scene{
+ padding:16px 16px 15px;border:1px solid var(--b27-line);
+ border-radius:18px;background:linear-gradient(140deg,rgba(207,184,144,.08),rgba(255,255,255,.018));
+ box-shadow:inset 0 1px rgba(255,255,255,.065)
+}
+.b27-bridge-scene .b27-bridge-label{margin:0 0 8px!important}
+.b27-situation .b27-bridge-scene .b27-scenario{
+ color:var(--b27-ivory);font:400 clamp(14px,4vw,16px)/1.48
+ "DM Sans",system-ui,sans-serif;
+ max-width:48ch;margin:0!important
+}
+.b27-situation>.b27-buttons{margin-top:17px}
+.b27-situation .b27-byline{text-align:left;margin:10px 0 0;padding-left:2px}
+.b27-play .b27-play-prompt{
+ color:var(--b27-ivory);
+ font:400 clamp(15px,4.25vw,17px)/1.42 "DM Sans",system-ui,sans-serif;
+ margin:0 0 15px!important;max-width:47ch;
+ text-wrap:pretty
+}
+.b27-play .b27-kicker{margin:0 0 9px!important}
+.b27-play .b27-game{margin-top:0}
+.b27-play .b27-choice-recap{
+ color:var(--b27-muted);font-size:12px;margin:0 0 11px!important;
+ border-left:2px solid var(--b27-gold);padding-left:10px
+}
+.b27-play .b27-choice-recap strong{color:var(--b27-ivory)}
+.b27-bridge-scene,.b27-bridge-source{opacity:1}
+.b27-bridge-link span:first-child{animation:b27-bridge-pulse .45s ease-out both}
+@keyframes b27-bridge-pulse{
+ from{transform:translateX(-3px) scale(.87)}
+ to{transform:translateX(0) scale(1)}
+}
+@media(max-width:359px){
+ .b27-situation{padding-top:18px}
+ .b27-situation .b27-bridge-idea{font-size:clamp(23px,7.1vw,27px)}
+ .b27-bridge-scene{padding:13px 12px}
+ .b27-bridge-link{min-height:37px}
+ .b27-situation .b27-bridge-scene .b27-scenario{font-size:14px;line-height:1.45}
+ .b27-play .b27-play-prompt{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+ .b27-bridge-link span:first-child{animation:none!important;transform:none!important}
+}
