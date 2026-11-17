@@ -161,23 +161,34 @@ function tile(options,description){
 }
 function balanceHtml(enc){
  const a=enc.record.allocation,g=enc.game,amounts=counts(g,a.choices.length),
-  size=a.choices.length;
- const buckets=a.choices.map((x,i)=>'<div class="b27-bucket" data-b27-bucket="'+i+'">'+
-  '<small>'+e(x.label)+'</small><strong>'+amounts[i]+'</strong>'+
-  '<div class="b27-pieces">'+g.owners.map((owner,piece)=>owner===i?
-   b("move",'✦',"b27-piece",'draggable="true" data-b27-piece="'+piece+
-    '" aria-label="Move one '+e(a.unitName)+' from '+e(x.label)+' to the next use"'):"").join("")+
-  '</div></div>').join("");
+  size=a.choices.length,total=amounts.reduce((n,v)=>n+v,0),
+  free=a.resourceCapacity-total;
+ const buckets=a.choices.map((x,i)=>
+  '<div class="b27-bucket" role="group" aria-label="'+e(x.label)+
+   ' destination, '+amounts[i]+' '+e(a.unitName)+'" '+
+   'data-b27-bucket="'+i+'" data-b27-destination="'+e(x.id)+'" tabindex="0">'+
+  '<div class="b27-bucket-heading"><small>'+e(x.label)+'</small>'+
+  '<strong aria-label="'+amounts[i]+' pieces">'+amounts[i]+'</strong></div>'+
+  '<div class="b27-pieces" aria-label="Stack of '+amounts[i]+' movable pieces">'+
+   g.owners.map((owner,piece)=>owner===i?
+    b("move",'<span aria-hidden="true">✦</span>',"b27-piece",
+     'draggable="true" data-b27-piece="'+piece+
+     '" aria-label="Move '+e(a.unitName)+' piece '+(piece+1)+
+     ' from '+e(x.label)+'; drag it into another destination, or tap to transfer"'):"").join("")+
+  '</div><div class="b27-bucket-drop" aria-hidden="true">DROP HERE <span>↘</span></div></div>').join("");
  const slider='<label class="b27-slider-label" for="b27-slider">Adjust '+e(a.choices[0].label)+
   ' <strong>'+amounts[0]+' / '+a.resourceCapacity+' '+e(a.unitName)+'</strong></label>'+
   '<input id="b27-slider" type="range" min="0" max="'+a.resourceCapacity+
   '" step="1" value="'+amounts[0]+'" data-b27-slider aria-label="Allocate '+e(a.unitName)+' to '+e(a.choices[0].label)+'"/>';
  const lenses=arr(a.lenses);
- return '<p class="b27-instruction">Tap a piece to move it, drag between containers, or use the slider.</p>'+
-  '<div class="b27-buckets '+(size===3?"b27-three":"")+'">'+buckets+'</div>'+
+ return '<p class="b27-instruction">Move a piece between the destinations. Each piece is the same finite time—no new time appears.</p>'+
+  '<div class="b27-resource-status" role="status"><strong>'+total+' of '+a.resourceCapacity+
+  ' placed</strong><span>'+free+' unassigned · '+a.resourceCapacity+' movable pieces</span></div>'+
+  '<div class="b27-buckets '+(size===3?"b27-three":"")+'" aria-label="Destination areas for finite resources">'+
+  buckets+'</div>'+
   '<div class="b27-allocation-meta">'+slider+
-  '<p>'+amounts.reduce((s,n)=>s+n,0)+' allocated · '+a.resourceCapacity+' available'+
-  (a.repetitions===null?"":" · × "+a.repetitions+" imagined repetitions")+'</p></div>'+
+  '<p>Reallocate freely · '+(a.repetitions===null?"one imagined period":
+   a.repetitions+" imagined repetitions")+'. Use Undo or Reset to reconsider.</p></div>'+
   (lenses.length?'<div class="b27-lenses">'+lenses.map(l=>
    b("focus",e(l.label),"b27-lens"+(g.focus===l.id?" selected":""),
     'data-value="'+e(l.id)+'" aria-pressed="'+(g.focus===l.id)+'"')).join("")+'</div>':"");
@@ -186,76 +197,103 @@ function pairHtml(enc){
  const r=enc.record.relation,g=enc.game;
  const links=g.pairs.map(p=>{
   const edge=r.edges.find(x=>(x.aId===p.aId&&x.bId===p.bId&&x.relationId===p.relationId));
-  return '<span class="b27-pair-chip">'+e(edge?.label||"Connected")+'</span>';
+  if(!edge)return "";
+  return '<div class="b27-relation-evidence"><strong>✧ '+e(edge.label)+'</strong>'+
+   '<p>'+e(edge.claim)+'</p></div>';
  }).join("");
- // The user should never guess a hidden "right" partner. Once an idea is
- // selected, only source-warranted partner buttons remain actionable; spell
- // those possibilities out instead of rejecting arbitrary mystery matches.
  const candidates=g.first===null?[]:r.edges.filter(edge=>
   edge.aId===g.first||edge.bId===g.first);
  const allowedIds=new Set(candidates.map(edge=>
   edge.aId===g.first?edge.bId:edge.aId));
  const labels=r.cards.filter(c=>allowedIds.has(c.id)).map(c=>e(c.label));
  const guide=g.pairs.length>=2?
-  '<p class="b27-pair-guide" role="status">Two connections are recorded. Choose Undo to revise them.</p>':
+  '<p class="b27-pair-guide" role="status">Two source-backed connections are recorded. Undo to try another.</p>':
   g.first===null?
-   '<p class="b27-pair-guide">Choose any idea first. Supported connections will be shown before your next tap.</p>':
-   '<p class="b27-pair-guide" role="status">Source-supported next ideas: '+labels.join(', ')+'.</p>';
- return '<p class="b27-instruction">Connect two ideas to explore a relationship. No secret matching score.</p>'+
+   '<p class="b27-pair-guide">Choose two concepts. Source-backed links light up.</p>':
+   '<p class="b27-pair-guide" role="status">Now connect it with: '+labels.join(', ')+'.</p>';
+ return '<p class="b27-instruction">Connect two ideas. There is no hidden score.</p>'+
   guide+
-  '<div class="b27-concepts" role="group" aria-label="Philosophical source-authorized concept cards">'+
-  r.cards.map(c=>{
+  '<div class="b27-concepts" role="group" aria-label="Four large source-authorized concept cards">'+
+  r.cards.map((c,i)=>{
    const eligible=g.pairs.length<2&&(g.first===null||c.id===g.first||allowedIds.has(c.id));
-   return b("pair",'<span aria-hidden="true" class="b27-concept-icon">✧</span><strong>'+e(c.label)+'</strong>',
+   return b("pair",'<span aria-hidden="true" class="b27-concept-icon">'+
+    ["✧","◇","✳","✦","✺","❖"][i%6]+'</span><strong>'+e(c.label)+'</strong>',
     "b27-concept"+(g.first===c.id?" active":"")+
      (g.pairs.some(p=>[p.aId,p.bId].includes(c.id))?" connected":""),
     'data-value="'+e(c.id)+'" aria-pressed="'+(g.first===c.id)+'" aria-label="'+e(c.label)+
      ". "+e(c.detail)+'"'+(eligible?"":' disabled aria-disabled="true"'));
-  }).join("")+'</div>'+
-  '<div class="b27-connections" aria-live="polite">'+links+'</div>';
+  }).join("")+
+  '<svg class="b27-link-lines" data-b27-link-layer aria-hidden="true"></svg></div>'+
+  '<div class="b27-connections" aria-live="polite" aria-label="Source-supported connections">'+links+'</div>';
 }
 function selectedChoiceRecap(record,game){
  const start=starts(record).find(x=>x.id===game.start);
  return start?'<p class="b27-choice-recap">Your initial choice: <strong>'+e(start.label)+'</strong></p>':"";
 }
+function dilemmaCard(kicker,title,detail){
+ return '<div class="b27-dilemma"><span class="b27-dilemma-kicker">'+e(kicker)+
+  '</span><h3>'+e(title)+'</h3>'+(detail?'<p>'+e(detail)+'</p>':"")+'</div>';
+}
 function decisionHtml(enc){
- const g=enc.game,r=enc.record;
- if(g.start===null)return '<p class="b27-instruction">One decision before you know how the story will develop.</p>'+
-  tile(starts(r),"Choose your first action");
- const recap=selectedChoiceRecap(r,g);
- if(g.scene===null)return recap+'<p class="b27-instruction">Explore one invented later possibility. This is not a prediction or a consequence you caused.</p>'+
-  tile(scenes(r,g.start),"Explore one fictional development");
+ const g=enc.game,r=enc.record,recap=selectedChoiceRecap(r,g);
+ if(g.start===null)return dilemmaCard("THE DILEMMA","What is your first move?",r.humanTension||r.intro)+
+  '<p class="b27-instruction">Pick one of the two possibilities below.</p>'+
+  tile(starts(r),"Two possible opening decisions");
+ if(g.scene===null)return recap+
+  dilemmaCard("AN UNWRITTEN TURN","What happens next is not in your control.",
+   "Explore one fictional development; neither option is caused by your choice.")+
+  tile(scenes(r,g.start),"Two independently authored fictional developments");
  if(g.response===null){
   const scene=scenes(r,g.start).find(x=>x.id===g.scene);
-  return recap+'<p class="b27-authored">Author-written possibility: '+e(scene?.authoredText||scene?.label)+
-   '</p>'+tile(responses(r,g.start,g.scene),"Choose your own response");
+  return recap+dilemmaCard("THE SITUATION CHANGED",
+   scene?.label||"A new detail appears",scene?.authoredText)+
+   '<p class="b27-instruction">Your next response is yours to choose.</p>'+
+   tile(responses(r,g.start,g.scene),"Two possible reader responses");
  }
  const happened=scenes(r,g.start).find(x=>x.id===g.scene)?.label;
  const response=responses(r,g.start,g.scene).find(x=>x.id===g.response)?.label;
- return recap+'<p class="b27-authored">Imagined development: '+e(happened)+
-  '. Your response: '+e(response)+'. The unchosen future remains unknown.</p>';
+ return recap+dilemmaCard("YOUR PATH","You chose, learned, and responded.",
+  "Imagined event: "+(happened||"")+" · Your response: "+(response||"")+
+   ". This is not proof of what another future would have contained.")+
+   '<p class="b27-authored">The fictional development was independently authored. Your agency remains in your own decisions.</p>';
 }
 function flipHtml(enc){
  const g=enc.game,r=enc.record;
- if(g.start===null)return '<p class="b27-instruction">What would you choose before seeing any later possibility?</p>'+
-  tile(starts(r),"Choose first");
+ if(g.start===null)return dilemmaCard("BEFORE THE UNKNOWN",
+  "What can you choose before the event?",r.humanTension||"Your next action is yours.")+
+  tile(starts(r),"Choose one opening action");
  const possible=scenes(r,g.start),recap=selectedChoiceRecap(r,g);
- const cards='<div class="b27-flips" role="group" aria-label="Two fictional possibilities">'+possible.map((item,i)=>{
-  const selected=g.scene===item.id;
-  return b("branch",'<span class="b27-flip-interior"><span class="b27-flip-front">✧<small>Possibility '+(i+1)+'</small></span>'+
-   '<span class="b27-flip-back"><strong>'+e(item.label)+'</strong><small>'+
-    e(selected?item.authoredText:"An unopened possibility")+'</small></span></span>',
-   "b27-flip"+(selected?" revealed":""),
-   'data-value="'+e(item.id)+'" aria-label="'+e(selected?"Revealed authored possibility: ":"Flip an authored possibility: ")+e(item.label)+'" '+
-    (g.scene!==null&&!selected?"disabled":"")
-  );
- }).join("")+'</div>';
- if(g.scene===null)return recap+'<p class="b27-instruction">Flip a card to explore a fictional possibility—not your actual future.</p>'+cards;
- if(g.response===null)return recap+cards+'<p class="b27-authored">This was written as a possible development. You did not cause it.</p>'+
-  tile(responses(r,g.start,g.scene),"Choose what you would do after this fictional event");
+ const cards='<div class="b27-flips" role="group" aria-label="Face-down fictional possibility cards">'+
+  possible.slice(0,3).map((item,i)=>{
+   const selected=g.scene===item.id,locked=g.scene!==null&&!selected;
+   // Never put the unopened event, its written detail, or its name in
+   // hidden card DOM/aria. An unopened card has only an opaque ordinal.
+   const back=selected?
+     '<strong>'+e(item.label)+'</strong><small>'+e(item.authoredText)+'</small>':
+     '<strong>Unknown</strong>';
+   return b("branch",
+    '<span class="b27-flip-interior"><span class="b27-flip-front">'+
+    '<span aria-hidden="true">✧</span><small>SEALED · '+(i+1)+'</small>'+
+    '</span><span class="b27-flip-back">'+back+'</span></span>',
+    "b27-flip"+(selected?" revealed b27-flip-pending":"")+(locked?" b27-flip-locked":""),
+    'data-value="'+e(item.id)+'" data-b27-flip-index="'+i+'" '+
+    'aria-pressed="'+selected+'" aria-label="'+e(selected?
+      "Revealed fictional event: "+item.label:
+      "Face-down possibility "+(i+1)+". Reveal this fictional card")+
+    '"'+(locked?' disabled aria-disabled="true"':""));
+  }).join("")+'</div>';
+ if(g.scene===null)return recap+
+  '<p class="b27-instruction">Two sealed cards. Choose one to flip—the written possibility is concealed until your tap.</p>'+cards;
+ const revealed=possible.find(x=>x.id===g.scene);
+ if(g.response===null)return recap+cards+
+  '<p class="b27-authored">Revealed fictional possibility: '+e(revealed?.label||"")+
+   '. You did not cause this event by choosing a card.</p>'+
+  dilemmaCard("AFTER THE REVEAL","What remains your decision?",
+   "The external scene is fictional. Your response is not predetermined.")+
+  tile(responses(r,g.start,g.scene),"Choose your own response");
  const response=responses(r,g.start,g.scene).find(x=>x.id===g.response)?.label;
  return recap+cards+'<p class="b27-authored">Your response: '+e(response)+
-  '. No unchosen outcome has been established.</p>';
+  '. This event was not your doing. No unchosen outcome is established.</p>';
 }
 function gameHtml(enc){
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);

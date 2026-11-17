@@ -98,15 +98,16 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
  }),
  make(23,{
   philosophicalOperation:{"kind":"self_governance","focus":"independent judgment and agency","contrast":"self-government rather than domination","sourceWarrantIds":["source:central"]},
-  exposeInApp:true,familyId:"tap_pair",title:"Whose freedom does this serve?",
-  intro:"Imagine a community group discussing girls' access to education. Some members confuse women's independence with having authority over men. Explore the distinction rather than choosing anyone's worth.",
-  humanTension:"Supporting self-government without making another person's subordination the goal.",
+  version:"cz149-wollstonecraft-human-dilemma/4",
+  exposeInApp:true,familyId:"tap_pair",title:"Who chooses her education?",
+  intro:"A woman is deciding what to study as part of her education. A relative offers advice but also wants to choose her subjects. She values the help yet wants the final say. When does support become control?",
+  humanTension:"Accepting genuine help with education while retaining the right to decide what to learn and how to live.",
   sourceThesis:"Women's independence concerns governing themselves, not dominating men",
   evidenceClaim:"Education supports the exercise of independent judgment and equal standing",
-  epistemicLimits:"A fictional group debate cannot measure anyone's actual rights or ethical worth",
+  epistemicLimits:"This fictional conversation cannot establish anyone's actual opportunities, rights, or wishes",
   compactLimit:"These conceptual links do not prove a person's virtue",
   counterexample:"Calling domination empowerment would invert the distinction in the cited argument",
-  readerAgency:"Connect concept pairs that distinguish self-government from domination",
+  readerAgency:"Connect education, judgment, self-government and control to consider who gets to make a real choice",
   reflectionQuestion:"What kind of independence could grow without reducing another person's agency?",
   supportedConclusions:["Self-government and authority over others are different claims"],
   affordances:["boundary_awareness","curious_reflection"],
@@ -114,12 +115,12 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   relation:relation([
    ["education","Girls' education","Access to education and learning"],
    ["judgment","Independent judgment","A woman's own reasoning capacity"],
-   ["dominance","Power over men","Authority imposed upon another person"],
+   ["dominance","Control over others","Deciding on another person's behalf"],
    ["agency","Self-government","The exercise of one's own agency"]
   ],[
    edge("education","judgment","support","Education and judgment","Access to education can support the exercise of independent judgment"),
    edge("judgment","agency","dependence","Agency through judgment","Reasoning for oneself is part of governing oneself in this illustration"),
-   edge("dominance","agency","contrast","Domination is different","Power over others is not equivalent to a woman's self-government"),
+   edge("dominance","agency","contrast","Domination is different","Choosing her subjects for her instead of advising her would replace self-government with someone else's control"),
    edge("education","agency","support","Education for independence","Education can support women's independence rather than a claim to dominate men")
   ])
  }),
@@ -200,6 +201,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   ])
  }),
  make(48,{
+  version:"cz149-epictetus-concrete-response/1",
   philosophicalOperation:{"kind":"event_acceptance","focus":"agency over responses to events","contrast":"chosen response versus externally determined occurrence","sourceWarrantIds":["source:central"]},
   exposeInApp:true,familyId:"flip_reveal",title:"An outcome you cannot command",
   intro:"Imagine preparing for an uncomfortable exchange. You can choose your approach, but another person's actions are not yours to script. Reveal one fictional development, then decide what response remains available.",
@@ -221,8 +223,8 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
    {id:"silence",label:"the other person stays silent",text:"The imaginary listener says nothing in this authored possibility"},
    {id:"delay",label:"the meeting is postponed",text:"An invented delay occurs independently of your initial preparation"}
   ],[
-   {id:"respond",label:"You attend to your response",stance:"observe"},
-   {id:"try",label:"You try another careful action",stance:"hold"}
+   {id:"respond",label:"You ask a specific follow-up question",stance:"observe"},
+   {id:"try",label:"You invite another conversation later",stance:"hold"}
   ])
  })
 ]);

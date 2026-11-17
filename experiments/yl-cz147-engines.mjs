@@ -305,7 +305,21 @@ export function reasonUniversal(source,input){
    sourceWarrantIds:["source:central","scenario:fictional"]};
   feature=route.responseStance==="reconsider"?"revision":
    route.responseStance==="observe"?"uncertainty":"commitment";
-  if(source.familyId==="decision_cards")
+  const operation=source.philosophicalOperation.kind;
+  if(operation==="event_acceptance")
+   claim="You chose “"+clean(route.startLabel)+"” and later “"+
+    clean(route.responseLabel)+"”. The fictional “"+clean(route.sceneLabel)+
+    "” was an independently authored external event, not an outcome you commanded. Your response remains a distinct choice.";
+  else if(operation==="independent_judgment")
+   claim="The opening commitment “"+clean(route.startLabel)+
+    "” meets the invented “"+clean(route.sceneLabel)+
+    "”. Your later response “"+clean(route.responseLabel)+
+    "” can be evaluated by present reasons, not loyalty to earlier words.";
+  else if(operation==="incremental_beginning")
+   claim="You first chose “"+clean(route.startLabel)+"” before the independently "+
+    "invented “"+clean(route.sceneLabel)+"”. The later response “"+
+    clean(route.responseLabel)+"” cannot guarantee an entire undertaking.";
+  else if(source.familyId==="decision_cards")
    claim="The opening choice “"+clean(route.startLabel)+"” precedes the imagined "+
     clean(route.sceneLabel)+"; responding by “"+clean(route.responseLabel)+
     "” revisits or maintains a commitment without proving it correct.";
@@ -529,6 +543,7 @@ function philosophicalReading(packet,emotion,source){
     "A conceptual link alone does not decide a person's actual situation.";
   const relationMeaning=selected.type==="contrast"||
    selected.type==="agency_boundary"?
+    op.kind==="self_governance"?sentence(selected.claim):
     "Contrasting "+lowerFirst(selected.a)+" with "+lowerFirst(selected.b)+
      " brings "+op.contrast+" into view.":
    selected.type==="complementarity"?
@@ -626,18 +641,29 @@ function philosophicalQuestions(packet,emotion,source){
  if(a.operation==="finite_resource"){
   const high=a.primary.map(x=>x.label).join(" and ");
   if(op.kind==="deliberate_use"){
-   if(a.shares.length===2&&a.primary.length===2)
-    return ["What would make this equal division deliberate rather than automatic?",
-     "What would make this division deliberate rather than automatic?"];
+   if(a.primary.length>1)return [
+    "If "+high+" share your limited evening, which choices are intentional rather than simply habitual?",
+    "How can sharing time between "+high+" reflect a deliberate life?",
+    "When time is divided, what makes the pattern intentional?"];
+   // Activity roles are source-authored editorial classifications, not
+   // moral ranks or claims about readers. Each warrants a different
+   // philosophical question under the same deliberate-use operation.
    const role=activityRole(source,a.primary[0].id);
-   const focus=role==="restorative_pause"?
-    "deliberate recovery rather than automatic avoidance":
-    role==="possible_distraction"?
-     "chosen enjoyment rather than habitual distraction":
-     "deliberate use rather than another form of busyness";
-   return ["With "+high+" receiving the most time, how would you distinguish "+focus+"?",
-    "How would you tell whether "+high+" served a purpose you had chosen?",
-    "What would make your time for "+high+" deliberate?"];
+   if(role==="restorative_pause")return [
+    "Could the time devoted to "+high+" be genuine recovery rather than another demand to stay busy?",
+    "What would make "+high+" an intentional recovery, not time you must justify?",
+    "When is "+high+" a deliberate pause rather than a failure to produce?"];
+   if(role==="possible_distraction")return [
+    "When does "+high+" become chosen enjoyment, and when might the evening pass without attention?",
+    "Did the imagined "+high+" serve a purpose, or merely occupy the available hours?",
+    "What distinguishes "+high+" as enjoyment from time passing unnoticed?"];
+   if(role==="deliberate_practice")return [
+    "Can "+high+" serve a purpose worth choosing without becoming another way to stay busy?",
+    "Does "+high+" express a chosen direction, or only fill the evening?",
+    "When does "+high+" become meaningful practice rather than automatic busyness?"];
+   return [
+    "With "+high+" receiving most time, what purpose could justify that choice without ranking its moral worth?",
+    "What makes time for "+high+" deliberate instead of merely occupied?"];
   }
   if(op.kind==="habitual_pattern")
    return ["If days like this repeated, what pattern would "+high+" create without defining your whole life?",
@@ -670,11 +696,15 @@ function philosophicalQuestions(packet,emotion,source){
    const autonomy=op.kind==="self_governance"&&primary.type==="support"?
     "How could "+lowerFirst(primary.a)+" relate to "+lowerFirst(primary.b)+
     " without turning support into control?":null;
+   const autonomyContrast=op.kind==="self_governance"&&primary.type==="contrast"?
+    "When a choice is contested, what separates "+lowerFirst(primary.a)+
+    " from "+lowerFirst(primary.b)+"?":null;
    const claimQuestion="If "+lowerClaim+", what does this leave open?";
    const specific="What does the “"+label+"” connection clarify about "+op.focus+"?";
    const neutral="What does the chosen “"+label+"” relation establish, and what remains uncertain?";
    const compact="What remains open about the “"+label+"” connection?";
-   return [...(autonomy?[autonomy]:[]),claimQuestion,specific,neutral,compact];
+   return [...(autonomy?[autonomy]:[]),...(autonomyContrast?[autonomyContrast]:[]),
+    claimQuestion,specific,neutral,compact];
   }
   const other=a.links[1],secondLabel=clean(other.label);
   const specific="How do “"+label+"” and “"+secondLabel+
@@ -692,10 +722,18 @@ function philosophicalQuestions(packet,emotion,source){
   return ["After the imagined “"+event+"”, how can you "+response+" without requiring the event to have obeyed your wishes?",
    "After “"+event+"”, what remains within your response rather than the other person's control?",
    "Which response is still yours when “"+event+"” happens?"];
- if(op.kind==="independent_judgment")
-  return ["After the invented “"+event+"”, what current reason could justify your commitment without obeying your past words?",
-   "Would your reasons survive “"+event+"” without mere consistency?",
-   "How would present judgment answer “"+event+"”?"];
+ if(op.kind==="independent_judgment"){
+  const retained=startRole(source,a.initial.id)==="retain_prior";
+  // Preserving a position and revising it are distinct exercises of
+  // present judgment. The philosopher cannot assess either by its label.
+  return retained?[
+   "After the imagined “"+event+"”, what present reason warrants keeping the plan rather than defending your earlier words?",
+   "Which evidence still supports the plan after “"+event+"”?",
+   "What makes keeping the plan a considered decision now?"]:[
+   "After the imagined “"+event+"”, what evidence warrants revising the plan rather than simply avoiding criticism?",
+   "What changed enough to justify revision after “"+event+"”?",
+   "What would make revision an independent judgment rather than a reaction?"];
+ }
  if(op.kind==="incremental_beginning"){
   const role=startRole(source,a.initial.id);
   const concise=role==="begin_modestly"?
