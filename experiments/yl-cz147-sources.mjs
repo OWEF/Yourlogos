@@ -169,7 +169,7 @@ export const CZ147_SOURCE_RECORDS=Object.freeze([
   narrativeBridge:{
    version:"cz152-narrative/1",
    bridgeFromSource:"Emerson questions whether yesterday's public opinion must govern the judgment you make with today's reasons.",
-   situationHook:"You publicly supported a neighborhood plan. New facts raise doubts, but neighbors expect you to stand by it. Changing course might help—or might not.",
+   situationHook:"You publicly supported a neighborhood plan. New facts raise doubts, but neighbors expect you to stay consistent. Changing course might help—or might not.",
    playPrompt:"Keep the plan, or open it to reconsideration?",
    sourceWarrantIds:["source:central","scenario:fictional"]
   },
