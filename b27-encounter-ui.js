@@ -275,7 +275,7 @@ function flipHtml(enc){
     '<span class="b27-flip-interior"><span class="b27-flip-front">'+
     '<span aria-hidden="true">✧</span><small>SEALED · '+(i+1)+'</small>'+
     '</span><span class="b27-flip-back">'+back+'</span></span>',
-    "b27-flip"+(selected?" b27-flip-pending":"")+(locked?" b27-flip-locked":""),
+    "b27-flip"+(selected?" revealed b27-flip-pending":"")+(locked?" b27-flip-locked":""),
     'data-value="'+e(item.id)+'" data-b27-flip-index="'+i+'" '+
     'aria-pressed="'+selected+'" aria-label="'+e(selected?
       "Revealed fictional event: "+item.label:
