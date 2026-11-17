@@ -166,6 +166,25 @@ test("Four same-family distinct-argument contrasts carry incompatible philosophi
    reasoning:result.fullMeaning,emotion:result.emotion,
    full:result.fullExpression,compact:result.compact})),null,2));
 });
+test("Qualitative review: no participial full-sentence fragments, naked source contrast, or tautological attention question",()=>{
+ const kyr=run(94,flip("stay","welcome","reflect"));
+ const epi=run(48,flip("prepare","silence","respond"));
+ const smith=run(91,pairs("design","friend","complementarity"));
+ const wool=run(23,pairs("dominance","agency","contrast"));
+ const pas=run(10,{amounts:[3,2,1],budgets:[6],touched:true});
+ for(const value of [kyr,epi]){
+  assert.doesNotMatch(value.fullExpression.sections[0].text,
+   /In this fictional situation, (choosing|preparing) .*\\./i,
+   "Gerund opening may contain a subordinate verb but not a complete main clause");
+  assert.match(value.fullExpression.sections[0].text,/The dilemma involves/i);
+ }
+ for(const value of [smith,wool]){
+  assert.doesNotMatch(value.fullExpression.sections[1].text,
+   /\\. (division of work versus moral endorsement|self-government rather than domination)\\./i);
+ }
+ assert.doesNotMatch(pas.compact.sections[2].text,/quiet attention leave space for quiet attention/i);
+ assert.match(pas.compact.sections[2].text,/quiet|reflection|notice/i);
+});
 test("Epictetus keeps agency separate from events even when initial choice and fictional event change",()=>{
  for(const [a,b,c] of [["prepare","silence","respond"],["listen","delay","try"]]){
   const out=run(48,flip(a,b,c));
