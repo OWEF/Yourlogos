@@ -104,3 +104,27 @@ test("Wollstonecraft: human educational dilemma, no fabricated stereotype or cau
  assert.doesNotMatch(contrast.compact.sections[2].text,/what does this leave open/i,
   "Contrast must invite a concrete question, not a generic unresolved-place placeholder");
 });
+
+test("R3: natural choice-specific closing questions across Epictetus and Emerson, Seneca unchanged",()=>{
+ const cases=[
+  {id:48,tag:"silence-ask",input:flip("prepare","silence","respond"),focus:/question|response|choose|outcome/i},
+  {id:48,tag:"delay-invite",input:flip("listen","delay","try"),focus:/conversation|response|choose|outcome/i},
+  {id:55,tag:"keep",input:{path:["maintain","details","consider"]},focus:/keep|plan|reason|statement|words/i},
+  {id:55,tag:"revise",input:{path:["revisit","critique","consider"]},focus:/revis|evidence|criticism|consistency/i}
+ ];
+ const evidence=[];
+ for(const c of cases){
+  const out=run(c.id,c.input),question=out.compact.sections[2].text;
+  assert.match(question,c.focus,c.tag);
+  assert.doesNotMatch(question,/“[^”]+” happens|when (?:the other person stays silent|the meeting is postponed) happens/i,
+   "A genuine event should never be a mechanical noun inserted before 'happens'");
+  assert.doesNotMatch(question,/you are (?:lazy|virtuous|weak|a good person)/i);
+  evidence.push({tag:c.tag,canonical:out.canonical_choice,meaning:out.fullMeaning,
+   rhetoricalStrategy:out.emotion,fullExpression:out.fullExpression,compact:out.compact});
+ }
+ assert.equal(new Set(evidence.slice(0,2).map(x=>x.compact.sections[2].text)).size,2);
+ assert.equal(new Set(evidence.slice(2).map(x=>x.compact.sections[2].text)).size,2);
+ mkdirSync("qa-evidence-cz149",{recursive:true});
+ writeFileSync("qa-evidence-cz149/r3-natural-questions-genuine-three-engine.json",
+  JSON.stringify(evidence,null,2));
+});
