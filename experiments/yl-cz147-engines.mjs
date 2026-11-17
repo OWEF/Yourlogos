@@ -146,20 +146,23 @@ export function makeUniversalRegistry(records,quotes){
  }
  return Object.freeze({resolve,run,size:byId.size,ids:[...byId.keys()]});
 }
+/**
+ * Operation-specific, source-neutral meaning. The source owns its thesis,
+ * scenario, edge warrants and fictional scenes; the engine interprets the
+ * actual canonical choice without inferring anyone's inner life.
+ */
 export function reasonUniversal(source,input){
  if(!source||!obj(input))return deny("choice_invalid","Missing source or typed choice");
  if(source.sourceFingerprint!==fingerprintB25(Object.fromEntries(
     Object.entries(source).filter(([k])=>k!=="sourceFingerprint"))))
   return deny("source_tamper","Source content did not replay against its fingerprint");
- let canonical,feature,claim,route=null;
+ let canonical,feature,claim,route=null,analysis;
  if(source.familyId==="balance_move"){
   const a=source.allocation;
   const keys=Object.keys(input).sort().join("|");
   const expected=a.repetitions===null?
    ["amounts|budgets|touched","amounts|budgets|repetitions|touched"]:
    ["amounts|budgets|repetitions|touched"];
-  // The untouched B2.7 UI sends repetitions:null for non-repeating source
-  // records. Normalize this semantically equivalent client representation.
   if(!expected.includes(keys)||
     (a.repetitions===null&&Object.hasOwn(input,"repetitions")&&input.repetitions!==null)||
     input.touched!==true||!size(input.amounts,a.choices.length,a.choices.length)||
@@ -167,12 +170,34 @@ export function reasonUniversal(source,input){
     !size(input.budgets,1,1)||input.budgets[0]!==a.resourceCapacity||
     input.amounts.reduce((x,y)=>x+y,0)!==a.resourceCapacity||
     (a.repetitions!==null&&input.repetitions!==a.repetitions))
-    return deny("allocation_invalid","Only one exact conserved source-authorized allocation is valid");
+    return deny("allocation_invalid","Only one conserved source-authorized allocation is valid");
   canonical={amounts:[...input.amounts],budgets:[a.resourceCapacity],
    ...(a.repetitions===null?{}:{repetitions:a.repetitions})};
-  const positive=input.amounts.filter(n=>n>0).length;
-  feature=positive===1?"concentration":"competing_uses";
-  claim=source.evidenceClaim;
+  const shares=a.choices.map((choice,i)=>({id:choice.id,label:choice.label,
+   amount:input.amounts[i],index:i}));
+  const high=Math.max(...input.amounts),low=Math.min(...input.amounts);
+  const primary=shares.filter(x=>x.amount===high);
+  const constrained=shares.filter(x=>x.amount===low);
+  const excluded=shares.filter(x=>x.amount===0);
+  const repetitions=a.repetitions;
+  analysis={operation:"finite_resource",capacity:a.resourceCapacity,unit:a.unitName,
+   shares,primary,constrained,excluded,repetitions,
+   equalPriority:primary.length===shares.length,
+   allAssigned:true,choiceIsMoralVerdict:false,
+   sourceWarrantIds:["source:central","scenario:fictional"]};
+  feature=primary.length===shares.length?"shared_use":
+   shares.filter(x=>x.amount>0).length===1?"concentration":"competing_uses";
+  if(primary.length===shares.length){
+   claim="Time is shared equally among "+primary.map(x=>x.label).join(", ")+
+    "; giving any one use more would leave less for another.";
+  }else if(primary.length>1){
+   claim=primary.map(x=>x.label).join(" and ")+" share the largest allocation; "+
+    constrained.map(x=>x.label).join(" and ")+" have less room in the same finite budget.";
+  }else{
+   claim="Giving the most time to "+primary[0].label+
+    " limits the remaining time for "+constrained.map(x=>x.label).join(" and ")+
+    "; this does not make either use morally superior.";
+  }
  }else if(source.familyId==="tap_pair"){
   if(!exact(input,["pairs"])||!size(input.pairs,1,2))
    return deny("pairs_invalid","Choose one or two source-authored concept relations");
@@ -180,25 +205,33 @@ export function reasonUniversal(source,input){
   for(const p of input.pairs){
    if(!exact(p,["aId","bId","relationId"])||
     !["aId","bId","relationId"].every(k=>typeof p[k]==="string"))
-    return deny("pair_invalid","A typed relation is required");
+    return deny("pair_invalid","An exact typed relation is required");
    const edge=source.relation.edges.find(e=>
     key(e.aId,e.bId)===key(p.aId,p.bId)&&e.relationId===p.relationId);
    if(!edge||seen.has(key(edge.aId,edge.bId)))
-    return deny("relation_unsupported","This link lacks a specific source warrant");
+    return deny("relation_unsupported","This relation lacks a specific source warrant");
    seen.add(key(edge.aId,edge.bId));picked.push(edge);
   }
   picked.sort((a,b)=>key(a.aId,a.bId).localeCompare(key(b.aId,b.bId)));
   canonical={pairs:picked.map(e=>({aId:e.aId,bId:e.bId,relationId:e.relationId}))};
-  feature=picked.some(e=>e.relationId==="agency_boundary"||
-   e.relationId==="contrast")?"boundary":"relation";
+  const cards=new Map(source.relation.cards.map(c=>[c.id,c.label]));
+  analysis={operation:"source_relation",
+   links:picked.map(e=>({aId:e.aId,bId:e.bId,
+    a:cards.get(e.aId),b:cards.get(e.bId),
+    type:e.relationId,label:e.label,claim:e.claim,warrantIds:e.warrantIds})),
+   relationTypes:picked.map(e=>e.relationId),
+   hasBoundary:picked.some(e=>["agency_boundary","contrast"].includes(e.relationId)),
+   sourceWarrantIds:picked.flatMap(e=>e.warrantIds),
+   noCorrectAnswer:true,noMoralScore:true};
+  feature=analysis.hasBoundary?"boundary":"relation";
   claim=picked.map(e=>e.claim).join(" ");
   route=picked;
  }else{
   if(source.familyId==="decision_cards"){
    if(!exact(input,["path"])||!size(input.path,3,3)||input.path.some(x=>typeof x!=="string"))
-    return deny("path_invalid","An exact three-choice path is required");
+    return deny("path_invalid","An exact three-stage choice path is required");
    route=source.timeline.find(t=>[t.startId,t.sceneId,t.responseId].every((x,i)=>x===input.path[i]));
-   if(!route)return deny("unsupported_path","No authored event/response has this path");
+   if(!route)return deny("unsupported_path","No authored development and response support that path");
    canonical={path:[route.startId,route.sceneId,route.responseId]};
   }else{
    const actions=input.actions;
@@ -213,17 +246,34 @@ export function reasonUniversal(source,input){
    route=source.timeline.find(t=>t.startId===actions[0].optionId&&
     t.sceneId===actions[1].sceneId&&t.responseId===actions[2].optionId);
    if(!route||route.authoredFutureIsPrediction!==false)
-    return deny("future_invention","A predicted or unapproved future cannot be played");
+    return deny("future_invention","An unauthenticated prediction cannot be played");
    canonical={path:[route.startId,route.sceneId,route.responseId]};
   }
-  feature=route.responseStance==="reconsider"?"revision":route.responseStance==="observe"?"uncertainty":"commitment";
-  claim=source.evidenceClaim;
+  analysis={operation:source.familyId==="decision_cards"?"sequential_commitment":"authored_retrospective",
+   initial:{id:route.startId,label:route.startLabel},
+   development:{id:route.sceneId,label:route.sceneLabel,
+    authoredText:[...route.authoredText],fictional:true,causedByInitialChoice:false},
+   response:{id:route.responseId,label:route.responseLabel,stance:route.responseStance},
+   alternativeFutureObserved:false,
+   outcomeGuaranteed:false,
+   sourceWarrantIds:["source:central","scenario:fictional"]};
+  feature=route.responseStance==="reconsider"?"revision":
+   route.responseStance==="observe"?"uncertainty":"commitment";
+  if(source.familyId==="decision_cards")
+   claim="The opening choice “"+clean(route.startLabel)+"” precedes the imagined "+
+    clean(route.sceneLabel)+"; responding by “"+clean(route.responseLabel)+
+    "” revisits or maintains a commitment without proving it correct.";
+  else
+   claim="Revealing "+clean(route.sceneLabel)+" after “"+clean(route.startLabel)+
+    "” exposes one fictional possibility; “"+clean(route.responseLabel)+
+    "” cannot reveal the unchosen future.";
  }
  return {status:"ready",version:"reason:"+CZ147_ENGINE_VERSION,
   sourceRecordId:source.recordId,sourceVersionHash:source.sourceFingerprint,
   selectedFamilyId:source.familyId,canonical_choice:canonical,
   meaning:{kind:source.familyId,centralClaim:source.sourceThesis,
-   selectedClaim:claim,selectedTimeline:source.familyId==="tap_pair"?null:route,
+   sourceClaim:source.evidenceClaim,selectedClaim:claim,choiceAnalysis:analysis,
+   selectedTimeline:source.familyId==="tap_pair"?null:route,
    selectedRelations:source.familyId==="tap_pair"?route:null,
    limitations:source.epistemicLimits,counterexample:source.counterexample,
    prohibitedInferences:source.prohibitedInferences,
@@ -231,37 +281,68 @@ export function reasonUniversal(source,input){
   choiceFeature:feature,evidenceIds:source.evidenceIds,
   hypothetical:true,realReaderEmotionInferred:false,publicationAllowed:false};
 }
+/**
+ * Emotion is a rhetorical POLICY, not a reader-state detector.
+ * Every selected move is a way to present the validated meaning packet.
+ */
 export function emotionUniversal(packet,source){
- if(packet?.status!=="ready"||!source)return deny("meaning_required","A verified source meaning packet is required");
- const available=source.affordances;
- const ordered=packet.choiceFeature==="boundary"?["boundary_awareness","curious_reflection"]:
-  packet.choiceFeature==="revision"?["revisability","uncertainty_awareness"]:
-  packet.choiceFeature==="competing_uses"?["tradeoff_attention","curious_reflection"]:
-  packet.choiceFeature==="concentration"?["choice_awareness","tradeoff_attention"]:
-  packet.choiceFeature==="uncertainty"?["uncertainty_awareness","curious_reflection"]:
-  ["choice_awareness","curious_reflection"];
- const strategy=ordered.find(a=>available.includes(a))??"neutral_reflection";
+ if(packet?.status!=="ready"||!source||
+    packet.sourceVersionHash!==source.sourceFingerprint)
+  return deny("meaning_required","A verified source meaning packet is required");
+ const allowed=source.affordances;
+ const preference=packet.choiceFeature==="boundary"?
+  ["boundary_awareness","curious_reflection"]:
+  packet.choiceFeature==="revision"?
+   ["revisability","uncertainty_awareness"]:
+  packet.choiceFeature==="uncertainty"?
+   ["uncertainty_awareness","curious_reflection"]:
+  packet.choiceFeature==="competing_uses"?
+   ["tradeoff_attention","curious_reflection"]:
+  packet.choiceFeature==="shared_use"?
+   ["tradeoff_attention","curious_reflection"]:
+  packet.choiceFeature==="concentration"?
+   ["choice_awareness","tradeoff_attention"]:
+  packet.choiceFeature==="relation"?
+   ["curious_reflection","boundary_awareness"]:
+  ["choice_awareness","uncertainty_awareness"];
+ const strategy=preference.find(x=>allowed.includes(x))??"neutral_reflection";
+ const moves={
+  tradeoff_attention:"surface_opportunity_cost",
+  choice_awareness:"examine_chosen_priority",
+  boundary_awareness:"separate_supported_from_prohibited",
+  curious_reflection:"inspect_selected_relation",
+  revisability:"introduce_counterconsideration",
+  uncertainty_awareness:"mark_unobserved_alternatives",
+  neutral_reflection:"state_only_authenticated_meaning"
+ };
  return {status:"ready",version:"emotion:"+CZ147_ENGINE_VERSION,
-  strategy,chosenFrom:packet.choiceFeature,
+  strategy,move:moves[strategy],chosenFrom:packet.choiceFeature,
+  attention:{operation:packet.meaning.choiceAnalysis.operation,
+   primary:packet.meaning.choiceAnalysis.primary?.map(x=>x.id)??[],
+   selectedRelations:packet.meaning.choiceAnalysis.links?.map(x=>x.type)??[],
+   initialAction:packet.meaning.choiceAnalysis.initial?.id??null,
+   fictionalDevelopment:packet.meaning.choiceAnalysis.development?.id??null,
+   responseStance:packet.meaning.choiceAnalysis.response?.stance??null},
   rhetoricSupported:strategy!=="neutral_reflection",
   inferredActualEmotion:false,inferredMoralRank:false,
   inferredPersonality:false,evidenceIds:packet.evidenceIds,
   noMindReading:true,publicationAllowed:false};
 }
-function describeChoice(packet,source){
+function describeChoice(packet,source,brief=false){
  const choice=packet.canonical_choice;
  if(source.familyId==="balance_move"){
   const a=source.allocation;
-  const selected=choice.amounts.map((n,i)=>({amount:n,label:a.choices[i].label}));
-  const positive=selected.filter(x=>x.amount>0),unused=selected.filter(x=>x.amount===0);
-  if(positive.length===1)
-   return "You reserved all "+a.resourceCapacity+" "+a.unitName+
-    " for "+positive[0].label+"; none for "+unused.map(x=>x.label).join(" or ")+".";
-  const uses=positive.map(x=>x.amount+" for "+x.label);
-  const formatted=uses.length===2?uses.join(" and "):
-   uses.slice(0,-1).join(", ")+", and "+uses.at(-1);
-  return "You divided "+a.resourceCapacity+" "+a.unitName+": "+formatted+
-   (unused.length?"; none for "+unused.map(x=>x.label).join(" or "):"")+".";
+  const chosen=choice.amounts.map((n,i)=>({n,label:a.choices[i].label}));
+  const used=chosen.filter(x=>x.n>0),zero=chosen.filter(x=>x.n===0);
+  const list=used.map(x=>x.n+" for "+x.label);
+  if(brief)return "You set "+list.join(", ")+
+   (zero.length?"; none for "+zero.map(x=>x.label).join(" or "):"")+".";
+  if(used.length===1)return "You reserved all "+a.resourceCapacity+" "+a.unitName+
+   " for "+used[0].label+"; none for "+zero.map(x=>x.label).join(" or ")+".";
+  return "You divided "+a.resourceCapacity+" "+a.unitName+": "+
+   (list.length===2?list.join(" and "):
+    list.slice(0,-1).join(", ")+", and "+list.at(-1))+
+   (zero.length?"; none for "+zero.map(x=>x.label).join(" or "):"")+".";
  }
  if(source.familyId==="tap_pair"){
   const cards=new Map(source.relation.cards.map(c=>[c.id,c.label]));
@@ -269,98 +350,204 @@ function describeChoice(packet,source){
    " with "+cards.get(p.bId)).join("; ")+".";
  }
  const t=packet.meaning.selectedTimeline;
- return "You chose "+quoteAction(t.startLabel)+", saw the imagined scene “"+
-  clean(t.sceneLabel)+"”, then chose "+quoteAction(t.responseLabel)+".";
+ const initial=quoteAction(t.startLabel),next=quoteAction(t.responseLabel);
+ return brief?"You chose "+initial+", saw “"+clean(t.sceneLabel)+
+  "”, then chose "+next+".":"You chose "+initial+
+  ", encountered the invented scene “"+clean(t.sceneLabel)+
+  "”, then chose "+next+".";
+}
+function dynamicReading(packet,emotion,source){
+ const a=packet.meaning.choiceAnalysis;
+ if(a.operation==="finite_resource"){
+  const high=a.primary.map(x=>x.label).join(" and ");
+  const low=a.constrained.map(x=>x.label).join(" and ");
+  const gap=a.primary[0].amount-a.constrained[0].amount;
+  const equal=a.equalPriority;
+  const core=equal?
+   "Sharing time equally between the named uses still makes every additional slot a trade-off.":
+   a.primary.length>1?
+    "Giving "+high+" a joint lead leaves less room for "+low+".":
+    "Giving "+high+" the largest share leaves less time for "+low+".";
+  const brief=equal?
+   "Equal shares still carry a cost if one grows.":
+   a.primary.length>1?
+    "The shared lead for "+high+" leaves less for "+low+".":
+    "Prioritizing "+high+" limits time for "+low+".";
+  const focus=emotion.strategy==="choice_awareness"?
+   "The largest share is a choice of emphasis, not proof of higher worth.":
+   emotion.strategy==="tradeoff_attention"?
+    "A gain for one use must cost another a slot of the same finite time.":
+    "The distribution shows a possibility, not a measured habit.";
+  return {long:core+" "+focus,short:brief,
+   minimal:equal?"An equal division still has opportunity costs.":
+    "Giving more to "+high+" leaves less for "+low+".",
+   focus:{leading:high,constrained:low,spread:gap,repetitions:a.repetitions},
+   evidence:["choice:canonical","scenario:fictional","source:central"]};
+ }
+ if(a.operation==="source_relation"){
+  const first=a.links[0];
+  const claims=a.links.map(x=>sentence(x.claim)).join(" ");
+  const core=emotion.strategy==="boundary_awareness"?
+   "The source-backed link marks a boundary: "+claims:
+   "Your selected relation carries this specific claim: "+claims;
+  const brief=a.links.length===1?
+   "The "+clean(first.label).toLowerCase()+" link connects "+first.a+" and "+first.b+".":
+   "These two links concern "+a.links.map(x=>clean(x.label).toLowerCase()).join(" and ")+".";
+  const minimal=a.links.length===1?
+   "The selected link concerns "+first.label.toLowerCase()+".":
+   "The two selected links have distinct source-owned claims.";
+  return {long:core,short:brief,minimal,
+   focus:{relationTypes:a.relationTypes,claims:a.links.map(x=>x.claim)},
+   evidence:a.sourceWarrantIds};
+ }
+ const start=clean(a.initial.label),scene=clean(a.development.label);
+ const response=clean(a.response.label),stance=a.response.stance;
+ const retrospective=a.operation==="authored_retrospective";
+ const startClause="Your initial choice “"+start+"”";
+ const sceneClause="the invented “"+scene+"”";
+ const principle=retrospective?
+  "reveals just one imagined development, not the life left unchosen":
+  "introduces an imagined complication, not a verdict on the earlier commitment";
+ const responseClause=stance==="reconsider"?
+  "Reconsidering after it can reopen reasons without proving that you were wrong.":
+  stance==="observe"?
+   "Attending to this scene cannot uncover the alternative that was never lived.":
+   "Continuing afterward does not prove that the earlier choice was correct.";
+ const long=startClause+" precedes "+sceneClause+", which "+principle+". "+
+  responseClause+" Your selected response is “"+response+"”.";
+ const short=retrospective?
+  "After “"+scene+"”, one imagined outcome cannot reveal the alternative.":
+  "After “"+scene+"”, "+(stance==="reconsider"?
+   "reconsideration need not prove the first choice wrong.":
+   "continuing need not prove the first choice right.");
+ const minimal=retrospective?
+  "The invented “"+scene+"” cannot reveal the unchosen future.":
+  "The invented “"+scene+"” cannot prove a decision correct.";
+ return {long,short,minimal,
+  focus:{initial:start,development:scene,response,stance,
+   inventedNotCaused:true,unchosenUnknown:true},
+  evidence:["source:central","scenario:fictional","source:boundary"]};
+}
+function reflectionQuestions(packet,emotion,source){
+ const a=packet.meaning.choiceAnalysis;
+ if(a.operation==="finite_resource"){
+  const high=a.primary.map(x=>x.label).join(" and ");
+  const low=a.constrained.map(x=>x.label).join(" and ");
+  const detailed=a.equalPriority?
+   "If you gave more time to one of these uses, which other use would yield?":
+   "With "+high+" taking the most time, what might be lost from "+low+"?";
+  const short=a.equalPriority?
+   "If you shifted one slot, what would you be giving up?":
+   "What would you give up to make more room for "+high+"?";
+  return [detailed,short,"What competing use would need to yield if your priority changed?"];
+ }
+ if(a.operation==="source_relation"){
+  const first=a.links[0],label=clean(first.label).toLowerCase();
+  const question=emotion.strategy==="boundary_awareness"?
+   "Where does the "+label+" link between "+first.a+" and "+first.b+" stop supporting a conclusion?":
+   "What does the "+label+" link between "+first.a+" and "+first.b+" help you notice?";
+  const brief="What remains uncertain about the selected "+label+" connection?";
+  return [question,brief,"What does this chosen relationship explain, and what does it not establish?"];
+ }
+ const first=clean(a.initial.label),scene=clean(a.development.label);
+ const after=emotion.strategy==="revisability"?
+  "what reason might justify revisiting your opening choice?":
+  emotion.strategy==="uncertainty_awareness"?
+   "what does the unknown alternative prevent you from concluding?":
+   "what would justify keeping or changing your original commitment?";
+ const detailed="After the invented “"+scene+"”, "+after.charAt(0).toLowerCase()+after.slice(1);
+ const anchored="You first chose “"+first+"”. What might the imagined “"+scene+"” leave unresolved?";
+ const short="After “"+scene+"”, what remains uncertain about your opening choice?";
+ return [detailed,anchored,short];
 }
 function typedWordPolicy(sections,lo,hi,min,max){
  const n=sections.map(x=>count(x.text)),total=n.reduce((x,y)=>x+y,0);
  return total>=lo&&total<=hi&&n.every((x,i)=>x>=min[i]&&x<=max[i])?
   {n,total}:null;
 }
+const unique=items=>[...new Set(items.map(x=>x.trim()))].filter(Boolean);
+function selectSections(firsts,seconds,thirds,lo,hi,min,max){
+ // Semantic priority: prefer explicit consequences and source-authored limits,
+ // never insert filler words merely to hit a number.
+ for(const f of firsts)for(const s of seconds)for(const t of thirds){
+  const parts=[f,s,t].map((text,i)=>({label:LABELS[i],text:sentence(text)}));
+  const policy=typedWordPolicy(parts,lo,hi,min,max);
+  if(policy)return {parts,policy};
+ }
+ return null;
+}
 export function expressUniversal(packet,emotion,source){
  if(packet?.status!=="ready"||emotion?.status!=="ready"||
   packet.sourceVersionHash!==source?.sourceFingerprint||
-  packet.evidenceIds.some(x=>!source.evidenceIds.includes(x)))
-  return deny("source_replay_invalid","The composed meaning lacks exact source evidence");
- const choice=describeChoice(packet,source);
- const question=sentence(source.reflectionQuestion);
+  packet.evidenceIds.some(x=>!source.evidenceIds.includes(x))||
+  emotion.evidenceIds.some(x=>!packet.evidenceIds.includes(x))||
+  emotion.chosenFrom!==packet.choiceFeature)
+  return deny("source_replay_invalid","The composed meaning lacks exact source or canonical-choice evidence");
  const author=source.source.author;
- // The same three source-linked facts, not an authored full-response template,
- // power compact and complete views. No hidden inspirational assertion.
- // A supported rhetorical strategy changes the *framing* of the same
- // authenticated argument. It cannot add a source claim or predict feelings.
- const frame={
-  tradeoff_attention:"trade-off",choice_awareness:"emphasis",
-  curious_reflection:"distinction",boundary_awareness:"boundary",
-  revisability:"challenge",uncertainty_awareness:"caution",
-  neutral_reflection:"argument"
- }[emotion.strategy]??"argument";
- const thesis=author+"'s "+frame+": "+sentence(source.sourceThesis);
- const selected=sentence(packet.meaning.selectedClaim);
- const qualifier=sentence(source.compactLimit);
- const shortBase=thesis+" "+qualifier;
- const shortWithEvidence=thesis+" "+selected+" "+qualifier;
- // Boundary/uncertainty rhetoric prioritizes an honest qualification;
- // trade-off and revision rhetoric prioritize the choice-linked evidence.
- const compactVariants=["boundary_awareness","uncertainty_awareness","neutral_reflection"]
-  .includes(emotion.strategy)?[shortBase,shortWithEvidence]:
-  [shortWithEvidence,shortBase];
- let compact=null;
- for(const middle of compactVariants){
-  let sections=[
-   {label:LABELS[0],text:choice},
-   {label:LABELS[1],text:middle},
-   {label:LABELS[2],text:question}
-  ];
-  const total=sections.reduce((s,x)=>s+count(x.text),0);
-  if(total>=40&&total<=65){compact=sections;break;}
- }
- if(!compact)return deny("compact_overflow","A faithful 40–65-word three-section rendering cannot be composed","needs_editorial_review");
- const fullFirstBase=choice+" This is a hypothetical exercise, not a report of choices you have actually made.";
- const fullFirst=count(fullFirstBase)<=48?fullFirstBase:choice+" The setting is invented.";
- const fullArgument=thesis+" "+selected+" "+sentence(source.epistemicLimits)+
-  " "+sentence(source.counterexample);
- const fullSecond=count(fullArgument)<=65?fullArgument:thesis+" "+selected+
-  " "+sentence(source.epistemicLimits);
- let full=[
-  {label:LABELS[0],text:fullFirst},
-  {label:LABELS[1],text:fullSecond},
-  {label:LABELS[2],text:question}
- ];
- let policy=typedWordPolicy(full,80,120,[10,18,9],[48,65,26]);
- if(!policy){
-  // Add only an explicit countercondition of epistemic restraint;
-  // never shorten the source claim or silently drop its limitation.
-  const extra="One imagined route cannot establish what would happen elsewhere, or decide what a real person ought to do.";
-  if(count(fullSecond)+count(extra)<=65)
-   full[1].text=fullSecond+" "+extra;
-  policy=typedWordPolicy(full,80,120,[10,18,9],[48,65,26]);
-  if(!policy&&full.reduce((sum,section)=>sum+count(section.text),0)<80){
-   const contextual="The link or action is a constructed illustration, not proof about any person or situation beyond it.";
-   if(count(full[0].text)+count(contextual)<=48)
-    full[0].text+=" "+contextual;
-   policy=typedWordPolicy(full,80,120,[10,18,9],[48,65,26]);
-  }
- }
- if(!policy)return deny("full_policy_overflow","The authenticated full 80–120-word interpretation cannot meet all section limits","needs_editorial_review");
- const compactCounts=typedWordPolicy(compact,40,65,[1,1,1],[48,65,26]);
- if(!compactCounts)return deny("compact_policy_invalid","Concise expression breached section policy","needs_editorial_review");
- const phrase=source.source.text.trim().split(/\s+/).slice(0,5).join(" ");
+ const chosen=describeChoice(packet,source,false);
+ const choiceBrief=describeChoice(packet,source,true);
+ const interpretation=dynamicReading(packet,emotion,source);
+ const questions=unique(reflectionQuestions(packet,emotion,source));
+ const thesis=sentence(source.sourceThesis);
+ const limit=sentence(source.compactLimit);
+ const uncertainty=sentence(source.epistemicLimits);
+ const counter=sentence(source.counterexample);
+ const sourceClaim=sentence(source.evidenceClaim);
+ const firsts=unique([chosen,choiceBrief]);
+ // A compact output always contains an authenticated thesis AND a
+ // choice-sensitive consequence; no source-key-specific fixed conclusions.
+ const compactSeconds=unique([
+  author+": "+thesis+" "+sentence(interpretation.short)+" "+limit,
+  thesis+" "+sentence(interpretation.short)+" "+limit,
+  author+": "+thesis+" "+sentence(interpretation.minimal)+" "+limit,
+  thesis+" "+sentence(interpretation.minimal)+" "+limit
+ ]);
+ const compact=selectSections(firsts,compactSeconds,questions,
+  40,65,[1,1,9],[48,65,26]);
+ if(!compact)return deny("compact_overflow",
+  "No concise source-grounded path-sensitive rendering satisfies the 40–65-word policy",
+  "needs_editorial_review");
+ const fullFirsts=unique([
+  chosen+" "+sentence(source.humanTension),
+  choiceBrief+" "+sentence(source.humanTension),
+  chosen+" This fictional choice does not establish what you actually do.",
+  choiceBrief+" This fictional choice does not establish what you actually do.",
+  chosen,choiceBrief
+ ]);
+ const fullSeconds=unique([
+  author+": "+thesis+" "+sentence(interpretation.long)+" "+uncertainty+" "+counter,
+  author+": "+thesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
+  author+": "+thesis+" "+sentence(interpretation.short)+" "+uncertainty,
+  author+": "+thesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+counter,
+  author+": "+thesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+sourceClaim,
+  author+": "+thesis+" "+sentence(interpretation.minimal)+" "+uncertainty,
+  thesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
+  thesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+counter,
+  thesis+" "+sentence(interpretation.short)+" "+uncertainty,
+  thesis+" "+sentence(interpretation.minimal)+" "+uncertainty
+ ]);
+ const full=selectSections(fullFirsts,fullSeconds,questions,
+  80,120,[10,18,9],[48,65,26]);
+ if(!full)return deny("full_policy_overflow",
+  "No 80–120-word three-section response can preserve source thesis, chosen consequence and uncertainty",
+  "needs_editorial_review");
+ const fragment=source.source.text.trim().split(/\s+/).slice(0,5).join(" ");
  return {status:"ready",
   fullExpression:{status:"ready",version:"expression:"+CZ147_ENGINE_VERSION,
-   sections:full.map((s,i)=>({...s,evidenceIds:i===0?["choice:canonical","scenario:fictional"]:source.evidenceIds})),
-   wordCount:policy.total,sectionWordCounts:policy.n,
+   sections:full.parts.map((s,i)=>({...s,evidenceIds:i===0?
+    ["choice:canonical","scenario:fictional"]:source.evidenceIds})),
+   wordCount:full.policy.total,sectionWordCounts:full.policy.n,
    sourceFingerprint:source.sourceFingerprint,author,quote:source.source.text,
    sourceUrl:source.source.referenceUrl,publicationAllowed:false},
   compact:{status:"ready",version:"compact:"+CZ147_ENGINE_VERSION,
-   sections:compact,visibleWordCount:compactCounts.total,
-   fullWordCount:policy.total,unchangedFullExpression:true,
+   sections:compact.parts,visibleWordCount:compact.policy.total,
+   fullWordCount:full.policy.total,unchangedFullExpression:true,
    sourceRecordId:source.recordId,sourceVersionHash:source.sourceFingerprint,
    sourceReview:"founder_provisional_development_only",
    philosopher:{author,work:source.source.work,
-    highlight:phrase,exactQuote:source.source.text,
+    highlight:fragment,exactQuote:source.source.text,
     sourceUrl:source.source.referenceUrl},
-   deepening:{fullSections:full,sourceQualification:full[1].text,
+   deepening:{fullSections:full.parts,sourceQualification:full.parts[1].text,
     originalSourceUrl:source.source.referenceUrl,
     necessaryLimits:source.epistemicLimits},publicationAllowed:false}};
 }
