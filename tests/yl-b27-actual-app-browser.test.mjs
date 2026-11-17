@@ -64,8 +64,12 @@ async function openAt(page,url,id,author){
  const b=await(await response).json();
  assert.equal(b.quoteId,id);
  if(b.status==="ready"){
+  await page.locator(".b27-situation").waitFor({state:"visible"});
+  const situationText=await page.locator(".b27-scenario").innerText();
+  await page.locator('[data-b27="begin"]').click();
   await page.locator(".b27-game").waitFor({state:"visible"});
   assert.equal(await page.locator('#questions,#qa-panel,[data-game]').count(),0);
+  b.situationText=situationText;
   assert.equal((await current(page)).stage,"play");
  }else if(b.status==="no_fit")await page.locator(".b27-source-note").waitFor({state:"visible"});
  return b;
@@ -83,8 +87,8 @@ async function finish(page,family){
  assert.ok(result.fullExpression.wordCount>=80&&result.fullExpression.wordCount<=120);
  assert.equal(result.compact.fullWordCount,result.fullExpression.wordCount);
  assert.equal(await page.locator(".b27-result-section").count(),3);
- assert.equal(await page.locator(".b27-result-section.b27-education").count(),1);
- assert.equal(await page.locator('.b27-result-section .b27-deepen summary').count(),1);
+ assert.equal(await page.locator(".b27-result-section.b27-result-philosophy").count(),1);
+ assert.equal(await page.locator('.b27-deepen summary').count(),1);
  assert.equal(await page.locator('[data-b27="save"]').count(),1);
  assert.equal((await current(page)).saved,false);
  assert.equal((await current(page)).fullMeaningWordCount,result.fullExpression.wordCount);
@@ -110,8 +114,8 @@ test("Real quote-selected direct app journey: Smith human dilemma, save readback
    const source=await openAt(page,app.base,91,"Smith");
    assert.equal(source.status,"ready");
    assert.equal(source.selectedFamilyId,"tap_pair");
-   assert.match(await page.locator(".b27-scenario").innerText(),/friend|birthday|gift/i);
-   assert.doesNotMatch(await page.locator(".b27-scenario").innerText(),/booklet|printing/i);
+   assert.match(source.situationText,/friend|birthday|gift/i);
+   assert.doesNotMatch(source.situationText,/booklet|printing/i);
    assert.equal(await page.locator(".b27-concept").count(),4);
    if(width===390)await page.screenshot({path:"qa-evidence/b27-app-smith-play-390.png",fullPage:true});
    await page.locator('[data-b27="pair"][data-value="sketch"]').focus();
