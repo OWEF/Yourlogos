@@ -595,6 +595,9 @@ function philosophicalQuestions(packet,emotion,source){
  if(a.operation==="finite_resource"){
   const high=a.primary.map(x=>x.label).join(" and ");
   if(op.kind==="deliberate_use"){
+   if(a.shares.length===2&&a.primary.length===2)
+    return ["What would make this equal division deliberate rather than automatic?",
+     "What would make this division deliberate rather than automatic?"];
    const role=activityRole(source,a.primary[0].id);
    const focus=role==="restorative_pause"?
     "deliberate recovery rather than automatic avoidance":
@@ -646,10 +649,17 @@ function philosophicalQuestions(packet,emotion,source){
   return ["After the invented “"+event+"”, what current reason could justify your commitment without obeying your past words?",
    "Would your reasons survive “"+event+"” without mere consistency?",
    "How would present judgment answer “"+event+"”?"];
- if(op.kind==="incremental_beginning")
+ if(op.kind==="incremental_beginning"){
+  const role=startRole(source,a.initial.id);
+  const concise=role==="begin_modestly"?
+   "What could starting now teach without forcing its outcome?":
+   role==="prepare_carefully"?
+    "When might careful planning become an actual first step?":
+    "What small beginning could follow this choice without force?";
   return ["After the invented “"+event+"”, what small beginning avoids forcing a promised outcome?",
    "What is a modest next step after “"+event+"”, without grasping at success?",
-   "Which small beginning can you attempt without guaranteeing success?"];
+   concise];
+ }
  if(op.kind==="practical_commitment")
   return ["After the invented “"+event+"”, what action could test your words without proving your moral worth?",
    "How might you act on your argument after “"+event+"”?",
