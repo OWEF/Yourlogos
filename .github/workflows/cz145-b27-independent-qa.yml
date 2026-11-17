@@ -1,0 +1,35 @@
+name: CZ-145 B2.7 independent adversarial acceptance
+on:
+  push:
+    branches: [qa/cz145-b27-independent-acceptance]
+  pull_request:
+    paths:
+      - "tests/yl-b27-independent-*.test.mjs"
+      - ".github/workflows/cz145-b27-independent-qa.yml"
+permissions:
+  contents: read
+jobs:
+  qa-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Verify QA-only branch is not merged to production
+        run: |
+          node --check tests/yl-b27-independent-contract.test.mjs
+          node --check tests/yl-b27-independent-browser.test.mjs
+      - name: Fresh independent philosophical, editorial, security, storage and legacy-quote invariants
+        run: node --test tests/yl-b27-independent-contract.test.mjs
+      - name: Install Playwright driver (existing Chrome runner; no browser download)
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Actual app four families, real keyboard, 320px, save/reload/reopen/delete and feature-gate checks
+        run: node --test tests/yl-b27-independent-browser.test.mjs
+      - name: Preserve four independent gameplay screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cz145-b27-independent-four-game-screenshots
+          path: qa-evidence-independent/
+          if-no-files-found: warn
