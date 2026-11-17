@@ -24,9 +24,11 @@ jobs:
           git cat-file -e d15e934eef4624723bdfcf41029383c08cef43ce^{commit}
           changed="$(git diff --name-only d15e934eef4624723bdfcf41029383c08cef43ce HEAD)"
           test -n "$changed"
-          if printf "%s\n" "$changed" | grep -vE '^(tests/yl-cz147-sealed-holdout\.test\.mjs|tests/yl-cz147-r1-independent-holdouts\.test\.mjs|tests/yl-cz147-r1-independent-browser\.test\.mjs|tests/yl-cz147-r2-independent-sources\.test\.mjs|tests/yl-cz147-r2-postfreeze-sources\.test\.mjs|tests/yl-cz147-r2-final-unseen\.test\.mjs|tests/yl-cz147-r2-ultimate-sealed\.test\.mjs|\.github/workflows/cz147-r2-independent\.yml)$'; then
+          if printf "%s\n" "$changed" | grep -vE '^(tests/yl-cz147-sealed-holdout\.test\.mjs|tests/yl-cz147-r1-independent-holdouts\.test\.mjs|tests/yl-cz147-r1-independent-browser\.test\.mjs|tests/yl-cz147-r2-independent-sources\.test\.mjs|tests/yl-cz147-r2-postfreeze-sources\.test\.mjs|tests/yl-cz147-r2-final-unseen\.test\.mjs|tests/yl-cz147-r2-ultimate-sealed\.test\.mjs|tests/yl-cz147-r2-final-aristotle-epicurus\.test\.mjs|\.github/workflows/cz147-r2-independent\.yml)$'; then
             echo "Non-QA file changed after engineering freeze"; exit 1
           fi
+      - name: FRESH AFTER FREEZE Aristotle and Epicurus 20-state QA challenge
+        run: node --test tests/yl-cz147-r2-final-aristotle-epicurus.test.mjs
       - name: Previously disclosed Montaigne/Socrates source regression plus truthful allocation audit
         run: node --test tests/yl-cz147-r2-ultimate-sealed.test.mjs
       - name: Previously disclosed Aristotle and Zhuangzi 20-state source regression
@@ -56,7 +58,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cz147-r2-independent-preflight-regression
+          name: cz147-r2-independent-final-source-operation-evidence
           path: |
             qa-evidence-cz147-r2-independent/
             qa-evidence-cz147-r2/
