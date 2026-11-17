@@ -165,6 +165,9 @@ test("CZ-149 real app: four different tactile mechanics and actual three-engine 
      await page.screenshot({path:OUT+"/pair-"+variant+"-linked-390.png",fullPage:true});
      await page.locator('[data-b27="undo"]').click();
      assert.equal(await page.locator(".b27-link-lines path").count(),0);
+     // Undo the first card selection as well: each tap is independently reversible.
+     await page.locator('[data-b27="undo"]').click();
+     assert.equal(await page.locator(".b27-concept.active").count(),0);
      await page.locator('[data-b27="pair"][data-value="'+pair[1]+'"]').click();
      await page.locator('[data-b27="pair"][data-value="'+pair[0]+'"]').click();
      assert.equal(await page.locator(".b27-link-lines path").count(),1);
