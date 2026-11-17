@@ -75,8 +75,13 @@ function partOne(record,result){
   const r=Array.isArray(path)&&routes?.find(x=>path.every((p,i)=>x.path?.[i]===p||
    [x.startId,x.sceneId,x.responseId][i]===p));
   if(!r)return null;
-  return "You chose "+r.startLabel+", explored the invented possibility "+r.sceneLabel+
-   ", then chose "+r.responseLabel+".";
+  // Authored choices are second-person option labels ("You take...").
+  // Convert the displayed label to an infinitive without changing its claim.
+  const action=label=>/^You\s+/i.test(label)?
+   "to "+label.replace(/^You\s+/i,""): "the option “"+label+"”";
+  const scene=r.sceneLabel.charAt(0).toLowerCase()+r.sceneLabel.slice(1);
+  return "You chose "+action(r.startLabel)+". In the fictional scene, "+scene+
+   ". You then chose "+action(r.responseLabel)+".";
  }
  if(family==="tap_pair"){
   const cardMap=new Map(record.relation?.cards?.map(c=>[c.id,c.label]));
