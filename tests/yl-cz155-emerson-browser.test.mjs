@@ -65,7 +65,7 @@ test("A first-time reader can browse the real app to Emerson and see reason-sens
  await page.locator('[data-action="discover"]').click();
  const opening=await(await startReq).json();
  assert.equal(opening.status,"ready");
- assert.equal(opening.record.recordId,"last-bus-present-judgment");
+ assert.equal(opening.sourceRecordId,"last-bus-present-judgment");
  await expectStage(page,"opening");
  await capture(page,"11-emerson-opening");
  await control(page,"begin").click();
