@@ -96,10 +96,29 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
   assert.match(await page.locator(".b27-choice-question").innerText(),/What am I asking the other person.s reply to prove/);
   assert.equal(await control(page,"branch").count(),2);
-  if(first==="request"&&second==="name_harm")await capture(page,"03-reconsider",".b27-play");
+  if(first==="request"&&second==="name_harm"){
+   await capture(page,"03-reconsider",".b27-play");
+   assert.equal((await state(page)).savedEncounters,0);
+   await page.reload({waitUntil:"domcontentloaded"});
+   await page.locator("#yl-enter").press("End");
+   await discover.click();
+   assert.equal((await state(page)).game.phase,"reconsider");
+   assert.equal((await state(page)).game.firstAction.id,first);
+   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
+   assert.equal(await control(page,"branch").count(),2);
+   await capture(page,"03b-resumed-after-first",".b27-play");
+  }
   const next=page.locator('[data-b27="branch"][data-value="'+second+'"]');
   await next.press("Enter");
   assert.equal((await state(page)).game.phase,"complete");
+  if(first==="request"&&second==="name_harm"){
+   await page.reload({waitUntil:"domcontentloaded"});
+   await page.locator("#yl-enter").press("End");
+   await discover.click();
+   assert.equal((await state(page)).game.phase,"complete");
+   assert.equal((await state(page)).game.secondAction.id,second);
+   await capture(page,"03c-resumed-after-second",".b27-play");
+  }
   const resultRequest=page.waitForResponse(response=>response.url().endsWith("/api/b27/run"));
   await control(page,"complete").click();
   const result=await(await resultRequest).json();
@@ -133,4 +152,78 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal((await state(page)).savedEncounters,0);
   assert.equal((await state(page)).quoteLikeCount,0);
  }
+});
+
+test("2026-11-18 ordinary unseeded feed can enter truthful reading-first through a real swipe",async t=>{
+ const base=await launchApp(t,false);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ const page=await browser.newPage({viewport:{width:390,height:844},
+  timezoneId:"Asia/Singapore",reducedMotion:"reduce",isMobile:true,
+  hasTouch:true,serviceWorkers:"block"});
+ await page.clock.setFixedTime(new Date("2026-11-18T10:00:00+08:00"));
+ await page.goto(base+"/?b27=1",{waitUntil:"domcontentloaded"});
+ await page.getByRole("button",{name:"Get started"}).click();
+ await page.getByRole("button",{name:"Skip",exact:true}).click();
+ await page.locator("#yl-enter").press("End");
+ assert.ok((await page.locator(".today .quote").innerText()).includes(B27_APP_QUOTES[23][0]),
+  "The unseeded current-date daily item must remain authentic (ID 23)");
+ let encountered=null;
+ for(let i=0;i<8;i++){
+  const copy=await page.locator(".today .quote").innerText();
+  const quoteId=B27_APP_QUOTES.findIndex(q=>copy.includes(q[0]));
+  assert.ok(quoteId>=0,"Visible quote came from the actual app ledger");
+  const responsePromise=page.waitForResponse(r=>r.url().endsWith("/api/b27/start"));
+  await page.locator('[data-action="discover"]').click();
+  const result=await(await responsePromise).json();
+  assert.equal(result.quoteId,quoteId);
+  if(result.status==="no_fit"){
+   encountered={date:"2026-11-18",quoteId,quoteText:B27_APP_QUOTES[quoteId][0],
+    route:result.status,reading:await page.locator(".b27-reading").innerText(),
+    sourceWork:result.quote.work};
+   assert.doesNotMatch(encountered.reading,
+    /admission|capability gap|unsupported mechanics|unverified|no_fit|source review/i);
+   assert.equal((await state(page)).quoteLikeCount,0);
+   assert.equal((await state(page)).savedEncounters,0);
+   await capture(page,"07-current-date-reading-first",".b27-reading");
+   break;
+  }
+  assert.equal(result.status,"ready");
+  await page.locator(".b27-close").click();
+  await page.locator("#quote-viewport").press("ArrowDown");
+ }
+ assert.ok(encountered,"A naturally browsed quotation must yield reading-first");
+ if(evidence)await writeFile(evidence+"/07-current-date-route.json",JSON.stringify(encountered,null,2)+"\\n");
+});
+
+test("A forged mid-Encounter tab draft is discarded rather than trusted as a result",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ const page=await browser.newPage({viewport:{width:390,height:844},timezoneId:"UTC",
+  reducedMotion:"reduce",isMobile:true,hasTouch:true,serviceWorkers:"block"});
+ await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+ await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+ await page.getByRole("button",{name:"Get started"}).click();
+ await page.getByRole("button",{name:"Skip",exact:true}).click();
+ await page.locator("#yl-enter").press("End");
+ await page.locator('[data-action="discover"]').click();
+ await control(page,"begin").click();
+ await page.locator('[data-b27="branch"][data-value="request"]').click();
+ assert.equal((await state(page)).game.phase,"reconsider");
+ await page.evaluate(()=>{
+  const key="yourlogos-b27-director-draft/1";
+  const draft=JSON.parse(sessionStorage.getItem(key));
+  draft.history.events[1].observed.push("Friend read the message and forgave you.");
+  sessionStorage.setItem(key,JSON.stringify(draft));
+ });
+ await page.reload({waitUntil:"domcontentloaded"});
+ await page.locator("#yl-enter").press("End");
+ await page.locator('[data-action="discover"]').click();
+ assert.equal((await state(page)).game.phase,"opening");
+ assert.equal((await state(page)).beat,"situation");
+ assert.equal((await state(page)).savedEncounters,0);
+ assert.equal(await page.evaluate(()=>sessionStorage.getItem("yourlogos-b27-director-draft/1")),null);
 });
