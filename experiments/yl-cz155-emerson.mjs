@@ -137,6 +137,19 @@ export const EMERSON_RECORD=freeze({
    inference:"Keeping the proposal just to appear consistent makes yesterday's public declaration an authority over today's judgment.",
    question:"What evidence would justify this position if no one remembered yesterday's words?",
    strategy:"choice_awareness"
-  }
+  },
+  // The base proposition tests today's merits. Refinements attribute each
+  // expressly selected ground to its distinct authenticated source warrant.
+  // These do not change the interpretation; they make provenance exact.
+  refinements:[
+   {factsAll:["weighedBothEvidence"],warrantId:"thoughtful_retention",
+    inference:"Weighing workers and a funded shuttle before maintaining the proposal can express independent present judgment.",
+    question:"Would you keep this view without an audience, and what evidence could change it?",
+    strategy:"revisability"},
+   {factsAll:["avoidedInconsistency"],warrantId:"public_consistency",
+    inference:"Keeping the proposal just to appear consistent makes yesterday's public declaration an authority over today's judgment.",
+    question:"What evidence would justify this position if no one remembered yesterday's words?",
+    strategy:"choice_awareness"}
+  ]
  }
 });
