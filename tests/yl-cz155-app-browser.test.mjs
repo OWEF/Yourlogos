@@ -304,8 +304,14 @@ test("R2: 320/390/430px reconsideration and resumed focus preserve text/outline 
       focused:document.activeElement===card,
       outline:getComputedStyle(card).outlineStyle,
       focusVisible:card.matches(":focus-visible"),
-      overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth};
+      overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth,
+      offenders:[...document.querySelectorAll(".b27-shell *")].filter(el=>{
+       const r=el.getBoundingClientRect();
+       return r.width>0&&(r.right>document.documentElement.clientWidth+2||r.left< -2);
+      }).slice(0,5).map(el=>({tag:el.tagName,className:String(el.className).slice(0,65),
+       rect:Math.round(el.getBoundingClientRect().right)}))};
     });
+    await capture(page,"09-"+width+"-"+reducedMotion+"-"+label,".b27-play");
     assert.ok(details.focused&&details.focusVisible,
      label+" keyboard focus not visible: "+JSON.stringify(details));
     assert.notEqual(details.outline,"none");
@@ -315,7 +321,6 @@ test("R2: 320/390/430px reconsideration and resumed focus preserve text/outline 
      label+" touch target below 44px: "+JSON.stringify(details));
     assert.equal(details.overflow,false,
      label+" horizontal overflow: "+JSON.stringify(details));
-    await capture(page,"09-"+width+"-"+reducedMotion+"-"+label,".b27-play");
    };
    try{
     await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
