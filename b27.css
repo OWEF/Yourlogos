@@ -751,3 +751,21 @@ body:has(.b27-shell) .discover-cover{
 .b27-transcript h3{font-size:1rem}
 .b27-transcript blockquote,.b27-reading blockquote{margin:.6rem 0}
 .b27-reading>a{display:inline-flex;align-items:center;min-height:44px;color:var(--b27-gold)}
+
+
+/* CZ-155 R2 / reconsideration only. The focused decision-card outline
+   extends 3px beyond its border and the card lifts 2px on focus. Reserve
+   a full text-to-outline clearance, including at narrow phone widths.
+   No animation or touch-target changes; Waterline tokens stay untouched. */
+.b27-game[data-b27-family="decision_cards"][data-b27-phase="reconsider"] .b27-choice-question{
+  margin:8px 0 18px;
+  line-height:1.38;
+  text-wrap:pretty;
+}
+.b27-game[data-b27-family="decision_cards"][data-b27-phase="reconsider"] .b27-message-choices{
+  margin-top:0;
+}
+.b27-game[data-b27-family="decision_cards"][data-b27-phase="reconsider"] .b27-message-choices .b27-choice{
+  min-height:60px;
+  scroll-margin-block:18px;
+}
