@@ -601,3 +601,144 @@ body:has(.b27-shell) .discover-cover{
 @media(prefers-reduced-motion:reduce){
  .b27-bridge-link span:first-child{animation:none!important;transform:none!important}
 }
+
+
+/* CZ-152 final interaction polish — one-shot motion is attached by the
+   controller to the Play subtree only. NEVER animate .b27-shell or its cover.
+   Preserve 44px hit targets and allow every action without waiting. */
+.b27-play-thread{
+ display:flex;gap:9px;align-items:center;width:100%;max-width:155px;
+ height:15px;margin:0 0 8px;color:var(--b27-gold);
+ font:400 12px Georgia,serif;pointer-events:none
+}
+.b27-play-thread i{
+ height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(217,190,138,.5))
+}
+.b27-play-thread i:last-child{transform:rotate(180deg)}
+.b27-play.b27-entering .b27-play-thread span{
+ animation:b27-journey-marker .34s cubic-bezier(.16,.85,.25,1) both
+}
+.b27-play.b27-entering .b27-play-prompt{
+ animation:b27-journey-prompt .32s cubic-bezier(.18,.85,.28,1) both
+}
+.b27-play.b27-entering .b27-game{
+ animation:b27-journey-play .36s cubic-bezier(.18,.85,.25,1) both
+}
+@keyframes b27-journey-marker{
+ from{transform:translateX(-10px) rotate(-18deg)}
+ to{transform:translateX(0) rotate(0)}
+}
+@keyframes b27-journey-prompt{
+ from{transform:translateY(7px)}to{transform:translateY(0)}
+}
+@keyframes b27-journey-play{
+ from{transform:translateY(12px)}to{transform:translateY(0)}
+}
+/* The decision is a physical object inside the imagined scene, not a form. */
+.b27-game[data-b27-family="decision_cards"] .b27-cards{gap:12px}
+.b27-game[data-b27-family="decision_cards"] .b27-choice{
+ position:relative;min-height:157px;padding:19px 15px 17px;
+ border:1px solid rgba(225,200,150,.36);border-radius:19px;
+ background:radial-gradient(ellipse at 20% 0,rgba(225,205,163,.12),transparent 66%),
+ linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.016));
+ box-shadow:inset 0 1px rgba(255,255,255,.15),0 6px 0 rgba(0,0,0,.32),
+ 0 13px 25px rgba(0,0,0,.20);
+ transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,
+ background .16s ease
+}
+.b27-game[data-b27-family="decision_cards"] .b27-choice .b27-card-symbol{
+ font-size:29px;line-height:1;color:var(--b27-gold);filter:drop-shadow(0 0 9px rgba(221,185,114,.24))
+}
+.b27-game[data-b27-family="decision_cards"] .b27-choice strong{
+ font:500 clamp(19px,5.3vw,26px)/1.16 "Cormorant Garamond",Georgia,serif;
+ text-wrap:pretty
+}
+.b27-game[data-b27-family="decision_cards"] .b27-choice:hover,
+.b27-game[data-b27-family="decision_cards"] .b27-choice:focus-visible{
+ transform:translateY(-2px);border-color:rgba(233,207,153,.85);
+ box-shadow:inset 0 1px rgba(255,255,255,.2),0 8px 0 rgba(0,0,0,.31),
+ 0 14px 29px rgba(220,190,123,.13)
+}
+.b27-game[data-b27-family="decision_cards"] .b27-choice:active{
+ transform:translateY(2px)!important;
+ box-shadow:inset 0 0 0 2px rgba(227,199,148,.28),0 2px 0 rgba(0,0,0,.32)!important
+}
+.b27-choice-recap{display:flex;align-items:baseline;gap:8px}
+.b27-choice-recap>span{color:var(--b27-gold);font-size:15px}
+.b27-game.b27-action-settling .b27-choice-recap,
+.b27-game.b27-action-settling .b27-path-echo,
+.b27-game.b27-action-settling .b27-relation-evidence{
+ animation:b27-story-landing .32s cubic-bezier(.18,.92,.32,1) both
+}
+.b27-game.b27-action-settling .b27-dilemma{
+ animation:b27-story-landing .3s cubic-bezier(.18,.92,.32,1) both
+}
+@keyframes b27-story-landing{
+ from{transform:translateY(8px);box-shadow:inset 0 0 0 1px rgba(220,191,137,.33)}
+ to{transform:translateY(0);box-shadow:inset 0 0 0 1px transparent}
+}
+/* Pair cards are touchable concepts: selection invites a relation instead of
+   signaling a scored answer. Only source-warranted links can be activated. */
+.b27-game[data-b27-family="tap_pair"] .b27-concepts{gap:12px}
+.b27-game[data-b27-family="tap_pair"] .b27-concept{
+ min-height:146px;padding:15px 10px;border-radius:20px;
+ border:1px solid rgba(229,207,166,.30);
+ background:radial-gradient(ellipse at 50% 0,rgba(222,198,148,.09),transparent 65%),
+ linear-gradient(155deg,rgba(255,255,255,.065),rgba(255,255,255,.018));
+ box-shadow:inset 0 1px rgba(255,255,255,.13),0 5px 0 rgba(0,0,0,.33),
+ 0 12px 19px rgba(0,0,0,.18);
+ transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease
+}
+.b27-game[data-b27-family="tap_pair"] .b27-concept-icon{
+ width:48px;height:48px;flex:0 0 48px;border-radius:15px;
+ display:grid;place-items:center;font-size:27px;color:var(--b27-gold);
+ background:rgba(211,187,139,.13);border:1px solid rgba(221,196,149,.18)
+}
+.b27-game[data-b27-family="tap_pair"] .b27-concept strong{
+ font:500 clamp(17px,4.6vw,22px)/1.15 "Cormorant Garamond",Georgia,serif;
+ text-wrap:balance
+}
+.b27-game[data-b27-family="tap_pair"] .b27-concept.active{
+ border-color:var(--b27-gold);transform:translateY(-2px);
+ background:linear-gradient(155deg,rgba(223,192,125,.22),rgba(210,181,133,.075));
+ box-shadow:inset 0 0 0 1px rgba(226,195,136,.65),0 7px 0 rgba(89,73,46,.4),
+ 0 12px 26px rgba(215,180,110,.16)
+}
+.b27-game[data-b27-family="tap_pair"] .b27-concept.discoverable:not(.active):not(:disabled){
+ border-color:rgba(210,187,138,.53);
+ box-shadow:inset 0 0 0 1px rgba(212,185,131,.21),0 5px 0 rgba(0,0,0,.33)
+}
+.b27-game[data-b27-family="tap_pair"] .b27-concept:active:not(:disabled){
+ transform:translateY(2px)!important;box-shadow:0 2px 0 rgba(0,0,0,.32)!important
+}
+.b27-pair-guide strong{color:var(--b27-gold);font-weight:600}
+.b27-relation-meaning{
+ margin:5px 0 6px!important;color:var(--b27-ivory)!important;
+ font:400 12px/1.48 "DM Sans",system-ui,sans-serif!important
+}
+.b27-relation-evidence{border-color:rgba(222,192,134,.38);background:rgba(220,190,134,.065)}
+@media(max-width:359px){
+ .b27-game[data-b27-family="decision_cards"] .b27-choice{
+  min-height:145px;padding:14px 10px;border-radius:16px
+ }
+ .b27-game[data-b27-family="tap_pair"] .b27-concept{
+  min-height:128px;padding:10px 8px;border-radius:16px
+ }
+ .b27-game[data-b27-family="tap_pair"] .b27-concept-icon{
+  width:43px;height:43px;flex-basis:43px;font-size:24px
+ }
+ .b27-game[data-b27-family="tap_pair"] .b27-concepts{gap:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ .b27-play.b27-entering .b27-play-thread span,
+ .b27-play.b27-entering .b27-play-prompt,
+ .b27-play.b27-entering .b27-game,
+ .b27-game.b27-action-settling .b27-choice-recap,
+ .b27-game.b27-action-settling .b27-path-echo,
+ .b27-game.b27-action-settling .b27-relation-evidence,
+ .b27-game.b27-action-settling .b27-dilemma{animation:none!important;transform:none!important}
+ .b27-game[data-b27-family="decision_cards"] .b27-choice,
+ .b27-game[data-b27-family="tap_pair"] .b27-concept{
+  transition:none!important
+ }
+}

@@ -157,6 +157,10 @@ export function createB27AppRuntime({
   if(kind==="begin"){
    if(sheet.stage!=="play"||sheet.beat!=="situation")return false;
    sheet.beat="play";sheet.message="";epoch++;draw();
+   // One-shot interaction motion is applied only to this freshly drawn Play
+   // subtree. The full shell, backdrop, and quoted homepage never animate.
+   // Subsequent decisions rebuild Play without this class.
+   document.querySelector(".b27-play")?.classList.add("b27-entering");
    requestAnimationFrame(()=>{
     const game=document.querySelector(".b27-game");
     // A fast keyboard user may already have focused a new game control.
@@ -189,6 +193,12 @@ export function createB27AppRuntime({
    const changed=adjustB27Game(sheet,kind,value);
    if(changed)epoch++;
    draw();
+   if(changed){
+    // Animate newly rendered game *objects*, never the dialog or cover.
+    // Rebuilt nodes start and end legible. No animation runs on Undo or
+    // source loading, and no ephemeral class leaks into canonical state.
+    document.querySelector(".b27-game")?.classList.add("b27-action-settling");
+   }
    if(changed)requestAnimationFrame(()=>{
     let next=null;
     if(kind==="pair"||kind==="focus")

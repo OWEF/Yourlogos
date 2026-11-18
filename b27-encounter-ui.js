@@ -201,18 +201,22 @@ function pairHtml(enc){
    e((first?.label||edge.aId)+' connected with '+(second?.label||edge.bId))+'">'+
    '<span>'+e(first?.label||edge.aId)+'</span><i class="b27-bridge-trail" aria-hidden="true"></i>'+
    '<span>'+e(second?.label||edge.bId)+'</span></div>'+
-   '<strong>✧ '+e(edge.label)+'</strong><details class="b27-link-explain"><summary>Why these connect</summary><p>'+e(edge.claim)+'</p></details></div>';
+   '<strong>✧ '+e(edge.label)+'</strong>'+
+   '<div class="b27-relation-meaning">'+e(edge.claim)+'</div>'+
+   '<details class="b27-link-explain"><summary>Why these connect</summary>'+
+   '<p>This link is an illustration from the authored source, not a score or a judgment about you.</p></details></div>';
  }).join("");
  const candidates=g.first===null?[]:r.edges.filter(edge=>
   edge.aId===g.first||edge.bId===g.first);
  const allowedIds=new Set(candidates.map(edge=>
   edge.aId===g.first?edge.bId:edge.aId));
- const labels=r.cards.filter(c=>allowedIds.has(c.id)).map(c=>e(c.label));
+ const selected=r.cards.find(c=>c.id===g.first);
  const guide=g.pairs.length>=2?
   '<p class="b27-pair-guide" role="status">Two connections to explore.</p>':
   g.first===null?
    '<p class="b27-pair-guide">Tap an idea to begin a connection.</p>':
-   '<p class="b27-pair-guide" role="status">Choose an idea to link with it.</p>';
+   '<p class="b27-pair-guide" role="status">You chose <strong>'+e(selected?.label||"an idea")+
+    '</strong>. Which other idea does it illuminate?</p>';
  return guide+
   '<div class="b27-concepts" role="group" aria-label="Four large source-authorized concept cards">'+
   r.cards.map((c,i)=>{
@@ -220,7 +224,8 @@ function pairHtml(enc){
    return b("pair",'<span aria-hidden="true" class="b27-concept-icon">'+
     ["✧","◇","✳","✦","✺","❖"][i%6]+'</span><strong>'+e(c.label)+'</strong>',
     "b27-concept"+(g.first===c.id?" active":"")+
-     (g.pairs.some(p=>[p.aId,p.bId].includes(c.id))?" connected":""),
+     (g.pairs.some(p=>[p.aId,p.bId].includes(c.id))?" connected":"")+
+     (g.first!==null&&allowedIds.has(c.id)?" discoverable":""),
     'data-value="'+e(c.id)+'" aria-pressed="'+(g.first===c.id)+'" aria-label="'+e(c.label)+
      ". "+e(c.detail)+'"'+(eligible?"":' disabled aria-disabled="true"'));
   }).join("")+
@@ -229,7 +234,8 @@ function pairHtml(enc){
 }
 function selectedChoiceRecap(record,game){
  const start=starts(record).find(x=>x.id===game.start);
- return start?'<p class="b27-choice-recap">You chose <strong>'+e(start.label)+'</strong></p>':"";
+ return start?'<p class="b27-choice-recap" role="status"><span aria-hidden="true">✦</span>'+
+  'Your move: <strong>'+e(start.label)+'</strong></p>':"";
 }
 function dilemmaCard(kicker,title,detail){
  return '<div class="b27-dilemma"><span class="b27-dilemma-kicker">'+e(kicker)+
@@ -239,8 +245,8 @@ function decisionHtml(enc){
  const g=enc.game,r=enc.record,recap=selectedChoiceRecap(r,g);
  if(g.start===null)return tile(starts(r),"Choose an opening action in this imagined situation");
  if(g.scene===null)return recap+
-  dilemmaCard("A POSSIBLE TURN","What unfolds next?","")+
-  tile(scenes(r,g.start),"Reveal an imagined development, not a prediction");
+  dilemmaCard("THE STORY CONTINUES","An unexpected possibility","The next imagined event is not caused by your choice.")+
+  tile(scenes(r,g.start),"Explore an independently authored possibility");
  if(g.response===null){
   const scene=scenes(r,g.start).find(x=>x.id===g.scene);
   return recap+dilemmaCard("A NEW POSSIBILITY",scene?.label||"Something changes",
@@ -364,10 +370,13 @@ export function renderB27Encounter(enc,quote){
    '<div class="b27-buttons">'+b("begin","Step into the moment","b27-primary")+'</div>'+
    '<p class="b27-byline">'+author+'</p>'+context+'</div></section>';
  const done=canFinishB27(enc);
+ const phase=enc.game?.start===null?"opening":enc.game?.scene===null?"development":
+  enc.game?.response===null?"response":"finished";
  return start+'<div class="b27-main b27-play">'+
+  '<div class="b27-play-thread" aria-hidden="true"><i></i><span>✦</span><i></i></div>'+
   '<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
   '<p class="b27-play-prompt">'+e(bridge.playPrompt)+'</p>'+
-  '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'">'+gameHtml(enc)+'</div>'+
+  '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'" data-b27-phase="'+e(phase)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+
    (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
    (enc.game?.touched?b("reset","Reset","b27-secondary"):"")+

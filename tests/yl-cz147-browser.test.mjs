@@ -60,7 +60,7 @@ async function play(page,v){
   await first.focus();
   await page.keyboard.press("Enter");
   await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education");
-  assert.match(await page.locator(".b27-pair-guide").innerText(),/Choose an idea to link with it/);
+  assert.match(await page.locator(".b27-pair-guide").innerText(),/You chose.+Which other idea does it illuminate\?/);
   const second=page.locator('[data-b27="pair"][data-value="judgment"]');
   await second.focus();
   await page.keyboard.press("Space");
@@ -68,7 +68,7 @@ async function play(page,v){
   assert.equal(await page.locator(".b27-shell button:focus").count(),1);
  }else{
   await page.locator('[data-b27="branch"][data-value="'+v.start+'"]').click();
-  assert.match(await page.locator(".b27-choice-recap").innerText(),/You chose/);
+  assert.match(await page.locator(".b27-choice-recap").innerText(),/Your move:/);
   if(v.family==="flip_reveal")
    assert.equal(await page.locator(".b27-flip").count(),2);
   await page.locator('[data-b27="branch"][data-value="'+v.scene+'"]').click();
