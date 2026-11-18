@@ -60,7 +60,7 @@ async function play(page,v){
   await first.focus();
   await page.keyboard.press("Enter");
   await page.waitForFunction(()=>window.__YL_B27_QA.getState().game.first==="education");
-  assert.match(await page.locator(".b27-pair-guide").innerText(),/Choose an idea to link with it/);
+  assert.match(await page.locator(".b27-pair-guide").innerText(),/You chose.+Which other idea does it illuminate\?/);
   const second=page.locator('[data-b27="pair"][data-value="judgment"]');
   await second.focus();
   await page.keyboard.press("Space");
