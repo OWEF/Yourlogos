@@ -115,7 +115,7 @@ test("Semantic comparison excludes click recap and retains only warranted distin
   assert.equal(invited.strategy,"boundary_awareness");
   assert.equal(writtenPlan.strategy,"choice_awareness");
   assert.equal(outstanding.strategy,"choice_awareness");
-  assert.match(writtenPlan.claim,/private plan.*untested until you act/i);
+  assert.match(writtenPlan.claim,/private preparation.*does not establish/i);
   assert.match(secondApology.claim,/second apology.*cannot determine/i);
   assert.match(invited.claim,/invitation.*reply/i);
   assert.match(outstanding.claim,/cannot acknowledge the harm/i);
