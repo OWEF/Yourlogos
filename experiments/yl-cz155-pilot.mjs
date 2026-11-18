@@ -48,7 +48,30 @@ const record = {
       inference: "Their answer cannot acknowledge the harm on your behalf.",
       question: "What could you still name even if no answer comes?",
       strategy: "choice_awareness"
-    }}
+    },
+    // Source-authored distinctions that were present in encounter-events/1
+    // but lost when Reasoning selected only the acknowledged boolean.
+    // Equivalent established facts deliberately share one interpretation.
+    refinements: [
+      {
+        factsAny: ["plannedConductChange", "preparedListeningQuestion"],
+        inference: "A private plan is yours to make, but its promised repair remains untested until you act.",
+        question: "What would turn this preparation into conduct without requiring their reply?",
+        strategy: "choice_awareness", warrantId: "continuing_repair"
+      },
+      {
+        factsAll: ["acknowledgedWithoutExplanation"],
+        inference: "Your second apology separates harm from intention, but cannot determine how either message is received.",
+        question: "What might you still owe beyond a second acknowledgment?",
+        strategy: "boundary_awareness", warrantId: "continuing_repair"
+      },
+      {
+        factsAll: ["acknowledged", "requestedConversation"],
+        inference: "You acknowledged the harm and offered to talk; the invitation does not give you authority over their reply.",
+        question: "How can you honor your invitation without treating a reply as owed?",
+        strategy: "boundary_awareness", warrantId: "external_action"
+      }
+    ]}
 };
 const registry = makeUniversalRegistry([record], B27_APP_QUOTES);
 const eligible = input => input?.cz155Preview === true && input.quoteId === source.quoteId;
