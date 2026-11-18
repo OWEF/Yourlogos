@@ -55,8 +55,8 @@ const record = {
     refinements: [
       {
         factsAny: ["plannedConductChange", "preparedListeningQuestion"],
-        inference: "A private plan is yours to make, but its promised repair remains untested until you act.",
-        question: "What would turn this preparation into conduct without requiring their reply?",
+        inference: "Private preparation is yours to choose; it does not establish that you have listened or changed your conduct.",
+        question: "What part of this plan can you carry through, and what still depends on them?",
         strategy: "choice_awareness", warrantId: "continuing_repair"
       },
       {
