@@ -127,8 +127,31 @@ function validateRecord(r){
    if(!Object.hasOwn(start.facts,rule.fact)||
       (rule.oppositeFact!==undefined&&(!Object.hasOwn(start.facts,rule.oppositeFact)||rule.fact===rule.oppositeFact)))return false;
   }catch{return false;}
-  return [rule.established,rule.outstanding].every(x=>obj(x)&&txt(x.inference,5)&&
-   txt(x.question,9)&&r.affordances.includes(x.strategy));
+  const validJudgment=x=>obj(x)&&txt(x.inference,5)&&
+   txt(x.question,9)&&r.affordances.includes(x.strategy);
+  if(![rule.established,rule.outstanding].every(validJudgment))return false;
+  const refinements=rule.refinements??[];
+  if(!Array.isArray(refinements)||refinements.length>8)return false;
+  const matches=(refinement,facts)=>refinement.factsAll?
+   refinement.factsAll.every(key=>facts[key]===true):
+   refinement.factsAny.some(key=>facts[key]===true);
+  if(!refinements.every(x=>{
+    const all=Array.isArray(x?.factsAll),any=Array.isArray(x?.factsAny);
+    const selected=all?x.factsAll:x?.factsAny;
+    return validJudgment(x)&&all!==any&&size(selected,1,6)&&
+      new Set(selected).size===selected.length&&
+      selected.every(key=>Object.hasOwn(start.facts,key))&&
+      txt(x.warrantId,1)&&Object.hasOwn(scenario.source.warrants,x.warrantId)&&
+      r.evidenceIds.includes(x.warrantId);
+  }))return false;
+  // Contradictory or overlapping rules would make source authoring order
+  // silently choose the answer; check every reachable fictional decision.
+  for(const first of scenario.openingChoices)
+   for(const second of scenario.followUps[first.id]){
+    const state=derivePath(scenario,[first.id,second.id]);
+    if(refinements.filter(x=>matches(x,state.facts)).length>1)return false;
+  }
+  return true;
  }
  const timeline=r.timeline;
  return size(timeline,4,24)&&timeline.every(t=>obj(t)&&
@@ -314,13 +337,20 @@ export function reasonUniversal(source,input){
   if(state.phase!=="complete"||typeof value!=="boolean"||
      (rule.oppositeFact!==undefined&&state.facts[rule.oppositeFact]!==!value))
    return deny("warrant_evidence_missing","The required fictional fact is unresolved");
-  const judgment=value?rule.established:rule.outstanding;
+  const matches=(rule.refinements??[]).filter(x=>x.factsAll?
+   x.factsAll.every(key=>state.facts[key]===true):
+   x.factsAny.some(key=>state.facts[key]===true));
+  if(matches.length>1)return deny("warrant_ambiguous","Multiple contradictory source-authorized distinctions apply");
+  const refinement=matches[0]??null;
+  const judgment=refinement??(value?rule.established:rule.outstanding);
   canonical=state.canonicalInput;
   feature=value?"established_fact":"outstanding_fact";
   claim=judgment.inference;
   analysis={operation:"directed_decision",initial:state.firstAction,response:state.secondAction,
    development:state.observation,history:state.history,establishedFacts:state.facts,
-   testedFact:rule.fact,judgment,sourceWarrantIds:[rule.warrantId],
+   testedFact:rule.fact,judgment,
+   refinementBasis:refinement?(refinement.factsAll??refinement.factsAny):null,
+   sourceWarrantIds:[...new Set([rule.warrantId,refinement?.warrantId].filter(Boolean))],
    outcomeGuaranteed:false,alternativeFutureObserved:false};
  }else{
   if(source.familyId==="decision_cards"){
