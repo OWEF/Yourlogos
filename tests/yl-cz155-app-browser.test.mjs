@@ -280,6 +280,68 @@ test("R2: invalid drafts fail closed, valid drafts resume, and source versions r
   JSON.stringify(outcomes,null,2)+"\\n");
 });
 
+
+test("M1: Encounter close wins pointer and keyboard over the persistent profile launcher at 320/390/430px",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ for(const width of [320,390,430]){
+  const context=await browser.newContext({viewport:{width,height:844},
+   timezoneId:"UTC",reducedMotion:"reduce",isMobile:true,
+   hasTouch:true,serviceWorkers:"block"});
+  const page=await context.newPage();
+  try{
+   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+   await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+   await page.getByRole("button",{name:"Get started"}).click();
+   await page.getByRole("button",{name:"Skip",exact:true}).click();
+   await page.locator("#yl-enter").press("End");
+   const discover=page.locator('[data-action="discover"]');
+   const profile=page.locator("body > .settings-launch");
+   assert.equal(await profile.count(),1,"Persistent profile launcher is present");
+   await discover.click();
+   await waitForDirector(page,"opening");
+   assert.equal(await profile.isVisible(),false,
+    width+"px profile launcher must not appear through or overlap Encounter");
+   const close=page.getByRole("button",{name:"Close Encounter"});
+   const geometry=await page.evaluate(()=>{
+    const element=document.querySelector(".b27-close");
+    const box=element.getBoundingClientRect();
+    const at=(x,y)=>{const top=document.elementFromPoint(x,y);
+     return top===element||element.contains(top);};
+    return {left:box.left,right:box.right,top:box.top,
+     width:box.width,height:box.height,
+     centerIsClose:at(box.left+box.width/2,box.top+box.height/2),
+     innerCornerIsClose:at(box.right-8,box.top+8)};
+   });
+   assert.ok(geometry.left>=0&&geometry.right<=width,
+    width+"px close must be fully in the viewport: "+JSON.stringify(geometry));
+   assert.ok(geometry.width>=44&&geometry.height>=44,
+    width+"px close touch target below 44px: "+JSON.stringify(geometry));
+   assert.ok(geometry.centerIsClose&&geometry.innerCornerIsClose,
+    width+"px close is obscured: "+JSON.stringify(geometry));
+   await capture(page,"M1-"+width+"-close-visible",".b27-shell");
+   if(width===320)await page.touchscreen.tap(
+     geometry.left+geometry.width/2,geometry.top+geometry.height/2);
+   else await page.mouse.click(
+     geometry.left+geometry.width/2,geometry.top+geometry.height/2);
+   assert.equal(await page.locator(".b27-shell").count(),0,
+    width+"px actual pointer action failed to dismiss Encounter");
+   assert.equal(await profile.isVisible(),true,
+    width+"px profile launcher did not return after dismiss");
+   await discover.click();
+   await waitForDirector(page,"opening");
+   await close.focus();
+   assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute("aria-label")),
+    "Close Encounter","Accessible close control was not keyboard-focusable");
+   await page.keyboard.press("Enter");
+   assert.equal(await page.locator(".b27-shell").count(),0,
+    width+"px keyboard Enter failed to dismiss Encounter");
+  }finally{await context.close();}
+ }
+});
+
 test("R2: 320/390/430px reconsideration and resumed focus preserve text/outline clearance",async t=>{
  const base=await launchApp(t,true);
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
