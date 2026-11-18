@@ -201,13 +201,20 @@ export function createB27AppRuntime({
     document.querySelector(".b27-game")?.classList.add("b27-action-settling");
    }
    if(changed)requestAnimationFrame(()=>{
+    const game=document.querySelector(".b27-game");
+    const active=document.activeElement;
+    // The reader may already have focused a different newly rendered control
+    // before this callback runs (notably during rapid Tap & Pair keyboard play).
+    // Never override an explicit, still-live focus choice made after redraw.
+    if(game&&active&&active!==document.body&&active!==document.documentElement&&
+       game.contains(active))return;
     let next=null;
     if(kind==="pair"||kind==="focus")
      next=[...document.querySelectorAll('[data-b27="'+kind+'"]')]
       .find(x=>x.dataset.value===value&&!x.disabled);
     else if(kind==="move")
      next=document.querySelector('[data-b27-piece="'+value+'"]');
-    (next||document.querySelector(".b27-game"))?.focus({preventScroll:true});
+    (next||game)?.focus({preventScroll:true});
    });
    return changed;
   }
