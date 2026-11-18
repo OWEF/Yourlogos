@@ -78,6 +78,10 @@ test("Identical outward action: different explicitly stated motives yield Emerso
  assert.equal(merits.provenance.directorTranscript.secondAction,
   image.provenance.directorTranscript.secondAction);
  assert.notEqual(m.response.explicitMotive,r.response.explicitMotive);
+ assert.ok(m.sourceWarrantIds.includes("thoughtful_retention"));
+ assert.ok(r.sourceWarrantIds.includes("public_consistency"));
+ assert.ok(m.history.events[2].warrantIds.includes("scenario_qualification"));
+ assert.ok(r.history.events[2].warrantIds.includes("scenario_qualification"));
  assert.equal(m.establishedFacts.weighedBothEvidence,true);
  assert.equal(m.establishedFacts.avoidedInconsistency,false);
  assert.equal(r.establishedFacts.weighedBothEvidence,false);
@@ -148,6 +152,8 @@ test("Incidental wording and option order cannot alter source-warranted meaning"
   assert.equal(incidental.fullMeaning.meaning.selectedClaim,
    normal.fullMeaning.meaning.selectedClaim);
   assert.equal(incidental.emotion.strategy,normal.emotion.strategy);
+  assert.deepEqual(incidental.fullMeaning.meaning.choiceAnalysis.sourceWarrantIds,
+   normal.fullMeaning.meaning.choiceAnalysis.sourceWarrantIds);
   assert.deepEqual(incidental.compact.sections.slice(1),normal.compact.sections.slice(1));
   assert.deepEqual(incidental.fullExpression.sections.slice(1),
    normal.fullExpression.sections.slice(1));
