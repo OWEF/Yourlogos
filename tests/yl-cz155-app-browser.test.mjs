@@ -32,6 +32,18 @@ const start=async(base,body)=>(await fetch(base+"/api/b27/start",{method:"POST",
  headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})).json();
 const control=(page,action)=>page.locator('[data-b27="'+action+'"]');
 const state=page=>page.evaluate(()=>window.__YL_B27_QA.getState());
+// The shared '.b27-situation' is also rendered while the /start call is LOADING.
+// A DOM-visible placeholder therefore never proves a source-validated state.
+async function waitForDirector(page,phase){
+ await page.waitForFunction(expected=>{
+  const state=window.__YL_B27_QA?.getState();
+  return state?.stage==="play"&&state?.game?.phase===expected;
+ },phase);
+ const actual=await state(page);
+ assert.equal(actual.stage,"play");
+ assert.equal(actual.game.phase,phase);
+ return actual;
+}
 const evidence=process.env.YL_CZ155_BROWSER_EVIDENCE;
 async function capture(page,name,selector){
  if(!evidence)return;
@@ -102,8 +114,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    await page.reload({waitUntil:"domcontentloaded"});
    await page.locator("#yl-enter").press("End");
    await discover.click();
-   await page.locator(".b27-play").waitFor();
-   assert.equal((await state(page)).game.phase,"reconsider");
+   await waitForDirector(page,"reconsider");
    assert.equal((await state(page)).game.firstAction.id,first);
    assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
    assert.equal(await control(page,"branch").count(),2);
@@ -116,8 +127,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    await page.reload({waitUntil:"domcontentloaded"});
    await page.locator("#yl-enter").press("End");
    await discover.click();
-   await page.locator(".b27-play").waitFor();
-   assert.equal((await state(page)).game.phase,"complete");
+   await waitForDirector(page,"complete");
    assert.equal((await state(page)).game.secondAction.id,second);
    await capture(page,"03c-resumed-after-second",".b27-play");
   }
@@ -199,34 +209,132 @@ test("2026-11-18 ordinary unseeded feed can enter truthful reading-first through
  if(evidence)await writeFile(evidence+"/07-current-date-route.json",JSON.stringify(encountered,null,2)+"\\n");
 });
 
-test("A forged mid-Encounter tab draft is discarded rather than trusted as a result",async t=>{
+
+test("R2: invalid drafts fail closed, valid drafts resume, and source versions reset in 9 clean browser sessions",async t=>{
  const base=await launchApp(t,true);
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
   {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
  t.after(()=>browser.close());
- const page=await browser.newPage({viewport:{width:390,height:844},timezoneId:"UTC",
-  reducedMotion:"reduce",isMobile:true,hasTouch:true,serviceWorkers:"block"});
- await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
- await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
- await page.getByRole("button",{name:"Get started"}).click();
- await page.getByRole("button",{name:"Skip",exact:true}).click();
- await page.locator("#yl-enter").press("End");
- await page.locator('[data-action="discover"]').click();
- await control(page,"begin").click();
- await page.locator('[data-b27="branch"][data-value="request"]').click();
- assert.equal((await state(page)).game.phase,"reconsider");
- await page.evaluate(()=>{
-  const key="yourlogos-b27-director-draft/1";
-  const draft=JSON.parse(sessionStorage.getItem(key));
-  draft.history.events[1].observed.push("Friend read the message and forgave you.");
-  sessionStorage.setItem(key,JSON.stringify(draft));
- });
- await page.reload({waitUntil:"domcontentloaded"});
- await page.locator("#yl-enter").press("End");
- await page.locator('[data-action="discover"]').click();
- await page.locator(".b27-situation").waitFor();
- assert.equal((await state(page)).game.phase,"opening");
- assert.equal((await state(page)).beat,"situation");
- assert.equal((await state(page)).savedEncounters,0);
- assert.equal(await page.evaluate(()=>sessionStorage.getItem("yourlogos-b27-director-draft/1")),null);
+ const cases=["forged-observation","source-version","valid"];
+ const outcomes=[];
+ for(let i=0;i<9;i++){
+  const kind=cases[i%cases.length];
+  // Each new browser context has independent localStorage, sessionStorage,
+  // cookies, script state, and an unseeded current-date daily deck.
+  const context=await browser.newContext({viewport:{width:390,height:844},
+   timezoneId:"UTC",reducedMotion:"reduce",isMobile:true,
+   hasTouch:true,serviceWorkers:"block"});
+  const page=await context.newPage();
+  try{
+   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+   await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+   await page.getByRole("button",{name:"Get started"}).click();
+   await page.getByRole("button",{name:"Skip",exact:true}).click();
+   await page.locator("#yl-enter").press("End");
+   await page.locator('[data-action="discover"]').click();
+   await waitForDirector(page,"opening");
+   await control(page,"begin").click();
+   await page.locator('[data-b27="branch"][data-value="request"]').click();
+   await waitForDirector(page,"reconsider");
+   const draft=await page.evaluate(()=>{
+    const raw=sessionStorage.getItem("yourlogos-b27-director-draft/1");
+    return JSON.parse(raw);
+   });
+   assert.equal(draft.history.events[0].id,"request");
+   assert.equal(draft.history.events[1].origin,"independent_fiction");
+   if(kind!=="valid")await page.evaluate(kind=>{
+    const key="yourlogos-b27-director-draft/1";
+    const draft=JSON.parse(sessionStorage.getItem(key));
+    if(kind==="forged-observation")
+     draft.history.events[1].observed.push("Friend read the message and forgave you.");
+    if(kind==="source-version")draft.sourceVersionHash="stale-forbidden-source/999";
+    sessionStorage.setItem(key,JSON.stringify(draft));
+   },kind);
+   const responsePromise=page.waitForResponse(response=>
+    response.url().endsWith("/api/b27/start"));
+   await page.reload({waitUntil:"domcontentloaded"});
+   await page.locator("#yl-enter").press("End");
+   await page.locator('[data-action="discover"]').click();
+   const response=await(await responsePromise).json();
+   assert.equal(response.status,"ready","source failed to load on recovery");
+   await waitForDirector(page,kind==="valid"?"reconsider":"opening");
+   const recovered=await state(page);
+   assert.equal(recovered.savedEncounters,0);
+   const persisted=await page.evaluate(()=>
+    sessionStorage.getItem("yourlogos-b27-director-draft/1"));
+   if(kind==="valid"){
+    assert.equal(recovered.game.firstAction.id,"request");
+    assert.equal(recovered.game.observation.text,"Message delivered. Later, no reply has arrived.");
+    assert.ok(persisted,"valid draft should still be resumable");
+   }else{
+    assert.equal(recovered.beat,"situation");
+    assert.equal(persisted,null,"invalid or stale draft must be cleared");
+    assert.equal(recovered.game.firstAction,null);
+    assert.equal(recovered.game.observation,null);
+   }
+   outcomes.push({session:i+1,kind,result:"pass"});
+  }finally{await context.close();}
+ }
+ assert.equal(outcomes.length,9);
+ if(evidence)await writeFile(evidence+"/08-draft-recovery-repetitions.json",
+  JSON.stringify(outcomes,null,2)+"\\n");
+});
+
+test("R2: 320/390/430px reconsideration and resumed focus preserve text/outline clearance",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ for(const width of [320,390,430]){
+  for(const reducedMotion of ["reduce","no-preference"]){
+   const context=await browser.newContext({viewport:{width,height:844},
+    timezoneId:"UTC",reducedMotion,isMobile:true,hasTouch:true,serviceWorkers:"block"});
+   const page=await context.newPage();
+   const check=async label=>{
+    // Focus the question, then navigate by keyboard into the first card so
+    // its actual :focus-visible outline and -2px raised position are measured.
+    await page.locator(".b27-choice-question").focus();
+    await page.keyboard.press("Tab");
+    const details=await page.evaluate(()=>{
+     const title=document.querySelector(".b27-choice-question");
+     const card=document.querySelector(".b27-message-choices .b27-choice");
+     const a=title.getBoundingClientRect(),b=card.getBoundingClientRect();
+     return {gap:b.top-a.bottom,width:document.documentElement.clientWidth,
+      cardHeight:b.height,questionHeight:a.height,
+      focused:document.activeElement===card,
+      outline:getComputedStyle(card).outlineStyle,
+      focusVisible:card.matches(":focus-visible"),
+      overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth};
+    });
+    assert.ok(details.focused&&details.focusVisible,
+     label+" keyboard focus not visible: "+JSON.stringify(details));
+    assert.notEqual(details.outline,"none");
+    assert.ok(details.gap>=7,
+     label+" focus ring overlaps question: "+JSON.stringify(details));
+    assert.ok(details.cardHeight>=44,
+     label+" touch target below 44px: "+JSON.stringify(details));
+    assert.equal(details.overflow,false,
+     label+" horizontal overflow: "+JSON.stringify(details));
+    await capture(page,"09-"+width+"-"+reducedMotion+"-"+label,".b27-play");
+   };
+   try{
+    await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+    await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+    await page.getByRole("button",{name:"Get started"}).click();
+    await page.getByRole("button",{name:"Skip",exact:true}).click();
+    await page.locator("#yl-enter").press("End");
+    await page.locator('[data-action="discover"]').click();
+    await waitForDirector(page,"opening");
+    await control(page,"begin").click();
+    await page.locator('[data-b27="branch"][data-value="request"]').click();
+    await waitForDirector(page,"reconsider");
+    await check("before-refresh");
+    await page.reload({waitUntil:"domcontentloaded"});
+    await page.locator("#yl-enter").press("End");
+    await page.locator('[data-action="discover"]').click();
+    await waitForDirector(page,"reconsider");
+    await check("after-resume");
+   }finally{await context.close();}
+  }
+ }
 });
