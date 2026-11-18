@@ -1,0 +1,32 @@
+name: CZ-155 isolated Encounter proof
+on:
+  push:
+    branches: [feature/cz155-epictetus-director-proof]
+permissions:
+  contents: read
+jobs:
+  encounter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      YL_CZ155_EVIDENCE: qa-evidence-cz155
+      YL_CZ155_BROWSER_EVIDENCE: qa-evidence-cz155
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser driver
+        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Exact-checkout authoring and mobile traces
+        run: node --test tests/yl-cz155-*.test.mjs
+      - name: Legacy routes, semantic operations, persistence and all four game families
+        run: |
+          node --test tests/yl-b25-generalized-encounter.test.mjs tests/yl-b26-four-family*.test.mjs tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs tests/yl-cz147-engine.test.mjs tests/yl-cz147-r*-*.test.mjs
+          node --test tests/yl-cz147-browser.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: encounter-proof
+          path: qa-evidence-cz155/
+          if-no-files-found: warn

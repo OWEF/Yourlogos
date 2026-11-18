@@ -3,6 +3,7 @@
  * Pure markup/state helpers: existing app.js owns routing, persist(), Like,
  * My World, and the asynchronous server-side Reasoning/Emotion/Expression.
  */
+import {startEncounter,chooseAction} from "./experiments/yl-cz155-director.mjs";
 import {philosopherPortrait} from "./philosopher-portraits.js";
 const e=s=>String(s??"").replace(/[&<>"']/g,c=>({
  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
@@ -27,6 +28,7 @@ function responses(record,start,scene){
   .map(([id,label])=>({id,label}));
 }
 export function initializeB27Game(record){
+ if(record?.director)return startEncounter(record.director);
  const family=record?.familyId;
  if(family==="balance_move"){
   const a=record.allocation;
@@ -44,6 +46,7 @@ export function initializeB27Game(record){
 const counts=(game,n)=>Array.from({length:n},(_,i)=>
  game.owners.filter(x=>x===i).length);
 function gameStep(record,game){
+ if(record.director)return game?.phase==="complete";
  if(record.familyId==="balance_move")return game?.touched===true;
  if(record.familyId==="tap_pair")return game?.pairs?.length>=1;
  return game?.start!==null&&game?.scene!==null&&game?.response!==null;
@@ -113,6 +116,14 @@ export function adjustB27Game(enc,action,value,other=null){
    }
   }
  }
+ if(action==="branch"&&record.director){
+  if(!g.options.some(option=>option.id===value))return false;
+  const next=chooseAction(record.director,g.history,{choiceId:value,expectedRevision:g.revision});
+  if(next.phase!=="reconsider"&&next.phase!=="complete")return false;
+  enc.history.push(enc.game);
+  enc.game=next;enc.message="";enc.result=null;
+  return true;
+ }
  if(action==="branch"&&(family==="decision_cards"||family==="flip_reveal")){
   if(g.start===null&&starts(record).some(x=>x.id===value)){
    g.start=value;g.scene=null;g.response=null;changed=true;
@@ -138,6 +149,7 @@ export function adjustB27Game(enc,action,value,other=null){
 export function canonicalB27Input(enc){
  const rec=enc.record,g=enc.game;
  if(!canFinishB27(enc))return null;
+ if(rec.director)return structuredClone(g.canonicalInput);
  if(rec.familyId==="balance_move"){
   const alloc=rec.allocation;
   return {amounts:counts(g,alloc.choices.length),
@@ -296,7 +308,20 @@ function fullAuthoredDetail(record){
  // sentences can carry the true tension, causality boundary or limitation.
  return String(record.intro||record.humanTension||record.relation?.prompt||"").trim();
 }
+function directedDecisionHtml(state){
+ const first=state.firstAction;
+ const transcript=first?'<section class="b27-transcript"><h3>What you sent</h3><blockquote>'+e(first.literal)+'</blockquote></section>':"";
+ const observation=state.observation?'<p id="b27-observation" class="b27-observation">'+e(state.observation.text)+'</p>':"";
+ const followup=state.secondAction?'<section class="b27-transcript"><h3>'+e(state.secondAction.label)+'</h3><p>'+
+  e(state.secondAction.literal)+'</p></section>':"";
+ const cards=state.options.map(choice=>b("branch",'<strong>'+e(choice.label)+'</strong><span>'+e(choice.literal)+'</span>',
+  "b27-choice",'data-value="'+e(choice.id)+'"')).join("");
+ const prompt=state.phase==="opening"?"What will you send?":state.phase==="reconsider"?state.reconsiderationQuestion:"";
+ return transcript+observation+followup+(prompt?'<h3 class="b27-choice-question" tabindex="-1"'+(state.observation?' aria-describedby="b27-observation"':'')+'>'+e(prompt)+'</h3>':"")+
+  (cards?'<div class="b27-cards b27-message-choices" role="group" aria-label="'+e(prompt)+'">'+cards+'</div>':"");
+}
 function gameHtml(enc){
+ if(enc.record.director)return directedDecisionHtml(enc.game);
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
  if(enc.record.familyId==="tap_pair")return pairHtml(enc);
  if(enc.record.familyId==="decision_cards")return decisionHtml(enc);
@@ -307,22 +332,27 @@ function resultHtml(enc){
  if(!v||v.status!=="ready"||!Array.isArray(v.sections)||v.sections.length!==3)
   return '<p>Unable to display a faithful interpretation.</p>';
  const sections=v.sections,ph=v.philosopher||{};
+ const transcript=enc.result.provenance?.directorTranscript;
+ const originalText=transcript?'<section class="b27-transcript"><h3>What you sent</h3><blockquote>'+
+  e(transcript.firstMessage)+'</blockquote><p>'+e(transcript.event)+'</p><p>'+e(transcript.secondAction)+'</p></section>':"";
+ const fullText=transcript?arr(enc.result.fullExpression?.sections).map(section=>
+  '<p>'+e(section.text)+'</p>').join(""):'<p>'+e(v.deepening?.sourceQualification||"")+'</p>';
  return '<div class="b27-result" aria-label="Three-part philosophical discovery">'+
   '<p class="b27-kicker">DISCOVER THE MEANING</p>'+
   '<h2 class="b27-result-headline" tabindex="-1">A different way to see it.</h2>'+
   '<article class="b27-result-section b27-result-personal"><h3>'+e(sections[0].label)+'</h3><p>'+e(sections[0].text)+'</p></article>'+
   '<article class="b27-result-section b27-result-philosophy"><h3>'+e(sections[1].label)+'</h3><p>'+e(sections[1].text)+'</p></article>'+
   '<article class="b27-result-section b27-result-question"><h3>'+e(sections[2].label)+'</h3><p>'+e(sections[2].text)+'</p></article>'+
-  '<details class="b27-deepen"><summary>Go deeper</summary>'+
+  originalText+'<details class="b27-deepen"><summary>Go deeper</summary>'+
    '<div class="b27-thinker"><span class="b27-portrait" aria-hidden="true">'+philosopherPortrait(ph.author||"")+'</span>'+
    '<div><strong>'+e(ph.author||"")+'</strong><small>'+e(ph.work||"")+'</small></div></div>'+
    (ph.highlight?'<div class="b27-quote-fragment">“'+e(ph.highlight)+'…”</div>':"")+
-   '<p>'+e(v.deepening?.sourceQualification||"")+'</p>'+
+   fullText+
    '<p>Full source-grounded interpretation: '+e(v.fullWordCount||"")+
    ' words. This imagined situation does not establish facts about your life or an alternative future.</p>'+
    (ph.sourceUrl?.startsWith("https://")?'<a href="'+e(ph.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Read source text</a>':"")+
    '</details>'+
-  '<div class="b27-buttons">'+b("revise","Revise","b27-secondary")+
+  '<div class="b27-buttons">'+(enc.record&&!transcript?b("revise","Revise","b27-secondary"):b("replay","Play again","b27-secondary"))+
    (enc.saved?b("world","View in My World","b27-primary"):
     b("save","Finish &amp; Save","b27-primary",enc.saving?"disabled":""))+
   '</div>'+
@@ -338,12 +368,16 @@ export function renderB27Encounter(enc,quote){
   return start+'<div class="b27-main b27-situation"><p class="b27-kicker">FINDING THE SOURCE</p><h2>From this thought, a possibility.</h2><p role="status">Finding a source-grounded experience…</p></div></section>';
  if(enc.stage==="error")
   return start+'<div class="b27-main"><h2>That thought needs another look.</h2><p role="alert">'+e(enc.message)+'</p></div></section>';
- if(enc.stage==="reading")
-  return start+'<div class="b27-main"><p class="b27-kicker">ABOUT THIS THOUGHT</p>'+
-   '<h2>Stay with the idea.</h2><blockquote>“'+e(quote?.[0]||enc.quote?.text)+'”</blockquote>'+
-   '<p>— '+e(quote?.[1]||enc.quote?.author)+'</p><p>'+e(enc.quote?.question||"What does this idea ask us to examine?")+'</p>'+
-   '<p class="b27-source-note">'+e(enc.reason||"This quotation does not yet have a source-warranted mini-game.")+'</p>'+
-   '<p class="b27-caveat">No philosophical result was invented.</p></div></section>';
+ if(enc.stage==="reading"){
+  const q=enc.quote,passage=enc.reading;
+  return start+'<div class="b27-main b27-reading"><blockquote>“'+e(q.text)+'”</blockquote>'+
+   '<p>— '+e(q.author)+'</p><p class="b27-source-note">'+e(q.work)+'</p>'+
+   (passage?.context?'<h2>In the passage</h2><p>'+e(passage.context)+'</p>':"")+
+   '<h2>A question to sit with</h2><p>'+e(passage?.question||q.question)+'</p>'+
+   (passage?.url?.startsWith("https://")?'<a href="'+e(passage.url)+
+    '" target="_blank" rel="noopener noreferrer">Read the passage</a>':"")+
+   '</div></section>';
+ }
  if(enc.stage==="result")
   return start+'<div class="b27-main b27-reveal">'+resultHtml(enc)+'</div></section>';
  const r=enc.record,author=e(enc.quote?.author||quote?.[1]||"");
@@ -370,16 +404,16 @@ export function renderB27Encounter(enc,quote){
    '<div class="b27-buttons">'+b("begin","Step into the moment","b27-primary")+'</div>'+
    '<p class="b27-byline">'+author+'</p>'+context+'</div></section>';
  const done=canFinishB27(enc);
- const phase=enc.game?.start===null?"opening":enc.game?.scene===null?"development":
+ const phase=r.director?enc.game.phase:enc.game?.start===null?"opening":enc.game?.scene===null?"development":
   enc.game?.response===null?"response":"finished";
  return start+'<div class="b27-main b27-play">'+
   '<div class="b27-play-thread" aria-hidden="true"><i></i><span>✦</span><i></i></div>'+
   '<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
-  '<p class="b27-play-prompt">'+e(bridge.playPrompt)+'</p>'+
+  '<p class="b27-play-prompt">'+e(r.director?enc.game.opening:bridge.playPrompt)+'</p>'+
   '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'" data-b27-phase="'+e(phase)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+
    (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
-   (enc.game?.touched?b("reset","Reset","b27-secondary"):"")+
+   ((enc.game?.touched||enc.game?.revision>0)?b("reset","Reset","b27-secondary"):"")+
    (done?b("complete","Reveal insight","b27-primary",enc.saving?"disabled":""):"")+
   '</div>'+
   (enc.message?'<p class="b27-feedback" role="status" aria-live="polite">'+e(enc.message)+'</p>':"")+

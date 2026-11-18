@@ -26,7 +26,8 @@ export function createB27AppRuntime({
   const q=quotes()[id];
   if(!q)return null;
   return {quoteId:id,quoteText:q[0],quoteAuthor:q[1],
-   quoteWork:q[3],b27DevelopmentOnly:id>=B27_INHERITED_COUNT};
+   quoteWork:q[3],b27DevelopmentOnly:id>=B27_INHERITED_COUNT,
+   ...(new URLSearchParams(location.search).get("cz155")==="1"?{cz155Preview:true}:{})};
  };
  const same=token=>token===epoch;
  const draw=()=>{
@@ -105,7 +106,7 @@ export function createB27AppRuntime({
    if(!same(token)||sheet?.quoteId!==id)return true;
    if(json.status==="no_fit"){
     sheet={...sheet,stage:"reading",quote:json.quote,
-     reason:json.reason,capabilityGap:json.capabilityGap};
+     reading:json.reading};
    }else if(res.ok&&json.status==="ready"){
     const game=initializeB27Game(json.record);
     if(!game)throw Error("No valid source-authorized input contract was found");
@@ -113,10 +114,9 @@ export function createB27AppRuntime({
      record:json.record,sourceVersionHash:json.sourceVersionHash,
      quoteFingerprint:json.quoteFingerprint};
    }else throw Error(json.reason||"Source admission failed");
-  }catch(error){
+  }catch{
    if(!same(token))return true;
-   sheet={...sheet,stage:"error",message:"The selected quotation cannot be routed: "+
-    String(error?.message||error)};
+   sheet={...sheet,stage:"error",message:"Close this page and open Discover again to return to this quotation."};
   }
   draw();return true;
  }
@@ -171,6 +171,7 @@ export function createB27AppRuntime({
    });
    return true;
   }
+  if(kind==="replay"){return open(sheet.quoteId);}
   if(kind==="revise"){
    if(!sheet.game)return false;
    epoch++;sheet.stage="play";sheet.beat="play";sheet.saved=false;
@@ -215,7 +216,7 @@ export function createB27AppRuntime({
    const input=canonicalB27Input(sheet),q=qRequest(sheet.quoteId);
    if(!input||!q)return false;
    const token=++epoch;
-   sheet.saving=true;sheet.message="Checking the meaning against the original source…";
+   sheet.saving=true;sheet.message="Opening your reflection…";
    draw();
    try{
     const res=await fetch("/api/b27/run",{method:"POST",
@@ -231,9 +232,8 @@ export function createB27AppRuntime({
      throw Error(result.reason||"Source or canonical choice did not validate");
     sheet.result=result;sheet.stage="result";sheet.saved=false;
     sheet.message="Not saved yet; Finish & Save will keep this Encounter in My World.";
-   }catch(err){
-    if(same(token))sheet.message="No unsupported insight was produced: "+
-     String(err?.message||err);
+   }catch{
+    if(same(token))sheet.message="This reflection could not be opened. You can try again or return to the quotation.";
    }finally{
     if(same(token)){sheet.saving=false;draw();
      if(sheet.stage==="result")requestAnimationFrame(()=>

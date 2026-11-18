@@ -742,3 +742,12 @@ body:has(.b27-shell) .discover-cover{
   transition:none!important
  }
 }
+
+/* A sent message remains legible beside the independent development. */
+.b27-game .b27-message-choices{grid-template-columns:1fr}
+.b27-game .b27-message-choices .b27-choice{min-height:60px;align-items:flex-start;gap:.45rem}
+.b27-message-choices .b27-choice span,.b27-transcript,.b27-observation{line-height:1.5}
+.b27-transcript{border-left:2px solid var(--b27-gold);padding-left:.9rem}
+.b27-transcript h3{font-size:1rem}
+.b27-transcript blockquote,.b27-reading blockquote{margin:.6rem 0}
+.b27-reading>a{display:inline-flex;align-items:center;min-height:44px;color:var(--b27-gold)}

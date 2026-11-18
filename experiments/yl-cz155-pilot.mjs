@@ -1,0 +1,57 @@
+// Private authoring registry. Only the server's opt-in preview route calls this
+// module. The ordinary quote ledger and its admission decisions remain owners.
+import {B27_APP_QUOTES} from "./yl-b27-quote-ledger.mjs";
+import {makeUniversalRegistry} from "./yl-cz147-engines.mjs";
+import {EPICTETUS_SCENARIO as scenario} from "./yl-cz155-epictetus.mjs";
+
+const source = scenario.source;
+const evidenceIds = [...new Set(["source:central", "source:boundary",
+  "scenario:fictional", ...scenario.warrantIds])];
+
+const record = {
+  version: "cz155-author-proof/1", recordId: scenario.id, quoteId: source.quoteId,
+  status: "development_provisional", publicationAllowed: false,
+  developmentOnly: false, exposeInApp: false,
+  familyId: "decision_cards", title: "After the laughter",
+  intro: scenario.opening,
+  source: {text: source.text, author: source.author, work: source.work,
+    referenceUrl: source.referenceUrl},
+  sourceThesis: "You can offer repair. An answer requires another person's choice.",
+  evidenceClaim: "Another person can withhold a response even when you have acted with care",
+  humanTension: "You want to acknowledge publicly hurting your friend and you also want to be understood",
+  epistemicLimits: "Silence reveals neither your friend's judgment nor whether more repair is owed.",
+  compactLimit: "Silence cannot settle what repair you still owe.",
+  counterexample: "Even a considerate message cannot guarantee acceptance or discharge every obligation.",
+  readerAgency: "Choose your words, then decide what you can still undertake.",
+  reflectionQuestion: scenario.reconsiderationQuestion,
+  narrativeBridge: {
+    version: "cz152-narrative/1",
+    bridgeFromSource: "Epictetus asks how much of an action and its outcome belongs to the person who acts.",
+    situationHook: "Yesterday you laughed at a friend’s idea in public. They withdrew. You want to acknowledge the harm and also be understood.",
+    playPrompt: "Choose the message you will send.",
+    sourceWarrantIds: ["source:central","scenario:fictional"]
+  },
+  evidenceIds, affordances: ["boundary_awareness","choice_awareness"],
+  prohibitedInferences: ["Words caused silence","Delivery proves reading",
+    "Acknowledgment completes repair","A private commitment was fulfilled"],
+  supportedConclusions: ["An acknowledgement can be offered while the recipient's response remains unknown"],
+  philosophicalOperation: {kind: "agency_vs_external_reply", focus: "chosen conduct and independent response",
+    contrast: "your own undertaking versus another person's judgment", sourceWarrantIds: scenario.warrantIds},
+  director: scenario,
+  decisionWarrant: {fact: "acknowledged", warrantId: "mistaken_dependency",
+    established: {
+      inference: "You could acknowledge the harm without their agreement.",
+      question: "What would keeping faith with that acknowledgment require next?",
+      strategy: "boundary_awareness"
+    },
+    outstanding: {
+      inference: "Their answer cannot acknowledge the harm on your behalf.",
+      question: "What could you still name even if no answer comes?",
+      strategy: "choice_awareness"
+    }}
+};
+const registry = makeUniversalRegistry([record], B27_APP_QUOTES);
+const eligible = input => input?.cz155Preview === true && input.quoteId === source.quoteId;
+
+export const resolvePilot = input => eligible(input) ? registry.resolve(input) : null;
+export const runPilot = input => eligible(input) ? registry.run(input) : null;
