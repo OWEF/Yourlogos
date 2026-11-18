@@ -284,6 +284,16 @@ body:has(.b27-shell) .discover-cover{
 
 
 
+/* CZ-153 M1: The persistent account launcher is mounted at body level and
+   occupies the same mobile corner as the Encounter close action. Keep the
+   launcher in place for all normal routes, but remove it from hit-testing and
+   accessibility exposure while this specific B2.7 dialog is present.
+   Visibility is restored immediately on closing the Encounter. */
+body:has(.b27-shell) > .settings-launch{
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+
 /* CZ-150 — Waterline continuity. Presentation-only; host tokens are authoritative.
    No standalone green palette, score, leaderboard, or fabricated engine content. */
 .b27-shell{
