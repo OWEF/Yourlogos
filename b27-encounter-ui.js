@@ -202,7 +202,7 @@ function pairHtml(enc){
    '<span>'+e(first?.label||edge.aId)+'</span><i class="b27-bridge-trail" aria-hidden="true"></i>'+
    '<span>'+e(second?.label||edge.bId)+'</span></div>'+
    '<strong>✧ '+e(edge.label)+'</strong>'+
-   '<p class="b27-relation-meaning">'+e(edge.claim)+'</p>'+
+   '<div class="b27-relation-meaning">'+e(edge.claim)+'</div>'+
    '<details class="b27-link-explain"><summary>Why these connect</summary>'+
    '<p>This link is an illustration from the authored source, not a score or a judgment about you.</p></details></div>';
  }).join("");
