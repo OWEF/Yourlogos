@@ -33,3 +33,25 @@ Long §1 inherited ID 47 is currently `awaiting_source_review`; Carter-labelled 
 - The Railway review service was inspected separately. Its last inspected deploy is `493cb147`, not PR #247; no preview deployment of this new branch is claimed.
 
 **Next gate:** complete exact-SHA CI and review all six literal computed endings, then obtain editorial and independent QA assessment. Physical Safari and first-time learning comparisons remain NOT TESTED.
+
+## Current-date ordinary feed evidence — 18 November 2026 (Asia/Singapore)
+
+The genuine `app.js` `DAILY_ORDER` / `dailyPick` selects **ID 23, Mary Wollstonecraft**, on 2026-11-18 in a new unseeded session. This quotation is playable, so it is **incorrect** to label the current day's first card as reading-first. The new browser journey preserves that fact: opens the real current-date card, then browses forward through the existing quote viewport using ArrowDown to reach **ID 56, David Hume**, “A wise man proportions his belief to the evidence.” Tapping the actual card's Discover yields `/api/b27/start` → `no_fit` and literal consumer copy:
+
+> “A wise man proportions his belief to the evidence.”
+>
+> — David Hume
+>
+> An Enquiry Concerning Human Understanding, X
+>
+> A question to sit with
+>
+> What would change your mind about something important?
+
+No internal `admission` / `no_fit` / capability jargon appears in the foreground. This specific reading-first item has **no source-grounded explanatory paragraph or passage link**, because no further exact-edition witness has been admitted. It is a truthful attribution-and-question experience, not a claim that an argument was editorially authenticated. Screenshot, literal foreground text and an actual route JSON are created by `tests/yl-cz155-app-browser.test.mjs` in the CI artifact as `07-current-date-*`.
+
+## Refresh / resume evidence — same real quote, no new profile store
+
+For the opt-in Long §1 pilot, the browser now persists an **unfinished fictional event history only** in tab-scoped `sessionStorage` as `b27-session-draft/1` with quote ID and source version. Reopening Discover after a reload obtains the fresh server source record, validates `encounter-events/1` by pure `replayEncounter`, and restores the exact first/second action stage and Undo history. A tampered external observation or incompatible source version is discarded. The draft is removed when the authoritative `/api/b27/run` returns a completed result. It is not an authenticated user profile, cross-device memory, My World record, or a way to assign the friend's response. Saving, reading back and deleting a completed Encounter still use `b27-saved-encounters.js`.
+
+The responsive Chromium screenshots `03b-resumed-after-first.png` and `03c-resumed-after-second.png` demonstrate both partial states. No claim of physical iPhone/Safari, crash-safe recovery across cleared browser sessions, or real-world reading behavior is made.
