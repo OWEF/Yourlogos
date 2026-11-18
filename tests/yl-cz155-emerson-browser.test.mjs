@@ -37,7 +37,8 @@ async function capture(page,name){
  if(!evidence)return;
  await mkdir(evidence,{recursive:true});
  await page.screenshot({path:evidence+"/"+name+".png"});
- await writeFile(evidence+"/"+name+".txt",await page.locator(".b27-shell").innerText());
+ const selector=(await page.locator(".b27-shell").count())?".b27-shell":".today";
+ await writeFile(evidence+"/"+name+".txt",await page.locator(selector).innerText());
 }
 test("A first-time reader can browse the real app to Emerson and see reason-sensitive endings",async t=>{
  const base=await startServer(t);
