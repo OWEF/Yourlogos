@@ -44,8 +44,42 @@ test("Six server-computed endings retain both the agency boundary and the open d
   }
   assert.equal(evidence.length,6);
   const root=process.env.YL_CZ155_EVIDENCE;
-  if(root){mkdirSync(root,{recursive:true});writeFileSync(root+"/epictetus-six-paths.json",
-    JSON.stringify({sourceHash:start.sourceVersionHash,scenarioHash:scenario.scenarioFingerprint,paths:evidence},null,2)+"\n");}
+  if(root){
+    mkdirSync(root,{recursive:true});
+    writeFileSync(root+"/epictetus-six-paths.json",
+      JSON.stringify({sourceHash:start.sourceVersionHash,scenarioHash:scenario.scenarioFingerprint,paths:evidence},null,2)+"\n");
+    const lines=[
+      "# CZ-155 · Literal six-path audit from the unchanged three-engine runtime",
+      "",
+      "This is generated from runPilot on the exact test checkout, not written as production results.",
+      "The Source, Reasoning, Emotion Strategy, full Expression and compact Expression are computed for each of six paths.",
+      ""
+    ];
+    for(const item of evidence){
+      lines.push("## "+item.path.join(" → "),"",
+        "**First literal message:** "+item.firstMessage,
+        "",
+        "**Independent observation:** "+item.observed,
+        "",
+        "**Second literal action:** "+item.secondAction,
+        "",
+        "**Reasoning selected claim:** "+item.reasoning.meaning.selectedClaim,
+        "",
+        "**Emotion Strategy:** "+item.emotion.strategy,
+        "",
+        "**Source warrant IDs:** "+item.reasoning.meaning.choiceAnalysis.sourceWarrantIds.join(", "),
+        "",
+        "**Refinement basis:** "+JSON.stringify(item.reasoning.meaning.choiceAnalysis.refinementBasis),
+        "",
+        "**Compact ("+item.compact.visibleWordCount+" words):**",
+        ...item.compact.sections.map(section=>"- "+section.label+": "+section.text),
+        "",
+        "**Full ("+item.full.wordCount+" words):**",
+        ...item.full.sections.map(section=>"- "+section.label+": "+section.text),
+        "");
+    }
+    writeFileSync(root+"/epictetus-six-paths-literal.md",lines.join("\n")+"\n");
+  }
 });
 
 test("Author preview is edition bound and rejects stale, forged and cross-opening choices",()=>{
