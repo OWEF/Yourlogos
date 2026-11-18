@@ -129,7 +129,7 @@ export const EMERSON_RECORD=freeze({
   fact:"weighedBothEvidence",oppositeFact:"avoidedInconsistency",
   warrantId:"present_judgment",
   established:{
-   inference:"Maintaining the proposal after weighing workers and a funded shuttle can reflect independent present judgment; the shuttle remains untested.",
+   inference:"Weighing workers and a funded shuttle before maintaining the proposal can express independent present judgment.",
    question:"Would you keep this view without an audience, and what evidence could change it?",
    strategy:"revisability"
   },
