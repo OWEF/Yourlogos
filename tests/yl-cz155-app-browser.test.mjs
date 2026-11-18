@@ -102,6 +102,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    await page.reload({waitUntil:"domcontentloaded"});
    await page.locator("#yl-enter").press("End");
    await discover.click();
+   await page.locator(".b27-play").waitFor();
    assert.equal((await state(page)).game.phase,"reconsider");
    assert.equal((await state(page)).game.firstAction.id,first);
    assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
@@ -115,6 +116,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    await page.reload({waitUntil:"domcontentloaded"});
    await page.locator("#yl-enter").press("End");
    await discover.click();
+   await page.locator(".b27-play").waitFor();
    assert.equal((await state(page)).game.phase,"complete");
    assert.equal((await state(page)).game.secondAction.id,second);
    await capture(page,"03c-resumed-after-second",".b27-play");
@@ -222,6 +224,7 @@ test("A forged mid-Encounter tab draft is discarded rather than trusted as a res
  await page.reload({waitUntil:"domcontentloaded"});
  await page.locator("#yl-enter").press("End");
  await page.locator('[data-action="discover"]').click();
+ await page.locator(".b27-situation").waitFor();
  assert.equal((await state(page)).game.phase,"opening");
  assert.equal((await state(page)).beat,"situation");
  assert.equal((await state(page)).savedEncounters,0);
