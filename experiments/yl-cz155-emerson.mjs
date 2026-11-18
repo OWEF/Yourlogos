@@ -109,9 +109,9 @@ export const EMERSON_RECORD=freeze({
  reflectionQuestion:EMERSON_SCENARIO.reconsiderationQuestion,
  narrativeBridge:{
   version:"cz152-narrative/1",
-  bridgeFromSource:"Emerson questions loyalty to yesterday's words when today's judgment should be independent.",
-  situationHook:"A neighborhood's last bus may depart earlier. Thirteen late-shift workers rely on the existing service; a funded accessible shuttle pilot may offer an alternative.",
-  playPrompt:"The public position can stay the same while its reason changes.",
+  bridgeFromSource:"What does it mean to trust your judgment when others are watching?",
+  situationHook:"You supported an earlier last bus for your neighborhood. At tonight\'s meeting, a neighbor asks you to revisit it.",
+  playPrompt:"Hear the new information, then decide what you would say.",
   sourceWarrantIds:["source:central","scenario:fictional"]
  },
  evidenceIds:["source:central","source:boundary","scenario:fictional",...EMERSON_SCENARIO.warrantIds],
