@@ -67,6 +67,10 @@ test("A first-time reader can browse the real app to Emerson and see reason-sens
  assert.equal(opening.status,"ready");
  assert.equal(opening.sourceRecordId,"last-bus-present-judgment");
  await expectStage(page,"opening");
+ const setupCopy=(await page.locator(".b27-bridge-idea").innerText())+
+  " "+(await page.locator(".b27-scenario").innerText());
+ assert.doesNotMatch(setupCopy,/thirteen|shuttle|funded|consisten|reputation|independent judgment|reason changes/i,
+  "The opening must not disclose the external event or give away Emerson's favored reasoning");
  await capture(page,"11-emerson-opening");
  await control(page,"begin").click();
  assert.equal(await control(page,"branch").count(),1);
