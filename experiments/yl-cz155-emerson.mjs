@@ -26,7 +26,7 @@ const first={
  id:"publish_initial_support",label:"Stand behind your earlier public support",
  medium:"public_statement",
  literal:"I support moving the final bus from 23:40 to 22:50.",
- recap:"You had publicly supported an earlier last bus based on aggregate ridership.",
+ recap:"You publicly supported the earlier bus departure.",
  effect:"public_support_reaffirmed",establishes:["publiclySupported"],
  commitment:"The earlier departure has public support; its merits can still be reconsidered.",
  possibleRationale:"The aggregate figures initially appear to support the proposal.",
@@ -38,7 +38,7 @@ const followUps={
   {
    id:"maintain_merits",label:"Maintain after weighing both needs and the funded alternative",
    medium:"public_statement",literal:publicDecision,
-   recap:"You maintained the earlier departure after weighing the late-shift evidence and a budgeted shuttle pilot.",
+   recap:"You maintained it after weighing workers and a shuttle.",
    effect:"maintain_on_current_reasons",
    establishes:["maintainedProposal","weighedBothEvidence","identifiedCredibleAlternative"],
    commitment:"You will defend the proposal using present ridership and an accessible 23:45 shuttle pilot, whose adequacy is unproven.",
@@ -49,7 +49,7 @@ const followUps={
   {
    id:"maintain_image",label:"Maintain because reversing would look inconsistent",
    medium:"public_statement",literal:publicDecision,
-   recap:"You maintained the earlier departure chiefly to avoid appearing inconsistent.",
+   recap:"You maintained it to seem consistent.",
    effect:"maintain_for_public_image",
    establishes:["maintainedProposal","avoidedInconsistency"],
    commitment:"You have kept the position publicly without assessing the neighbor's objection on its merits.",
@@ -99,11 +99,11 @@ export const EMERSON_RECORD=freeze({
  intro:EMERSON_SCENARIO.opening,
  source:{text:source.text,author:source.author,work:source.work,
   referenceUrl:source.referenceUrl},
- sourceThesis:"Independence depends on judging anew, not reflexively changing or preserving a public position.",
+ sourceThesis:"Independent judgment requires present reasons, not merely consistency.",
  evidenceClaim:"Past declarations can exert public pressure, but neither a change nor a maintained view proves independent judgment on its own.",
  humanTension:"Keeping a public bus-policy position for present reasons or to avoid appearing inconsistent.",
  epistemicLimits:"The shuttle alternative is fictional and untested; the participant's chosen grounds do not prove the bus policy works.",
- compactLimit:"An independent judgment can retain an earlier view; the shuttle remains untested.",
+ compactLimit:"The shuttle remains untested.",
  counterexample:"A principled commitment can be retained after fresh scrutiny; novelty is not itself a virtue.",
  readerAgency:"Hear the neighbor's evidence, then select the explicit reason for the same outward public decision.",
  reflectionQuestion:EMERSON_SCENARIO.reconsiderationQuestion,
@@ -129,13 +129,13 @@ export const EMERSON_RECORD=freeze({
   fact:"weighedBothEvidence",oppositeFact:"avoidedInconsistency",
   warrantId:"present_judgment",
   established:{
-   inference:"Keeping the earlier departure can express independent present judgment after weighing the late-shift concern and a credible shuttle alternative; the shuttle remains untested.",
-   question:"Would you maintain this view if no one remembered your prior support, and what evidence could defeat it?",
+   inference:"Maintaining the proposal after weighing workers and a funded shuttle can reflect independent present judgment; the shuttle remains untested.",
+   question:"Would you keep this view without an audience, and what evidence could change it?",
    strategy:"revisability"
   },
   outstanding:{
-   inference:"Keeping the same departure merely to avoid looking inconsistent makes yesterday's public declaration an authority over today's judgment.",
-   question:"Without an audience remembering your earlier words, what evidence would justify the unchanged position?",
+   inference:"Keeping the proposal just to appear consistent makes yesterday's public declaration an authority over today's judgment.",
+   question:"What evidence would justify this position if no one remembered yesterday's words?",
    strategy:"choice_awareness"
   }
  }
