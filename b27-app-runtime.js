@@ -11,11 +11,50 @@ import {
  saveFinishedEncounter,deleteSavedEncounter,validatedSavedEncounters
 } from "./b27-saved-encounters.js";
 import {B27_INHERITED_COUNT} from "./experiments/yl-b27-quote-ledger.mjs";
+import {derivePath,replayEncounter} from "./experiments/yl-cz155-director.mjs";
 
 export function createB27AppRuntime({
  quotes,getData,persist,readback,render,navigateWorld,notify
 }){
  let sheet=null,epoch=0, touchDrag=null, suppressPieceClicksUntil=0;
+ // An unfinished fictional Director scene is a tab-scoped UI draft, never a
+ // saved Encounter, personal profile or source of philosophical authority.
+ const DRAFT_KEY="yourlogos-b27-director-draft/1";
+ const clearDraft=()=>{try{sessionStorage.removeItem(DRAFT_KEY)}catch{}};
+ const resumeDraft=(quoteId,record,sourceVersionHash)=>{
+  if(!record?.director)return null;
+  try{
+   const raw=sessionStorage.getItem(DRAFT_KEY);
+   if(!raw)return null;
+   const draft=JSON.parse(raw);
+   if(draft?.quoteId!==quoteId)return null;
+   if(draft.schema!=="b27-session-draft/1"||
+      draft.sourceVersionHash!==sourceVersionHash){
+    clearDraft();return null;
+   }
+   // Server supplies the exact reviewed scenario on every open. A browser
+   // draft can contribute only a replayable action history, not new facts.
+   const game=replayEncounter(record.director,draft.history);
+   if(!["reconsider","complete"].includes(game.phase)){
+    clearDraft();return null;
+   }
+   const ids=game.history.events.filter(event=>event.type==="choose").map(event=>event.id);
+   const history=ids.map((_,i)=>derivePath(record.director,ids.slice(0,i)));
+   return {game,history};
+  }catch{clearDraft();return null}
+ };
+ const persistDraft=()=>{
+  if(!sheet?.record?.director)return;
+  try{
+   if(sheet.stage!=="play"||!sheet.game||sheet.game.revision===0){
+    clearDraft();return;
+   }
+   sessionStorage.setItem(DRAFT_KEY,JSON.stringify({
+    schema:"b27-session-draft/1",quoteId:sheet.quoteId,
+    sourceVersionHash:sheet.sourceVersionHash,history:sheet.game.history
+   }));
+  }catch{}
+ };
  // Some emulated/mobile browsers report window.innerWidth including the
  // scrollbar gutter. Position the app-owned sheet against the actual visible
  // document box instead of centering it in that wider layout viewport.
@@ -110,9 +149,12 @@ export function createB27AppRuntime({
    }else if(res.ok&&json.status==="ready"){
     const game=initializeB27Game(json.record);
     if(!game)throw Error("No valid source-authorized input contract was found");
-    sheet={...sheet,stage:"play",beat:"situation",quote:json.quote,game,history:[],
+    const restored=resumeDraft(id,json.record,json.sourceVersionHash);
+    sheet={...sheet,stage:"play",beat:restored?"play":"situation",quote:json.quote,
+     game:restored?.game??game,history:restored?.history??[],
      record:json.record,sourceVersionHash:json.sourceVersionHash,
-     quoteFingerprint:json.quoteFingerprint};
+     quoteFingerprint:json.quoteFingerprint,
+     message:restored?"Your earlier choices are restored on this device.":""};
    }else throw Error(json.reason||"Source admission failed");
   }catch{
    if(!same(token))return true;
@@ -181,18 +223,18 @@ export function createB27AppRuntime({
    if(!sheet.history.length)return false;
    epoch++;sheet.game=sheet.history.pop();sheet.result=null;
    sheet.stage="play";sheet.beat="play";sheet.message="Your previous choice is restored.";
-   draw();return true;
+   persistDraft();draw();return true;
   }
   if(kind==="reset"){
    if(!sheet.record)return false;
    epoch++;sheet.game=initializeB27Game(sheet.record);sheet.history=[];
    sheet.result=null;sheet.saved=false;sheet.stage="play";sheet.beat="play";sheet.tunerOpen=false;
-   sheet.message="A fresh start. Nothing was saved.";draw();return true;
+   sheet.message="A fresh start. Nothing was saved.";persistDraft();draw();return true;
   }
   if(["move","pair","branch","focus"].includes(kind)){
    const value=kind==="move"?el.dataset.b27Piece:el.dataset.value;
    const changed=adjustB27Game(sheet,kind,value);
-   if(changed)epoch++;
+   if(changed){epoch++;persistDraft()}
    draw();
    if(changed){
     // Animate newly rendered game *objects*, never the dialog or cover.
@@ -238,6 +280,7 @@ export function createB27AppRuntime({
        result.sourceVersionHash!==sheet.sourceVersionHash)
      throw Error(result.reason||"Source or canonical choice did not validate");
     sheet.result=result;sheet.stage="result";sheet.saved=false;
+    clearDraft();
     sheet.message="Not saved yet; Finish & Save will keep this Encounter in My World.";
    }catch{
     if(same(token))sheet.message="This reflection could not be opened. You can try again or return to the quotation.";
