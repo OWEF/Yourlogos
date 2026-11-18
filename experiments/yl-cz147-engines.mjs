@@ -140,7 +140,7 @@ function validateRecord(r){
     const selected=all?x.factsAll:x?.factsAny;
     return validJudgment(x)&&all!==any&&size(selected,1,6)&&
       new Set(selected).size===selected.length&&
-      selected.every(key=>Object.hasOwn(start.facts,key))&&
+      selected.every(key=>scenario.selfFacts.includes(key))&&
       txt(x.warrantId,1)&&Object.hasOwn(scenario.source.warrants,x.warrantId)&&
       r.evidenceIds.includes(x.warrantId);
   }))return false;
