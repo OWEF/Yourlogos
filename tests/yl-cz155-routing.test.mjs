@@ -22,10 +22,13 @@ test("Exact current inherited, development and daily-feature eligibility denomin
  const coverage=reportB27Coverage();
  assert.equal(coverage.original,91);
  assert.equal(coverage.developmentOnly,4);
- const playable=coverage.rows.filter(row=>row.status==="playable").map(row=>row.quoteId);
- const inherited=playable.filter(id=>id<91).sort((a,b)=>a-b);
- const development=playable.filter(id=>id>=91).sort((a,b)=>a-b);
- assert.deepEqual(inherited,[12,34,91,92,93,94].filter(id=>id<91).concat([23,48,49,55]).sort((a,b)=>a-b));
+ const editorialPlayable=coverage.rows.filter(row=>row.status==="playable").map(row=>row.quoteId);
+ // The B2.7 editorial ledger and CZ-147 generalized registry are separate
+ // sources of playable routes; counting either alone understates coverage.
+ const allPlayable=[...new Set([...editorialPlayable,...CZ147_APP_ADMITTED_IDS])];
+ const inherited=allPlayable.filter(id=>id<91).sort((a,b)=>a-b);
+ const development=allPlayable.filter(id=>id>=91).sort((a,b)=>a-b);
+ assert.deepEqual(inherited,[12,23,34,48,49,55]);
  assert.deepEqual(development,[91,92,93,94]);
  assert.deepEqual([...CZ147_APP_ADMITTED_IDS].sort((a,b)=>a-b),[23,48,49,55]);
  const daily=dailyList();
