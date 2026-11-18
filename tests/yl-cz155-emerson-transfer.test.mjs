@@ -134,7 +134,7 @@ test("Incidental wording and option order cannot alter source-warranted meaning"
  const variant=structuredClone(record);
  variant.director.followUps.publish_initial_support.reverse();
  variant.director.openingChoices[0].recap=
-  "You had publicly supported an earlier last bus using those aggregate figures.";
+  "You publicly backed the proposed earlier departure.";
  variant.director.openingChoices[0].possibleRationale=
   "Aggregate numbers seemed to support moving the last bus earlier.";
  delete variant.director.scenarioFingerprint;
