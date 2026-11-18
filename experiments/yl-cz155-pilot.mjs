@@ -3,6 +3,7 @@
 import {B27_APP_QUOTES} from "./yl-b27-quote-ledger.mjs";
 import {makeUniversalRegistry} from "./yl-cz147-engines.mjs";
 import {EPICTETUS_SCENARIO as scenario} from "./yl-cz155-epictetus.mjs";
+import {EMERSON_RECORD} from "./yl-cz155-emerson.mjs";
 
 const source = scenario.source;
 const evidenceIds = [...new Set(["source:central", "source:boundary",
@@ -73,8 +74,11 @@ const record = {
       }
     ]}
 };
-const registry = makeUniversalRegistry([record], B27_APP_QUOTES);
-const eligible = input => input?.cz155Preview === true && input.quoteId === source.quoteId;
+// Both authoring records use the *same* validated Director and universal
+// Reasoning/Emotion/Expression engine. No author/quote-specific runtime branch.
+const registry = makeUniversalRegistry([record,EMERSON_RECORD], B27_APP_QUOTES);
+const eligible = input => input?.cz155Preview === true &&
+ registry.ids.includes(input.quoteId);
 
 export const resolvePilot = input => eligible(input) ? registry.resolve(input) : null;
 export const runPilot = input => eligible(input) ? registry.run(input) : null;
