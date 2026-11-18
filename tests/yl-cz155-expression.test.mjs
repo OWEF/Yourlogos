@@ -58,3 +58,36 @@ test("Author preview is edition bound and rejects stale, forged and cross-openin
   assert.equal(run(["request","delivered_no_reply","invite"]).code,"unsupported_path");
   assert.equal(run(null,{canonicalInput:{path:["request","delivered_no_reply","name_harm"],motive:"prove sincerity"}}).status,"blocked");
 });
+
+test("Semantic comparison excludes click recap and retains only warranted distinctions",()=>{
+  const result=(first,second)=>run([first,"delivered_no_reply",second]);
+  const interpretation=r=>({
+    claim:r.fullMeaning.meaning.selectedClaim, strategy:r.emotion.strategy,
+    compact:r.compact.sections.slice(1).map(x=>x.text),
+    full:r.fullExpression.sections.slice(1).map(x=>x.text),
+    question:r.compact.sections[2].text,
+    basis:r.fullMeaning.meaning.choiceAnalysis.refinementBasis
+  });
+  const invited=interpretation(result("acknowledge","invite"));
+  const laterAcknowledged=interpretation(result("request","name_harm"));
+  const writtenPlan=interpretation(result("acknowledge","correct"));
+  const preparedQuestion=interpretation(result("explain","prepare_question"));
+  const secondApology=interpretation(result("explain","unqualified"));
+  const outstanding=interpretation(result("request","leave_request"));
+  // Same *established* agency facts, different chronology or literal message:
+  // differing recap is not a license to manufacture a new philosophical claim.
+  assert.deepEqual(invited,laterAcknowledged);
+  assert.deepEqual(writtenPlan,preparedQuestion);
+  assert.equal(invited.strategy,"boundary_awareness");
+  assert.equal(writtenPlan.strategy,"choice_awareness");
+  assert.equal(outstanding.strategy,"choice_awareness");
+  assert.match(writtenPlan.claim,/private plan.*untested until you act/i);
+  assert.match(secondApology.claim,/second apology.*cannot determine/i);
+  assert.match(invited.claim,/invitation.*reply/i);
+  assert.match(outstanding.claim,/cannot acknowledge the harm/i);
+  assert.equal(new Set([invited,writtenPlan,secondApology,outstanding]
+    .map(x=>JSON.stringify([x.claim,x.strategy,x.question]))).size,4);
+  for(const x of [invited,writtenPlan,secondApology,outstanding]){
+    for(const section of x.compact)assert.ok(!/read receipt|forgiven you|caused the silence/i.test(section));
+  }
+});
