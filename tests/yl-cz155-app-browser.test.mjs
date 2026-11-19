@@ -132,6 +132,9 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.match(await page.locator(".b27-social-event").textContent(),
    /AFTER THE FIRST MESSAGE[\s\S]*READ STATUS UNKNOWN/);
   assert.equal(await page.locator(".b27-social-reconsider").count(),1);
+   assert.equal(await page.locator(".b27-r4-notice").count(),1,
+    "The independently authored group notice must remain part of the fictional event");
+   assert.match(await page.locator(".b27-r4-notice").innerText(),/tomorrow/i);
   assert.doesNotMatch(await page.locator(".b27-social-reconsider").innerText(),
    /acknowledgment (?:sent|not sent)|further repair may|their response|external control/i);
   await capture(page,"M2-"+first+"-"+second+"-reconsider",".b27-play");
