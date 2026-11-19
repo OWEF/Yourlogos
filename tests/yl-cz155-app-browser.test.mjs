@@ -48,7 +48,7 @@ const evidence=process.env.YL_CZ155_BROWSER_EVIDENCE;
 async function capture(page,name,selector){
  if(!evidence)return;
  await mkdir(evidence,{recursive:true});
- await page.screenshot({path:evidence+"/"+name+".png"});
+ await page.screenshot({path:evidence+"/"+name+".png",animations:"disabled"});
  await writeFile(evidence+"/"+name+".txt",await page.locator(selector).innerText());
 }
 
@@ -125,6 +125,9 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   await capture(page,"M2-"+first+"-"+second+"-reconsider",".b27-play");
   assert.match(await page.locator(".b27-choice-question").innerText(),/What am I asking the other person.s reply to prove/);
   assert.equal(await control(page,"branch").count(),2);
+  // Compare the neutral resting state, not the intentionally interactive
+  // pointer hover on whichever choice happened to appear under the cursor.
+  await page.mouse.move(2,2);
   const optionBackgrounds=await page.locator(".b27-social-options .b27-choice")
    .evaluateAll(options=>options.map(o=>getComputedStyle(o).backgroundImage));
   assert.equal(new Set(optionBackgrounds).size,1,
