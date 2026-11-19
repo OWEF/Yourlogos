@@ -155,6 +155,13 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(result.status,"ready",JSON.stringify(result));
   assert.equal(result.provenance.directorTranscript.firstMessage,literal);
   await page.locator(".b27-result").waitFor();
+  const followupCaption=await page.locator(".b27-result-followup h3").innerText();
+  assert.equal(followupCaption,privateFollowUp?
+   second==="leave_request"?"PRIVATE DECISION · NOT SENT":"PRIVATE NOTE · NOT SENT":
+   "SECOND MESSAGE · SENT",
+   "Full and saved result must distinguish a sent message from a private act");
+  assert.match(await page.locator(".b27-result-external").innerText(),
+   /INDEPENDENT STORY EVENT/);
   await capture(page,"M2-"+first+"-"+second+"-insight",".b27-result");
   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
   assert.equal((await state(page)).quoteLikeCount,0);
@@ -175,6 +182,9 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   await page.locator("#yl-enter").press("End");
   await page.locator('[data-view="profile"]').last().click();
   await control(page,"reopen").click();
+  assert.equal(await page.locator(".b27-result-followup h3").innerText(),
+   "SECOND MESSAGE · SENT",
+   "A reopened saved encounter must retain second-action media from saved fullMeaning");
   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
   assert.equal(await page.locator(".b27-result-philosophy p").innerText(),result.compact.sections[1].text);
   await capture(page,"06-reopened",".b27-result");
