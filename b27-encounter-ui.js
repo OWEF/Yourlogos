@@ -332,12 +332,20 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
  const sent=first?
   '<section class="b27-transcript b27-social-message b27-r3-sent" aria-label="Your first sent message">'+
    '<blockquote>'+e(first.literal)+'</blockquote><small>Sent</small></section>':"";
- // This independently authored fact describes the FIRST message only.
+ // Both the unanswered FIRST message and the unrelated group announcement
+ // are source-authored observations. The notice is not a reaction to the sender.
+ const noticeIndex=presentation?.developmentLabel&&Array.isArray(observed?.observed)&&
+  observed.observed.length>2?observed.observed.length-1:-1;
+ const observedStatus=noticeIndex>1?observed.observed.slice(0,noticeIndex).join(" "):observed?.text;
+ const separateNotice=noticeIndex>1?
+  '<aside class="b27-r4-notice" aria-label="'+e(presentation.developmentLabel)+'">'+
+   '<strong>'+e(presentation.developmentLabel)+'</strong>'+
+   '<p>'+e(observed.observed[noticeIndex])+'</p></aside>':"";
  const event=observed?
   '<div class="b27-social-event b27-r3-event" id="b27-observation" role="note" aria-label="Independent story observation after the first message">'+
    '<small>AFTER THE FIRST MESSAGE</small>'+
-   '<p class="b27-observation">'+e(observed.text)+'</p>'+
-   '<small>READ STATUS UNKNOWN</small></div>':"";
+   '<p class="b27-observation">'+e(observedStatus)+'</p>'+
+   '<small>READ STATUS UNKNOWN</small>'+separateNotice+'</div>':"";
  const afterSecond=second?second.medium==="message"?
   '<section class="b27-social-message b27-social-second b27-r3-sent" aria-label="Your second sent message">'+
    '<blockquote>'+e(second.literal)+'</blockquote>'+
@@ -372,7 +380,7 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
  const waiting=beat==="wait"?
   '<main class="b27-r3-conversation b27-r3-waiting" aria-label="An unanswered message">'+
    sent+'<div class="b27-r3-quiet-horizon" aria-hidden="true"><i></i></div>'+
-   event+'<p class="b27-r3-quiet-line">The conversation is quiet.</p>'+
+   event+'<p class="b27-r3-quiet-line">'+e(presentation.waitCue||"The conversation is quiet.")+'</p>'+
    '<div class="b27-r3-wait-control">'+
     b("social-reflect",'<span>Consider your next step</span><span aria-hidden="true">↗</span>',
      "b27-r3-continue")+'</div>'+
@@ -404,7 +412,7 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
    '<div class="b27-r3-ending" role="status">'+
     '<span>YOUR NEXT ACTION IS RECORDED</span>'+
     '<h3>The story does not tell you their response.</h3>'+
-    '<p>Only the first message has an observed delivery status.</p></div>'+
+    '<p>'+e(presentation.completionLead||"Only the first message has an observed delivery status.")+'</p></div>'+
    '</main>':"";
  return '<div class="b27-social b27-r3-simulator" data-director-presentation="message_thread"'+
   ' data-social-beat="'+e(beat)+'">'+
