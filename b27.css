@@ -1112,3 +1112,7 @@ body:has(.b27-shell) .discover-cover{
  .b27-chat-sim[data-social-beat="reconsider"] .b27-chat-reflection{
   animation:none!important;transform:none!important}
 }
+
+/* M2 R2 factual uncertainty must remain readable before reconsideration. */
+.b27-chat-reflection .b27-chat-observation small:last-child{
+ display:block;font-size:9px;line-height:1.25;margin-top:1px!important}
