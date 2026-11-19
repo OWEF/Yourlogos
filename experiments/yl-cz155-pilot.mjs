@@ -17,11 +17,11 @@ const record = {
   intro: scenario.opening,
   source: {text: source.text, author: source.author, work: source.work,
     referenceUrl: source.referenceUrl},
-  sourceThesis: "In Enchiridion §1, Epictetus separates our own judgments and deliberate acts from what other people decide.",
+  sourceThesis: "Epictetus distinguishes our own judgments and actions from others' responses.",
   evidenceClaim: "You may prepare or promise a correction without commanding a chance to perform it or anyone's response.",
   humanTension: "Tomorrow the group returns to the interrupted idea while any private reply remains uncertain",
   epistemicLimits: "A missing reply reveals neither your friend's judgment nor what public responsibility remains appropriate.",
-  compactLimit: "Public responsibility and private reconciliation remain distinct and open.",
+  compactLimit: "Public conduct and private reconciliation remain separate.",
   counterexample: "Even a promise to acknowledge the interruption publicly may go unfulfilled; a friendly reply would not automatically settle public responsibility.",
   readerAgency: "Choose what to send, then decide what to prepare or promise before tomorrow's discussion.",
   reflectionQuestion: scenario.reconsiderationQuestion,
@@ -52,13 +52,13 @@ const record = {
   director: scenario,
   decisionWarrant: {fact: "acknowledged", warrantId: "own_conduct",
     established: {
-      inference: "You acknowledged the interruption, a chosen act, without deciding how the meeting or your friend will respond.",
-      question: "If tomorrow offers an opening, what would you choose without presuming its outcome?",
+      inference: "Your acknowledgment is chosen; its reception and tomorrow's meeting remain uncertain.",
+      question: "If tomorrow offers a turn, what could you attempt?",
       strategy: "boundary_awareness"
     },
     outstanding: {
-      inference: "You offered a conversation without yet naming the public interruption; another person's silence does not choose your public conduct.",
-      question: "What remains possible tomorrow, whether or not a conversation happens?",
+      inference: "Your invitation is chosen; tomorrow's public conduct remains open.",
+      question: "What remains possible tomorrow without a private conversation?",
       strategy: "choice_awareness"
     },
     // These are shared predicates about action status, not one authored
@@ -66,26 +66,26 @@ const record = {
     refinements: [
       {
         factsAny: ["publicCommitmentCommunicated"],
-        inference: "You promised a public acknowledgment. The promise is your action today; a chance to carry it out and others' responses are not guaranteed.",
-        question: "If you get a chance tomorrow, what would acting on that promise require?",
+        inference: "Your promise is a present act; performance and reception remain uncertain.",
+        question: "If you have a turn tomorrow, what would carrying it out involve?",
         strategy: "boundary_awareness", warrantId: "public_action"
       },
       {
         factsAny: ["plannedPublicCorrection", "preparedListeningQuestion"],
-        inference: "You prepared a specific step for tomorrow. Preparation is an act you can choose; it does not mean the step has happened or will succeed.",
-        question: "What could make the preparation useful if tomorrow unfolds differently from your plan?",
+        inference: "Preparing a step is an act, not evidence that it happened or succeeded.",
+        question: "What if tomorrow offers no chance to act on your plan?",
         strategy: "choice_awareness", warrantId: "preparation_vs_action"
       },
       {
         factsAny: ["invitationAfterAcknowledgment"],
-        inference: "You acknowledged the interruption and invited dialogue. Neither act can command a reply, nor does an invitation settle what happens in the group tomorrow.",
-        question: "How might the public discussion matter even if the private invitation is unanswered?",
+        inference: "An invitation is yours; another person's answer and tomorrow's public conduct remain open.",
+        question: "What could matter publicly if the private invitation stays unanswered?",
         strategy: "boundary_awareness", warrantId: "dialogue_opening"
       },
       {
         factsAny: ["deferredAcknowledgment"],
-        inference: "You chose not to send another message and privately planned to listen first. Neither listening nor public acknowledgment has occurred; no reply is required for you to reconsider.",
-        question: "If you have the floor tomorrow, what could you attempt without a prior conversation?",
+        inference: "Waiting now does not settle what you can attempt publicly tomorrow.",
+        question: "If you have a turn tomorrow, what could you attempt?",
         strategy: "choice_awareness", warrantId: "continuing_repair"
       }
     ]}
