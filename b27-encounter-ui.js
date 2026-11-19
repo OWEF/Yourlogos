@@ -336,7 +336,8 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
  // are source-authored observations. The notice is not a reaction to the sender.
  const noticeIndex=presentation?.developmentLabel&&Array.isArray(observed?.observed)&&
   observed.observed.length>2?observed.observed.length-1:-1;
- const observedStatus=noticeIndex>1?observed.observed.slice(0,noticeIndex).join(" "):observed?.text;
+ const observedStatus=noticeIndex>1?
+  (presentation.firstMessageStatus||observed.observed.slice(0,noticeIndex).join(" ")):observed?.text;
  const separateNotice=noticeIndex>1?
   '<aside class="b27-r4-notice" aria-label="'+e(presentation.developmentLabel)+'">'+
    '<strong>'+e(presentation.developmentLabel)+'</strong>'+
