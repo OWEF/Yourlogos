@@ -457,3 +457,74 @@ test("M2: 320/390/430/1024px reconsideration, motion and resumed focus preserve 
   }
  }
 });
+
+
+test("M2 R1: 320/390/430px second choice is discoverable at first paint with accessible focus",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ for(const width of [320,390,430]){
+  const context=await browser.newContext({viewport:{width,height:844},
+   timezoneId:"UTC",reducedMotion:"reduce",isMobile:true,hasTouch:true,
+   serviceWorkers:"block"});
+  const page=await context.newPage();
+  try{
+   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+   await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+   await page.getByRole("button",{name:"Get started"}).click();
+   await page.getByRole("button",{name:"Skip",exact:true}).click();
+   await page.locator("#yl-enter").press("End");
+   await page.locator('[data-action="discover"]').click();
+   await waitForDirector(page,"opening");
+   await control(page,"begin").click();
+   const beforeScroll=await page.locator(".b27-shell").evaluate(el=>el.scrollTop);
+   await page.locator('[data-b27="branch"][data-value="request"]').click();
+   await waitForDirector(page,"reconsider");
+   // Do not pre-scroll, hover, click or focus an offscreen action to make
+   // the assertion pass: measure the screenshot state left by the app itself.
+   await page.waitForFunction(()=>
+    document.activeElement?.matches(".b27-social-reconsider .b27-choice-question"));
+   const metrics=await page.evaluate(()=>{
+    const shell=document.querySelector(".b27-shell"),
+     head=shell.querySelector(".b27-head"),
+     question=shell.querySelector(".b27-social-reconsider .b27-choice-question"),
+     action=shell.querySelector(".b27-social-options .b27-choice"),
+     event=shell.querySelector(".b27-social-event"),
+     message=shell.querySelector(".b27-social-message"),
+     second=shell.querySelectorAll(".b27-social-options .b27-choice")[1];
+    const rect=el=>{const r=el.getBoundingClientRect();return {
+     top:Math.round(r.top),bottom:Math.round(r.bottom),height:Math.round(r.height)};};
+    const a=rect(action),q=rect(question),s=rect(shell),h=rect(head);
+    return {scrollTop:shell.scrollTop,visibleSheet:s,stickyHeader:h,
+     question:q,firstAction:a,secondAction:rect(second),event:rect(event),message:rect(message),
+     focusIsQuestion:document.activeElement===question,
+     questionVisible:q.top>=h.bottom-2&&q.bottom<=s.bottom-7,
+     firstActionVisible:a.top>=h.bottom-2&&a.bottom<=s.bottom-8,
+     preChoiceDashboard:!!shell.querySelector(".b27-social-facts"),
+     initialEventText:event.innerText,initialMessageText:message.innerText,
+     firstChoiceText:action.innerText};
+   });
+   if(evidence){
+    await mkdir(evidence,{recursive:true});
+    await writeFile(evidence+"/M2R1-"+width+"-initial-viewport-metrics.json",
+     JSON.stringify({beforeFirstActionScrollTop:beforeScroll,afterEvent:metrics},null,2)+"\\n");
+   }
+   await capture(page,"M2R1-"+width+"-immediate-reconsider",".b27-play");
+   assert.equal(metrics.preChoiceDashboard,false,
+    width+"px philosophical interpretation must not appear before reconsideration");
+   assert.ok(metrics.focusIsQuestion&&metrics.questionVisible&&metrics.firstActionVisible,
+    width+"px reconsideration or first available action is not initially visible: "+
+     JSON.stringify(metrics));
+   assert.ok(metrics.firstAction.height>=44,
+    width+"px action violates minimum hit target");
+   assert.match(metrics.initialMessageText,/Could we talk about yesterday/);
+   assert.match(metrics.initialEventText,/Message delivered[\\s\\S]*no reply has arrived/);
+   await page.keyboard.press("Tab");
+   assert.ok(await page.locator(".b27-social-options .b27-choice").first().evaluate(
+    el=>document.activeElement===el&&el.matches(":focus-visible")),
+    width+"px question must lead directly to visible next action by keyboard");
+   await capture(page,"M2R1-"+width+"-keyboard-next-action",".b27-play");
+  }finally{await context.close();}
+ }
+});
