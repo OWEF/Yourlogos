@@ -779,3 +779,102 @@ body:has(.b27-shell) .discover-cover{
   min-height:60px;
   scroll-margin-block:18px;
 }
+
+
+/* CZ-153 M2 · Source-authored Social Simulator, a presentation on the existing
+   decision_cards Director. Never alter ordinary families or scenario facts. */
+.b27-game:has(.b27-social){padding:0;overflow:hidden;
+ border-color:var(--b27-line);background:rgba(12,13,12,.68)}
+.b27-social{display:grid;gap:15px;padding:clamp(12px,3.6vw,18px);min-width:0}
+.b27-social-thread{overflow:hidden;border:1px solid var(--b27-line);
+ border-radius:18px;background:linear-gradient(165deg,rgba(35,35,33,.93),rgba(14,14,14,.96))}
+.b27-social-contact{display:flex;align-items:center;gap:10px;padding:11px 13px;
+ border-bottom:1px solid var(--b27-line);background:rgba(255,255,255,.025)}
+.b27-social-avatar{display:grid;place-items:center;width:33px;height:33px;flex:0 0 33px;
+ border-radius:50%;background:rgba(196,181,154,.14);border:1px solid rgba(196,181,154,.35);
+ font:500 20px Georgia,serif;color:var(--b27-gold)}
+.b27-social-contact strong{display:block;font:600 13px/1.3 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory)}
+.b27-social-contact small{display:block;color:var(--b27-muted);
+ font:600 9px/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.12em}
+.b27-social-chatlog{display:flex;flex-direction:column;gap:12px;padding:15px 12px;
+ min-width:0}
+.b27-social-unsent{padding:22px 12px;text-align:center;color:var(--b27-muted);
+ font:400 13px/1.5 "DM Sans",system-ui,sans-serif;font-style:italic}
+.b27-game .b27-social-message{align-self:flex-end;width:fit-content;max-width:min(94%,400px);
+ border:1px solid rgba(196,181,154,.4);border-radius:17px 17px 4px 17px;
+ background:linear-gradient(145deg,rgba(196,181,154,.20),rgba(196,181,154,.07));
+ padding:12px 13px 10px;margin:0;overflow-wrap:anywhere}
+.b27-social-message h3,.b27-social-private h3{margin:0 0 6px!important;
+ font:700 10px/1.35 "DM Sans",system-ui,sans-serif!important;
+ letter-spacing:.11em;color:var(--b27-gold)!important}
+.b27-game .b27-social-message blockquote{border:0;padding:0;margin:0!important;
+ font:400 clamp(13px,3.8vw,15px)/1.5 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory)}
+.b27-social-message small{display:block;margin-top:8px;
+ color:var(--b27-muted);font:400 10px/1.35 "DM Sans",system-ui,sans-serif}
+.b27-social-event{align-self:center;width:min(100%,360px);text-align:center;
+ border-top:1px solid var(--b27-line);padding:12px 8px 2px}
+.b27-game .b27-social-event .b27-observation{margin:0!important;
+ color:var(--b27-ivory);font:500 12px/1.5 "DM Sans",system-ui,sans-serif}
+.b27-social-event small{display:block;margin-top:6px;color:var(--b27-muted);
+ font:600 9px/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.10em}
+.b27-social-private{border:1px dashed rgba(196,181,154,.5);border-radius:14px;
+ padding:12px;max-width:94%;background:rgba(196,181,154,.055)}
+.b27-social-private p{font:400 13px/1.55 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory);margin:0!important}
+.b27-social-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px}
+.b27-social-facts>div{display:flex;flex-direction:column;gap:5px;min-width:0;
+ border:1px solid var(--b27-line);background:rgba(255,255,255,.025);
+ border-radius:12px;padding:10px}
+.b27-social-facts>div:last-child{grid-column:1/-1}
+.b27-social-facts small{font:700 9px/1.4 "DM Sans",system-ui,sans-serif;
+ letter-spacing:.09em;color:var(--b27-gold)}
+.b27-social-facts strong{font:500 12px/1.5 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory);overflow-wrap:break-word}
+.b27-social-reconsider{padding:13px 12px 0;border-top:1px solid var(--b27-line)}
+.b27-social-step{margin:0 0 7px!important;color:var(--b27-gold)!important;
+ font:700 10px/1.4 "DM Sans",system-ui,sans-serif!important;letter-spacing:.12em}
+.b27-social-lead{margin:0 0 10px!important;color:var(--b27-muted)!important;
+ font:400 13px/1.52 "DM Sans",system-ui,sans-serif!important}
+.b27-game .b27-social .b27-choice-question{margin:7px 0 18px;
+ color:var(--b27-ivory);font:500 clamp(19px,5.5vw,25px)/1.26
+ "Cormorant Garamond",Georgia,serif;text-wrap:pretty}
+.b27-game .b27-social .b27-social-options{display:grid;grid-template-columns:1fr;
+ gap:9px;margin-top:0}
+.b27-game[data-b27-family="decision_cards"] .b27-social .b27-social-options .b27-choice{
+ min-height:90px;width:100%;padding:13px 14px;text-align:left;display:flex;
+ flex-direction:column;gap:6px;justify-content:center;align-items:flex-start;
+ border:1px solid rgba(196,181,154,.35);border-radius:14px;
+ background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+ box-shadow:inset 0 1px rgba(255,255,255,.08),0 3px 0 rgba(0,0,0,.26);
+ scroll-margin-block:24px}
+.b27-game[data-b27-family="decision_cards"] .b27-social .b27-choice strong{
+ color:var(--b27-ivory);font:500 clamp(17px,4.8vw,20px)/1.25
+ "Cormorant Garamond",Georgia,serif}
+.b27-social-choice-literal{color:var(--b27-ivory);font:400 12px/1.5
+ "DM Sans",system-ui,sans-serif;overflow-wrap:anywhere}
+.b27-social-option small{color:var(--b27-gold);font:700 9px/1.4
+ "DM Sans",system-ui,sans-serif;letter-spacing:.1em}
+.b27-social-complete{padding:12px;border-top:1px solid var(--b27-line);
+ color:var(--b27-ivory);font:400 13px/1.5 "DM Sans",system-ui,sans-serif}
+.b27-game.b27-action-settling .b27-social-event,
+.b27-game.b27-action-settling .b27-social-second,
+.b27-game.b27-action-settling .b27-social-private{
+ animation:b27-social-record .26s ease-out both}
+@keyframes b27-social-record{from{opacity:.65;transform:translateY(4px)}
+ to{opacity:1;transform:translateY(0)}}
+@media(max-width:359px){
+ .b27-social{gap:12px;padding:10px}
+ .b27-social-chatlog{padding:12px 10px}
+ .b27-social-facts{gap:6px}
+ .b27-social-facts>div{padding:8px}
+ .b27-social-facts strong{font-size:11px}
+ .b27-game[data-b27-family="decision_cards"] .b27-social .b27-social-options .b27-choice{padding:12px;min-height:88px}
+}
+@media(prefers-reduced-motion:reduce){
+ .b27-game.b27-action-settling .b27-social-event,
+ .b27-game.b27-action-settling .b27-social-second,
+ .b27-game.b27-action-settling .b27-social-private{animation:none!important;transform:none!important}
+}
