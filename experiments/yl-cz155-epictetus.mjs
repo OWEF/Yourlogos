@@ -120,7 +120,7 @@ const record = {
   reconsiderationQuestions: {
     acknowledge: "You have acknowledged the interruption. Tomorrow the group revisits the idea. What could you do there, without assuming how your friend will respond?",
     request: "You offered a conversation; tomorrow the group revisits the idea. What would you choose before knowing whether a private conversation will happen?",
-    explain: "You named your intention, but not your friend\'s experience. Tomorrow the idea returns to the group. What could you still say or ask?"
+    explain: "You described your intention; your friend\'s response is unknown. Tomorrow the group revisits the idea. What could you say or ask?"
   },
   selfFacts: ["acknowledged", "requestedConversation", "explainedIntention", "plannedPublicCorrection",
     "deferredAcknowledgment", "acknowledgedWithoutExplanation", "preparedListeningQuestion",
