@@ -1116,3 +1116,15 @@ body:has(.b27-shell) .discover-cover{
 /* M2 R2 factual uncertainty must remain readable before reconsideration. */
 .b27-chat-reflection .b27-chat-observation small:last-child{
  display:block;font-size:9px;line-height:1.25;margin-top:1px!important}
+
+/* M2 R2: a touch browser can retain :hover from the previous Begin tap.
+   Never paint the first possible message/follow-up as pre-endorsed.
+   Keyboard :focus-visible and real desktop :hover remain meaningful. */
+@media(hover:none){
+ .b27-game[data-b27-family="decision_cards"] .b27-chat-actions
+ .b27-chat-action:hover:not(:focus-visible){
+  background:linear-gradient(110deg,rgba(146,152,116,.095),rgba(255,255,255,.018))!important;
+  border-color:rgba(196,181,154,.25)!important;
+  box-shadow:none!important;
+ }
+}
