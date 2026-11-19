@@ -112,10 +112,10 @@ test("Semantic comparison masks action recaps and groups only equivalent action-
     "Equivalent communicated commitments may rightly converge");
   assert.deepEqual(privatePublicPlan,privateListeningPlan,
     "Equivalent not-yet-executed preparation may rightly converge");
-  assert.match(publicFromRequest.claim,/promised a public acknowledgment.*not guaranteed/i);
-  assert.match(privatePublicPlan.claim,/prepared a specific step.*does not mean the step has happened/i);
-  assert.match(invitation.claim,/invited dialogue.*nor does an invitation settle/i);
-  assert.match(deferred.claim,/privately planned.*no reply is required/i);
+  assert.match(publicFromRequest.claim,/promise is a present act.*performance/i);
+  assert.match(privatePublicPlan.claim,/Preparing a step is an act.*happened or succeeded/i);
+  assert.match(invitation.claim,/invitation is yours.*public conduct remain open/i);
+  assert.match(deferred.claim,/Waiting now does not settle.*publicly tomorrow/i);
   assert.equal(new Set([publicFromRequest,privatePublicPlan,invitation,deferred]
     .map(x=>JSON.stringify([x.claim,x.strategy,x.question]))).size,4);
   for(const x of [publicFromRequest,privatePublicPlan,invitation,deferred])
