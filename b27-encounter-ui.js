@@ -339,7 +339,7 @@ function socialDirectorHtml(state,presentation,presentationBeat){
  const secondMessage=second?second.medium==="message"?
    '<section class="b27-social-message b27-social-second b27-chat-outgoing" aria-label="Your second sent message">'+
     '<h3>YOU SENT ANOTHER MESSAGE</h3><blockquote>'+e(second.literal)+'</blockquote>'+
-    '<small>Sent · delivery and reply not observed for this second message</small></section>':
+    '<small>Sent · Delivery and reply not observed for this second message</small></section>':
    '<aside class="b27-social-private b27-chat-private" role="note" aria-label="Private action, not sent">'+
     '<h3>'+e(second.medium==="private_note"?"PRIVATE NOTE · NOT SENT":"PRIVATE DECISION · NOT SENT")+'</h3>'+
     '<p>'+e(second.literal)+'</p></aside>':"";
