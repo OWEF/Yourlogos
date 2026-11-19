@@ -534,3 +534,85 @@ test("M2 R2: 320/390/430px reconsideration remains visible and focused after the
   }finally{await context.close();}
  }
 });
+
+
+test("M2 R2: four staged beats are separately renderable in real mobile app without added taps",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ for(const width of [320,390,430]){
+  const context=await browser.newContext({viewport:{width,height:844},
+   timezoneId:"UTC",reducedMotion:"no-preference",isMobile:true,
+   hasTouch:true,serviceWorkers:"block"});
+  const page=await context.newPage();
+  try{
+   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+   await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+   await page.getByRole("button",{name:"Get started"}).click();
+   await page.getByRole("button",{name:"Skip",exact:true}).click();
+   await page.locator("#yl-enter").press("End");
+   await page.locator('[data-action="discover"]').click();
+   await waitForDirector(page,"opening");
+   await control(page,"begin").click();
+   const original=await page.locator(".b27-chat-sim").getAttribute("data-social-beat");
+   assert.equal(original,"choose");
+   assert.equal(await page.locator('[data-b27="branch"]').count(),3);
+   assert.equal(await page.getByText("Decision Cards",{exact:true}).count(),0);
+   await capture(page,"M2R2-"+width+"-01-choose",".b27-play");
+
+   // Freeze only presentation timers after navigating the real app, so the
+   // four authentic visual beats can be captured without synthetic choices.
+   await page.clock.pauseAt(new Date("2027-01-07T12:00:00Z"));
+   await page.locator('[data-b27="branch"][data-value="request"]').click();
+   assert.equal(await page.locator(".b27-chat-sim").getAttribute("data-social-beat"),"send");
+   assert.equal(await page.locator(".b27-chat-outgoing blockquote").innerText(),
+    "Could we talk about yesterday? I want to hear your side and explain what I meant.");
+   assert.equal(await page.locator(".b27-social-event").count(),0);
+   await capture(page,"M2R2-"+width+"-02-sent",".b27-play");
+
+   await page.clock.runFor(190);
+   await page.locator('.b27-chat-sim[data-social-beat="wait"]').waitFor();
+   assert.match(await page.locator(".b27-social-event").innerText(),
+    /AFTER THE FIRST MESSAGE[\s\S]*Message delivered[\s\S]*no reply has arrived/);
+   assert.equal(await page.locator(".b27-social-options").count(),0);
+   await capture(page,"M2R2-"+width+"-03-wait",".b27-play");
+
+   await page.clock.runFor(400);
+   await page.locator('.b27-chat-sim[data-social-beat="reconsider"]').waitFor();
+   assert.equal(await page.locator(".b27-social-options .b27-choice").count(),2);
+   assert.match(await page.locator(".b27-choice-question").innerText(),
+    /What am I asking the other person.s reply to prove/);
+   await capture(page,"M2R2-"+width+"-04-reconsider",".b27-play");
+   const metrics=await page.evaluate(()=>{
+    const shell=document.querySelector(".b27-shell"),
+     head=shell.querySelector(".b27-head"),
+     q=shell.querySelector(".b27-choice-question"),
+     first=shell.querySelector(".b27-social-options .b27-choice"),
+     choices=[...shell.querySelectorAll(".b27-social-options .b27-choice")];
+    const r=el=>{const z=el.getBoundingClientRect();return {top:Math.round(z.top),bottom:Math.round(z.bottom)}};
+    return {scrollTop:shell.scrollTop,question:r(q),firstOption:r(first),
+     secondOption:r(choices[1]),shell:r(shell),header:r(head),
+     questionFocused:document.activeElement===q,initialActionCount:choices.length};
+   });
+   if(evidence){
+    await mkdir(evidence,{recursive:true});
+    await writeFile(evidence+"/M2R2-"+width+"-four-beat-metrics.json",
+     JSON.stringify(metrics,null,2)+"\n");
+   }
+   assert.ok(metrics.questionFocused,"M2 R2 must focus the philosophical question");
+   assert.ok(metrics.question.top>=metrics.header.bottom-2&&
+    metrics.firstOption.bottom<=metrics.shell.bottom-8,
+    width+"px philosophical question / first follow-up must be immediately visible: "+
+     JSON.stringify(metrics));
+   assert.ok(metrics.secondOption.bottom<=metrics.shell.bottom-8,
+    width+"px second follow-up must also be initially discoverable: "+
+     JSON.stringify(metrics));
+   await page.keyboard.press("Tab");
+   assert.ok(await page.locator(".b27-social-options .b27-choice").first().evaluate(
+    el=>document.activeElement===el&&el.matches(":focus-visible")),
+    width+"px keyboard must move directly from reflection to first actual choice");
+   await capture(page,"M2R2-"+width+"-05-keyboard-choice",".b27-play");
+  }finally{await context.close();}
+ }
+});
