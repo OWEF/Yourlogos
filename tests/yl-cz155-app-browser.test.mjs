@@ -139,7 +139,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    /acknowledgment (?:sent|not sent)|further repair may|their response|external control/i);
   await capture(page,"M2-"+first+"-"+second+"-reconsider",".b27-play");
   assert.match(await page.locator(".b27-choice-question").innerText(),/Tomorrow the group|tomorrow the group/);
-  assert.equal(await control(page,"branch").count(),2);
+  assert.equal(await control(page,"branch").count(),6);
   // Compare the neutral resting state, not the intentionally interactive
   // pointer hover on whichever choice happened to appear under the cursor.
   await page.mouse.move(2,2);
@@ -159,7 +159,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    await reflectSocial(page);
    assert.equal((await state(page)).game.firstAction.id,first);
    assert.equal(await page.locator(".b27-transcript blockquote").textContent(),literal);
-   assert.equal(await control(page,"branch").count(),2);
+   assert.equal(await control(page,"branch").count(),6);
    await capture(page,"03b-resumed-after-first",".b27-play");
   }
   const next=page.locator('[data-b27="branch"][data-value="'+second+'"]');
@@ -630,7 +630,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
    await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
    await page.clock.resume();
    await page.waitForFunction(()=>document.activeElement?.matches(".b27-social-reconsider .b27-choice-question"));
-   assert.equal(await page.locator(".b27-social-options .b27-choice").count(),2);
+   assert.equal(await page.locator(".b27-social-options .b27-choice").count(),6);
    assert.match(await page.locator(".b27-choice-question").innerText(),
     /Tomorrow the group|tomorrow the group/);
    const measure=await page.evaluate(()=>{
@@ -666,7 +666,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
  }
 });
 
-test("M2 R4 R1: unedited real-browser video of completed present public agency",async t=>{
+test("M2 R4 R2: unedited mobile video records TWO distinct opening choices reaching the same public post",async t=>{
  const base=await launchApp(t,true);
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
   {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
@@ -676,7 +676,7 @@ test("M2 R4 R1: unedited real-browser video of completed present public agency",
  const context=await browser.newContext({viewport:{width:390,height:844},
   timezoneId:"UTC",reducedMotion:"no-preference",isMobile:true,hasTouch:true,
   serviceWorkers:"block",...(videoDir?{recordVideo:{dir:videoDir,
-    size:{width:390,height:844}}}:{})});
+   size:{width:390,height:844}}}:{})});
  const page=await context.newPage();
  try{
   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
@@ -687,29 +687,47 @@ test("M2 R4 R1: unedited real-browser video of completed present public agency",
   await page.locator('[data-action="discover"]').click();
   await waitForDirector(page,"opening");
   await control(page,"begin").click();
-  await page.waitForTimeout(500);
-  await page.locator('[data-b27="social-pick"][data-value="explain"]').click();
-  assert.equal((await state(page)).game.phase,"opening");
-  await page.waitForTimeout(550);
-  await control(page,"social-send").click();
-  await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
-  // Real elapsed time, not virtual time or screenshot-only state.
-  await page.waitForTimeout(2400);
-  assert.equal(await page.locator('.b27-r3-simulator[data-social-beat="wait"]').count(),1);
-  await control(page,"social-reflect").click();
-  await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
-  await page.waitForTimeout(650);
-  await page.locator('[data-b27="branch"][data-value="unqualified"]').click();
-  await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
-  const resultResponse=page.waitForResponse(r=>r.url().endsWith("/api/b27/run"));
-  await control(page,"complete").click();
-  assert.equal((await(await resultResponse).json()).status,"ready");
-  await page.locator(".b27-result").waitFor();
-  await page.waitForTimeout(850);
-  assert.match(await page.locator(".b27-result-philosophy").innerText(),/Epictetus|power|control|reply/i);
+  for(const [index,first] of ["explain","request"].entries()){
+   if(index){
+    await control(page,"replay").click();
+    await control(page,"begin").click();
+   }
+   await page.waitForTimeout(550);
+   await page.locator('[data-b27="social-pick"][data-value="'+first+'"]').click();
+   assert.equal((await state(page)).game.phase,"opening");
+   await page.waitForTimeout(450);
+   await control(page,"social-send").click();
+   await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
+   await page.waitForTimeout(900);
+   assert.match(await page.locator(".b27-r4-notice").innerText(),/group|tomorrow/i);
+   await control(page,"social-reflect").click();
+   await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
+   assert.equal(await control(page,"branch").count(),6);
+   await page.waitForTimeout(450);
+   await page.locator('[data-b27="branch"][data-value="unqualified"]').click();
+   await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
+   assert.equal((await state(page)).game.firstAction.id,first);
+   assert.equal((await state(page)).game.secondAction.medium,"public_statement");
+   assert.match(await page.locator(".b27-r4-context-switch").innerText(),/PRIVATE CONVERSATION[\s\S]*PUBLIC GROUP THREAD/);
+   assert.equal(await page.getByRole("region",{name:"Fictional public group thread, separate from your private messages"}).count(),1);
+   assert.match(await page.locator(".b27-r4-group-thread").innerText(),/GROUP THREAD · YOUR POST/);
+   assert.match(await page.locator(".b27-r4-no-reaction").innerText(),/reactions are not shown/i);
+   await capture(page,"M2R4R2-"+first+"-completed-group-post",".b27-play");
+   await page.waitForTimeout(800);
+   const resultResponse=page.waitForResponse(r=>r.url().endsWith("/api/b27/run"));
+   await control(page,"complete").click();
+   const answer=await(await resultResponse).json();
+   assert.equal(answer.status,"ready",JSON.stringify(answer));
+   assert.equal(answer.fullMeaning.meaning.choiceAnalysis.judgment.warrantId,"public_post");
+   await page.locator(".b27-result").waitFor();
+   assert.match(await page.locator(".b27-r4-result-context").innerText(),/PUBLIC GROUP THREAD · SEPARATE FROM PRIVATE CHAT/);
+   await capture(page,"M2R4R2-"+first+"-philosophy",".b27-result");
+   await page.waitForTimeout(850);
+  }
  }finally{
   await context.close();
-  if(videoDir&&page.video())await page.video().saveAs(evidence+"/M2R4R1-real-browser-completed-public-agency-unaltered.webm");
+  if(videoDir&&page.video())
+   await page.video().saveAs(evidence+"/M2R4R2-unaltered-two-initial-choices-one-public-action.webm");
  }
 });
 
