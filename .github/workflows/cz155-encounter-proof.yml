@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   encounter:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     env:
       YL_CZ155_EVIDENCE: qa-evidence-cz155
