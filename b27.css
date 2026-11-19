@@ -1242,6 +1242,19 @@ body:has(.b27-shell) .discover-cover{
  margin:7px 0!important;font:400 13px/1.5
  "DM Sans",system-ui,sans-serif!important;color:#e8e1d2!important}
 /* R4: an unrelated group notice is a new development, not a reply. */
+/* Completed agency is visibly different from a draft, private plan or promise. */
+.b27-r3-group-post{
+ align-self:stretch;margin:12px 0!important;padding:13px!important;
+ border:1px solid rgba(197,174,118,.46);border-radius:14px;
+ background:linear-gradient(115deg,rgba(54,60,46,.7),rgba(29,35,30,.86));
+}
+.b27-r3-group-post strong{display:block;color:#d8c99c;
+ font:600 10px/1.4 "DM Sans",system-ui,sans-serif;letter-spacing:.08em}
+.b27-game .b27-r3-group-post blockquote{margin:8px 0!important;
+ color:#f3eee4!important;font:400 14px/1.5 "DM Sans",system-ui,sans-serif!important;
+ overflow-wrap:anywhere}
+.b27-r3-group-post small{display:block;color:#c9c7b6;
+ font:400 10px/1.45 "DM Sans",system-ui,sans-serif}
 .b27-r4-notice{
  width:min(100%,390px);margin:11px auto 0;padding:10px 12px;
  text-align:left;border:1px solid rgba(174,190,153,.34);border-radius:11px;
