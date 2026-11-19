@@ -5,7 +5,7 @@
  * source contract. There is no open-ended LLM inference or personal profiling.
  */
 import {fingerprintB25} from "./yl-b25-authored-scenarios.mjs";
-import {derivePath} from "./yl-cz155-director.mjs";
+import {derivePath,validateFollowUpAuthoring} from "./yl-cz155-director.mjs";
 import {validateCZ152Bridge} from "./yl-cz152-bridge.mjs";
 export const CZ147_ENGINE_VERSION="universal-three-engine/1.0.0";
 const FAMILIES=["balance_move","decision_cards","tap_pair","flip_reveal"];
@@ -118,6 +118,7 @@ function validateRecord(r){
      scenario.source.work!==r.source.work||scenario.source.author!==r.source.author||
      scenario.source.referenceUrl!==r.source.referenceUrl||scenario.operation!==r.philosophicalOperation.kind||
      scenario.sourceFingerprint!==fingerprintB25(scenario.source)||
+     !validateFollowUpAuthoring(scenario)||
      scenario.scenarioFingerprint!==fingerprintB25(Object.fromEntries(
        Object.entries(scenario).filter(([key])=>key!=="scenarioFingerprint")))||
      !Object.hasOwn(scenario.source.warrants??{},rule.warrantId)||
@@ -156,7 +157,7 @@ function validateRecord(r){
   // Contradictory or overlapping rules would make source authoring order
   // silently choose the answer; check every reachable fictional decision.
   for(const first of scenario.openingChoices)
-   for(const second of scenario.followUps[first.id]){
+   for(const second of derivePath(scenario,[first.id]).options){
     const state=derivePath(scenario,[first.id,second.id]);
     if(refinements.filter(x=>matches(x,state.facts)).length>1)return false;
   }
