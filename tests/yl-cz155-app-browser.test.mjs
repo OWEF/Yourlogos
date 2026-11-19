@@ -124,12 +124,12 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   const event=await page.locator(".b27-observation").innerText();
   commonEvent??=event;
   assert.equal(event,commonEvent);
-  assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
+  assert.equal(await page.locator(".b27-transcript blockquote").textContent(),literal);
   assert.equal(await page.locator(".b27-social-message").count(),1);
   assert.equal(await page.locator(".b27-social-private").count(),0);
   assert.equal(await page.locator(".b27-social-facts").count(),0,
    "No pre-choice dashboard may label the intended philosophical conclusion");
-  assert.match(await page.locator(".b27-social-event").innerText(),
+  assert.match(await page.locator(".b27-social-event").textContent(),
    /AFTER THE FIRST MESSAGE[\s\S]*READ STATUS UNKNOWN/);
   assert.equal(await page.locator(".b27-social-reconsider").count(),1);
   assert.doesNotMatch(await page.locator(".b27-social-reconsider").innerText(),
@@ -155,7 +155,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
    await reflectSocial(page);
    assert.equal((await state(page)).game.firstAction.id,first);
-   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
+   assert.equal(await page.locator(".b27-transcript blockquote").textContent(),literal);
    assert.equal(await control(page,"branch").count(),2);
    await capture(page,"03b-resumed-after-first",".b27-play");
   }
@@ -165,7 +165,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   const privateFollowUp=["correct","leave_request","prepare_question"].includes(second);
   assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
   assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
-  const eventAfterSecond=await page.locator(".b27-social-event").innerText();
+  const eventAfterSecond=await page.locator(".b27-social-event").textContent();
   assert.equal(eventAfterSecond.includes("Message delivered. Later, no reply has arrived."),true,
    "Independent observation must remain attached to the first message only");
   if(privateFollowUp){
@@ -204,7 +204,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    /Private action; not sent to the recipient/:/Second message: sent; delivery and reply not observed/);
   assert.doesNotMatch(resultSecond,/no reply (yet|has arrived)/i);
   await capture(page,"M2-"+first+"-"+second+"-insight",".b27-result");
-  assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
+  assert.equal(await page.locator(".b27-transcript blockquote").textContent(),literal);
   assert.equal((await state(page)).quoteLikeCount,0);
   assert.equal((await state(page)).savedEncounters,0);
   if(first!=="request"||second!=="name_harm"){
@@ -226,7 +226,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(await page.locator(".b27-result-followup h3").innerText(),
    "SECOND MESSAGE · SENT",
    "A reopened saved encounter must retain second-action media from saved fullMeaning");
-  assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
+  assert.equal(await page.locator(".b27-transcript blockquote").textContent(),literal);
   assert.match(await page.locator(".b27-result-external").innerText(),/AFTER FIRST MESSAGE/);
   assert.match(await page.locator(".b27-result-followup").innerText(),/Second message: sent; delivery and reply not observed/);
   assert.equal(await page.locator(".b27-result-philosophy p").innerText(),result.compact.sections[1].text);
@@ -475,6 +475,7 @@ test("M2: 320/390/430/1024px reconsideration, motion and resumed focus preserve 
     await page.locator("#yl-enter").press("End");
     await page.locator('[data-action="discover"]').click();
     await waitForDirector(page,"reconsider");
+    await reflectSocial(page);
     await check("after-resume");
    }finally{await context.close();}
   }
@@ -612,6 +613,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
     "Time must not add any story event");
    await control(page,"social-reflect").click();
    await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
+   await page.clock.resume();
    await page.waitForFunction(()=>document.activeElement?.matches(".b27-social-reconsider .b27-choice-question"));
    assert.equal(await page.locator(".b27-social-options .b27-choice").count(),2);
    assert.match(await page.locator(".b27-choice-question").innerText(),
