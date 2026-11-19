@@ -22,9 +22,21 @@ test("Every projected transition can be replayed by the server and an actual My 
    const middle=renderB27Encounter(sheet);
    assert.match(middle,/Message delivered/);
    assert.match(middle,/What am I asking the other person/);
+   assert.match(middle,/AFTER THE FIRST MESSAGE/);
+   assert.match(middle,/READ STATUS UNKNOWN/);
+   assert.doesNotMatch(middle,/b27-social-facts|YOUR NEXT RESPONSIBILITY|FURTHER REPAIR MAY STILL MATTER/i);
    assert.equal(canFinishB27(sheet),false);
    assert.equal(adjustB27Game(sheet,"branch",first.id),false);
    assert.equal(adjustB27Game(sheet,"branch",second.id),true);
+   const afterSecond=renderB27Encounter(sheet);
+   assert.match(afterSecond,/AFTER THE FIRST MESSAGE/);
+   if(second.medium==="message"){
+    assert.match(afterSecond,/Delivery and reply not observed for this second message/);
+    assert.doesNotMatch(afterSecond,/THEIR RESPONSE.*Unknown · no reply yet/);
+   }else{
+    assert.match(afterSecond,/PRIVATE (?:NOTE|DECISION) · NOT SENT/);
+    assert.doesNotMatch(afterSecond,/Delivery and reply not observed for this second message/);
+   }
    const canonicalInput=canonicalB27Input(sheet);
    const result=runPilot({...request,sourceVersionHash,canonicalInput});
    assert.equal(result.status,"ready");
@@ -35,7 +47,10 @@ test("Every projected transition can be replayed by the server and an actual My 
    const [saved]=validatedSavedEncounters(io.readback().savedEncounters);
    const reread=renderB27Encounter({stage:"result",quote,result:saved,saved:true,record:null});
    assert.match(reread,/FIRST MESSAGE · SENT/);
-   assert.match(reread,/INDEPENDENT STORY EVENT/);
+   assert.match(reread,/INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE/);
+   assert.match(reread,second.medium==="message"?
+    /Second message: sent; delivery and reply not observed/:
+    /Private action; not sent to the recipient/);
    assert.match(reread,second.medium==="message"?/SECOND MESSAGE · SENT/:
     second.medium==="private_note"?/PRIVATE NOTE · NOT SENT/:/PRIVATE DECISION · NOT SENT/,
     "Saved readback must not treat a private note or decision as a sent message");
