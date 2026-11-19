@@ -21,6 +21,19 @@ test("Six server-computed endings retain both the agency boundary and the open d
     assert.equal(result.status,"ready",JSON.stringify(result));
     assert.deepEqual(result,run(path));
     const {emotion,fullMeaning,compact,fullExpression}=result;
+    const judgment=fullMeaning.meaning.choiceAnalysis.judgment;
+    for(const field of ["qualification","compactLimit","counterexample"])
+      assert.equal(typeof judgment[field],"string");
+    assert.ok(fullExpression.sections[1].text.includes(judgment.counterexample),
+      "Full output must preserve the selected counterexample instead of generic fallback");
+    assert.ok(fullExpression.sections[1].text.includes(judgment.qualification),
+      "Full output must preserve the path-specific philosophical qualification");
+    assert.ok(compact.sections[1].text.includes(judgment.compactLimit),
+      "Compact output must preserve its path-specific limitation");
+    if(second.id!=="name_harm")
+      assert.doesNotMatch(fullExpression.sections[1].text,/a promise can protect privacy today/i);
+    if(second.id!=="unqualified")
+      assert.doesNotMatch(fullExpression.sections[1].text,/posting now may spotlight/i);
     assert.deepEqual(fullMeaning.canonical_choice,{path});
     const facts=fullMeaning.meaning.choiceAnalysis;
     assert.equal(facts.establishedFacts.acknowledged,second.id!=="leave_request");
@@ -68,6 +81,10 @@ test("Six server-computed endings retain both the agency boundary and the open d
         "**Emotion Strategy:** "+item.emotion.strategy,
         "",
         "**Source warrant IDs:** "+item.reasoning.meaning.choiceAnalysis.sourceWarrantIds.join(", "),
+        "**Path-specific qualification:** "+item.reasoning.meaning.choiceAnalysis.judgment.qualification,
+        "**Path-specific counterexample:** "+item.reasoning.meaning.choiceAnalysis.judgment.counterexample,
+        "**Compact limitation:** "+item.reasoning.meaning.choiceAnalysis.judgment.compactLimit,
+        "**Full section word counts:** "+item.full.sectionWordCounts.join(" / "),
         "",
         "**Refinement basis:** "+JSON.stringify(item.reasoning.meaning.choiceAnalysis.refinementBasis),
         "",
@@ -103,22 +120,23 @@ test("Semantic comparison masks action recaps and groups only equivalent action-
     basis:r.fullMeaning.meaning.choiceAnalysis.refinementBasis
   });
   const publicFromRequest=interpretation(result("request","name_harm"));
-  const publicFromExplanation=interpretation(result("explain","unqualified"));
+  const completedPublicPost=interpretation(result("explain","unqualified"));
   const privatePublicPlan=interpretation(result("acknowledge","correct"));
   const privateListeningPlan=interpretation(result("explain","prepare_question"));
   const invitation=interpretation(result("acknowledge","invite"));
   const deferred=interpretation(result("request","leave_request"));
-  assert.deepEqual(publicFromRequest,publicFromExplanation,
-    "Equivalent communicated commitments may rightly converge");
+  assert.notDeepEqual(publicFromRequest,completedPublicPost,
+    "An actual public post is not interchangeable with a private promise");
   assert.deepEqual(privatePublicPlan,privateListeningPlan,
     "Equivalent not-yet-executed preparation may rightly converge");
-  assert.match(publicFromRequest.claim,/promise is a present act.*performance/i);
-  assert.match(privatePublicPlan.claim,/Preparing a step is an act.*happened or succeeded/i);
-  assert.match(invitation.claim,/invitation is yours.*public conduct remain open/i);
-  assert.match(deferred.claim,/Waiting now does not settle.*publicly tomorrow/i);
-  assert.equal(new Set([publicFromRequest,privatePublicPlan,invitation,deferred]
-    .map(x=>JSON.stringify([x.claim,x.strategy,x.question]))).size,4);
-  for(const x of [publicFromRequest,privatePublicPlan,invitation,deferred])
+  assert.match(publicFromRequest.claim,/promise is sent privately.*has not occurred/i);
+  assert.match(completedPublicPost.claim,/group post is complete.*repair remain undecided/i);
+  assert.match(privatePublicPlan.claim,/prepared a step privately.*not been performed/i);
+  assert.match(invitation.claim,/sent an invitation.*remain undecided/i);
+  assert.match(deferred.claim,/withheld another message.*listening has not happened/i);
+  assert.equal(new Set([publicFromRequest,completedPublicPost,privatePublicPlan,invitation,deferred]
+    .map(x=>JSON.stringify([x.claim,x.strategy,x.question]))).size,5);
+  for(const x of [publicFromRequest,completedPublicPost,privatePublicPlan,invitation,deferred])
     for(const section of x.compact)
       assert.doesNotMatch(section,/read receipt|forgiven you|caused the silence|you feared rejection/i);
 });
