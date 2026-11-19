@@ -937,3 +937,178 @@ body:has(.b27-shell) .discover-cover{
  .b27-game[data-b27-phase="reconsider"] .b27-social .b27-choice-question{
   font-size:20px}
 }
+
+
+/* CZ-153 M2 R2 · Concept 01: CHOOSE → SEND → WAIT → RECONSIDER.
+   Source-authored opt-in only. One immersive surface; no diagnostic panel
+   collection or generic Decision Cards visuals. The Director is unchanged. */
+.b27-play:has(.b27-chat-sim){padding-top:10px}
+.b27-play:has(.b27-chat-sim)>.b27-play-thread,
+.b27-play:has(.b27-chat-sim)>.b27-kicker,
+.b27-play:has(.b27-chat-sim)>.b27-play-prompt{display:none!important}
+.b27-play .b27-game:has(.b27-chat-sim){
+ margin-top:0!important;padding:0!important;min-height:0!important;
+ border:0!important;overflow:visible!important;background:none!important;
+ box-shadow:none!important;border-radius:21px}
+.b27-game .b27-chat-sim{
+ position:relative;isolation:isolate;display:flex;flex-direction:column;
+ gap:0;min-height:0;padding:0;overflow:hidden;border:1px solid rgba(201,179,139,.27);
+ border-radius:21px;background:
+  radial-gradient(ellipse at 84% 95%,rgba(128,116,79,.13),transparent 51%),
+  linear-gradient(155deg,#151613 0%,#090a09 72%,#141511 100%);
+ box-shadow:inset 0 1px rgba(255,255,255,.07),0 16px 38px rgba(0,0,0,.18);
+ color:var(--b27-ivory)}
+.b27-chat-contact{display:flex;align-items:center;gap:11px;padding:13px 16px;
+ border-bottom:1px solid var(--b27-line);min-height:62px}
+.b27-chat-avatar{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;
+ border-radius:50%;background:radial-gradient(circle at 24% 25%,#877858,#34372d);
+ color:#e0c99b;font:24px Georgia,serif}
+.b27-chat-contact strong{display:block;font:500 16px/1.25 "Cormorant Garamond",Georgia,serif;
+ color:var(--b27-ivory)}
+.b27-chat-contact small{display:block;color:var(--b27-muted);
+ font:600 9px/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.1em}
+.b27-chat-thread{display:flex;flex-direction:column;flex:1;position:relative;
+ padding:16px;min-width:0;gap:13px}
+.b27-chat-context{margin:0!important;color:var(--b27-muted)!important;
+ max-width:42ch;font:400 13px/1.58 "DM Sans",system-ui,sans-serif!important}
+.b27-chat-empty{margin:auto 0!important;align-self:center;
+ font:italic 500 16px/1.35 "Cormorant Garamond",Georgia,serif!important;
+ color:rgba(213,198,167,.63)!important;text-align:center}
+.b27-chat-sim[data-social-beat="choose"] .b27-chat-choose{min-height:105px}
+.b27-chat-composer{padding:15px 14px 16px;
+ border-top:1px solid rgba(205,180,133,.2);
+ background:linear-gradient(0deg,rgba(5,6,5,.6),transparent)}
+.b27-chat-composer .b27-choice-question{font:italic 500 25px/1.2
+ "Cormorant Garamond",Georgia,serif;color:var(--b27-ivory);margin:0 0 14px}
+.b27-game .b27-chat-actions{display:grid;grid-template-columns:1fr!important;gap:9px}
+.b27-game[data-b27-family="decision_cards"] .b27-chat-actions .b27-chat-action{
+ position:relative;display:flex;flex-direction:column;justify-content:center;
+ align-items:flex-start;text-align:left;min-height:73px;width:100%;
+ padding:11px 13px;gap:4px;background:linear-gradient(110deg,
+ rgba(146,152,116,.095),rgba(255,255,255,.018))!important;
+ border:1px solid rgba(196,181,154,.25)!important;border-radius:13px!important;
+ box-shadow:none!important;transform:none!important;
+ transition:background .15s ease,border-color .15s ease!important}
+.b27-game[data-b27-family="decision_cards"] .b27-chat-actions .b27-chat-action:hover,
+.b27-game[data-b27-family="decision_cards"] .b27-chat-actions .b27-chat-action:focus-visible{
+ background:linear-gradient(115deg,rgba(172,167,126,.2),rgba(255,255,255,.032))!important;
+ border-color:rgba(225,198,139,.7)!important;box-shadow:none!important;
+ transform:none!important}
+.b27-game[data-b27-family="decision_cards"] .b27-chat-action strong{
+ font:500 16px/1.18 "Cormorant Garamond",Georgia,serif;color:var(--b27-ivory)}
+.b27-game .b27-chat-action .b27-social-choice-literal{
+ font:400 12px/1.42 "DM Sans",system-ui,sans-serif;color:#eee7d7}
+.b27-chat-action small{font:700 9px/1.3 "DM Sans",system-ui,sans-serif;
+ letter-spacing:.10em;color:var(--b27-gold);align-self:flex-end}
+.b27-chat-sim[data-social-beat="send"],
+.b27-chat-sim[data-social-beat="wait"]{min-height:min(66dvh,510px)}
+.b27-chat-sim[data-social-beat="send"] .b27-chat-thread,
+.b27-chat-sim[data-social-beat="wait"] .b27-chat-thread{padding-top:32px}
+.b27-game .b27-chat-sim .b27-chat-outgoing{
+ align-self:flex-end;width:fit-content;max-width:90%;margin:0;padding:12px 14px;
+ border:1px solid rgba(167,180,134,.31);border-radius:16px 16px 4px 16px;
+ background:linear-gradient(125deg,rgba(100,121,83,.63),rgba(70,88,67,.65));
+ box-shadow:0 10px 22px rgba(0,0,0,.18)}
+.b27-game .b27-chat-outgoing h3{margin:0 0 5px!important;color:#efe6d3!important;
+ letter-spacing:.08em;font:700 9px/1.3 "DM Sans",system-ui,sans-serif!important}
+.b27-game .b27-chat-outgoing blockquote{
+ font:400 14px/1.48 "DM Sans",system-ui,sans-serif!important;
+ color:#f5efe3!important;margin:0!important;padding:0!important;border:0!important;
+ overflow-wrap:anywhere}
+.b27-chat-outgoing small{display:block;margin-top:7px;color:#e0d8c6;
+ font:400 10px/1.38 "DM Sans",system-ui,sans-serif}
+.b27-chat-sending-cue{align-self:flex-end;padding-right:2px;
+ color:var(--b27-gold);font:500 11px/1.45 "DM Sans",system-ui,sans-serif}
+.b27-chat-horizon{height:92px;max-height:92px;min-height:48px;position:relative;
+ overflow:hidden;flex:0 0 auto;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 86%,rgba(206,164,90,.27),transparent 38%)}
+.b27-chat-horizon:before{content:"";position:absolute;left:8%;right:8%;bottom:18%;
+ height:1px;background:linear-gradient(90deg,transparent,rgba(219,181,107,.65),transparent);
+ box-shadow:0 0 20px 3px rgba(210,170,95,.23)}
+.b27-chat-horizon i{position:absolute;bottom:7%;left:32%;width:36%;height:25px;
+ border-top:1px solid rgba(230,193,126,.37);border-radius:50%;
+ transform:perspective(80px) rotateX(65deg)}
+.b27-chat-waiting .b27-chat-horizon{margin-top:auto}
+.b27-chat-waiting .b27-chat-observation{margin-top:0}
+.b27-game .b27-chat-observation{
+ text-align:center;align-self:center;max-width:95%;width:100%;
+ padding:10px 8px;border:0!important;background:transparent}
+.b27-chat-observation small{display:block;margin:0!important;line-height:1.4!important;
+ font:600 9px/1.4 "DM Sans",system-ui,sans-serif!important;
+ letter-spacing:.1em;color:var(--b27-gold)}
+.b27-game .b27-chat-observation .b27-observation{
+ margin:5px 0!important;color:#eee7d5!important;
+ font:400 13px/1.5 "DM Sans",system-ui,sans-serif!important}
+.b27-chat-wait-caption{align-self:center;margin:0 0 16px!important;
+ color:var(--b27-muted)!important;font:italic 15px/1.35
+ "Cormorant Garamond",Georgia,serif!important}
+.b27-chat-reflection{position:relative;display:flex;flex-direction:column;gap:0;
+ overflow:hidden;padding:10px 14px 14px;
+ background:radial-gradient(ellipse at 50% 12%,rgba(192,155,83,.12),transparent 45%),
+ linear-gradient(170deg,#11110f,#080908 60%,#151510)}
+.b27-chat-reflection>.b27-chat-horizon{height:54px;max-height:54px;min-height:54px}
+.b27-chat-retained{display:flex;flex-direction:column;align-items:stretch;gap:5px;
+ padding-bottom:8px;border-bottom:1px solid rgba(207,179,115,.24)}
+.b27-chat-reflection .b27-chat-outgoing{max-width:100%;padding:8px 10px}
+.b27-chat-reflection .b27-chat-outgoing h3{margin-bottom:2px!important}
+.b27-chat-reflection .b27-chat-outgoing blockquote{
+ font-size:13px!important;line-height:1.39!important}
+.b27-chat-reflection .b27-chat-outgoing small{display:none}
+.b27-chat-reflection .b27-chat-observation{padding:4px 3px}
+.b27-chat-reflection .b27-chat-observation small:last-child{display:none}
+.b27-chat-reflection .b27-chat-observation .b27-observation{
+ font-size:12px!important;line-height:1.38!important;margin:3px 0!important}
+.b27-chat-reflection .b27-social-reconsider{
+ border:0;padding:11px 3px 0;margin:0;text-align:left}
+.b27-chat-reflection .b27-social-step{color:var(--b27-gold)!important;
+ font:700 10px/1.4 "DM Sans",system-ui,sans-serif!important;
+ letter-spacing:.17em;margin:0 0 6px!important}
+.b27-game .b27-chat-reflection .b27-choice-question{
+ color:var(--b27-ivory);font:italic 500 clamp(22px,6vw,28px)/1.17
+ "Cormorant Garamond",Georgia,serif;text-wrap:balance;
+ margin:0 0 13px;scroll-margin-top:75px}
+.b27-chat-reflection .b27-chat-actions{gap:9px}
+.b27-game[data-b27-family="decision_cards"] .b27-chat-reflection .b27-chat-action{
+ min-height:74px;padding:10px 12px}
+.b27-chat-sim[data-social-beat="complete"] .b27-chat-thread{gap:10px}
+.b27-chat-private{align-self:flex-start;max-width:95%;
+ padding:11px 13px;border-left:2px solid var(--b27-gold);
+ background:rgba(197,178,140,.055);border-radius:4px 10px 10px 4px}
+.b27-chat-private h3{font:700 10px/1.4 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-gold);margin:0 0 5px}
+.b27-chat-private p{font:400 13px/1.45 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory);margin:0}
+.b27-chat-ending{margin-top:10px;border-top:1px solid var(--b27-line);
+ padding:13px 3px 2px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.b27-chat-ending p{font:700 10px/1.4 "DM Sans",system-ui,sans-serif!important;
+ color:var(--b27-gold)!important;letter-spacing:.14em;margin:0!important}
+.b27-chat-ending strong{font:italic 500 23px/1.2 "Cormorant Garamond",Georgia,serif;
+ color:var(--b27-ivory)}
+.b27-chat-ending small{font:400 11px/1.4 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-muted)}
+.b27-chat-sim[data-social-beat="send"] .b27-chat-outgoing{
+ animation:b27-chat-sent .22s cubic-bezier(.21,.85,.36,1) both}
+.b27-chat-sim[data-social-beat="wait"] .b27-chat-observation{
+ animation:b27-chat-observed .3s ease-out both}
+.b27-chat-sim[data-social-beat="reconsider"] .b27-chat-reflection{
+ animation:b27-chat-reflect .3s ease-out both}
+@keyframes b27-chat-sent{from{transform:translateY(9px);opacity:.72}
+ to{transform:translateY(0);opacity:1}}
+@keyframes b27-chat-observed{from{opacity:.55}to{opacity:1}}
+@keyframes b27-chat-reflect{from{opacity:.78}to{opacity:1}}
+@media(max-width:359px){
+ .b27-chat-reflection{padding:7px 10px 10px}
+ .b27-chat-reflection>.b27-chat-horizon{height:43px;max-height:43px;min-height:43px}
+ .b27-game .b27-chat-reflection .b27-choice-question{font-size:21px}
+ .b27-game[data-b27-family="decision_cards"] .b27-chat-reflection .b27-chat-action{
+  min-height:70px;padding:9px 10px}
+ .b27-chat-composer{padding:11px}
+ .b27-chat-context{font-size:12px!important}
+ .b27-chat-retained{gap:4px}
+}
+@media(prefers-reduced-motion:reduce){
+ .b27-chat-sim[data-social-beat="send"] .b27-chat-outgoing,
+ .b27-chat-sim[data-social-beat="wait"] .b27-chat-observation,
+ .b27-chat-sim[data-social-beat="reconsider"] .b27-chat-reflection{
+  animation:none!important;transform:none!important}
+}
