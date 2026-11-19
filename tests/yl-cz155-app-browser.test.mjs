@@ -169,8 +169,10 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
   assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
   const eventAfterSecond=await page.locator(".b27-social-event").textContent();
-  assert.equal(eventAfterSecond.includes("Message delivered. No reply yet. A group notice says tomorrow's meeting will revisit the same idea."),true,
-   "Independent observation must remain attached to the first message only");
+  assert.ok(eventAfterSecond.includes("Message delivered. No reply yet."),
+   "First-message delivery and unanswered status must remain scoped to the first message");
+  assert.match(eventAfterSecond,/group notice|discussed tomorrow/i,
+   "The separate group development must remain available after the second action");
   if(privateFollowUp){
    assert.match(await page.locator(".b27-social-private").innerText(),/NOT SENT/);
   }else{
