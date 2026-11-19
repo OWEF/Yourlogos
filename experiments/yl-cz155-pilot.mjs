@@ -37,8 +37,9 @@ const record = {
       kind: "message_thread",
       correspondent: "Your friend",
       openingPrompt: "You have one message to send. What will you say?",
-      reconsiderationLead: "Your message was delivered. An answer has not arrived. Consider what your next action can change.",
-      completionLead: "You chose a second action. Nothing in the story yet establishes their response."
+      // Reconsideration is the participant's question, not a precomputed
+      // philosophical dashboard or a second explanation of observed silence.
+      completionLead: "Your second action is recorded. Only the first message has an observed delivery status."
     }
   },
   evidenceIds, affordances: ["boundary_awareness","choice_awareness"],
