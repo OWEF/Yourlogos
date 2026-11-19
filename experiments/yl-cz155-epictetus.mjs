@@ -51,70 +51,107 @@ const openingChoices = [
     explicitMotive: "The message says the speaker intended a joke.", warrantIds: own
   }
 ];
-const followUps = {
-  acknowledge: [
-    {
-      id: "invite", label: "Leave an optional opening for conversation", medium: "message",
-      literal: "If you'd like to talk before tomorrow, I'll listen. There is no need to reply now.",
-      recap: "You offered to listen if your friend wants to talk.", effect: "optional_dialogue_offered",
-      establishes: ["requestedConversation", "invitationAfterAcknowledgment"],
-      commitment: "An optional conversation was offered; it has not happened and tomorrow's public discussion remains.",
-      possibleRationale: "An invitation need not demand an immediate answer.", explicitMotive: null,
-      warrantIds: dialogueWarrants
-    },
-    {
-      id: "correct", label: "Prepare a public acknowledgment", medium: "private_note",
-      literal: "If I have a turn tomorrow, I'll acknowledge that I laughed before hearing the idea through, then make room for it.",
-      recap: "You privately prepared a public acknowledgment.", effect: "public_correction_planned",
-      establishes: ["plannedPublicCorrection"],
-      commitment: "A specific public correction has been planned but not yet carried out.",
-      possibleRationale: "The public conversation offers a different opportunity from a private message.",
-      explicitMotive: null, warrantIds: planningWarrants
-    }
-  ],
-  request: [
-    {
-      id: "name_harm", label: "Promise to acknowledge the interruption publicly", medium: "message",
-      literal: "I also want to name what happened: I laughed before you finished. If there's room tomorrow, I'll acknowledge that to the group.",
-      recap: "You named the interruption and sent a conditional public commitment.", effect: "public_commitment_sent",
-      establishes: ["acknowledged", "publicCommitmentCommunicated"],
-      commitment: "A public acknowledgment is promised conditionally, not yet performed; dialogue remains optional.",
-      possibleRationale: "Addressing a public act need not depend on obtaining a private discussion first.",
-      explicitMotive: null, warrantIds: publicWarrants
-    },
-    {
-      id: "leave_request", label: "Let the request stand and prepare to hear the idea", medium: "commitment",
-      literal: "I'll leave the invitation as it is. If I have a turn tomorrow, I'll ask about the idea before arguing for my view.",
-      recap: "You held off on another message and decided to listen first.", effect: "listening_first_decided",
-      establishes: ["deferredAcknowledgment", "preparedToListen"],
-      commitment: "The private decision is real; no public listening or acknowledgment has taken place.",
-      possibleRationale: "Avoiding another message can leave space, though the public interruption remains unaddressed.",
-      explicitMotive: null, warrantIds: planningWarrants
-    }
-  ],
-  explain: [
-    {
-      id: "unqualified", label: "Post a brief acknowledgment to the group now", medium: "public_statement",
-      literal: "Yesterday I laughed before the idea was finished. That interrupted the discussion. I want to hear the full idea when we revisit it.",
-      recap: "You posted an acknowledgment in the group thread now.", effect: "group_acknowledgment_posted",
-      establishes: ["acknowledgedWithoutExplanation", "publicAcknowledgmentCompleted"],
-      commitment: "A group acknowledgment has been posted in the fictional thread. No reply, forgiveness, discussion or repair is established.",
-      possibleRationale: "Posting directly addresses a public interruption but may draw further attention to a sensitive exchange.",
-      explicitMotive: null, warrantIds: ["own_conduct", "public_post", "continuing_repair"]
-    },
-    {
-      id: "prepare_question", label: "Prepare a question for tomorrow's discussion", medium: "private_note",
-      literal: "If the idea comes up, I can ask which part matters most before giving my criticism.",
-      recap: "You privately prepared a question about the idea.", effect: "listening_question_prepared",
-      establishes: ["preparedListeningQuestion", "preparedToListen"],
-      commitment: "The question has been prepared; it has not been asked or answered.",
-      possibleRationale: "Curiosity can be prepared before a meeting without assuming a friend's response.",
-      explicitMotive: null, warrantIds: planningWarrants
-    }
-  ]
-};
+// Grounded world-state preconditions. They name facts actually established by
+// the independently authored observation, never opening-message IDs.
+const availableWhen=(...world)=>({
+  requiresSelf:[],forbidsSelf:[],requiresWorld:world,forbidsWorld:[]
+});
+const contextWhen=(...self)=>({
+  requiresSelf:self,forbidsSelf:[],requiresWorld:[],forbidsWorld:[]
+});
+const followUpActions = [
+  {
+    id:"invite", label:"Leave an optional opening for conversation", medium:"message",
+    literal:"If you'd like to talk before tomorrow, I'll listen. There is no need to reply now.",
+    recap:"You offered to listen if your friend wants to talk.",effect:"optional_dialogue_offered",
+    establishes:["requestedConversation","optionalDialogueOffered"],
+    commitment:"An optional conversation was offered; it has not happened and tomorrow's public discussion remains.",
+    possibleRationale:"An invitation need not demand an immediate answer.",explicitMotive:null,
+    warrantIds:dialogueWarrants,
+    eligibility:availableWhen("first_message_delivered"),
+    contexts:[{
+      when:contextWhen("requestedConversation"),
+      wording:{
+        label:"Clarify that your invitation is optional",
+        literal:"You don't need to reply now. My offer to talk before tomorrow stands if you'd like; I'll listen.",
+        recap:"You made the existing invitation explicitly optional.",
+        commitment:"The earlier request was made optional; no conversation or reply is established."
+      }
+    }]
+  },
+  {
+    id:"correct",label:"Prepare a public acknowledgment",medium:"private_note",
+    literal:"If I have a turn tomorrow, I'll acknowledge that I laughed before hearing the idea through, then make room for it.",
+    recap:"You privately prepared a public acknowledgment.",effect:"public_correction_planned",
+    establishes:["plannedPublicCorrection"],
+    commitment:"A specific public correction has been planned but not yet carried out.",
+    possibleRationale:"The public conversation offers a different opportunity from a private message.",
+    explicitMotive:null,warrantIds:planningWarrants,
+    eligibility:availableWhen("meeting_announced"),contexts:[]
+  },
+  {
+    id:"name_harm",label:"Promise to acknowledge the interruption publicly",medium:"message",
+    literal:"I also want to name what happened: I laughed before you finished. If there's room tomorrow, I'll acknowledge that to the group.",
+    recap:"You named the interruption and sent a conditional public commitment.",
+    effect:"public_commitment_sent",establishes:["acknowledged","publicCommitmentCommunicated"],
+    commitment:"A public acknowledgment is promised conditionally, not yet performed; dialogue remains optional.",
+    possibleRationale:"Addressing a public act need not depend on obtaining a private discussion first.",
+    explicitMotive:null,warrantIds:publicWarrants,
+    eligibility:availableWhen("first_message_delivered","meeting_announced"),
+    contexts:[{
+      when:contextWhen("acknowledged"),
+      wording:{
+        label:"Promise to address your interruption with the group",
+        literal:"I want to address the public interruption with the group too. If there's room tomorrow, I'll say that I laughed before the idea was finished.",
+        recap:"You sent a conditional promise to address the interruption with the group.",
+        commitment:"The public acknowledgment was promised privately; it has not been performed."
+      }
+    }]
+  },
+  {
+    id:"leave_request",label:"Send nothing else now; prepare to listen",medium:"commitment",
+    literal:"I won't send another private message now. If I have a turn tomorrow, I'll ask about the idea before arguing for my view.",
+    recap:"You withheld another private message and decided to listen first.",
+    effect:"listening_first_decided",establishes:["choseRestraint","preparedToListen"],
+    commitment:"No further message was sent; actual listening and public acknowledgment have not occurred.",
+    possibleRationale:"Restraint may leave space without claiming that the public interruption is resolved.",
+    explicitMotive:null,warrantIds:planningWarrants,
+    eligibility:availableWhen("first_message_delivered"),contexts:[{
+      when:contextWhen("requestedConversation"),
+      wording:{
+        label:"Let your existing request stand; prepare to listen",
+        literal:"I'll leave the invitation as it is. If I have a turn tomorrow, I'll ask about the idea before arguing for my view.",
+        recap:"You held off on another message and decided to listen first.",
+        establishes:["deferredAcknowledgment","choseRestraint","preparedToListen"],
+        commitment:"The private decision is real; no public listening or acknowledgment has taken place."
+      }
+    }]
+  },
+  {
+    id:"unqualified",label:"Post a brief acknowledgment to the group now",medium:"public_statement",
+    literal:"Yesterday I laughed before the idea was finished. That interrupted the discussion. I want to hear the full idea when we revisit it.",
+    recap:"You posted an acknowledgment in the group thread now.",
+    effect:"group_acknowledgment_posted",
+    establishes:["acknowledgedWithoutExplanation","publicAcknowledgmentCompleted"],
+    commitment:"A group acknowledgment has been posted in the fictional thread. No reply, forgiveness, discussion or repair is established.",
+    possibleRationale:"Posting addresses a public interruption but may draw further attention to a sensitive exchange.",
+    explicitMotive:null,warrantIds:["own_conduct","public_post","continuing_repair"],
+    eligibility:availableWhen("group_posting_available"),contexts:[]
+  },
+  {
+    id:"prepare_question",label:"Prepare a question for tomorrow's discussion",medium:"private_note",
+    literal:"If the idea comes up, I can ask which part matters most before giving my criticism.",
+    recap:"You privately prepared a question about the idea.",
+    effect:"listening_question_prepared",
+    establishes:["preparedListeningQuestion","preparedToListen"],
+    commitment:"The question has been prepared; it has not been asked or answered.",
+    possibleRationale:"Curiosity can be prepared before a meeting without assuming a friend's response.",
+    explicitMotive:null,warrantIds:planningWarrants,
+    eligibility:availableWhen("meeting_announced"),contexts:[]
+  }
+];
 const record = {
-  id: "public-laughter", version: "public-laughter/3", operation: "agency_vs_external_reply",
+  id: "public-laughter", version: "public-laughter/4", operation: "agency_vs_external_reply",
   source, sourceFingerprint: fingerprintB25(source), warrantIds: Object.keys(source.warrants),
   opening: "Yesterday, you laughed while a friend presented an idea to the group. They fell quiet and withdrew. You want to address what happened, without knowing how they interpreted it. You open a message.",
   reconsiderationQuestion: "Tomorrow the group will revisit the idea. What remains possible without knowing your friend\'s response?",
@@ -126,8 +163,15 @@ const record = {
   selfFacts: ["acknowledged", "requestedConversation", "explainedIntention", "plannedPublicCorrection",
     "deferredAcknowledgment", "acknowledgedWithoutExplanation", "preparedListeningQuestion",
     "publicCommitmentCommunicated", "publicAcknowledgmentCompleted",
-    "invitationAfterAcknowledgment", "preparedToListen"],
-  openingChoices, followUps,
+    "optionalDialogueOffered", "choseRestraint", "preparedToListen"],
+  openingChoices, followUpActions,
+  // Each availability predicate below is backed by this exact independent
+  // observation clause. No new event, reply or read receipt is implied.
+  worldEvidence: {
+    first_message_delivered:"The first message was delivered.",
+    meeting_announced:"A separate group-thread notice announces that the same idea will be discussed tomorrow, with a place for participants to post.",
+    group_posting_available:"A separate group-thread notice announces that the same idea will be discussed tomorrow, with a place for participants to post."
+  },
   externalEvent: {
     id: "delivered_no_reply", text: "Message delivered. No reply yet. A group notice says tomorrow\'s meeting will revisit the same idea.",
     observed: ["The first message was delivered.", "No reply has arrived at this point.",
