@@ -12,7 +12,7 @@ const resolved=resolvePilot(request);
 const run=(first,second)=>runPilot({...request,sourceVersionHash:resolved.sourceVersionHash,
   canonicalInput:{path:[first,scenario.externalEvent.id,second]}});
 const all=()=>scenario.openingChoices.flatMap(first=>
-  scenario.followUps[first.id].map(second=>({first,second,state:derivePath(scenario,[first.id,second.id]),
+  derivePath(scenario,[first.id]).options.map(second=>({first,second,state:derivePath(scenario,[first.id,second.id]),
     output:run(first.id,second.id)})));
 const masked=x=>({
   claim:x.output.fullMeaning.meaning.selectedClaim,
@@ -25,8 +25,8 @@ const masked=x=>({
 
 test("R4-A: independent future meeting is received after the sent message, never caused by it",()=>{
   const journeys=all();
-  assert.equal(journeys.length,6);
-  assert.equal(scenario.version,"public-laughter/3");
+  assert.equal(journeys.length,18);
+  assert.equal(scenario.version,"public-laughter/4");
   assert.match(scenario.externalEvent.text,/tomorrow/i);
   assert.match(scenario.externalEvent.observed[2],/separate group-thread notice/);
   for(const {first,state,output} of journeys){
@@ -46,9 +46,9 @@ test("R4-A: independent future meeting is received after the sent message, never
   }
 });
 
-test("R4-A: six different histories contain only participant-owned actions, not futures",()=>{
+test("R4 R2: eighteen distinct histories contain participant-owned actions, not futures",()=>{
   const states=all().map(x=>x.state);
-  assert.equal(new Set(states.map(x=>JSON.stringify(x.effects))).size,6);
+  assert.equal(new Set(states.map(x=>JSON.stringify(x.effects))).size,18);
   const ids=states.map(x=>x.secondAction.id);
   assert.equal(new Set(ids).size,6);
   for(const state of states){
@@ -128,7 +128,7 @@ test("R4-A: positive and absent replies are analytical counterfactuals only; old
     assert.throws(()=>replayEncounter(scenario,forged),/events do not replay/);
   }
   const prior=structuredClone(mid.history);
-  prior.version="public-laughter/2";
+  prior.version="public-laughter/3";
   assert.throws(()=>replayEncounter(scenario,prior),/stale or incompatible/);
   assert.equal(chooseAction(scenario,startEncounter(scenario).history,
     {choiceId:"acknowledge",expectedRevision:0}).history.events[1].origin,"independent_fiction");
@@ -175,6 +175,48 @@ test("R4 R1: the completed group post is agency, not a fabricated social outcome
     assert.throws(()=>replayEncounter(scenario,forged),/events do not replay/);
   }
   const stale=structuredClone(done.history);
-  stale.version="public-laughter/2";
+  stale.version="public-laughter/3";
   assert.throws(()=>replayEncounter(scenario,stale),/stale or incompatible/);
+});
+
+test("R4 R2: cross-route choice sets and interpretations are independent of arbitrary first-choice IDs",()=>{
+ const by=(first,second)=>all().find(x=>x.first.id===first&&x.second.id===second);
+ const actions=["invite","correct","name_harm","leave_request","unqualified","prepare_question"];
+ const classFor=x=>x.output.fullMeaning.meaning.choiceAnalysis.judgment.warrantId;
+ for(const first of scenario.openingChoices){
+  const reachable=all().filter(x=>x.first.id===first.id);
+  assert.deepEqual(reachable.map(x=>x.second.id).sort(),actions.slice().sort());
+  assert.equal(new Set(reachable.map(x=>x.state.secondAction.medium)).size,4);
+  for(const {state,output} of reachable){
+   assert.equal(output.status,"ready",state.canonicalInput.path.join(" / "));
+   assert.deepEqual(replayEncounter(scenario,structuredClone(state.history)),state);
+   assert.deepEqual(output.fullMeaning.canonical_choice,state.canonicalInput);
+   assert.equal(output.provenance.directorTranscript.secondAction,state.secondAction.literal);
+  }
+ }
+ for(const name of actions){
+  const interpretations=scenario.openingChoices.map(x=>masked(by(x.id,name)));
+  const [first,...rest]=interpretations;
+  for(const next of rest){
+   assert.equal(next.claim,first.claim);
+   assert.equal(next.section2,first.section2);
+   assert.equal(next.compact2,first.compact2);
+   assert.equal(next.question,first.question);
+  }
+ }
+ for(const first of scenario.openingChoices){
+  const posted=by(first.id,"unqualified");
+  const promised=by(first.id,"name_harm");
+  assert.equal(classFor(posted),"public_post");
+  assert.equal(classFor(promised),"public_action");
+  assert.notDeepEqual(masked(posted),masked(promised));
+  assert.equal(posted.state.secondAction.medium,"public_statement");
+  assert.equal(promised.state.secondAction.medium,"message");
+  assert.equal(posted.state.facts.publicAcknowledgmentCompleted,true);
+  assert.equal(promised.state.facts.publicAcknowledgmentCompleted,false);
+ }
+ const requestInvite=by("request","invite");
+ assert.match(requestInvite.state.secondAction.literal,/my offer to talk before tomorrow stands/i);
+ assert.equal(requestInvite.state.facts.requestedConversation,true);
+ assert.equal(requestInvite.state.facts.optionalDialogueOffered,true);
 });
