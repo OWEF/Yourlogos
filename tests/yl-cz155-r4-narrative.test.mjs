@@ -26,9 +26,9 @@ const masked=x=>({
 test("R4-A: independent future meeting is received after the sent message, never caused by it",()=>{
   const journeys=all();
   assert.equal(journeys.length,6);
-  assert.equal(scenario.version,"public-laughter/2");
+  assert.equal(scenario.version,"public-laughter/3");
   assert.match(scenario.externalEvent.text,/tomorrow/i);
-  assert.match(scenario.externalEvent.observed[2],/independently announces/);
+  assert.match(scenario.externalEvent.observed[2],/separate group-thread notice/);
   for(const {first,state,output} of journeys){
     assert.equal(state.history.events.length,3);
     const [choice,event,followUp]=state.history.events;
@@ -65,6 +65,14 @@ test("R4-A: six different histories contain only participant-owned actions, not 
   assert.equal(writtenPlan.facts.plannedPublicCorrection,true);
   assert.equal(preparedQuestion.facts.preparedListeningQuestion,true);
   assert.equal(publicPromise.facts.plannedPublicCorrection,false);
+  const posted=derivePath(scenario,["explain","unqualified"]);
+  assert.equal(posted.secondAction.medium,"public_statement");
+  assert.equal(posted.facts.publicAcknowledgmentCompleted,true);
+  assert.equal(posted.facts.publicCommitmentCommunicated,false);
+  assert.equal(posted.history.events.at(-1).origin,"participant");
+  assert.equal(posted.history.events.at(-1).selfEffect,"group_acknowledgment_posted");
+  assert.doesNotMatch(posted.secondAction.commitment,/will post|will acknowledge/i);
+  assert.match(posted.secondAction.commitment,/has been posted/i);
   assert.ok(!publicPromise.history.events.some(x=>x.medium==="public_statement"));
   assert.ok(!writtenPlan.history.events.some(x=>x.medium==="public_statement"));
 });
@@ -72,19 +80,21 @@ test("R4-A: six different histories contain only participant-owned actions, not 
 test("R4-A: interpretation equivalence and divergence survive action-recap masking",()=>{
   const by=(first,second)=>all().find(x=>x.first.id===first&&x.second.id===second);
   const publicA=masked(by("request","name_harm"));
-  const publicB=masked(by("explain","unqualified"));
+  const completedPost=masked(by("explain","unqualified"));
   const privateA=masked(by("acknowledge","correct"));
   const privateB=masked(by("explain","prepare_question"));
   const invited=masked(by("acknowledge","invite"));
   const deferred=masked(by("request","leave_request"));
-  assert.deepEqual(publicA,publicB);
+  assert.notDeepEqual(publicA,completedPost,
+    "Public post performed now must not collapse into a private future promise");
   assert.deepEqual(privateA,privateB);
-  assert.equal(new Set([publicA,privateA,invited,deferred].map(x=>x.claim)).size,4);
-  assert.match(publicA.claim,/promise is a present act.*performance/i);
-  assert.match(privateA.claim,/Preparing a step is an act.*happened or succeeded/i);
-  assert.match(invited.claim,/another person.s answer.*public conduct remain open/i);
-  assert.match(deferred.claim,/Waiting now does not settle/i);
-  for(const x of [publicA,privateA,invited,deferred])
+  assert.equal(new Set([publicA,completedPost,privateA,invited,deferred].map(x=>x.claim)).size,5);
+  assert.match(publicA.claim,/promise is sent privately.*has not occurred/i);
+  assert.match(completedPost.claim,/group post is complete.*repair remain undecided/i);
+  assert.match(privateA.claim,/prepared a step privately.*not been performed/i);
+  assert.match(invited.claim,/sent an invitation.*remain undecided/i);
+  assert.match(deferred.claim,/withheld another message.*listening has not happened/i);
+  for(const x of [publicA,completedPost,privateA,invited,deferred])
     assert.doesNotMatch(x.claim,/must apologize twice|forgive you|you want approval|should feel guilty/i);
 });
 
@@ -118,9 +128,53 @@ test("R4-A: positive and absent replies are analytical counterfactuals only; old
     assert.throws(()=>replayEncounter(scenario,forged),/events do not replay/);
   }
   const prior=structuredClone(mid.history);
-  prior.version="public-laughter/1";
+  prior.version="public-laughter/2";
   assert.throws(()=>replayEncounter(scenario,prior),/stale or incompatible/);
   assert.equal(chooseAction(scenario,startEncounter(scenario).history,
     {choiceId:"acknowledge",expectedRevision:0}).history.events[1].origin,"independent_fiction");
   assert.equal(resolvePilot({...request,quoteAuthor:"Another philosopher"}).status,"blocked");
+});
+
+test("R4 R1: counterexample must be selected by warranted facts, not pasted globally",()=>{
+  const paths=all();
+  const counterexamples=new Map();
+  for(const {second,output} of paths){
+    assert.equal(output.status,"ready",second.id);
+    const j=output.fullMeaning.meaning.choiceAnalysis.judgment;
+    const full=output.fullExpression.sections[1].text;
+    const compact=output.compact.sections[1].text;
+    assert.ok(full.includes(j.counterexample));
+    assert.ok(full.includes(j.qualification));
+    assert.ok(compact.includes(j.compactLimit));
+    assert.equal(full.includes("Posting now may spotlight the friend again"),
+      second.id==="unqualified");
+    assert.equal(full.includes("A promise can protect privacy today"),
+      second.id==="name_harm");
+    assert.equal(/An optional invitation can respect space/.test(full),
+      second.id==="invite");
+    assert.equal(/Preparation may avoid an unsolicited public post/.test(full),
+      ["correct","prepare_question"].includes(second.id));
+    assert.equal(/Not pressing for dialogue may respect privacy/.test(full),
+      second.id==="leave_request");
+    counterexamples.set(second.id,j.counterexample);
+    assert.match(full,/Epictetus|judgment|agency|power|acts/i);
+    assert.doesNotMatch(full,/must apologize|right answer|successfully repaired/i);
+  }
+  assert.equal(counterexamples.get("correct"),counterexamples.get("prepare_question"));
+  assert.equal(new Set(counterexamples.values()).size,5);
+});
+test("R4 R1: the completed group post is agency, not a fabricated social outcome",()=>{
+  const done=derivePath(scenario,["explain","unqualified"]);
+  assert.equal(done.history.events.length,3);
+  assert.equal(done.history.events[2].medium,"public_statement");
+  assert.equal(done.history.events[2].factsEstablished.includes("publicAcknowledgmentCompleted"),true);
+  assert.equal(done.facts.meetingOccurred,undefined);
+  for(const hypothetical of ["The friend replied positively.", "No reply ever arrives."]){
+    const forged=structuredClone(done.history);
+    forged.events[1].unknowns.push(hypothetical);
+    assert.throws(()=>replayEncounter(scenario,forged),/events do not replay/);
+  }
+  const stale=structuredClone(done.history);
+  stale.version="public-laughter/2";
+  assert.throws(()=>replayEncounter(scenario,stale),/stale or incompatible/);
 });
