@@ -18,8 +18,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install browser driver
-        run: npm install --no-save --ignore-scripts playwright-core@1.56.1
+      - name: Install browser driver and local video encoder
+        run: |
+          npm install --no-save --ignore-scripts playwright-core@1.56.1
+          npx playwright-core install ffmpeg
       - name: Exact-checkout authoring and mobile traces
         run: node --test tests/yl-cz155-*.test.mjs
       - name: Legacy routes, semantic operations, persistence and all four game families
