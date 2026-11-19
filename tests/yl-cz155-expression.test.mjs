@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {mkdirSync, writeFileSync} from "node:fs";
 import {EPICTETUS_SCENARIO as scenario} from "../experiments/yl-cz155-epictetus.mjs";
+import {derivePath} from "../experiments/yl-cz155-director.mjs";
 import {resolvePilot, runPilot} from "../experiments/yl-cz155-pilot.mjs";
 import {B27_APP_QUOTES} from "../experiments/yl-b27-quote-ledger.mjs";
 import {resolveQuoteB27} from "../experiments/yl-b27-route.mjs";
@@ -13,9 +14,9 @@ const start = resolvePilot(entry);
 const run = (path, extra={}) => runPilot({...entry,sourceVersionHash:start.sourceVersionHash,
   canonicalInput:{path}, ...extra});
 
-test("Six server-computed endings retain both the agency boundary and the open duty",()=>{
+test("Eighteen computed grounded endings preserve agency status and distinct qualified warrants",()=>{
   const evidence=[];
-  for(const first of scenario.openingChoices)for(const second of scenario.followUps[first.id]){
+  for(const first of scenario.openingChoices)for(const second of derivePath(scenario,[first.id]).options){
     const path=[first.id,scenario.externalEvent.id,second.id];
     const result=run(path);
     assert.equal(result.status,"ready",JSON.stringify(result));
@@ -39,7 +40,8 @@ test("Six server-computed endings retain both the agency boundary and the open d
       assert.doesNotMatch(fullExpression.sections[1].text,/posting now may spotlight/i);
     assert.deepEqual(fullMeaning.canonical_choice,{path});
     const facts=fullMeaning.meaning.choiceAnalysis;
-    assert.equal(facts.establishedFacts.acknowledged,second.id!=="leave_request");
+    assert.equal(facts.establishedFacts.acknowledged,
+      first.id!=="request"||["name_harm","unqualified"].includes(second.id));
     assert.equal(facts.history.events[1].origin,"independent_fiction");
     assert.deepEqual(facts.history.events[1].observed,scenario.externalEvent.observed);
     assert.ok(compact.sections[1].text.includes(fullMeaning.meaning.selectedClaim));
@@ -58,17 +60,17 @@ test("Six server-computed endings retain both the agency boundary and the open d
       reconsideration:scenario.reconsiderationQuestions[first.id],secondAction:second.literal,
       canonical:result.canonical_choice,reasoning:fullMeaning,emotion,compact,full:fullExpression});
   }
-  assert.equal(evidence.length,6);
+  assert.equal(evidence.length,18);
   const root=process.env.YL_CZ155_EVIDENCE;
   if(root){
     mkdirSync(root,{recursive:true});
-    writeFileSync(root+"/epictetus-six-paths.json",
+    writeFileSync(root+"/epictetus-r2-all-paths.json",
       JSON.stringify({sourceHash:start.sourceVersionHash,scenarioHash:scenario.scenarioFingerprint,paths:evidence},null,2)+"\n");
     const lines=[
-      "# CZ-155 · Literal six-path audit from the unchanged three-engine runtime",
+      "# CZ-155 · Literal eighteen-path audit from the unchanged three-engine runtime",
       "",
       "This is generated from runPilot on the exact test checkout, not written as production results.",
-      "The Source, Reasoning, Emotion Strategy, full Expression and compact Expression are computed for each of six paths.",
+      "The Source, Reasoning, Emotion Strategy, full Expression and compact Expression are computed for all eighteen grounded paths.",
       ""
     ];
     for(const item of evidence){
@@ -103,7 +105,7 @@ test("Six server-computed endings retain both the agency boundary and the open d
         ...item.full.sections.map(section=>"- "+section.label+": "+section.text),
         "");
     }
-    writeFileSync(root+"/epictetus-six-paths-literal.md",lines.join("\n")+"\n");
+    writeFileSync(root+"/epictetus-r2-all-paths-literal.md",lines.join("\n")+"\n");
   }
 });
 
@@ -114,7 +116,8 @@ test("Author preview is edition bound and rejects stale, forged and cross-openin
   assert.equal(resolvePilot({...entry,quoteWork:B27_APP_QUOTES[92][3]}).status,"blocked");
   assert.equal(run(["request","delivered_no_reply","name_harm"],{sourceVersionHash:"outdated"}).code,"stale_source");
   assert.equal(run(["request","forgiven","name_harm"]).code,"unexpected_event");
-  assert.equal(run(["request","delivered_no_reply","invite"]).code,"unsupported_path");
+  assert.equal(run(["request","delivered_no_reply","invite"]).status,"ready");
+  assert.equal(run(["request","delivered_no_reply","nonexistent"]).code,"unsupported_path");
   assert.equal(run(null,{canonicalInput:{path:["request","delivered_no_reply","name_harm"],motive:"prove sincerity"}}).status,"blocked");
 });
 
