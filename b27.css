@@ -1241,6 +1241,20 @@ body:has(.b27-shell) .discover-cover{
 .b27-game .b27-r3-event p{
  margin:7px 0!important;font:400 13px/1.5
  "DM Sans",system-ui,sans-serif!important;color:#e8e1d2!important}
+/* R4: an unrelated group notice is a new development, not a reply. */
+.b27-r4-notice{
+ width:min(100%,390px);margin:11px auto 0;padding:10px 12px;
+ text-align:left;border:1px solid rgba(174,190,153,.34);border-radius:11px;
+ background:linear-gradient(135deg,rgba(57,68,52,.37),rgba(28,33,27,.35));
+}
+.b27-r4-notice strong{
+ display:block;color:#d6dabd;font:600 9px/1.5 "DM Sans",system-ui,sans-serif;
+ letter-spacing:.1em;
+}
+.b27-game .b27-r3-event .b27-r4-notice p{
+ margin:5px 0 0!important;color:#f0eadb!important;
+ font:400 12px/1.45 "DM Sans",system-ui,sans-serif!important;
+}
 .b27-r3-quiet-line{
  text-align:center;margin:0!important;color:var(--b27-muted)!important;
  font:italic 16px/1.3 "Cormorant Garamond",Georgia,serif!important}
