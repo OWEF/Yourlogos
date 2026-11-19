@@ -265,6 +265,13 @@ export function createB27AppRuntime({
      firstOption=game?.querySelector(".b27-social-options .b27-choice"),
      shell=document.querySelector(".b27-shell"),header=shell?.querySelector(".b27-head");
     if(!question||!firstOption||!shell)return;
+    // The draw happens synchronously, but this autofocus runs one frame later.
+    // A fast keyboard user (or the app's native Enter/Space focus restoration)
+    // may already have advanced from the question into an available action.
+    // Never steal that real, user-owned focus back to the heading.
+    const active=document.activeElement;
+    if(active&&active!==document.body&&active!==document.documentElement&&
+       game.contains(active)&&active!==question)return;
     question.focus({preventScroll:true});
     const q=question.getBoundingClientRect(),first=firstOption.getBoundingClientRect(),
      box=shell.getBoundingClientRect(),h=header?.getBoundingClientRect();
