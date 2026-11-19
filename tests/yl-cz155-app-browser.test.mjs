@@ -113,7 +113,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(await page.locator(".b27-social-facts").count(),0,
    "No pre-choice dashboard may label the intended philosophical conclusion");
   assert.match(await page.locator(".b27-social-event").innerText(),
-   /AFTER THE FIRST MESSAGE[\\s\\S]*READ STATUS UNKNOWN/);
+   /AFTER THE FIRST MESSAGE[\s\S]*READ STATUS UNKNOWN/);
   assert.equal(await page.locator(".b27-social-reconsider").count(),1);
   assert.doesNotMatch(await page.locator(".b27-social-reconsider").innerText(),
    /acknowledgment (?:sent|not sent)|further repair may|their response|external control/i);
@@ -519,7 +519,7 @@ test("M2 R1: 320/390/430px second choice is discoverable at first paint with acc
    assert.ok(metrics.firstAction.height>=44,
     width+"px action violates minimum hit target");
    assert.match(metrics.initialMessageText,/Could we talk about yesterday/);
-   assert.match(metrics.initialEventText,/Message delivered[\\s\\S]*no reply has arrived/);
+   assert.match(metrics.initialEventText,/Message delivered[\s\S]*no reply has arrived/);
    await page.keyboard.press("Tab");
    assert.ok(await page.locator(".b27-social-options .b27-choice").first().evaluate(
     el=>document.activeElement===el&&el.matches(":focus-visible")),
