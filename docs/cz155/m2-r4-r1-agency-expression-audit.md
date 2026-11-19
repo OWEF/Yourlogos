@@ -33,6 +33,18 @@ The two private preparations share **one legitimate philosophical inference** ab
 
 **Comparison against generic relationship advice:** “You should apologise,” “give your friend space,” and “be the bigger person” rank possible choices without proving the relevant boundary of agency. The five source-bound analyses instead distinguish the **already completed chosen act**, the **private commitment or preparation**, the **independent group's announced situation**, and **uncommandable assent and results**. A skeptic may reject Epictetus's claim that chosen judgment occupies a categorically different place from external outcomes, while still understanding how the claim is applied.
 
+### Blind comparison against ordinary relationship advice
+
+| Interpretation class | Generic advice (insufficient) | Distinct §1 insight and remaining live disagreement |
+| --- | --- | --- |
+| Completed group post | “Apologize publicly to make things right.” | §1 separates **the post already chosen** from **the group\'s unowned assent**. Whether public disclosure was proportionate can still be disputed |
+| Conditional private promise | “Promise you\'ll fix it.” | §1 differentiates **making the promise now**, **getting a chance later**, and **the other party\'s judgment**. Whether to promise at all remains unsettled |
+| Private preparation | “Prepare what to say.” | Preparation is an act of judgment within the participant\'s activity; performance, opportunity and reception remain open. Preparation might aid but also postpone accountability |
+| Optional dialogue | “Give them space.” | The invitation can be offered, but consent to dialogue belongs to the recipient. Keeping contact optional does not settle tomorrow\'s public discussion |
+| Restraint | “Don\'t double-text.” | No second message is one present choice, not listening or public acknowledgment. Neither always contacting nor always abstaining follows from Epictetus |
+
+If the source-specific column is replaced by the generic-advice column, the warranted distinction between **chosen act**, **uncontrolled future/opportunity**, and **other agents\' judgments** disappears. The test intentionally does **not** grant an etiquette verdict or treat skepticism toward Epictetus as misunderstanding.
+
 ## Path-selected Expression policy
 
 The reusable shared engine now accepts an optional complete set `{qualification, compactLimit, counterexample}` on a source-authorised, fact-selected decision warrant. Validation rejects incomplete packages. In a path that declares the complete set, both the qualified inference and relevant counterexample are mandatory in the **full** output, and its qualified compact limitation is mandatory in the **compact** output. Strict length/section constraints are unchanged: **40–65 compact, 80–120 full**, no generic fallback if a necessary clause cannot fit. Other philosophers and source records retain their original global fields unless they opt into the same reusable contract.
