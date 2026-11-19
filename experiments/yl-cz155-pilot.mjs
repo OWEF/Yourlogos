@@ -58,7 +58,7 @@ const record = {
     },
     outstanding: {
       inference: "Your invitation is chosen; tomorrow's public conduct remains open.",
-      question: "What remains possible tomorrow without a private conversation?",
+      question: "What remains possible for you tomorrow without a private conversation?",
       strategy: "choice_awareness"
     },
     // These are shared predicates about action status, not one authored
