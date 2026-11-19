@@ -102,12 +102,25 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   const chosen=page.locator('[data-b27="branch"][data-value="'+first+'"]');
   const literal=await chosen.locator("span").innerText();
   await chosen.press("Enter");
+  assert.equal(await page.locator(".b27-social").count(),1,
+   "Epictetus pilot must use the source-authored conversation presentation");
   const event=await page.locator(".b27-observation").innerText();
   commonEvent??=event;
   assert.equal(event,commonEvent);
   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
+  assert.equal(await page.locator(".b27-social-message").count(),1);
+  assert.equal(await page.locator(".b27-social-private").count(),0);
+  assert.match(await page.locator(".b27-social-facts").innerText(),
+   first==="request"?/Not sent yet/:/Sent/);
+  assert.match(await page.locator(".b27-social-event").innerText(),/READ STATUS AND REASON UNKNOWN/);
+  await capture(page,"M2-"+first+"-"+second+"-reconsider",".b27-play");
   assert.match(await page.locator(".b27-choice-question").innerText(),/What am I asking the other person.s reply to prove/);
   assert.equal(await control(page,"branch").count(),2);
+  const optionBackgrounds=await page.locator(".b27-social-options .b27-choice")
+   .evaluateAll(options=>options.map(o=>getComputedStyle(o).backgroundImage));
+  assert.equal(new Set(optionBackgrounds).size,1,
+   "No choice may be highlighted as the philosopher-approved answer");
+
   if(first==="request"&&second==="name_harm"){
    await capture(page,"03-reconsider",".b27-play");
    assert.equal((await state(page)).savedEncounters,0);
@@ -122,6 +135,11 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   }
   const next=page.locator('[data-b27="branch"][data-value="'+second+'"]');
   await next.press("Enter");
+  const privateFollowUp=["correct","leave_request","prepare_question"].includes(second);
+  assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
+  assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
+  if(privateFollowUp)assert.match(await page.locator(".b27-social-private").innerText(),/NOT SENT/);
+  await capture(page,"M2-"+first+"-"+second+"-action",".b27-play");
   assert.equal((await state(page)).game.phase,"complete");
   if(first==="request"&&second==="name_harm"){
    await page.reload({waitUntil:"domcontentloaded"});
@@ -137,6 +155,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(result.status,"ready",JSON.stringify(result));
   assert.equal(result.provenance.directorTranscript.firstMessage,literal);
   await page.locator(".b27-result").waitFor();
+  await capture(page,"M2-"+first+"-"+second+"-insight",".b27-result");
   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
   assert.equal((await state(page)).quoteLikeCount,0);
   assert.equal((await state(page)).savedEncounters,0);
@@ -286,7 +305,7 @@ test("M1: Encounter close wins pointer and keyboard over the persistent profile 
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
   {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
  t.after(()=>browser.close());
- for(const width of [320,390,430]){
+ for(const width of [320,390,430,1024]){
   const context=await browser.newContext({viewport:{width,height:844},
    timezoneId:"UTC",reducedMotion:"reduce",isMobile:true,
    hasTouch:true,serviceWorkers:"block"});
@@ -342,7 +361,7 @@ test("M1: Encounter close wins pointer and keyboard over the persistent profile 
  }
 });
 
-test("R2: 320/390/430px reconsideration and resumed focus preserve text/outline clearance",async t=>{
+test("M2: 320/390/430/1024px reconsideration, motion and resumed focus preserve clearance",async t=>{
  const base=await launchApp(t,true);
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
   {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
