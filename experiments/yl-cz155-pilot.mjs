@@ -37,6 +37,8 @@ const record = {
       kind: "message_thread",
       correspondent: "Your friend",
       openingPrompt: "You have one message to send. What will you say?",
+      developmentLabel: "SEPARATE GROUP NOTICE",
+      waitCue: "No private reply yet. Tomorrow presents a public situation.",
       // Reconsideration is the participant's question, not a precomputed
       // philosophical dashboard or a second explanation of observed silence.
       completionLead: "Your next step is recorded; tomorrow's meeting and any later responses remain unwritten."
