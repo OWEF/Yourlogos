@@ -878,3 +878,17 @@ body:has(.b27-shell) .discover-cover{
  .b27-game.b27-action-settling .b27-social-second,
  .b27-game.b27-action-settling .b27-social-private{animation:none!important;transform:none!important}
 }
+
+/* M2 saved and live readback: preserve sent/unsent and independent-event roles. */
+.b27-result-trace{margin-top:20px;padding:12px 13px;border:1px solid var(--b27-line);
+ border-left:2px solid var(--b27-gold);border-radius:12px;background:rgba(255,255,255,.025)}
+.b27-result-trace h3{font:700 10px/1.4 "DM Sans",system-ui,sans-serif;
+ letter-spacing:.1em;color:var(--b27-gold);margin:0 0 5px}
+.b27-result-trace blockquote{font:400 13px/1.55 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory);overflow-wrap:anywhere;margin:4px 0!important}
+.b27-result-external,.b27-result-followup{border-top:1px solid var(--b27-line);
+ margin-top:12px;padding-top:12px}
+.b27-result-external small{color:var(--b27-gold);font:700 10px/1.5
+ "DM Sans",system-ui,sans-serif;letter-spacing:.1em}
+.b27-result-trace p{margin:4px 0!important;color:var(--b27-ivory);font:400 13px/1.5
+ "DM Sans",system-ui,sans-serif;overflow-wrap:anywhere}
