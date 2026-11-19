@@ -80,10 +80,10 @@ test("R4-A: interpretation equivalence and divergence survive action-recap maski
   assert.deepEqual(publicA,publicB);
   assert.deepEqual(privateA,privateB);
   assert.equal(new Set([publicA,privateA,invited,deferred].map(x=>x.claim)).size,4);
-  assert.match(publicA.claim,/promise.*not guaranteed/i);
-  assert.match(privateA.claim,/prepar.*does not mean.*happened/i);
-  assert.match(invited.claim,/cannot command a reply/i);
-  assert.match(deferred.claim,/no reply is required/i);
+  assert.match(publicA.claim,/promise is a present act.*performance/i);
+  assert.match(privateA.claim,/Preparing a step is an act.*happened or succeeded/i);
+  assert.match(invited.claim,/another person.s answer.*public conduct remain open/i);
+  assert.match(deferred.claim,/Waiting now does not settle/i);
   for(const x of [publicA,privateA,invited,deferred])
     assert.doesNotMatch(x.claim,/must apologize twice|forgive you|you want approval|should feel guilty/i);
 });
