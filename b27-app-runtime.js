@@ -154,6 +154,8 @@ export function createB27AppRuntime({
      game:restored?.game??game,history:restored?.history??[],
      record:json.record,sourceVersionHash:json.sourceVersionHash,
      quoteFingerprint:json.quoteFingerprint,
+     // Presentation-only beat; never part of the versioned replay ledger.
+     presentationBeat:restored?.game.phase??"choose",
      message:restored?"Your earlier choices are restored on this device.":""};
    }else throw Error(json.reason||"Source admission failed");
   }catch{
@@ -222,6 +224,7 @@ export function createB27AppRuntime({
   if(kind==="undo"){
    if(!sheet.history.length)return false;
    epoch++;sheet.game=sheet.history.pop();sheet.result=null;
+   sheet.presentationBeat=sheet.game.phase==="opening"?"choose":sheet.game.phase;
    sheet.stage="play";sheet.beat="play";sheet.message="Your previous choice is restored.";
    persistDraft();draw();return true;
   }
@@ -229,25 +232,73 @@ export function createB27AppRuntime({
    if(!sheet.record)return false;
    epoch++;sheet.game=initializeB27Game(sheet.record);sheet.history=[];
    sheet.result=null;sheet.saved=false;sheet.stage="play";sheet.beat="play";sheet.tunerOpen=false;
+   sheet.presentationBeat="choose";
    sheet.message="A fresh start. Nothing was saved.";persistDraft();draw();return true;
   }
   if(["move","pair","branch","focus"].includes(kind)){
    const value=kind==="move"?el.dataset.b27Piece:el.dataset.value;
    const changed=adjustB27Game(sheet,kind,value);
-   if(changed){epoch++;persistDraft()}
-   draw();
+   const social=!!sheet?.record?.director&&
+    sheet.record.narrativeBridge?.directorPresentation?.kind==="message_thread";
+   const justSent=changed&&social&&kind==="branch"&&sheet.game.phase==="reconsider";
    if(changed){
-    // Animate newly rendered game *objects*, never the dialog or cover.
-    // Rebuilt nodes start and end legible. No animation runs on Undo or
-    // source loading, and no ephemeral class leaks into canonical state.
+    epoch++;
+    if(social)sheet.presentationBeat=justSent?"send":sheet.game.phase==="complete"?
+     "complete":sheet.game.phase==="opening"?"choose":"reconsider";
+    persistDraft();
+   }
+   draw();
+   if(changed&&!justSent){
+    // Keep the established per-game tactile affordance. A newly sent message
+    // has its own authored beat and must not inherit the generic game effect.
     document.querySelector(".b27-game")?.classList.add("b27-action-settling");
+   }
+   if(justSent){
+    // A single Director operation already recorded the independent event.
+    // These brief transitions present that fixed information in human order;
+    // they NEVER trigger a second game action or synthesize an event.
+    // No additional tap is required; reduced-motion skips the choreography.
+    const token=epoch;
+    const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const advance=beat=>{
+     if(!same(token)||sheet?.game?.phase!=="reconsider")return false;
+     sheet.presentationBeat=beat;draw();return true;
+    };
+    const focusReconsider=()=>{
+     if(!same(token))return;
+     const game=document.querySelector(".b27-game"),
+      question=game?.querySelector(".b27-social-reconsider .b27-choice-question"),
+      firstOption=game?.querySelector(".b27-social-options .b27-choice"),
+      shell=document.querySelector(".b27-shell"),
+      header=shell?.querySelector(".b27-head");
+     if(!question||!firstOption||!shell)return;
+     // Don't steal an intentional focus already placed on a live control.
+     const active=document.activeElement;
+     if(active&&active!==document.body&&active!==document.documentElement&&
+        game.contains(active)&&active!==game&&active!==question)return;
+     question.focus({preventScroll:true});
+     const shellBox=shell.getBoundingClientRect(),
+      headerBox=header?.getBoundingClientRect(),q=question.getBoundingClientRect(),
+      first=firstOption.getBoundingClientRect();
+     const needed=Math.max(0,first.bottom-(shellBox.bottom-12));
+     const allowed=Math.max(0,q.top-(headerBox?.bottom??shellBox.top)-9);
+     if(needed>0&&allowed>0)shell.scrollTop+=Math.min(needed,allowed);
+    };
+    // 180ms acknowledges sending; 380ms lets the independently authored
+    // no-reply observation register before the new philosophical choice.
+    // These are nonblocking UI beats, not invented elapsed story time.
+    window.setTimeout(()=>{
+     if(!advance("wait"))return;
+     window.setTimeout(()=>{
+      if(!advance("reconsider"))return;
+      requestAnimationFrame(focusReconsider);
+     },reduced?0:380);
+    },reduced?0:180);
+    return changed;
    }
    if(changed)requestAnimationFrame(()=>{
     const game=document.querySelector(".b27-game");
     const active=document.activeElement;
-    // The reader may already have focused a different newly rendered control
-    // before this callback runs (notably during rapid Tap & Pair keyboard play).
-    // Never override an explicit, still-live focus choice made after redraw.
     if(game&&active&&active!==document.body&&active!==document.documentElement&&
        game.contains(active))return;
     let next=null;
@@ -256,27 +307,6 @@ export function createB27AppRuntime({
       .find(x=>x.dataset.value===value&&!x.disabled);
     else if(kind==="move")
      next=document.querySelector('[data-b27-piece="'+value+'"]');
-    // A Director's first action atomically creates an independent event and
-    // a second decision. Bring that decision into keyboard/screen-reader
-    // focus, and adjust *only if necessary* to show the question and first
-    // available action together below the fixed dialog header.
-    if(kind==="branch"&&sheet?.record?.director&&sheet.game?.phase==="reconsider"&&
-       sheet.record.narrativeBridge?.directorPresentation?.kind==="message_thread"){
-     const question=game?.querySelector(".b27-choice-question");
-     const firstOption=game?.querySelector(".b27-social-options .b27-choice");
-     const shell=document.querySelector(".b27-shell");
-     const header=shell?.querySelector(".b27-head");
-     if(question&&firstOption&&shell){
-      question.focus({preventScroll:true});
-      const shellBox=shell.getBoundingClientRect(),headerBox=header?.getBoundingClientRect();
-      const questionBox=question.getBoundingClientRect();
-      const choiceBox=firstOption.getBoundingClientRect();
-      const needed=Math.max(0,choiceBox.bottom-(shellBox.bottom-14));
-      const allowed=Math.max(0,questionBox.top-(headerBox?.bottom??shellBox.top)-10);
-      if(needed>0&&allowed>0)shell.scrollTop+=Math.min(needed,allowed);
-      return;
-     }
-    }
     (next||game)?.focus({preventScroll:true});
    });
    return changed;
