@@ -50,6 +50,10 @@ test("Every projected transition can be replayed by the server and an actual My 
    if(second.medium==="message"){
     assert.match(afterSecond,/Delivery and reply not observed for this second message/);
     assert.doesNotMatch(afterSecond,/THEIR RESPONSE.*Unknown · no reply yet/);
+   }else if(second.medium==="public_statement"){
+    assert.match(afterSecond,/GROUP THREAD · YOUR POST/);
+    assert.match(afterSecond,/Posted in this fictional thread/);
+    assert.doesNotMatch(afterSecond,/public correction planned|delivery and reply observed/i);
    }else{
     assert.match(afterSecond,/PRIVATE (?:NOTE|DECISION) · NOT SENT/);
     assert.doesNotMatch(afterSecond,/Delivery and reply not observed for this second message/);
@@ -67,8 +71,10 @@ test("Every projected transition can be replayed by the server and an actual My 
    assert.match(reread,/INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE/);
    assert.match(reread,second.medium==="message"?
     /Second message: sent; delivery and reply not observed/:
+    second.medium==="public_statement"?/Posted in the fictional group thread/:
     /Private action; not sent to the recipient/);
    assert.match(reread,second.medium==="message"?/SECOND MESSAGE · SENT/:
+    second.medium==="public_statement"?/GROUP POST · COMPLETED/:
     second.medium==="private_note"?/PRIVATE NOTE · NOT SENT/:/PRIVATE DECISION · NOT SENT/,
     "Saved readback must not treat a private note or decision as a sent message");
    assert.match(reread,/Go deeper/);
