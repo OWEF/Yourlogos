@@ -892,3 +892,48 @@ body:has(.b27-shell) .discover-cover{
  "DM Sans",system-ui,sans-serif;letter-spacing:.1em}
 .b27-result-trace p{margin:4px 0!important;color:var(--b27-ivory);font:400 13px/1.5
  "DM Sans",system-ui,sans-serif;overflow-wrap:anywhere}
+
+
+/* CZ-153 M2 R1: the completed first message and independent event are
+   compact evidence, not an interpretation dashboard. Keep the literal message
+   visible, full-size and accessible so the next decision fits on mobile. */
+.b27-game[data-b27-phase="reconsider"]:has(.b27-social) .b27-social{
+ gap:10px;padding:11px 12px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-contact{
+ display:none}
+.b27-game[data-b27-phase="reconsider"] .b27-social-chatlog{
+ gap:7px;padding:9px 10px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-message{
+ max-width:100%;padding:9px 11px 8px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-message h3{
+ margin-bottom:4px!important}
+.b27-game[data-b27-phase="reconsider"] .b27-social-message blockquote{
+ font-size:14px;line-height:1.43}
+.b27-game[data-b27-phase="reconsider"] .b27-social-event{
+ width:100%;padding:7px 6px 0}
+.b27-game[data-b27-phase="reconsider"] .b27-social-event small{
+ margin:0 0 3px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-event small:last-child{
+ margin:3px 0 0}
+.b27-game[data-b27-phase="reconsider"] .b27-social-reconsider{
+ padding:9px 0 0}
+.b27-game[data-b27-phase="reconsider"] .b27-social-step{
+ margin:0 0 5px!important}
+.b27-game[data-b27-phase="reconsider"] .b27-social .b27-choice-question{
+ margin:4px 0 11px;line-height:1.28;scroll-margin-top:78px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-options{
+ gap:8px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-options .b27-choice{
+ min-height:84px;padding:11px 12px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-choice-literal{
+ font-size:13px;line-height:1.4}
+.b27-result-followup>small{display:block;margin-top:7px;
+ color:var(--b27-muted);font:400 11px/1.48 "DM Sans",system-ui,sans-serif}
+@media(max-width:359px){
+ .b27-game[data-b27-phase="reconsider"]:has(.b27-social) .b27-social{
+  gap:8px;padding:9px}
+ .b27-game[data-b27-phase="reconsider"] .b27-social-chatlog{
+  padding:8px}
+ .b27-game[data-b27-phase="reconsider"] .b27-social .b27-choice-question{
+  font-size:20px}
+}
