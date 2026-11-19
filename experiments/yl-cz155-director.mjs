@@ -31,6 +31,68 @@ function sameValue(left, right) {
     Object.keys(left).every(key => sameValue(left[key], right[key]));
 }
 
+// Follow-up availability is a function of independently OBSERVED world facts
+// and already-chosen participant facts, never of the first choice's ID.
+// `worldEvidence` ties each positive world predicate to a literal observation
+// in the immutable external event. Missing or forged evidence must fail closed.
+const owned = (obj,key)=>Object.prototype.hasOwnProperty.call(obj,key);
+function isObject(x){return x!==null&&typeof x==="object"&&!Array.isArray(x);}
+const uniqueKeys=xs=>Array.isArray(xs)&&new Set(xs).size===xs.length&&
+ xs.every(x=>typeof x==="string"&&x.length>0);
+function eligiblePredicate(predicate, facts, world){
+ return predicate.requiresSelf.every(x=>facts[x]===true)&&
+  predicate.forbidsSelf.every(x=>facts[x]!==true)&&
+  predicate.requiresWorld.every(x=>world.includes(x))&&
+  predicate.forbidsWorld.every(x=>!world.includes(x));
+}
+export function validateFollowUpAuthoring(scenario){
+ if(!scenario?.followUpActions)return scenario?.followUps!==undefined;
+ const allowed=["requiresSelf","forbidsSelf","requiresWorld","forbidsWorld"];
+ const world=scenario.worldEvidence;
+ if(!isObject(world)||!Object.keys(world).length||
+  !Object.values(world).every(x=>typeof x==="string"&&
+   scenario.externalEvent?.observed?.includes(x)))return false;
+ const actions=scenario.followUpActions;
+ if(!Array.isArray(actions)||actions.length<2||actions.length>12||
+  new Set(actions.map(x=>x?.id)).size!==actions.length)return false;
+ const check=x=>isObject(x)&&allowed.every(k=>uniqueKeys(x[k]))&&
+  x.requiresSelf.every(k=>scenario.selfFacts.includes(k))&&
+  x.forbidsSelf.every(k=>scenario.selfFacts.includes(k))&&
+  x.requiresWorld.every(k=>owned(world,k))&&
+  x.forbidsWorld.every(k=>owned(world,k))&&
+  !x.requiresSelf.some(k=>x.forbidsSelf.includes(k))&&
+  !x.requiresWorld.some(k=>x.forbidsWorld.includes(k));
+ const validText=["label","literal","recap","commitment","possibleRationale","effect","medium"];
+ return actions.every(a=>isObject(a)&&typeof a.id==="string"&&a.id.length>0&&
+  validText.every(k=>typeof a[k]==="string"&&a[k].length>0)&&
+  uniqueKeys(a.establishes)&&a.establishes.every(k=>scenario.selfFacts.includes(k))&&
+  uniqueKeys(a.warrantIds)&&a.warrantIds.every(k=>owned(scenario.source.warrants,k))&&
+  check(a.eligibility)&&Array.isArray(a.contexts)&&a.contexts.length<=6&&
+  a.contexts.every(c=>isObject(c)&&check(c.when)&&isObject(c.wording)&&
+   Object.keys(c.wording).length>0&&Object.keys(c.wording).every(k=>
+    validText.includes(k)||["establishes","warrantIds"].includes(k))&&
+   Object.entries(c.wording).every(([k,v])=>
+    k==="establishes"?uniqueKeys(v)&&v.every(t=>scenario.selfFacts.includes(t)):
+    k==="warrantIds"?uniqueKeys(v)&&v.every(t=>owned(scenario.source.warrants,t)):
+    typeof v==="string"&&v.length>0)));
+}
+function observedWorld(scenario,observation){
+ return Object.keys(scenario.worldEvidence??{}).filter(k=>
+  observation?.observed?.includes(scenario.worldEvidence[k]));
+}
+export function eligibleFollowUps(scenario,state){
+ if(state.phase!=="reconsider")return [];
+ if(!scenario.followUpActions)return structuredClone(scenario.followUps[state.firstAction.id]);
+ if(!validateFollowUpAuthoring(scenario))invalid("invalid or ungrounded follow-up preconditions");
+ return scenario.followUpActions.filter(a=>eligiblePredicate(a.eligibility,state.facts,state.worldFacts))
+  .map(a=>{
+   const contexts=a.contexts.filter(c=>eligiblePredicate(c.when,state.facts,state.worldFacts));
+   if(contexts.length>1)invalid("ambiguous context-specific action wording");
+   const {eligibility,contexts:variants,...base}=a;
+   return structuredClone({...base,...(contexts[0]?.wording??{})});
+  });
+}
+
 /** A fresh derived view; events are the only resumable state. */
 export function startEncounter(scenario) {
   if (!scenario?.id || !scenario.version || !scenario.sourceFingerprint || !scenario.scenarioFingerprint)
@@ -45,6 +107,7 @@ export function startEncounter(scenario) {
     options: structuredClone(scenario.openingChoices), firstAction: null, secondAction: null,
     observation: null, reconsiderationQuestion: scenario.reconsiderationQuestion,
     effects: [], facts: Object.fromEntries(scenario.selfFacts.map(key => [key, false])),
+    worldFacts: [],
     canonicalInput: null
   };
 }
@@ -83,10 +146,11 @@ function advance(scenario, state, choiceId) {
       preconditions: {phase: "after_opening"}, ...structuredClone(state.observation)
     });
     state.phase = "reconsider";
+    state.worldFacts = observedWorld(scenario,state.observation);
     // Source-authored question reflects the chosen action without attributing a motive.
     // Scenarios without this optional map preserve their established question contract.
     state.reconsiderationQuestion = scenario.reconsiderationQuestions?.[choice.id] ?? scenario.reconsiderationQuestion;
-    state.options = structuredClone(scenario.followUps[choice.id]);
+    state.options = eligibleFollowUps(scenario,state);
   } else {
     state.secondAction = choice;
     state.canonicalInput = {path: [state.firstAction.id, state.observation.id, choice.id]};
