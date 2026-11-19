@@ -13,6 +13,7 @@ const source = {
     mistaken_dependency: "§1 opening and final paragraph. Treating what belongs to others as one's own makes one's judgment depend on them. Examine the appearance before accepting it.",
     continuing_repair: "Scenario qualification, not a quotation from Epictetus. One may still have responsibilities in a public discussion even without interpersonal reconciliation; §1 does not prescribe apologies or messaging etiquette.",
     public_action: "§1 agency boundary applied to the fiction: choosing or announcing a public correction is distinct from carrying it out, another person hearing it, or obtaining reconciliation.",
+    public_post: "§1 opening agency boundary applied to the fiction: the participant can actually post their own public words now, but cannot decide how other group members respond or whether the post repairs the interruption.",
     preparation_vs_action: "§1 agency boundary applied to the fiction: private preparation is an act, but it is not evidence that listening or correction has occurred.",
     dialogue_opening: "§1 agency boundary applied to the fiction: an invitation can be offered; whether dialogue occurs is not controlled by its sender."
   },
@@ -93,13 +94,13 @@ const followUps = {
   ],
   explain: [
     {
-      id: "unqualified", label: "Commit to address your public interruption", medium: "message",
-      literal: "Whatever I meant, I interrupted you by laughing. If I have the floor tomorrow, I'll say that to the group.",
-      recap: "You sent a commitment to name the public interruption.", effect: "public_commitment_sent",
-      establishes: ["acknowledgedWithoutExplanation", "publicCommitmentCommunicated"],
-      commitment: "The new message makes a public commitment; the public correction has not occurred.",
-      possibleRationale: "A statement about conduct can stand independently of an explanation of intention.",
-      explicitMotive: null, warrantIds: publicWarrants
+      id: "unqualified", label: "Post a brief acknowledgment to the group now", medium: "public_statement",
+      literal: "Yesterday I laughed before the idea was finished. That interrupted the discussion. I want to hear the full idea when we revisit it.",
+      recap: "You posted an acknowledgment in the group thread now.", effect: "group_acknowledgment_posted",
+      establishes: ["acknowledgedWithoutExplanation", "publicAcknowledgmentCompleted"],
+      commitment: "A group acknowledgment has been posted in the fictional thread. No reply, forgiveness, discussion or repair is established.",
+      possibleRationale: "Posting directly addresses a public interruption but may draw further attention to a sensitive exchange.",
+      explicitMotive: null, warrantIds: ["own_conduct", "public_post", "continuing_repair"]
     },
     {
       id: "prepare_question", label: "Prepare a question for tomorrow's discussion", medium: "private_note",
@@ -113,7 +114,7 @@ const followUps = {
   ]
 };
 const record = {
-  id: "public-laughter", version: "public-laughter/2", operation: "agency_vs_external_reply",
+  id: "public-laughter", version: "public-laughter/3", operation: "agency_vs_external_reply",
   source, sourceFingerprint: fingerprintB25(source), warrantIds: Object.keys(source.warrants),
   opening: "Yesterday, you laughed while a friend presented an idea to the group. They fell quiet and withdrew. You want to address what happened, without knowing how they interpreted it. You open a message.",
   reconsiderationQuestion: "Tomorrow the group will revisit the idea. What remains possible without knowing your friend\'s response?",
@@ -124,15 +125,16 @@ const record = {
   },
   selfFacts: ["acknowledged", "requestedConversation", "explainedIntention", "plannedPublicCorrection",
     "deferredAcknowledgment", "acknowledgedWithoutExplanation", "preparedListeningQuestion",
-    "publicCommitmentCommunicated", "invitationAfterAcknowledgment", "preparedToListen"],
+    "publicCommitmentCommunicated", "publicAcknowledgmentCompleted",
+    "invitationAfterAcknowledgment", "preparedToListen"],
   openingChoices, followUps,
   externalEvent: {
     id: "delivered_no_reply", text: "Message delivered. No reply yet. A group notice says tomorrow\'s meeting will revisit the same idea.",
     observed: ["The first message was delivered.", "No reply has arrived at this point.",
-      "A group notice independently announces that the same idea will be discussed tomorrow."],
+      "A separate group-thread notice announces that the same idea will be discussed tomorrow, with a place for participants to post."],
     unknowns: ["Whether your friend read it or what they thought.",
       "Whether there will be a chance to speak, listen or act differently at the meeting.",
-      "Whether your friend will reply, forgive you or want a private conversation."],
+      "Whether your friend or anyone in the group will reply, agree, forgive or want a private conversation."],
     warrantIds: ["external_action", "mistaken_dependency", "continuing_repair"]
   }
 };
