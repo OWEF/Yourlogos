@@ -27,10 +27,19 @@ const record = {
   reflectionQuestion: scenario.reconsiderationQuestion,
   narrativeBridge: {
     version: "cz152-narrative/1",
-    bridgeFromSource: "Epictetus asks how much of an action and its outcome belongs to the person who acts.",
-    situationHook: "Yesterday you laughed at a friend’s idea in public. They withdrew. You want to acknowledge the harm and also be understood.",
+    bridgeFromSource: "What happens when something you say matters to someone else?",
+    situationHook: "Yesterday you laughed at a friend’s idea in front of everyone. They went quiet. You want to put things right, and you also want to explain yourself.",
     playPrompt: "Choose the message you will send.",
-    sourceWarrantIds: ["source:central","scenario:fictional"]
+    sourceWarrantIds: ["source:central","scenario:fictional"],
+    // Source-authored, presentation-only. No scenario or Director contract changes.
+    // The same renderer may accept another reviewed message-thread record.
+    directorPresentation: {
+      kind: "message_thread",
+      correspondent: "Your friend",
+      openingPrompt: "You have one message to send. What will you say?",
+      reconsiderationLead: "Your message was delivered. An answer has not arrived. Consider what your next action can change.",
+      completionLead: "You chose a second action. Nothing in the story yet establishes their response."
+    }
   },
   evidenceIds, affordances: ["boundary_awareness","choice_awareness"],
   prohibitedInferences: ["Words caused silence","Delivery proves reading",
