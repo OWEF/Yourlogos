@@ -256,6 +256,27 @@ export function createB27AppRuntime({
       .find(x=>x.dataset.value===value&&!x.disabled);
     else if(kind==="move")
      next=document.querySelector('[data-b27-piece="'+value+'"]');
+    // A Director's first action atomically creates an independent event and
+    // a second decision. Bring that decision into keyboard/screen-reader
+    // focus, and adjust *only if necessary* to show the question and first
+    // available action together below the fixed dialog header.
+    if(kind==="branch"&&sheet?.record?.director&&sheet.game?.phase==="reconsider"&&
+       sheet.record.narrativeBridge?.directorPresentation?.kind==="message_thread"){
+     const question=game?.querySelector(".b27-choice-question");
+     const firstOption=game?.querySelector(".b27-social-options .b27-choice");
+     const shell=document.querySelector(".b27-shell");
+     const header=shell?.querySelector(".b27-head");
+     if(question&&firstOption&&shell){
+      question.focus({preventScroll:true});
+      const shellBox=shell.getBoundingClientRect(),headerBox=header?.getBoundingClientRect();
+      const questionBox=question.getBoundingClientRect();
+      const choiceBox=firstOption.getBoundingClientRect();
+      const needed=Math.max(0,choiceBox.bottom-(shellBox.bottom-14));
+      const allowed=Math.max(0,questionBox.top-(headerBox?.bottom??shellBox.top)-10);
+      if(needed>0&&allowed>0)shell.scrollTop+=Math.min(needed,allowed);
+      return;
+     }
+    }
     (next||game)?.focus({preventScroll:true});
    });
    return changed;
