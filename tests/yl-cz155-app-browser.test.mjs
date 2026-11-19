@@ -135,7 +135,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.doesNotMatch(await page.locator(".b27-social-reconsider").innerText(),
    /acknowledgment (?:sent|not sent)|further repair may|their response|external control/i);
   await capture(page,"M2-"+first+"-"+second+"-reconsider",".b27-play");
-  assert.match(await page.locator(".b27-choice-question").innerText(),/What am I asking the other person.s reply to prove/);
+  assert.match(await page.locator(".b27-choice-question").innerText(),/Tomorrow the group|tomorrow the group/);
   assert.equal(await control(page,"branch").count(),2);
   // Compare the neutral resting state, not the intentionally interactive
   // pointer hover on whichever choice happened to appear under the cursor.
@@ -166,7 +166,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
   assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
   const eventAfterSecond=await page.locator(".b27-social-event").textContent();
-  assert.equal(eventAfterSecond.includes("Message delivered. Later, no reply has arrived."),true,
+  assert.equal(eventAfterSecond.includes("Message delivered. No reply yet. A group notice says tomorrow's meeting will revisit the same idea."),true,
    "Independent observation must remain attached to the first message only");
   if(privateFollowUp){
    assert.match(await page.locator(".b27-social-private").innerText(),/NOT SENT/);
@@ -336,7 +336,7 @@ test("R2: invalid drafts fail closed, valid drafts resume, and source versions r
     sessionStorage.getItem("yourlogos-b27-director-draft/1"));
    if(kind==="valid"){
     assert.equal(recovered.game.firstAction.id,"request");
-    assert.equal(recovered.game.observation.text,"Message delivered. Later, no reply has arrived.");
+    assert.equal(recovered.game.observation.text,"Message delivered. No reply yet. A group notice says tomorrow's meeting will revisit the same idea.");
     assert.ok(persisted,"valid draft should still be resumable");
    }else{
     assert.equal(recovered.beat,"situation");
@@ -543,7 +543,7 @@ test("M2 R2: 320/390/430px reconsideration remains visible and focused after the
    assert.ok(metrics.firstAction.height>=44,
     width+"px action violates minimum hit target");
    assert.match(metrics.initialMessageText,/Could we talk about yesterday/);
-   assert.match(metrics.initialEventText,/Message delivered[\s\S]*no reply has arrived/);
+   assert.match(metrics.initialEventText,/Message delivered[\s\S]*No reply yet/);
    await page.keyboard.press("Tab");
    assert.ok(await page.locator(".b27-social-options .b27-choice").first().evaluate(
     el=>document.activeElement===el&&el.matches(":focus-visible")),
@@ -593,14 +593,14 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
    assert.equal(await page.locator('.b27-r3-simulator[data-social-beat="send"]').count(),1);
    assert.equal((await state(page)).game.phase,"reconsider");
    assert.equal(await page.locator(".b27-r3-sent blockquote").innerText(),
-    "Could we talk about yesterday? I want to hear your side and explain what I meant.");
+    "Could we talk about yesterday? I'd like to hear how you saw it and explain what I meant.");
    assert.equal(await page.locator(".b27-r3-event").count(),0);
    await capture(page,"M2R3-"+width+"-02-sent",".b27-play");
    await page.clock.runFor(360);
    await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
    assert.equal(await page.locator(".b27-r3-event").count(),1);
    assert.match(await page.locator(".b27-r3-event").innerText(),
-    /Message delivered[\s\S]*no reply has arrived/);
+    /Message delivered[\s\S]*No reply yet/);
    assert.equal(await page.locator(".b27-social-reconsider").count(),0);
    await capture(page,"M2R3-"+width+"-03-wait",".b27-play");
    // The original R2 automatically transitioned at 380ms. Advancing virtual
@@ -617,7 +617,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
    await page.waitForFunction(()=>document.activeElement?.matches(".b27-social-reconsider .b27-choice-question"));
    assert.equal(await page.locator(".b27-social-options .b27-choice").count(),2);
    assert.match(await page.locator(".b27-choice-question").innerText(),
-    /What am I asking the other person.s reply to prove/);
+    /Tomorrow the group|tomorrow the group/);
    const measure=await page.evaluate(()=>{
     const shell=document.querySelector(".b27-shell"),
      header=shell.querySelector(".b27-head"),
