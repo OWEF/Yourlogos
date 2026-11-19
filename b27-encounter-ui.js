@@ -327,7 +327,7 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
  const contact=e(presentation.correspondent||"Your friend");
  const contactBar='<header class="b27-r3-contact">'+
   '<span class="b27-r3-avatar" aria-hidden="true">◇</span>'+
-  '<div><strong>'+contact+'</strong><small>FICTIONAL CONVERSATION</small></div>'+
+  '<div><strong>'+contact+'</strong><small>PRIVATE MESSAGE · FICTIONAL</small></div>'+
   '</header>';
  const sent=first?
   '<section class="b27-transcript b27-social-message b27-r3-sent" aria-label="Your first sent message">'+
@@ -412,9 +412,18 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
    '<div class="b27-social-options b27-message-choices b27-r3-followups" role="group" aria-label="'+e(state.reconsiderationQuestion)+'">'+
     followUps+'</div>'+recollect+
    '</main>':"";
+ const completedGroupThread=second?.medium==="public_statement"?
+  '<div class="b27-r4-context-switch" role="separator" aria-label="Leaving the private conversation and entering the separate public group thread">'+
+   '<span>PRIVATE CONVERSATION</span><span aria-hidden="true">↘</span><strong>PUBLIC GROUP THREAD</strong></div>'+
+  '<section class="b27-r4-group-thread" role="region" aria-label="Fictional public group thread, separate from your private messages">'+
+   '<header class="b27-r4-group-heading"><span aria-hidden="true">◈</span>'+
+    '<div><strong>PUBLIC GROUP THREAD</strong><small>Discussing the idea · separate from the private chat</small></div></header>'+
+   afterSecond+
+   '<p class="b27-r4-no-reaction">Other group members’ reactions are not shown. No reconciliation or public repair is confirmed.</p>'+
+  '</section>':afterSecond;
  const complete=beat==="complete"?
   '<main class="b27-r3-conversation b27-r3-finished" aria-label="Your actions so far">'+
-   sent+event+afterSecond+
+   sent+event+completedGroupThread+
    '<div class="b27-r3-ending" role="status">'+
     '<span>YOUR NEXT ACTION IS RECORDED</span>'+
     '<h3>The story does not tell you their response.</h3>'+
@@ -463,10 +472,15 @@ function resultHtml(enc){
  const originalText=transcript?'<section class="b27-transcript b27-result-trace" aria-label="Recorded fictional actions">'+
   '<h3>'+e(firstKind)+'</h3><blockquote>'+e(transcript.firstMessage)+'</blockquote>'+
   '<div class="b27-result-external"><small>INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE</small><p>'+e(transcript.event)+'</p></div>'+
-  '<div class="b27-result-followup"><h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p>'+
+  '<div class="b27-result-followup">'+
+   (secondMedium==="public_statement"?
+    '<div class="b27-r4-result-context" role="region" aria-label="Separate public group-thread post">'+
+     '<strong>PUBLIC GROUP THREAD · SEPARATE FROM PRIVATE CHAT</strong>':'')+
+   '<h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p>'+
    (secondMedium==="public_statement"?'<small>Posted in the fictional group thread; others\' responses and repair are unknown.</small>':
     secondMedium==="message"?'<small>Second message: sent; delivery and reply not observed.</small>':
     secondMedium==="private_note"||secondMedium==="commitment"?'<small>Private action; not sent to the recipient.</small>':"")+
+   (secondMedium==="public_statement"?'</div>':'')+
    '</div>'+
   '</section>':"";
  const fullText=transcript?arr(enc.result.fullExpression?.sections).map(section=>
