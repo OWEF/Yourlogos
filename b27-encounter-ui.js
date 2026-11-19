@@ -308,7 +308,71 @@ function fullAuthoredDetail(record){
  // sentences can carry the true tension, causality boundary or limitation.
  return String(record.intro||record.humanTension||record.relation?.prompt||"").trim();
 }
-function directedDecisionHtml(state){
+
+/* M2: an authored visual mode over the SAME derived Director state.
+   Only source-authored presentation data selects it; no author-name or
+   source-ID branching, new state machine or independent persistence. */
+function socialDirectorHtml(state,presentation){
+ const first=state.firstAction,second=state.secondAction,observed=state.observation;
+ const phase=state.phase,choicePrompt=phase==="opening"?"What will you send?":
+  phase==="reconsider"?state.reconsiderationQuestion:"";
+ const header='<header class="b27-social-contact"><span class="b27-social-avatar" aria-hidden="true">◇</span>'+
+  '<div><strong>'+e(presentation.correspondent||"A friend")+'</strong><small>FICTIONAL CONVERSATION</small></div></header>';
+ const firstMessage=first?
+  '<section class="b27-transcript b27-social-message" aria-label="Your first sent message">'+
+   '<h3>YOUR MESSAGE</h3><blockquote>'+e(first.literal)+'</blockquote>'+
+   '<small>Sent · no read receipt</small></section>':
+  '<div class="b27-social-unsent">Nothing has been sent yet.</div>';
+ const event=observed?
+  '<div class="b27-social-event" role="note" aria-label="Independent story development">'+
+   '<p id="b27-observation" class="b27-observation">'+e(observed.text)+'</p>'+
+   '<small>READ STATUS AND REASON UNKNOWN</small></div>':"";
+ const secondMessage=second?
+  second.medium==="message"?
+   '<section class="b27-social-message b27-social-second" aria-label="Your second sent message">'+
+    '<h3>YOUR FOLLOW-UP</h3><blockquote>'+e(second.literal)+'</blockquote>'+
+    '<small>Sent · subsequent delivery and reply unknown</small></section>':
+   '<aside class="b27-social-private" role="note" aria-label="Private action, not sent">'+
+    '<h3>'+e(second.medium==="private_note"?"PRIVATE NOTE · NOT SENT":"PRIVATE DECISION · NOT SENT")+'</h3>'+
+    '<p>'+e(second.literal)+'</p></aside>':"";
+ const thread='<section class="b27-social-thread" aria-label="Conversation and observed development">'+
+  header+'<div class="b27-social-chatlog">'+firstMessage+event+secondMessage+'</div></section>';
+ const actSummary=observed?
+  '<section class="b27-social-facts" aria-label="What is established and what remains unknown">'+
+   '<div><small>YOUR ACKNOWLEDGMENT</small><strong>'+e(state.facts.acknowledged?
+    "Sent":"Not sent yet")+'</strong></div>'+
+   '<div><small>YOUR NEXT RESPONSIBILITY</small><strong>'+e(state.facts.acknowledged?
+    "Further repair may still matter":"Acknowledgment remains possible")+'</strong></div>'+
+   '<div><small>THEIR RESPONSE</small><strong>Unknown · no reply yet</strong></div>'+
+  '</section>':"";
+ const turning=phase==="reconsider"?
+  '<section class="b27-social-reconsider" aria-label="Pause and reconsider">'+
+   '<p class="b27-social-step">RECONSIDER · BEFORE YOU CHOOSE AGAIN</p>'+
+   '<p class="b27-social-lead">'+e(presentation.reconsiderationLead||"What could you still choose?")+'</p>'+
+   '<h3 class="b27-choice-question" tabindex="-1" aria-describedby="b27-observation">'+
+    e(state.reconsiderationQuestion)+'</h3></section>':
+  phase==="opening"?
+  '<h3 class="b27-choice-question" tabindex="-1">'+e(choicePrompt)+'</h3>':
+  '<div class="b27-social-complete" role="status">'+
+   e(presentation.completionLead||"Your second action is recorded. Their response is still unknown.")+
+   '</div>';
+ const cards=state.options.map(choice=>
+  b("branch",
+   '<strong>'+e(choice.label)+'</strong>'+
+   '<span class="b27-social-choice-literal">'+e(choice.literal)+'</span>'+
+   '<small>'+e(choice.medium==="message"?"SEND AS MESSAGE":
+    choice.medium==="private_note"?"WRITE PRIVATE NOTE":"KEEP AS PRIVATE DECISION")+'</small>',
+   "b27-choice b27-social-option",
+   'data-value="'+e(choice.id)+'"')
+  ).join("");
+ return '<div class="b27-social" data-director-presentation="message_thread">'+
+  thread+actSummary+turning+
+  (cards?'<div class="b27-cards b27-message-choices b27-social-options" role="group" aria-label="'+
+   e(choicePrompt)+'">'+cards+'</div>':"")+
+  '</div>';
+}
+function directedDecisionHtml(state,presentation){
+ if(presentation?.kind==="message_thread")return socialDirectorHtml(state,presentation);
  const first=state.firstAction;
  const transcript=first?'<section class="b27-transcript"><h3>What you sent</h3><blockquote>'+e(first.literal)+'</blockquote></section>':"";
  const observation=state.observation?'<p id="b27-observation" class="b27-observation">'+e(state.observation.text)+'</p>':"";
@@ -321,7 +385,7 @@ function directedDecisionHtml(state){
   (cards?'<div class="b27-cards b27-message-choices" role="group" aria-label="'+e(prompt)+'">'+cards+'</div>':"");
 }
 function gameHtml(enc){
- if(enc.record.director)return directedDecisionHtml(enc.game);
+ if(enc.record.director)return directedDecisionHtml(enc.game,enc.record.narrativeBridge?.directorPresentation);
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
  if(enc.record.familyId==="tap_pair")return pairHtml(enc);
  if(enc.record.familyId==="decision_cards")return decisionHtml(enc);
@@ -409,7 +473,7 @@ export function renderB27Encounter(enc,quote){
  return start+'<div class="b27-main b27-play">'+
   '<div class="b27-play-thread" aria-hidden="true"><i></i><span>✦</span><i></i></div>'+
   '<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
-  '<p class="b27-play-prompt">'+e(r.director?enc.game.opening:bridge.playPrompt)+'</p>'+
+  '<p class="b27-play-prompt">'+e(r.director&&bridge.directorPresentation?.kind==="message_thread"?(phase==="opening"?bridge.directorPresentation.openingPrompt:phase==="reconsider"?"A moment to reconsider.": "Your second action is now part of this story."):r.director?enc.game.opening:bridge.playPrompt)+'</p>'+
   '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'" data-b27-phase="'+e(phase)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+
    (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
