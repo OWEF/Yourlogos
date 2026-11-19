@@ -10,23 +10,23 @@ const evidenceIds = [...new Set(["source:central", "source:boundary",
   "scenario:fictional", ...scenario.warrantIds])];
 
 const record = {
-  version: "cz155-author-proof/2", recordId: scenario.id, quoteId: source.quoteId,
+  version: "cz155-author-proof/3", recordId: scenario.id, quoteId: source.quoteId,
   status: "development_provisional", publicationAllowed: false,
   developmentOnly: false, exposeInApp: false,
   familyId: "decision_cards", title: "After the laughter",
   intro: scenario.opening,
   source: {text: source.text, author: source.author, work: source.work,
     referenceUrl: source.referenceUrl},
-  sourceThesis: "Epictetus distinguishes our own judgments and actions from others' responses.",
-  evidenceClaim: "You may prepare or promise a correction without commanding a chance to perform it or anyone's response.",
+  sourceThesis: "Epictetus places our judgment and chosen acts within our power, not others' assent.",
+  evidenceClaim: "A posted group statement, a promise and a private plan are different choices; none commands another person's judgment.",
   humanTension: "Tomorrow the group returns to the interrupted idea while any private reply remains uncertain",
   epistemicLimits: "A missing reply reveals neither your friend's judgment nor what public responsibility remains appropriate.",
   compactLimit: "Public conduct and private reconciliation remain separate.",
-  counterexample: "Even a promise to acknowledge the interruption publicly may go unfulfilled; a friendly reply would not automatically settle public responsibility.",
-  readerAgency: "Choose what to send, then decide what to prepare or promise before tomorrow's discussion.",
+  counterexample: "Even a considerate action cannot guarantee another person's agreement or a better discussion.",
+  readerAgency: "Choose what to send, then decide whether to post, promise, prepare, invite or refrain.",
   reflectionQuestion: scenario.reconsiderationQuestion,
   narrativeBridge: {
-    version: "cz152-narrative/2",
+    version: "cz152-narrative/3",
     bridgeFromSource: "When another person's response is uncertain, what can you still choose in the next situation?",
     situationHook: "Yesterday you laughed as a friend presented an idea to the group. They went quiet. You do not know what they thought. You open a message.",
     playPrompt: "Choose the message you will send.",
@@ -42,54 +42,76 @@ const record = {
       waitCue: "No private reply yet. Tomorrow presents a public situation.",
       // Reconsideration is the participant's question, not a precomputed
       // philosophical dashboard or a second explanation of observed silence.
-      completionLead: "Your next step is recorded; tomorrow's meeting and any later responses remain unwritten."
+      completionLead: "Your chosen action is recorded. Tomorrow's discussion and others' responses remain unwritten."
     }
   },
   evidenceIds, affordances: ["boundary_awareness","choice_awareness"],
   prohibitedInferences: ["The message caused the meeting notice","Delivery proves reading",
-    "Acknowledgment settles public repair","A plan or promise has already been carried out",
+    "Acknowledgment settles public repair","A plan or promise is completed public conduct",
     "Silence proves rejection","A friendly reply eliminates all responsibility"],
-  supportedConclusions: ["The participant can choose a next action without determining the friend's response; plans and promises are not completed public conduct"],
+  supportedConclusions: ["An actual group post, a promise and a private plan are distinguishable participant acts; none determines others' responses"],
   philosophicalOperation: {kind: "agency_vs_external_reply", focus: "chosen judgment and action under external uncertainty",
     contrast: "your own decisions and attempts versus another person's response", sourceWarrantIds: scenario.warrantIds},
   director: scenario,
   decisionWarrant: {fact: "acknowledged", warrantId: "own_conduct",
     established: {
-      inference: "Your acknowledgment is chosen; its reception and tomorrow's meeting remain uncertain.",
-      question: "If tomorrow offers a turn, what could you attempt?",
+      inference: "An acknowledgment is your act, not proof of another person's judgment.",
+      question: "What remains yours to consider when the group's response is unknown?",
       strategy: "boundary_awareness"
     },
     outstanding: {
-      inference: "Your invitation is chosen; tomorrow's public conduct remains open.",
-      question: "What remains possible for you tomorrow without a private conversation?",
+      inference: "A request for dialogue is your act, not the conversation itself.",
+      question: "What remains possible without assuming a private conversation will occur?",
       strategy: "choice_awareness"
     },
-    // These are shared predicates about action status, not one authored
-    // philosophical speech per route. Different messages may rightly converge.
+    // Generic predicates over replayed participant-owned facts. No literal
+    // route or philosopher-key switch: equivalent preparation shares a lens.
+    // Path-bound qualifications prevent irrelevant boilerplate in Expression.
     refinements: [
       {
-        factsAny: ["publicCommitmentCommunicated"],
-        inference: "Your promise is a present act; performance and reception remain uncertain.",
-        question: "If you have a turn tomorrow, what would carrying it out involve?",
-        strategy: "boundary_awareness", warrantId: "public_action"
+        factsAll: ["publicAcknowledgmentCompleted"],
+        inference: "Your group post is complete; its reception and repair remain undecided.",
+        question: "Was public acknowledgment worth the risk of bringing renewed attention to the interruption?",
+        strategy: "boundary_awareness", warrantId: "public_post",
+        qualification: "Epictetus's agency distinction recognizes the posted words, not control of how the group receives them.",
+        compactLimit: "A completed post does not settle its consequences.",
+        counterexample: "Posting now may spotlight the friend again; waiting might spare that attention but leave the group without acknowledgment."
+      },
+      {
+        factsAll: ["publicCommitmentCommunicated"],
+        inference: "Your promise is sent privately; public acknowledgment has not occurred.",
+        question: "What could justify promising public action without assuming an opportunity tomorrow?",
+        strategy: "boundary_awareness", warrantId: "public_action",
+        qualification: "The commitment is your chosen act; a speaking opportunity and the group's judgment are not assured.",
+        compactLimit: "A private promise is not public performance.",
+        counterexample: "A promise can protect privacy today, yet tomorrow may arrive without a chance to keep it."
       },
       {
         factsAny: ["plannedPublicCorrection", "preparedListeningQuestion"],
-        inference: "Preparing a step is an act, not evidence that it happened or succeeded.",
-        question: "What if tomorrow offers no chance to act on your plan?",
-        strategy: "choice_awareness", warrantId: "preparation_vs_action"
+        inference: "You prepared a step privately; it has not been performed.",
+        question: "What does preparation make possible without guaranteeing tomorrow's opportunity?",
+        strategy: "choice_awareness", warrantId: "preparation_vs_action",
+        qualification: "Epictetus's distinction counts preparation as chosen conduct, not as completed public speaking or listening.",
+        compactLimit: "Preparation is an act, not its future performance.",
+        counterexample: "Preparation may avoid an unsolicited public post, but the discussion could move on before the plan is used."
       },
       {
-        factsAny: ["invitationAfterAcknowledgment"],
-        inference: "An invitation is yours; another person's answer and tomorrow's public conduct remain open.",
-        question: "What could matter publicly if the private invitation stays unanswered?",
-        strategy: "boundary_awareness", warrantId: "dialogue_opening"
+        factsAll: ["invitationAfterAcknowledgment"],
+        inference: "You sent an invitation; dialogue and public repair remain undecided.",
+        question: "Can a private opening matter without becoming a demand for an answer?",
+        strategy: "boundary_awareness", warrantId: "dialogue_opening",
+        qualification: "Offering dialogue belongs to your agency; choosing whether to answer belongs to your friend.",
+        compactLimit: "An invitation does not create a conversation.",
+        counterexample: "An optional invitation can respect space, but the group may still revisit an interrupted idea without any private conversation."
       },
       {
-        factsAny: ["deferredAcknowledgment"],
-        inference: "Waiting now does not settle what you can attempt publicly tomorrow.",
-        question: "If you have a turn tomorrow, what could you attempt?",
-        strategy: "choice_awareness", warrantId: "continuing_repair"
+        factsAll: ["deferredAcknowledgment"],
+        inference: "You withheld another message and planned to listen; listening has not happened.",
+        question: "When does restraint leave space, and when might it defer public accountability?",
+        strategy: "choice_awareness", warrantId: "continuing_repair",
+        qualification: "Choosing restraint is possible now; whether a later chance to listen occurs belongs to an uncertain situation.",
+        compactLimit: "Restraint is not proof of completed repair.",
+        counterexample: "Not pressing for dialogue may respect privacy, yet doing nothing publicly can leave the interruption unaddressed."
       }
     ]}
 };
