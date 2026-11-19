@@ -83,6 +83,9 @@ function advance(scenario, state, choiceId) {
       preconditions: {phase: "after_opening"}, ...structuredClone(state.observation)
     });
     state.phase = "reconsider";
+    // Source-authored question reflects the chosen action without attributing a motive.
+    // Scenarios without this optional map preserve their established question contract.
+    state.reconsiderationQuestion = scenario.reconsiderationQuestions?.[choice.id] ?? scenario.reconsiderationQuestion;
     state.options = structuredClone(scenario.followUps[choice.id]);
   } else {
     state.secondAction = choice;
