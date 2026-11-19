@@ -110,9 +110,13 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
   assert.equal(await page.locator(".b27-social-message").count(),1);
   assert.equal(await page.locator(".b27-social-private").count(),0);
-  assert.match(await page.locator(".b27-social-facts").innerText(),
-   first==="request"?/Not sent yet/:/Sent/);
-  assert.match(await page.locator(".b27-social-event").innerText(),/READ STATUS AND REASON UNKNOWN/);
+  assert.equal(await page.locator(".b27-social-facts").count(),0,
+   "No pre-choice dashboard may label the intended philosophical conclusion");
+  assert.match(await page.locator(".b27-social-event").innerText(),
+   /AFTER THE FIRST MESSAGE[\\s\\S]*READ STATUS UNKNOWN/);
+  assert.equal(await page.locator(".b27-social-reconsider").count(),1);
+  assert.doesNotMatch(await page.locator(".b27-social-reconsider").innerText(),
+   /acknowledgment (?:sent|not sent)|further repair may|their response|external control/i);
   await capture(page,"M2-"+first+"-"+second+"-reconsider",".b27-play");
   assert.match(await page.locator(".b27-choice-question").innerText(),/What am I asking the other person.s reply to prove/);
   assert.equal(await control(page,"branch").count(),2);
@@ -138,7 +142,17 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   const privateFollowUp=["correct","leave_request","prepare_question"].includes(second);
   assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
   assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
-  if(privateFollowUp)assert.match(await page.locator(".b27-social-private").innerText(),/NOT SENT/);
+  const eventAfterSecond=await page.locator(".b27-social-event").innerText();
+  assert.equal(eventAfterSecond.includes("Message delivered. Later, no reply has arrived."),true,
+   "Independent observation must remain attached to the first message only");
+  if(privateFollowUp){
+   assert.match(await page.locator(".b27-social-private").innerText(),/NOT SENT/);
+  }else{
+   assert.match(await page.locator(".b27-social-second").innerText(),
+    /Delivery and reply not observed for this second message/);
+   assert.doesNotMatch(await page.locator(".b27-social-second").innerText(),
+    /no reply (yet|has arrived)|delivered/i);
+  }
   await capture(page,"M2-"+first+"-"+second+"-action",".b27-play");
   assert.equal((await state(page)).game.phase,"complete");
   if(first==="request"&&second==="name_harm"){
@@ -161,7 +175,11 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    "SECOND MESSAGE · SENT",
    "Full and saved result must distinguish a sent message from a private act");
   assert.match(await page.locator(".b27-result-external").innerText(),
-   /INDEPENDENT STORY EVENT/);
+   /INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE/);
+  const resultSecond=await page.locator(".b27-result-followup").innerText();
+  assert.match(resultSecond,privateFollowUp?
+   /Private action; not sent to the recipient/:/Second message: sent; delivery and reply not observed/);
+  assert.doesNotMatch(resultSecond,/no reply (yet|has arrived)/i);
   await capture(page,"M2-"+first+"-"+second+"-insight",".b27-result");
   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
   assert.equal((await state(page)).quoteLikeCount,0);
@@ -186,6 +204,8 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    "SECOND MESSAGE · SENT",
    "A reopened saved encounter must retain second-action media from saved fullMeaning");
   assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
+  assert.match(await page.locator(".b27-result-external").innerText(),/AFTER FIRST MESSAGE/);
+  assert.match(await page.locator(".b27-result-followup").innerText(),/Second message: sent; delivery and reply not observed/);
   assert.equal(await page.locator(".b27-result-philosophy p").innerText(),result.compact.sections[1].text);
   await capture(page,"06-reopened",".b27-result");
   await control(page,"world").click();
