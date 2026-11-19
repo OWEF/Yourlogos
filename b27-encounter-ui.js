@@ -347,7 +347,12 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
    '<small>AFTER THE FIRST MESSAGE</small>'+
    '<p class="b27-observation">'+e(observedStatus)+'</p>'+
    '<small>READ STATUS UNKNOWN</small>'+separateNotice+'</div>':"";
- const afterSecond=second?second.medium==="message"?
+ const afterSecond=second?second.medium==="public_statement"?
+  '<section class="b27-social-public b27-social-second b27-r3-group-post" role="note" aria-label="Your completed public group post">'+
+   '<strong>GROUP THREAD · YOUR POST</strong>'+
+   '<blockquote>'+e(second.literal)+'</blockquote>'+
+   '<small>Posted in this fictional thread · Others\' reactions not observed</small></section>':
+  second.medium==="message"?
   '<section class="b27-social-message b27-social-second b27-r3-sent" aria-label="Your second sent message">'+
    '<blockquote>'+e(second.literal)+'</blockquote>'+
    '<small>Sent · Delivery and reply not observed for this second message</small></section>':
@@ -454,12 +459,13 @@ function resultHtml(enc){
  const secondKind=secondMedium==="message"?"SECOND MESSAGE · SENT":
   secondMedium==="private_note"?"PRIVATE NOTE · NOT SENT":
   secondMedium==="commitment"?"PRIVATE DECISION · NOT SENT":
-  secondMedium==="public_statement"?"SECOND PUBLIC STATEMENT":"FOLLOW-UP ACTION";
+  secondMedium==="public_statement"?"GROUP POST · COMPLETED":"FOLLOW-UP ACTION";
  const originalText=transcript?'<section class="b27-transcript b27-result-trace" aria-label="Recorded fictional actions">'+
   '<h3>'+e(firstKind)+'</h3><blockquote>'+e(transcript.firstMessage)+'</blockquote>'+
   '<div class="b27-result-external"><small>INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE</small><p>'+e(transcript.event)+'</p></div>'+
   '<div class="b27-result-followup"><h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p>'+
-   (secondMedium==="message"?'<small>Second message: sent; delivery and reply not observed.</small>':
+   (secondMedium==="public_statement"?'<small>Posted in the fictional group thread; others\' responses and repair are unknown.</small>':
+    secondMedium==="message"?'<small>Second message: sent; delivery and reply not observed.</small>':
     secondMedium==="private_note"||secondMedium==="commitment"?'<small>Private action; not sent to the recipient.</small>':"")+
    '</div>'+
   '</section>':"";
