@@ -95,7 +95,7 @@ test("R4-A: source and full/compact expression gates, no invented motives or mor
     assert.equal(output.status,"ready",first.id+"/"+second.id);
     for(const [expression,min,max] of [[output.compact,40,65],[output.fullExpression,80,120]]){
       assert.equal(expression.sections.length,3);
-      const n=expression.sections.map(x=>x.text.trim().split(/\\s+/).length);
+      const n=expression.sections.map(x=>x.text.trim().split(/\s+/).length);
       assert.ok(n.reduce((a,b)=>a+b,0)>=min&&n.reduce((a,b)=>a+b,0)<=max,
         first.id+"/"+second.id+" "+JSON.stringify(n));
     }
