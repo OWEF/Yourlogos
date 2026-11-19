@@ -397,8 +397,21 @@ function resultHtml(enc){
   return '<p>Unable to display a faithful interpretation.</p>';
  const sections=v.sections,ph=v.philosopher||{};
  const transcript=enc.result.provenance?.directorTranscript;
- const originalText=transcript?'<section class="b27-transcript"><h3>What you sent</h3><blockquote>'+
-  e(transcript.firstMessage)+'</blockquote><p>'+e(transcript.event)+'</p><p>'+e(transcript.secondAction)+'</p></section>':"";
+ // The existing saved fullMeaning already retains the reviewed action medium.
+ // Read it back instead of mislabeling a private note as a sent message.
+ const chosen=enc.result.fullMeaning?.meaning?.choiceAnalysis;
+ const firstMedium=chosen?.initial?.medium,secondMedium=chosen?.response?.medium;
+ const firstKind=firstMedium==="message"?"FIRST MESSAGE · SENT":
+  firstMedium==="public_statement"?"FIRST PUBLIC STATEMENT":"FIRST ACTION";
+ const secondKind=secondMedium==="message"?"SECOND MESSAGE · SENT":
+  secondMedium==="private_note"?"PRIVATE NOTE · NOT SENT":
+  secondMedium==="commitment"?"PRIVATE DECISION · NOT SENT":
+  secondMedium==="public_statement"?"SECOND PUBLIC STATEMENT":"FOLLOW-UP ACTION";
+ const originalText=transcript?'<section class="b27-transcript b27-result-trace" aria-label="Recorded fictional actions">'+
+  '<h3>'+e(firstKind)+'</h3><blockquote>'+e(transcript.firstMessage)+'</blockquote>'+
+  '<div class="b27-result-external"><small>INDEPENDENT STORY EVENT</small><p>'+e(transcript.event)+'</p></div>'+
+  '<div class="b27-result-followup"><h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p></div>'+
+  '</section>':"";
  const fullText=transcript?arr(enc.result.fullExpression?.sections).map(section=>
   '<p>'+e(section.text)+'</p>').join(""):'<p>'+e(v.deepening?.sourceQualification||"")+'</p>';
  return '<div class="b27-result" aria-label="Three-part philosophical discovery">'+
