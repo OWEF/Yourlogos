@@ -10,7 +10,7 @@ const evidenceIds = [...new Set(["source:central", "source:boundary",
   "scenario:fictional", ...scenario.warrantIds])];
 
 const record = {
-  version: "cz155-author-proof/3", recordId: scenario.id, quoteId: source.quoteId,
+  version: "cz155-author-proof/4", recordId: scenario.id, quoteId: source.quoteId,
   status: "development_provisional", publicationAllowed: false,
   developmentOnly: false, exposeInApp: false,
   familyId: "decision_cards", title: "After the laughter",
@@ -26,7 +26,7 @@ const record = {
   readerAgency: "Choose what to send, then decide whether to post, promise, prepare, invite or refrain.",
   reflectionQuestion: scenario.reconsiderationQuestion,
   narrativeBridge: {
-    version: "cz152-narrative/3",
+    version: "cz152-narrative/4",
     bridgeFromSource: "When another person's response is uncertain, what can you still choose in the next situation?",
     situationHook: "Yesterday you laughed as a friend presented an idea to the group. They went quiet. You do not know what they thought. You open a message.",
     playPrompt: "Choose the message you will send.",
@@ -96,7 +96,7 @@ const record = {
         counterexample: "Preparation may avoid an unsolicited public post, but the discussion could move on before the plan is used."
       },
       {
-        factsAll: ["invitationAfterAcknowledgment"],
+        factsAll: ["optionalDialogueOffered"],
         inference: "You sent an invitation; dialogue and public repair remain undecided.",
         question: "Can a private opening matter without becoming a demand for an answer?",
         strategy: "boundary_awareness", warrantId: "dialogue_opening",
@@ -105,7 +105,7 @@ const record = {
         counterexample: "An optional invitation can respect space, but the group may still revisit an interrupted idea without any private conversation."
       },
       {
-        factsAll: ["deferredAcknowledgment"],
+        factsAll: ["choseRestraint"],
         inference: "You withheld another message and planned to listen; listening has not happened.",
         question: "When does restraint leave space, and when might it defer public accountability?",
         strategy: "choice_awareness", warrantId: "continuing_repair",
