@@ -127,8 +127,17 @@ function validateRecord(r){
    if(!Object.hasOwn(start.facts,rule.fact)||
       (rule.oppositeFact!==undefined&&(!Object.hasOwn(start.facts,rule.oppositeFact)||rule.fact===rule.oppositeFact)))return false;
   }catch{return false;}
-  const validJudgment=x=>obj(x)&&txt(x.inference,5)&&
-   txt(x.question,9)&&r.affordances.includes(x.strategy);
+  const validJudgment=x=>{
+   if(!obj(x)||!txt(x.inference,5)||!txt(x.question,9)||
+      !r.affordances.includes(x.strategy))return false;
+   const qualificationFields=["qualification","counterexample","compactLimit"];
+   const hasAny=qualificationFields.some(key=>Object.hasOwn(x,key));
+   // An optional path-specific package must be complete: no mixing a
+   // selected counterexample with an unrelated global source fallback.
+   return !hasAny||(
+    txt(x.qualification,6)&&txt(x.counterexample,6)&&txt(x.compactLimit,4)&&
+    qualificationFields.every(key=>x[key].length<=650));
+  };
   if(![rule.established,rule.outstanding].every(validJudgment))return false;
   const refinements=rule.refinements??[];
   if(!Array.isArray(refinements)||refinements.length>8)return false;
@@ -1022,9 +1031,13 @@ export function expressUniversal(packet,emotion,source){
  const questions=unique(reflectionQuestions(packet,emotion,source));
  const thesis=sentence(source.sourceThesis);
  const attributedThesis=formatSourceAttribution(author,thesis);
- const limit=sentence(source.compactLimit);
- const uncertainty=sentence(source.epistemicLimits);
- const counter=sentence(source.counterexample);
+ const judgment=packet.meaning.choiceAnalysis.operation==="directed_decision"?
+  packet.meaning.choiceAnalysis.judgment:null;
+ const customQualifier=["qualification","counterexample","compactLimit"]
+  .every(key=>typeof judgment?.[key]==="string");
+ const limit=sentence(customQualifier?judgment.compactLimit:source.compactLimit);
+ const uncertainty=sentence(customQualifier?judgment.qualification:source.epistemicLimits);
+ const counter=sentence(customQualifier?judgment.counterexample:source.counterexample);
  const sourceClaim=sentence(source.evidenceClaim);
  const firsts=unique([chosen,choiceBrief,minimalChoice(packet,source),
   briefResponseChoice(packet,source)]);
@@ -1053,7 +1066,14 @@ export function expressUniversal(packet,emotion,source){
   choiceBrief+" This fictional choice does not establish what you actually do.",
   chosen,choiceBrief
  ]);
- const fullSeconds=unique([
+ const fullSeconds=customQualifier?unique([
+  // A warrant-specific qualification AND its counterexample are mandatory.
+  // Do not silently fall back to generic source boilerplate to hit 120 words.
+  attributedThesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
+  thesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
+  attributedThesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+counter,
+  thesis+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+counter
+ ]):unique([
   attributedThesis+" "+sentence(interpretation.long)+" "+uncertainty+" "+counter,
   attributedThesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
   attributedThesis+" "+sentence(interpretation.short)+" "+uncertainty,
@@ -1088,5 +1108,5 @@ export function expressUniversal(packet,emotion,source){
     sourceUrl:source.source.referenceUrl},
    deepening:{fullSections:full.parts,sourceQualification:full.parts[1].text,
     originalSourceUrl:source.source.referenceUrl,
-    necessaryLimits:source.epistemicLimits},publicationAllowed:false}};
+    necessaryLimits:customQualifier?judgment.qualification:source.epistemicLimits},publicationAllowed:false}};
 }
