@@ -28,6 +28,9 @@ test("Six server-computed endings retain both the agency boundary and the open d
       "Full output must preserve the selected counterexample instead of generic fallback");
     assert.ok(fullExpression.sections[1].text.includes(judgment.qualification),
       "Full output must preserve the path-specific philosophical qualification");
+    assert.doesNotMatch(fullExpression.sections[1].text,
+      /Even a considerate action cannot guarantee another person's agreement/i,
+      "No route may substitute generic source counterexample for its warranted contrast");
     assert.ok(compact.sections[1].text.includes(judgment.compactLimit),
       "Compact output must preserve its path-specific limitation");
     if(second.id!=="name_harm")
@@ -81,10 +84,15 @@ test("Six server-computed endings retain both the agency boundary and the open d
         "**Emotion Strategy:** "+item.emotion.strategy,
         "",
         "**Source warrant IDs:** "+item.reasoning.meaning.choiceAnalysis.sourceWarrantIds.join(", "),
+        "**Exact source-warrant descriptions:**",
+        ...item.reasoning.meaning.choiceAnalysis.sourceWarrantIds.map(id=>
+          "- "+id+": "+scenario.source.warrants[id]),
         "**Path-specific qualification:** "+item.reasoning.meaning.choiceAnalysis.judgment.qualification,
         "**Path-specific counterexample:** "+item.reasoning.meaning.choiceAnalysis.judgment.counterexample,
         "**Compact limitation:** "+item.reasoning.meaning.choiceAnalysis.judgment.compactLimit,
         "**Full section word counts:** "+item.full.sectionWordCounts.join(" / "),
+        "**Compact section word counts:** "+item.compact.sections.map(x=>
+          x.text.trim().split(/\s+/).filter(Boolean).length).join(" / "),
         "",
         "**Refinement basis:** "+JSON.stringify(item.reasoning.meaning.choiceAnalysis.refinementBasis),
         "",
