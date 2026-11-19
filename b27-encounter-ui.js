@@ -320,41 +320,36 @@ function socialDirectorHtml(state,presentation){
   '<div><strong>'+e(presentation.correspondent||"A friend")+'</strong><small>FICTIONAL CONVERSATION</small></div></header>';
  const firstMessage=first?
   '<section class="b27-transcript b27-social-message" aria-label="Your first sent message">'+
-   '<h3>YOUR MESSAGE</h3><blockquote>'+e(first.literal)+'</blockquote>'+
-   '<small>Sent · no read receipt</small></section>':
+   '<h3>FIRST MESSAGE · YOU SENT</h3><blockquote>'+e(first.literal)+'</blockquote></section>':
   '<div class="b27-social-unsent">Nothing has been sent yet.</div>';
+ // The independently observed delivery/no-reply belongs ONLY to the first
+ // message. Never project it onto an unobserved follow-up or infer reading.
  const event=observed?
-  '<div class="b27-social-event" role="note" aria-label="Independent story development">'+
+  '<div class="b27-social-event" role="note" aria-label="Independent observation after first message">'+
+   '<small>AFTER THE FIRST MESSAGE</small>'+
    '<p id="b27-observation" class="b27-observation">'+e(observed.text)+'</p>'+
-   '<small>READ STATUS AND REASON UNKNOWN</small></div>':"";
+   '<small>READ STATUS UNKNOWN</small></div>':"";
  const secondMessage=second?
   second.medium==="message"?
    '<section class="b27-social-message b27-social-second" aria-label="Your second sent message">'+
-    '<h3>YOUR FOLLOW-UP</h3><blockquote>'+e(second.literal)+'</blockquote>'+
-    '<small>Sent · subsequent delivery and reply unknown</small></section>':
+    '<h3>SECOND MESSAGE · YOU SENT</h3><blockquote>'+e(second.literal)+'</blockquote>'+
+    '<small>Delivery and reply not observed for this second message</small></section>':
    '<aside class="b27-social-private" role="note" aria-label="Private action, not sent">'+
     '<h3>'+e(second.medium==="private_note"?"PRIVATE NOTE · NOT SENT":"PRIVATE DECISION · NOT SENT")+'</h3>'+
     '<p>'+e(second.literal)+'</p></aside>':"";
- const thread='<section class="b27-social-thread" aria-label="Conversation and observed development">'+
+ const thread='<section class="b27-social-thread" aria-label="Conversation and independently observed development">'+
   header+'<div class="b27-social-chatlog">'+firstMessage+event+secondMessage+'</div></section>';
- const actSummary=observed?
-  '<section class="b27-social-facts" aria-label="What is established and what remains unknown">'+
-   '<div><small>YOUR ACKNOWLEDGMENT</small><strong>'+e(state.facts.acknowledged?
-    "Sent":"Not sent yet")+'</strong></div>'+
-   '<div><small>YOUR NEXT RESPONSIBILITY</small><strong>'+e(state.facts.acknowledged?
-    "Further repair may still matter":"Acknowledgment remains possible")+'</strong></div>'+
-   '<div><small>THEIR RESPONSE</small><strong>Unknown · no reply yet</strong></div>'+
-  '</section>':"";
+ // No pre-choice acknowledgment/responsibility dashboard: it would tell the
+ // participant the philosophical answer before they have reasoned about it.
  const turning=phase==="reconsider"?
   '<section class="b27-social-reconsider" aria-label="Pause and reconsider">'+
-   '<p class="b27-social-step">RECONSIDER · BEFORE YOU CHOOSE AGAIN</p>'+
-   '<p class="b27-social-lead">'+e(presentation.reconsiderationLead||"What could you still choose?")+'</p>'+
+   '<p class="b27-social-step">RECONSIDER · CHOOSE YOUR NEXT ACTION</p>'+
    '<h3 class="b27-choice-question" tabindex="-1" aria-describedby="b27-observation">'+
     e(state.reconsiderationQuestion)+'</h3></section>':
   phase==="opening"?
   '<h3 class="b27-choice-question" tabindex="-1">'+e(choicePrompt)+'</h3>':
   '<div class="b27-social-complete" role="status">'+
-   e(presentation.completionLead||"Your second action is recorded. Their response is still unknown.")+
+   e(presentation.completionLead||"The second action is recorded. Only the first message has an observed delivery status.")+
    '</div>';
  const cards=state.options.map(choice=>
   b("branch",
@@ -366,7 +361,7 @@ function socialDirectorHtml(state,presentation){
    'data-value="'+e(choice.id)+'"')
   ).join("");
  return '<div class="b27-social" data-director-presentation="message_thread">'+
-  thread+actSummary+turning+
+  thread+turning+
   (cards?'<div class="b27-cards b27-message-choices b27-social-options" role="group" aria-label="'+
    e(choicePrompt)+'">'+cards+'</div>':"")+
   '</div>';
@@ -409,8 +404,11 @@ function resultHtml(enc){
   secondMedium==="public_statement"?"SECOND PUBLIC STATEMENT":"FOLLOW-UP ACTION";
  const originalText=transcript?'<section class="b27-transcript b27-result-trace" aria-label="Recorded fictional actions">'+
   '<h3>'+e(firstKind)+'</h3><blockquote>'+e(transcript.firstMessage)+'</blockquote>'+
-  '<div class="b27-result-external"><small>INDEPENDENT STORY EVENT</small><p>'+e(transcript.event)+'</p></div>'+
-  '<div class="b27-result-followup"><h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p></div>'+
+  '<div class="b27-result-external"><small>INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE</small><p>'+e(transcript.event)+'</p></div>'+
+  '<div class="b27-result-followup"><h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p>'+
+   (secondMedium==="message"?'<small>Second message: sent; delivery and reply not observed.</small>':
+    secondMedium==="private_note"||secondMedium==="commitment"?'<small>Private action; not sent to the recipient.</small>':"")+
+   '</div>'+
   '</section>':"";
  const fullText=transcript?arr(enc.result.fullExpression?.sections).map(section=>
   '<p>'+e(section.text)+'</p>').join(""):'<p>'+e(v.deepening?.sourceQualification||"")+'</p>';
@@ -486,7 +484,9 @@ export function renderB27Encounter(enc,quote){
  return start+'<div class="b27-main b27-play">'+
   '<div class="b27-play-thread" aria-hidden="true"><i></i><span>✦</span><i></i></div>'+
   '<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
-  '<p class="b27-play-prompt">'+e(r.director&&bridge.directorPresentation?.kind==="message_thread"?(phase==="opening"?bridge.directorPresentation.openingPrompt:phase==="reconsider"?"A moment to reconsider.": "Your second action is now part of this story."):r.director?enc.game.opening:bridge.playPrompt)+'</p>'+
+  (r.director&&bridge.directorPresentation?.kind==="message_thread"&&phase!=="opening"?"":
+   '<p class="b27-play-prompt">'+e(r.director&&bridge.directorPresentation?.kind==="message_thread"?
+    bridge.directorPresentation.openingPrompt:r.director?enc.game.opening:bridge.playPrompt)+'</p>')+
   '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'" data-b27-phase="'+e(phase)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+
    (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
