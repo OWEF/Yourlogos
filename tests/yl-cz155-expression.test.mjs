@@ -44,7 +44,7 @@ test("Six server-computed endings retain both the agency boundary and the open d
       assert.equal(expression.sections.length,3);
       const words=expression.sections.flatMap(section=>section.text.trim().split(/\s+/)).length;
       assert.ok(words>=min&&words<=max);
-      assert.match(expression.sections[1].text,/public|responsib|reconcil|reply|response|meeting/i);
+      assert.match(expression.sections[1].text,/Epictetus|judgment|chosen acts|power/i);
     }
     assert.equal(emotion.inferredActualEmotion,false);
     assert.equal(result.publicationAllowed,false);
