@@ -316,76 +316,102 @@ function fullAuthoredDetail(record){
    projections of the SAME deterministic Director; no new event or fact.
    The independently authored event is revealed after a sent-message beat,
    and the reviewed follow-up choices remain the only participant actions. */
-function socialDirectorHtml(state,presentation,presentationBeat){
+/* CZ-153 M2 R3: the source-authored message_thread is a real messenger
+   presentation over the ONE existing Director. Draft selection, waiting and
+   revisiting prior context are UI-only; canonical history changes only when
+   the participant explicitly Sends or chooses one of the two warranted acts. */
+function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId){
  const first=state.firstAction,second=state.secondAction,observed=state.observation;
  const beat=state.phase==="opening"?"choose":state.phase==="complete"?"complete":
-  ["send","wait","reconsider"].includes(presentationBeat)?presentationBeat:"reconsider";
- const showEvent=!!observed&&beat!=="choose"&&beat!=="send";
- const displayFirst=!!first&&beat!=="choose";
- const isReflection=beat==="reconsider";
- const header=beat==="reconsider"?"":'<header class="b27-chat-contact">'+
-  '<span class="b27-chat-avatar" aria-hidden="true">◇</span>'+
-  '<div><strong>'+e(presentation.correspondent||"Your friend")+'</strong>'+
-  '<small>AN IMAGINED CONVERSATION</small></div></header>';
- const firstMessage=displayFirst?
-  '<section class="b27-transcript b27-social-message b27-chat-outgoing" aria-label="Your first sent message">'+
-   '<h3>YOU SENT</h3><blockquote>'+e(first.literal)+'</blockquote>'+
-   '<small>Sent</small></section>':"";
- const event=showEvent?
-  '<div class="b27-social-event b27-chat-observation" role="note" aria-label="Independent observation after the first message">'+
+  ["send","wait","reconsider"].includes(presentationBeat)?presentationBeat:"wait";
+ const contact=e(presentation.correspondent||"Your friend");
+ const contactBar='<header class="b27-r3-contact">'+
+  '<span class="b27-r3-avatar" aria-hidden="true">◇</span>'+
+  '<div><strong>'+contact+'</strong><small>FICTIONAL CONVERSATION</small></div>'+
+  '</header>';
+ const sent=first?
+  '<section class="b27-transcript b27-social-message b27-r3-sent" aria-label="Your first sent message">'+
+   '<blockquote>'+e(first.literal)+'</blockquote><small>Sent</small></section>':"";
+ // This independently authored fact describes the FIRST message only.
+ const event=observed?
+  '<div class="b27-social-event b27-r3-event" id="b27-observation" role="note" aria-label="Independent story observation after the first message">'+
    '<small>AFTER THE FIRST MESSAGE</small>'+
-   '<p id="b27-observation" class="b27-observation">'+e(observed.text)+'</p>'+
+   '<p class="b27-observation">'+e(observed.text)+'</p>'+
    '<small>READ STATUS UNKNOWN</small></div>':"";
- const secondMessage=second?second.medium==="message"?
-   '<section class="b27-social-message b27-social-second b27-chat-outgoing" aria-label="Your second sent message">'+
-    '<h3>YOU SENT ANOTHER MESSAGE</h3><blockquote>'+e(second.literal)+'</blockquote>'+
-    '<small>Sent · Delivery and reply not observed for this second message</small></section>':
-   '<aside class="b27-social-private b27-chat-private" role="note" aria-label="Private action, not sent">'+
-    '<h3>'+e(second.medium==="private_note"?"PRIVATE NOTE · NOT SENT":"PRIVATE DECISION · NOT SENT")+'</h3>'+
-    '<p>'+e(second.literal)+'</p></aside>':"";
- const options=state.options.map(choice=>b("branch",
-  '<strong>'+e(choice.label)+'</strong>'+
-  '<span class="b27-social-choice-literal">'+e(choice.literal)+'</span>'+
-  '<small>'+e(choice.medium==="message"?"SEND THIS MESSAGE":
-   choice.medium==="private_note"?"WRITE PRIVATELY":"KEEP THIS DECISION PRIVATE")+'</small>',
-  "b27-choice b27-social-option b27-chat-action",
-  'data-value="'+e(choice.id)+'"')).join("");
- const optionsGroup=options?'<div class="b27-cards b27-message-choices b27-social-options b27-chat-actions" role="group" aria-label="'+
-  e(beat==="choose"?"Choose a message to send":state.reconsiderationQuestion)+'">'+options+'</div>':"";
- const choose=beat==="choose"?
-  '<div class="b27-chat-thread b27-chat-choose">'+
-   '<p class="b27-chat-context">Yesterday you laughed at your friend’s idea in front of the group. They went quiet.</p>'+
-   '<p class="b27-chat-empty">Your next message will appear here.</p></div>'+
-  '<section class="b27-chat-composer" aria-label="Choose what you will send">'+
-   '<h3 class="b27-choice-question" tabindex="-1">What would you say?</h3>'+optionsGroup+'</section>':"";
+ const afterSecond=second?second.medium==="message"?
+  '<section class="b27-social-message b27-social-second b27-r3-sent" aria-label="Your second sent message">'+
+   '<blockquote>'+e(second.literal)+'</blockquote>'+
+   '<small>Sent · Delivery and reply not observed for this second message</small></section>':
+  '<aside class="b27-social-private b27-r3-note" role="note" aria-label="Private follow-up, not sent">'+
+   '<h3>'+e(second.medium==="private_note"?"PRIVATE NOTE · NOT SENT":"PRIVATE DECISION · NOT SENT")+'</h3>'+
+   '<p>'+e(second.literal)+'</p></aside>':"";
+ const drafts=state.options.map(choice=>{
+  const active=choice.id===selectedDraftId;
+  return b("social-pick",
+   '<span class="b27-r3-select-circle" aria-hidden="true">'+(active?"✓":"")+'</span>'+
+   '<span class="b27-r3-draft-copy">'+e(choice.literal)+'</span>',
+   "b27-r3-draft"+(active?" is-selected":""),
+   'data-value="'+e(choice.id)+'" aria-pressed="'+(active?"true":"false")+'"');
+ }).join("");
+ const choosing=beat==="choose"?
+  '<main class="b27-r3-conversation b27-r3-choose" aria-label="Conversation context">'+
+   '<p class="b27-r3-context">Yesterday you laughed at your friend’s idea in front of the group. They went quiet.</p>'+
+   '<span class="b27-r3-thread-quiet" aria-hidden="true">◇</span></main>'+
+  '<section class="b27-r3-composer" aria-label="Choose what to send">'+
+   '<h3 class="b27-r3-composer-title">Choose your words</h3>'+
+   '<div class="b27-r3-drafts" role="group" aria-label="Three possible messages">'+drafts+'</div>'+
+   '<div class="b27-r3-sendbar">'+
+    '<p class="b27-r3-send-caption" aria-live="polite">'+
+     (selectedDraftId?"Your message is ready.":"Select a message to compose.")+'</p>'+
+    b("social-send",'<span>Send</span><span aria-hidden="true">↗</span>',
+     "b27-r3-send-button",selectedDraftId?'':'disabled aria-disabled="true"')+
+   '</div></section>':"";
  const sending=beat==="send"?
-  '<div class="b27-chat-thread b27-chat-sending">'+firstMessage+
-   '<div class="b27-chat-sending-cue" role="status" aria-live="polite">Your words have been sent.</div></div>':"";
+  '<main class="b27-r3-conversation b27-r3-sending" aria-label="Message sent">'+
+   sent+'<p class="b27-r3-sent-cue" role="status">Message sent</p></main>':"";
  const waiting=beat==="wait"?
-  '<div class="b27-chat-thread b27-chat-waiting">'+firstMessage+
-   '<div class="b27-chat-horizon" aria-hidden="true"><i></i></div>'+
-   event+'<p class="b27-chat-wait-caption">There is no more to observe yet.</p></div>':"";
+  '<main class="b27-r3-conversation b27-r3-waiting" aria-label="An unanswered message">'+
+   sent+'<div class="b27-r3-quiet-horizon" aria-hidden="true"><i></i></div>'+
+   event+'<p class="b27-r3-quiet-line">The conversation is quiet.</p>'+
+   '<div class="b27-r3-wait-control">'+
+    b("social-reflect",'<span>Consider your next step</span><span aria-hidden="true">↗</span>',
+     "b27-r3-continue")+'</div>'+
+   '</main>':"";
+ const followUps=state.options.map(choice=>b("branch",
+  '<span class="b27-r3-action-symbol" aria-hidden="true">↗</span>'+
+  '<span class="b27-r3-action-copy"><strong>'+e(choice.label)+'</strong>'+
+   '<span class="b27-social-choice-literal">'+e(choice.literal)+'</span></span>',
+  "b27-choice b27-social-option b27-r3-followup",
+  'data-value="'+e(choice.id)+'"')).join("");
+ const recollect=first?
+  '<details class="b27-r3-recall"><summary>Earlier in the conversation</summary>'+
+   '<div class="b27-r3-recall-body">'+sent+event+'</div></details>':"";
  const reflection=beat==="reconsider"?
-  '<div class="b27-chat-reflection">'+
-   '<div class="b27-chat-horizon" aria-hidden="true"><i></i></div>'+
-   '<div class="b27-chat-retained" aria-label="Your first message and the independent event">'+
-    firstMessage+event+'</div>'+
-   '<section class="b27-social-reconsider" aria-label="Pause and reconsider">'+
-    '<p class="b27-social-step">RECONSIDER</p>'+
-    '<h3 class="b27-choice-question" tabindex="-1" aria-describedby="b27-observation">'+
+  '<main class="b27-r3-reflection" aria-label="Reconsideration">'+
+   '<div class="b27-r3-reflection-horizon" aria-hidden="true"><i></i></div>'+
+   '<section class="b27-social-reconsider">'+
+    '<p class="b27-r3-reflection-eyebrow">A MOMENT TO RECONSIDER</p>'+
+    '<h3 class="b27-choice-question" tabindex="-1" aria-describedby="b27-r3-reflection-cue">'+
      e(state.reconsiderationQuestion)+'</h3>'+
-   '</section>'+optionsGroup+'</div>':"";
- const finished=beat==="complete"?
-  '<div class="b27-chat-thread b27-chat-complete">'+firstMessage+event+secondMessage+
-   '<div class="b27-chat-ending" role="status">'+
-    '<p>YOUR NEXT ACTION IS RECORDED</p>'+
-    '<strong>What did this moment ask of you?</strong>'+
-    '<small>Only the first message has an observed delivery status.</small></div></div>':"";
- return '<div class="b27-social b27-chat-sim" data-director-presentation="message_thread"'+
-  ' data-social-beat="'+e(beat)+'">'+header+choose+sending+waiting+reflection+finished+'</div>';
+    '<p id="b27-r3-reflection-cue" class="b27-r3-reflection-cue">What might you do next?</p>'+
+   '</section>'+
+   '<div class="b27-social-options b27-message-choices b27-r3-followups" role="group" aria-label="'+e(state.reconsiderationQuestion)+'">'+
+    followUps+'</div>'+recollect+
+   '</main>':"";
+ const complete=beat==="complete"?
+  '<main class="b27-r3-conversation b27-r3-finished" aria-label="Your actions so far">'+
+   sent+event+afterSecond+
+   '<div class="b27-r3-ending" role="status">'+
+    '<span>YOUR NEXT ACTION IS RECORDED</span>'+
+    '<h3>The story does not tell you their response.</h3>'+
+    '<p>Only the first message has an observed delivery status.</p></div>'+
+   '</main>':"";
+ return '<div class="b27-social b27-r3-simulator" data-director-presentation="message_thread"'+
+  ' data-social-beat="'+e(beat)+'">'+
+  (beat==="reconsider"?"":contactBar)+choosing+sending+waiting+reflection+complete+'</div>';
 }
-function directedDecisionHtml(state,presentation,presentationBeat){
- if(presentation?.kind==="message_thread")return socialDirectorHtml(state,presentation,presentationBeat);
+function directedDecisionHtml(state,presentation,presentationBeat,selectedDraftId){
+ if(presentation?.kind==="message_thread")return socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId);
  const first=state.firstAction;
  const transcript=first?'<section class="b27-transcript"><h3>What you sent</h3><blockquote>'+e(first.literal)+'</blockquote></section>':"";
  const observation=state.observation?'<p id="b27-observation" class="b27-observation">'+e(state.observation.text)+'</p>':"";
@@ -398,7 +424,7 @@ function directedDecisionHtml(state,presentation,presentationBeat){
   (cards?'<div class="b27-cards b27-message-choices" role="group" aria-label="'+e(prompt)+'">'+cards+'</div>':"");
 }
 function gameHtml(enc){
- if(enc.record.director)return directedDecisionHtml(enc.game,enc.record.narrativeBridge?.directorPresentation,enc.presentationBeat);
+ if(enc.record.director)return directedDecisionHtml(enc.game,enc.record.narrativeBridge?.directorPresentation,enc.presentationBeat,enc.selectedDraftId);
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
  if(enc.record.familyId==="tap_pair")return pairHtml(enc);
  if(enc.record.familyId==="decision_cards")return decisionHtml(enc);
