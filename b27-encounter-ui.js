@@ -312,62 +312,80 @@ function fullAuthoredDetail(record){
 /* M2: an authored visual mode over the SAME derived Director state.
    Only source-authored presentation data selects it; no author-name or
    source-ID branching, new state machine or independent persistence. */
-function socialDirectorHtml(state,presentation){
+/* M2 R2: genuine four-beat Social Simulator UI. These are presentational
+   projections of the SAME deterministic Director; no new event or fact.
+   The independently authored event is revealed after a sent-message beat,
+   and the reviewed follow-up choices remain the only participant actions. */
+function socialDirectorHtml(state,presentation,presentationBeat){
  const first=state.firstAction,second=state.secondAction,observed=state.observation;
- const phase=state.phase,choicePrompt=phase==="opening"?"What will you send?":
-  phase==="reconsider"?state.reconsiderationQuestion:"";
- const header='<header class="b27-social-contact"><span class="b27-social-avatar" aria-hidden="true">◇</span>'+
-  '<div><strong>'+e(presentation.correspondent||"A friend")+'</strong><small>FICTIONAL CONVERSATION</small></div></header>';
- const firstMessage=first?
-  '<section class="b27-transcript b27-social-message" aria-label="Your first sent message">'+
-   '<h3>FIRST MESSAGE · YOU SENT</h3><blockquote>'+e(first.literal)+'</blockquote></section>':
-  '<div class="b27-social-unsent">Nothing has been sent yet.</div>';
- // The independently observed delivery/no-reply belongs ONLY to the first
- // message. Never project it onto an unobserved follow-up or infer reading.
- const event=observed?
-  '<div class="b27-social-event" role="note" aria-label="Independent observation after first message">'+
+ const beat=state.phase==="opening"?"choose":state.phase==="complete"?"complete":
+  ["send","wait","reconsider"].includes(presentationBeat)?presentationBeat:"reconsider";
+ const showEvent=!!observed&&beat!=="choose"&&beat!=="send";
+ const displayFirst=!!first&&beat!=="choose";
+ const isReflection=beat==="reconsider";
+ const header=beat==="reconsider"?"":'<header class="b27-chat-contact">'+
+  '<span class="b27-chat-avatar" aria-hidden="true">◇</span>'+
+  '<div><strong>'+e(presentation.correspondent||"Your friend")+'</strong>'+
+  '<small>AN IMAGINED CONVERSATION</small></div></header>';
+ const firstMessage=displayFirst?
+  '<section class="b27-transcript b27-social-message b27-chat-outgoing" aria-label="Your first sent message">'+
+   '<h3>YOU SENT</h3><blockquote>'+e(first.literal)+'</blockquote>'+
+   '<small>Sent</small></section>':"";
+ const event=showEvent?
+  '<div class="b27-social-event b27-chat-observation" role="note" aria-label="Independent observation after the first message">'+
    '<small>AFTER THE FIRST MESSAGE</small>'+
    '<p id="b27-observation" class="b27-observation">'+e(observed.text)+'</p>'+
    '<small>READ STATUS UNKNOWN</small></div>':"";
- const secondMessage=second?
-  second.medium==="message"?
-   '<section class="b27-social-message b27-social-second" aria-label="Your second sent message">'+
-    '<h3>SECOND MESSAGE · YOU SENT</h3><blockquote>'+e(second.literal)+'</blockquote>'+
-    '<small>Delivery and reply not observed for this second message</small></section>':
-   '<aside class="b27-social-private" role="note" aria-label="Private action, not sent">'+
+ const secondMessage=second?second.medium==="message"?
+   '<section class="b27-social-message b27-social-second b27-chat-outgoing" aria-label="Your second sent message">'+
+    '<h3>YOU SENT ANOTHER MESSAGE</h3><blockquote>'+e(second.literal)+'</blockquote>'+
+    '<small>Sent · delivery and reply not observed for this second message</small></section>':
+   '<aside class="b27-social-private b27-chat-private" role="note" aria-label="Private action, not sent">'+
     '<h3>'+e(second.medium==="private_note"?"PRIVATE NOTE · NOT SENT":"PRIVATE DECISION · NOT SENT")+'</h3>'+
     '<p>'+e(second.literal)+'</p></aside>':"";
- const thread='<section class="b27-social-thread" aria-label="Conversation and independently observed development">'+
-  header+'<div class="b27-social-chatlog">'+firstMessage+event+secondMessage+'</div></section>';
- // No pre-choice acknowledgment/responsibility dashboard: it would tell the
- // participant the philosophical answer before they have reasoned about it.
- const turning=phase==="reconsider"?
-  '<section class="b27-social-reconsider" aria-label="Pause and reconsider">'+
-   '<p class="b27-social-step">RECONSIDER · CHOOSE YOUR NEXT ACTION</p>'+
-   '<h3 class="b27-choice-question" tabindex="-1" aria-describedby="b27-observation">'+
-    e(state.reconsiderationQuestion)+'</h3></section>':
-  phase==="opening"?
-  '<h3 class="b27-choice-question" tabindex="-1">'+e(choicePrompt)+'</h3>':
-  '<div class="b27-social-complete" role="status">'+
-   e(presentation.completionLead||"The second action is recorded. Only the first message has an observed delivery status.")+
-   '</div>';
- const cards=state.options.map(choice=>
-  b("branch",
-   '<strong>'+e(choice.label)+'</strong>'+
-   '<span class="b27-social-choice-literal">'+e(choice.literal)+'</span>'+
-   '<small>'+e(choice.medium==="message"?"SEND AS MESSAGE":
-    choice.medium==="private_note"?"WRITE PRIVATE NOTE":"KEEP AS PRIVATE DECISION")+'</small>',
-   "b27-choice b27-social-option",
-   'data-value="'+e(choice.id)+'"')
-  ).join("");
- return '<div class="b27-social" data-director-presentation="message_thread">'+
-  thread+turning+
-  (cards?'<div class="b27-cards b27-message-choices b27-social-options" role="group" aria-label="'+
-   e(choicePrompt)+'">'+cards+'</div>':"")+
-  '</div>';
+ const options=state.options.map(choice=>b("branch",
+  '<strong>'+e(choice.label)+'</strong>'+
+  '<span class="b27-social-choice-literal">'+e(choice.literal)+'</span>'+
+  '<small>'+e(choice.medium==="message"?"SEND THIS MESSAGE":
+   choice.medium==="private_note"?"WRITE PRIVATELY":"KEEP THIS DECISION PRIVATE")+'</small>',
+  "b27-choice b27-social-option b27-chat-action",
+  'data-value="'+e(choice.id)+'"')).join("");
+ const optionsGroup=options?'<div class="b27-cards b27-message-choices b27-social-options b27-chat-actions" role="group" aria-label="'+
+  e(beat==="choose"?"Choose a message to send":state.reconsiderationQuestion)+'">'+options+'</div>':"";
+ const choose=beat==="choose"?
+  '<div class="b27-chat-thread b27-chat-choose">'+
+   '<p class="b27-chat-context">Yesterday you laughed at your friend’s idea in front of the group. They went quiet.</p>'+
+   '<p class="b27-chat-empty">Your next message will appear here.</p></div>'+
+  '<section class="b27-chat-composer" aria-label="Choose what you will send">'+
+   '<h3 class="b27-choice-question" tabindex="-1">What would you say?</h3>'+optionsGroup+'</section>':"";
+ const sending=beat==="send"?
+  '<div class="b27-chat-thread b27-chat-sending">'+firstMessage+
+   '<div class="b27-chat-sending-cue" role="status" aria-live="polite">Your words have been sent.</div></div>':"";
+ const waiting=beat==="wait"?
+  '<div class="b27-chat-thread b27-chat-waiting">'+firstMessage+
+   '<div class="b27-chat-horizon" aria-hidden="true"><i></i></div>'+
+   event+'<p class="b27-chat-wait-caption">There is no more to observe yet.</p></div>':"";
+ const reflection=beat==="reconsider"?
+  '<div class="b27-chat-reflection">'+
+   '<div class="b27-chat-horizon" aria-hidden="true"><i></i></div>'+
+   '<div class="b27-chat-retained" aria-label="Your first message and the independent event">'+
+    firstMessage+event+'</div>'+
+   '<section class="b27-social-reconsider" aria-label="Pause and reconsider">'+
+    '<p class="b27-social-step">RECONSIDER</p>'+
+    '<h3 class="b27-choice-question" tabindex="-1" aria-describedby="b27-observation">'+
+     e(state.reconsiderationQuestion)+'</h3>'+
+   '</section>'+optionsGroup+'</div>':"";
+ const finished=beat==="complete"?
+  '<div class="b27-chat-thread b27-chat-complete">'+firstMessage+event+secondMessage+
+   '<div class="b27-chat-ending" role="status">'+
+    '<p>YOUR NEXT ACTION IS RECORDED</p>'+
+    '<strong>What did this moment ask of you?</strong>'+
+    '<small>Only the first message has an observed delivery status.</small></div></div>':"";
+ return '<div class="b27-social b27-chat-sim" data-director-presentation="message_thread"'+
+  ' data-social-beat="'+e(beat)+'">'+header+choose+sending+waiting+reflection+finished+'</div>';
 }
-function directedDecisionHtml(state,presentation){
- if(presentation?.kind==="message_thread")return socialDirectorHtml(state,presentation);
+function directedDecisionHtml(state,presentation,presentationBeat){
+ if(presentation?.kind==="message_thread")return socialDirectorHtml(state,presentation,presentationBeat);
  const first=state.firstAction;
  const transcript=first?'<section class="b27-transcript"><h3>What you sent</h3><blockquote>'+e(first.literal)+'</blockquote></section>':"";
  const observation=state.observation?'<p id="b27-observation" class="b27-observation">'+e(state.observation.text)+'</p>':"";
@@ -380,7 +398,7 @@ function directedDecisionHtml(state,presentation){
   (cards?'<div class="b27-cards b27-message-choices" role="group" aria-label="'+e(prompt)+'">'+cards+'</div>':"");
 }
 function gameHtml(enc){
- if(enc.record.director)return directedDecisionHtml(enc.game,enc.record.narrativeBridge?.directorPresentation);
+ if(enc.record.director)return directedDecisionHtml(enc.game,enc.record.narrativeBridge?.directorPresentation,enc.presentationBeat);
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
  if(enc.record.familyId==="tap_pair")return pairHtml(enc);
  if(enc.record.familyId==="decision_cards")return decisionHtml(enc);
@@ -483,11 +501,11 @@ export function renderB27Encounter(enc,quote){
   enc.game?.response===null?"response":"finished";
  return start+'<div class="b27-main b27-play">'+
   '<div class="b27-play-thread" aria-hidden="true"><i></i><span>✦</span><i></i></div>'+
-  '<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
-  (r.director&&bridge.directorPresentation?.kind==="message_thread"&&phase!=="opening"?"":
+  (r.director&&bridge.directorPresentation?.kind==="message_thread"?"":'<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>')+
+  (r.director&&bridge.directorPresentation?.kind==="message_thread"?"":
    '<p class="b27-play-prompt">'+e(r.director&&bridge.directorPresentation?.kind==="message_thread"?
     bridge.directorPresentation.openingPrompt:r.director?enc.game.opening:bridge.playPrompt)+'</p>')+
-  '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'" data-b27-phase="'+e(phase)+'">'+gameHtml(enc)+'</div>'+
+  '<div class="b27-game" role="region" tabindex="-1" aria-label="'+e(r.director&&bridge.directorPresentation?.kind==="message_thread"?"Fictional social encounter":"Interactive philosophical game")+'" data-b27-family="'+e(r.familyId)+'" data-b27-phase="'+e(phase)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+
    (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
    ((enc.game?.touched||enc.game?.revision>0)?b("reset","Reset","b27-secondary"):"")+
