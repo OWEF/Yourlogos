@@ -17,8 +17,20 @@ test("Every projected transition can be replayed by the server and an actual My 
  for(const first of record.director.openingChoices){
   for(const second of record.director.followUps[first.id]){
    const sheet={stage:"play",beat:"play",quote,record,game:initializeB27Game(record),history:[]};
-   assert.match(renderB27Encounter(sheet),/What will you send/);
+   assert.match(renderB27Encounter(sheet),/What would you say/);
+   assert.match(renderB27Encounter(sheet),/data-social-beat="choose"/);
+   assert.doesNotMatch(renderB27Encounter(sheet),/YOUR TURN.*Decision Cards/);
    assert.equal(adjustB27Game(sheet,"branch",first.id),true);
+   // Beat presentations never alter the replayed Director's source facts.
+   const send=renderB27Encounter({...sheet,presentationBeat:"send"});
+   const waiting=renderB27Encounter({...sheet,presentationBeat:"wait"});
+   assert.match(send,/data-social-beat="send"/);
+   assert.doesNotMatch(send,/id="b27-observation"/,
+    "No independent event is displayed before the send beat completes");
+   assert.match(waiting,/data-social-beat="wait"/);
+   assert.match(waiting,/Message delivered/);
+   assert.doesNotMatch(waiting,/b27-social-reconsider/,
+    "Wait and Reconsider are different visible scenes");
    const middle=renderB27Encounter(sheet);
    assert.match(middle,/Message delivered/);
    assert.match(middle,/What am I asking the other person/);
