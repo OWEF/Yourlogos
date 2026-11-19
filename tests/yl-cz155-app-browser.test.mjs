@@ -562,6 +562,11 @@ test("M2 R2: four staged beats are separately renderable in real mobile app with
    assert.equal(original,"choose");
    assert.equal(await page.locator('[data-b27="branch"]').count(),3);
    assert.equal(await page.getByText("Decision Cards",{exact:true}).count(),0);
+   const candidateStyles=await page.locator(".b27-chat-actions .b27-choice").evaluateAll(
+    els=>els.map(el=>[getComputedStyle(el).borderColor,
+     getComputedStyle(el).backgroundImage].join("|")));
+   assert.equal(new Set(candidateStyles).size,1,
+    width+"px choice previews must have neutral identical resting styles; no touch-hover moral cue");
    await capture(page,"M2R2-"+width+"-01-choose",".b27-play");
 
    // Freeze only presentation timers after navigating the real app, so the
@@ -584,6 +589,11 @@ test("M2 R2: four staged beats are separately renderable in real mobile app with
    await page.clock.runFor(400);
    await page.locator('.b27-chat-sim[data-social-beat="reconsider"]').waitFor();
    assert.equal(await page.locator(".b27-social-options .b27-choice").count(),2);
+   const followupStyles=await page.locator(".b27-social-options .b27-choice").evaluateAll(
+    els=>els.map(el=>[getComputedStyle(el).borderColor,
+     getComputedStyle(el).backgroundImage].join("|")));
+   assert.equal(new Set(followupStyles).size,1,
+    width+"px neither follow-up may be styled as the correct moral answer");
    assert.match(await page.locator(".b27-choice-question").innerText(),
     /What am I asking the other person.s reply to prove/);
    await capture(page,"M2R2-"+width+"-04-reconsider",".b27-play");
