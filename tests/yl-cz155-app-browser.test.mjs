@@ -161,7 +161,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   }
   const next=page.locator('[data-b27="branch"][data-value="'+second+'"]');
   await next.press("Enter");
-  await page.locator('.b27-chat-sim[data-social-beat="complete"]').waitFor();
+  await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
   const privateFollowUp=["correct","leave_request","prepare_question"].includes(second);
   assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
   assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
