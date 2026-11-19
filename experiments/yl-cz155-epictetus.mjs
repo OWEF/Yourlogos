@@ -132,7 +132,7 @@ const followUpActions = [
     literal:"Yesterday I laughed before the idea was finished. That interrupted the discussion. I want to hear the full idea when we revisit it.",
     recap:"You posted an acknowledgment in the group thread now.",
     effect:"group_acknowledgment_posted",
-    establishes:["acknowledgedWithoutExplanation","publicAcknowledgmentCompleted"],
+    establishes:["acknowledged","acknowledgedWithoutExplanation","publicAcknowledgmentCompleted"],
     commitment:"A group acknowledgment has been posted in the fictional thread. No reply, forgiveness, discussion or repair is established.",
     possibleRationale:"Posting addresses a public interruption but may draw further attention to a sensitive exchange.",
     explicitMotive:null,warrantIds:["own_conduct","public_post","continuing_repair"],
