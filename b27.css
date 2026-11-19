@@ -1255,6 +1255,45 @@ body:has(.b27-shell) .discover-cover{
  overflow-wrap:anywhere}
 .b27-r3-group-post small{display:block;color:#c9c7b6;
  font:400 10px/1.45 "DM Sans",system-ui,sans-serif}
+/* R4 R2: public thread is a different conversation surface, not a second
+   bubble under the private friend's contact header. */
+.b27-r4-context-switch{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ margin:15px 0 0;padding:11px 4px 6px;
+ border-top:1px dashed rgba(207,189,147,.4);
+ color:#c5c7b7;font:600 9px/1.4 "DM Sans",system-ui,sans-serif;
+ letter-spacing:.08em;text-align:center}
+.b27-r4-context-switch strong{color:#dfcfac;font:700 9px/1.4 "DM Sans",system-ui,sans-serif}
+.b27-r4-context-switch span:nth-child(2){font-size:17px;color:#a1b6a1}
+.b27-r4-group-thread{
+ display:flex;flex-direction:column;gap:10px;
+ padding:12px;min-width:0;
+ border:2px solid rgba(147,168,148,.58);border-radius:16px;
+ background:linear-gradient(145deg,rgba(23,36,32,.98),rgba(16,23,20,.95));
+ box-shadow:0 10px 28px rgba(0,0,0,.16)}
+.b27-r4-group-heading{
+ display:flex;align-items:center;gap:11px;padding:0 0 11px;
+ border-bottom:1px solid rgba(157,180,160,.35)}
+.b27-r4-group-heading>span{display:grid;place-items:center;
+ width:35px;height:35px;border-radius:11px;
+ background:rgba(149,171,150,.16);color:#d6e5d3;font-size:19px}
+.b27-r4-group-heading strong{display:block;color:#d7e4d2;font:700 11px/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.08em}
+.b27-r4-group-heading small{display:block;color:#b7c3b5;font:400 11px/1.45 "DM Sans",system-ui,sans-serif}
+.b27-r4-group-thread .b27-r3-group-post{
+ margin:0!important;align-self:stretch;border:1px solid rgba(178,196,177,.4);
+ background:rgba(14,24,20,.72)}
+.b27-r4-no-reaction{
+ margin:0!important;color:#bec6bb!important;
+ font:400 11px/1.5 "DM Sans",system-ui,sans-serif!important}
+.b27-r4-result-context{padding:12px;border-radius:10px;
+ background:rgba(31,44,36,.65);border:1px solid rgba(157,185,159,.5)}
+.b27-r4-result-context>strong{display:block;color:#d8e5d3;
+ font:700 10px/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.06em}
+@media(max-width:359px){
+ .b27-r4-context-switch{font-size:8px;letter-spacing:0}
+ .b27-r4-context-switch strong{font-size:8px}
+ .b27-r4-group-thread{padding:10px}
+}
 .b27-r4-notice{
  width:min(100%,390px);margin:11px auto 0;padding:10px 12px;
  text-align:left;border:1px solid rgba(174,190,153,.34);border-radius:11px;
