@@ -34,7 +34,11 @@ test("Every projected transition can be replayed by the server and an actual My 
    assert.equal(saveFinishedEncounter(store,result,io).status,"saved");
    const [saved]=validatedSavedEncounters(io.readback().savedEncounters);
    const reread=renderB27Encounter({stage:"result",quote,result:saved,saved:true,record:null});
-   assert.match(reread,/What you sent/);
+   assert.match(reread,/FIRST MESSAGE · SENT/);
+   assert.match(reread,/INDEPENDENT STORY EVENT/);
+   assert.match(reread,second.medium==="message"?/SECOND MESSAGE · SENT/:
+    second.medium==="private_note"?/PRIVATE NOTE · NOT SENT/:/PRIVATE DECISION · NOT SENT/,
+    "Saved readback must not treat a private note or decision as a sent message");
    assert.match(reread,/Go deeper/);
    assert.ok(reread.includes('data-b27="replay"'));
    assert.ok(!reread.includes('data-b27="revise"'));
