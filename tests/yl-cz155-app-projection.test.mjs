@@ -31,6 +31,8 @@ test("Every projected transition can be replayed by the server and an actual My 
     "No independent event is displayed before the send beat completes");
    assert.match(waiting,/data-social-beat="wait"/);
    assert.match(waiting,/Message delivered/);
+   assert.match(waiting,/SEPARATE GROUP NOTICE/);
+   assert.match(waiting,/tomorrow/i);
    assert.doesNotMatch(waiting,/b27-social-reconsider/,
     "Wait and Reconsider are different visible scenes");
    const middle=renderB27Encounter({...sheet,presentationBeat:"reconsider"});
