@@ -166,6 +166,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   await next.press("Enter");
   await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
   const privateFollowUp=["correct","leave_request","prepare_question"].includes(second);
+  const completedPublicPost=second==="unqualified";
   assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
   assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
   const eventAfterSecond=await page.locator(".b27-social-event").textContent();
@@ -175,6 +176,12 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    "The separate group development must remain available after the second action");
   if(privateFollowUp){
    assert.match(await page.locator(".b27-social-private").innerText(),/NOT SENT/);
+  }else if(completedPublicPost){
+   assert.equal(await page.locator(".b27-r3-group-post").count(),1);
+   assert.match(await page.locator(".b27-r3-group-post").innerText(),/GROUP THREAD · YOUR POST/);
+   assert.match(await page.locator(".b27-r3-group-post").innerText(),/Posted in this fictional thread/);
+   assert.doesNotMatch(await page.locator(".b27-r3-group-post").innerText(),/forgave|approved|successful repair/i);
+   await capture(page,"M2R4R1-present-public-agency",".b27-play");
   }else{
    assert.match(await page.locator(".b27-social-second").innerText(),
     /Delivery and reply not observed for this second message/);
@@ -198,15 +205,18 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(result.provenance.directorTranscript.firstMessage,literal);
   await page.locator(".b27-result").waitFor();
   const followupCaption=await page.locator(".b27-result-followup h3").innerText();
-  assert.equal(followupCaption,privateFollowUp?
+  assert.equal(followupCaption,completedPublicPost?"GROUP POST · COMPLETED":privateFollowUp?
    second==="leave_request"?"PRIVATE DECISION · NOT SENT":"PRIVATE NOTE · NOT SENT":
    "SECOND MESSAGE · SENT",
    "Full and saved result must distinguish a sent message from a private act");
   assert.match(await page.locator(".b27-result-external").innerText(),
    /INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE/);
   const resultSecond=await page.locator(".b27-result-followup").innerText();
-  assert.match(resultSecond,privateFollowUp?
-   /Private action; not sent to the recipient/:/Second message: sent; delivery and reply not observed/);
+  assert.match(resultSecond,completedPublicPost?
+   /Posted in the fictional group thread; others' responses and repair are unknown/:
+   privateFollowUp?/Private action; not sent to the recipient/:
+   /Second message: sent; delivery and reply not observed/);
+  if(completedPublicPost)await capture(page,"M2R4R1-present-public-agency-insight",".b27-result");
   assert.doesNotMatch(resultSecond,/no reply (yet|has arrived)/i);
   await capture(page,"M2-"+first+"-"+second+"-insight",".b27-result");
   assert.equal(await page.locator(".b27-transcript blockquote").textContent(),literal);
@@ -656,7 +666,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
  }
 });
 
-test("M2 R3: unedited real-browser video shows human-paced sending, enduring silence, and explicit reflection",async t=>{
+test("M2 R4 R1: unedited real-browser video of completed present public agency",async t=>{
  const base=await launchApp(t,true);
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
   {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
@@ -678,7 +688,7 @@ test("M2 R3: unedited real-browser video shows human-paced sending, enduring sil
   await waitForDirector(page,"opening");
   await control(page,"begin").click();
   await page.waitForTimeout(500);
-  await page.locator('[data-b27="social-pick"][data-value="request"]').click();
+  await page.locator('[data-b27="social-pick"][data-value="explain"]').click();
   assert.equal((await state(page)).game.phase,"opening");
   await page.waitForTimeout(550);
   await control(page,"social-send").click();
@@ -689,7 +699,7 @@ test("M2 R3: unedited real-browser video shows human-paced sending, enduring sil
   await control(page,"social-reflect").click();
   await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
   await page.waitForTimeout(650);
-  await page.locator('[data-b27="branch"][data-value="name_harm"]').click();
+  await page.locator('[data-b27="branch"][data-value="unqualified"]').click();
   await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
   const resultResponse=page.waitForResponse(r=>r.url().endsWith("/api/b27/run"));
   await control(page,"complete").click();
@@ -699,7 +709,7 @@ test("M2 R3: unedited real-browser video shows human-paced sending, enduring sil
   assert.match(await page.locator(".b27-result-philosophy").innerText(),/Epictetus|power|control|reply/i);
  }finally{
   await context.close();
-  if(videoDir&&page.video())await page.video().saveAs(evidence+"/M2R3-real-browser-unaltered-end-to-end.webm");
+  if(videoDir&&page.video())await page.video().saveAs(evidence+"/M2R4R1-real-browser-completed-public-agency-unaltered.webm");
  }
 });
 
