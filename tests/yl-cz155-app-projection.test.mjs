@@ -17,7 +17,9 @@ test("Every projected transition can be replayed by the server and an actual My 
  for(const first of record.director.openingChoices){
   for(const second of record.director.followUps[first.id]){
    const sheet={stage:"play",beat:"play",quote,record,game:initializeB27Game(record),history:[]};
-   assert.match(renderB27Encounter(sheet),/What would you say/);
+   assert.match(renderB27Encounter(sheet),/Choose your words/);
+   assert.match(renderB27Encounter({...sheet,selectedDraftId:first.id}),/aria-pressed="true"/);
+   assert.match(renderB27Encounter(sheet),/data-b27="social-send"[^>]*disabled/);
    assert.match(renderB27Encounter(sheet),/data-social-beat="choose"/);
    assert.doesNotMatch(renderB27Encounter(sheet),/YOUR TURN.*Decision Cards/);
    assert.equal(adjustB27Game(sheet,"branch",first.id),true);
