@@ -5,6 +5,7 @@
  * source contract. There is no open-ended LLM inference or personal profiling.
  */
 import {fingerprintB25} from "./yl-b25-authored-scenarios.mjs";
+import {derivePath} from "./yl-cz155-director.mjs";
 import {validateCZ152Bridge} from "./yl-cz152-bridge.mjs";
 export const CZ147_ENGINE_VERSION="universal-three-engine/1.0.0";
 const FAMILIES=["balance_move","decision_cards","tap_pair","flip_reveal"];
@@ -34,7 +35,7 @@ const OPERATION_FAMILIES=Object.freeze({
  source_relation:"tap_pair",
  retrospective_limits:["decision_cards","flip_reveal"],
  independent_judgment:"decision_cards",incremental_beginning:"decision_cards",
- practical_commitment:"decision_cards",
+ practical_commitment:"decision_cards",agency_vs_external_reply:"decision_cards",
  event_acceptance:"flip_reveal",anticipated_vs_actual:"flip_reveal",
  non_retaliation:"flip_reveal"
 });
@@ -109,6 +110,49 @@ function validateRecord(r){
    new Set(rel.edges.map(e=>key(e.aId,e.bId))).size===rel.edges.length&&
    rel.minimumPairs===1&&rel.maximumPairs===2&&rel.noCorrectMatch===true;
  }
+ if(r.director || r.decisionWarrant || r.philosophicalOperation.kind==="agency_vs_external_reply"){
+  const scenario=r.director,rule=r.decisionWarrant;
+  if(r.familyId!=="decision_cards"||!scenario||!rule||
+     !["agency_vs_external_reply","independent_judgment"].includes(r.philosophicalOperation.kind)||
+     scenario.source?.quoteId!==r.quoteId||scenario.source.text!==r.source.text||
+     scenario.source.work!==r.source.work||scenario.source.author!==r.source.author||
+     scenario.source.referenceUrl!==r.source.referenceUrl||scenario.operation!==r.philosophicalOperation.kind||
+     scenario.sourceFingerprint!==fingerprintB25(scenario.source)||
+     scenario.scenarioFingerprint!==fingerprintB25(Object.fromEntries(
+       Object.entries(scenario).filter(([key])=>key!=="scenarioFingerprint")))||
+     !Object.hasOwn(scenario.source.warrants??{},rule.warrantId)||
+     !txt(rule.fact,1)||!txt(rule.warrantId,1)||!r.evidenceIds.includes(rule.warrantId))return false;
+  try{
+   const start=derivePath(scenario,[]);
+   if(!Object.hasOwn(start.facts,rule.fact)||
+      (rule.oppositeFact!==undefined&&(!Object.hasOwn(start.facts,rule.oppositeFact)||rule.fact===rule.oppositeFact)))return false;
+  }catch{return false;}
+  const validJudgment=x=>obj(x)&&txt(x.inference,5)&&
+   txt(x.question,9)&&r.affordances.includes(x.strategy);
+  if(![rule.established,rule.outstanding].every(validJudgment))return false;
+  const refinements=rule.refinements??[];
+  if(!Array.isArray(refinements)||refinements.length>8)return false;
+  const matches=(refinement,facts)=>refinement.factsAll?
+   refinement.factsAll.every(key=>facts[key]===true):
+   refinement.factsAny.some(key=>facts[key]===true);
+  if(!refinements.every(x=>{
+    const all=Array.isArray(x?.factsAll),any=Array.isArray(x?.factsAny);
+    const selected=all?x.factsAll:x?.factsAny;
+    return validJudgment(x)&&all!==any&&size(selected,1,6)&&
+      new Set(selected).size===selected.length&&
+      selected.every(key=>scenario.selfFacts.includes(key))&&
+      txt(x.warrantId,1)&&Object.hasOwn(scenario.source.warrants,x.warrantId)&&
+      r.evidenceIds.includes(x.warrantId);
+  }))return false;
+  // Contradictory or overlapping rules would make source authoring order
+  // silently choose the answer; check every reachable fictional decision.
+  for(const first of scenario.openingChoices)
+   for(const second of scenario.followUps[first.id]){
+    const state=derivePath(scenario,[first.id,second.id]);
+    if(refinements.filter(x=>matches(x,state.facts)).length>1)return false;
+  }
+  return true;
+ }
  const timeline=r.timeline;
  return size(timeline,4,24)&&timeline.every(t=>obj(t)&&
   ["startId","sceneId","responseId"].every(k=>txt(t[k],1))&&
@@ -151,6 +195,7 @@ export function makeUniversalRegistry(records,quotes){
    sourceRecordId:r.recordId,sourceVersionHash:r.sourceFingerprint,
    selectedFamilyId:r.familyId,
    record:{key:r.recordId,title:r.title,intro:r.intro,
+    ...(r.director?{director:structuredClone(r.director)}:{}),
     familyId:r.familyId,quote:r.source.text,author:r.source.author,
     narrativeBridge:r.narrativeBridge??null,
     work:r.source.work,sourceUrl:r.source.referenceUrl,
@@ -187,6 +232,10 @@ export function makeUniversalRegistry(records,quotes){
    fullExpression,fullMeaning:packet,emotion,compact,
    uncertainty:r.epistemicLimits,
    provenance:{sourceWarrantIds:r.evidenceIds,sourceFingerprint:r.sourceFingerprint,
+    ...(r.director?{directorTranscript:{
+     firstMessage:packet.meaning.choiceAnalysis.initial.literal,
+     event:packet.meaning.choiceAnalysis.development.text,
+     secondAction:packet.meaning.choiceAnalysis.response.literal}}:{}),
     hypotheticalScenario:true,authoredEventCausedByReader:false,
     unchosenFutureKnown:false,realFeelingInferred:false,
     prohibitedInferences:r.prohibitedInferences},
@@ -275,6 +324,34 @@ export function reasonUniversal(source,input){
   feature=analysis.hasBoundary?"boundary":"relation";
   claim=picked.map(e=>e.claim).join(" ");
   route=picked;
+ }else if(source.director){
+  if(!exact(input,["path"])||!size(input.path,3,3)||input.path.some(x=>typeof x!=="string"))
+   return deny("path_invalid","Two actions and their observed event are required");
+  const [first,event,second]=input.path;
+  if(event!==source.director.externalEvent.id)
+   return deny("unexpected_event","The selected actions cannot assign the external event");
+  let state;
+  try{state=derivePath(source.director,[first,second]);}
+  catch{return deny("unsupported_path","The actions do not form a permitted sequence");}
+  const rule=source.decisionWarrant,value=state.facts[rule.fact];
+  if(state.phase!=="complete"||typeof value!=="boolean"||
+     (rule.oppositeFact!==undefined&&state.facts[rule.oppositeFact]!==!value))
+   return deny("warrant_evidence_missing","The required fictional fact is unresolved");
+  const matches=(rule.refinements??[]).filter(x=>x.factsAll?
+   x.factsAll.every(key=>state.facts[key]===true):
+   x.factsAny.some(key=>state.facts[key]===true));
+  if(matches.length>1)return deny("warrant_ambiguous","Multiple contradictory source-authorized distinctions apply");
+  const refinement=matches[0]??null;
+  const judgment=refinement??(value?rule.established:rule.outstanding);
+  canonical=state.canonicalInput;
+  feature=value?"established_fact":"outstanding_fact";
+  claim=judgment.inference;
+  analysis={operation:"directed_decision",initial:state.firstAction,response:state.secondAction,
+   development:state.observation,history:state.history,establishedFacts:state.facts,
+   testedFact:rule.fact,judgment,
+   refinementBasis:refinement?(refinement.factsAll??refinement.factsAny):null,
+   sourceWarrantIds:[...new Set([rule.warrantId,refinement?.warrantId].filter(Boolean))],
+   outcomeGuaranteed:false,alternativeFutureObserved:false};
  }else{
   if(source.familyId==="decision_cards"){
    if(!exact(input,["path"])||!size(input.path,3,3)||input.path.some(x=>typeof x!=="string"))
@@ -357,7 +434,8 @@ export function emotionUniversal(packet,source){
  const kind=packet.meaning.philosophicalOperation?.kind;
  // Philosophical operation can override a family-derived rhetorical default.
  // A source still has to explicitly authorize each strategy.
- const priority=kind==="event_acceptance"?
+ const directed=packet.meaning.choiceAnalysis.operation==="directed_decision";
+ const priority=directed?[packet.meaning.choiceAnalysis.judgment.strategy]:kind==="event_acceptance"?
   ["uncertainty_awareness","boundary_awareness","choice_awareness"]:
   kind==="retrospective_limits"?
    ["uncertainty_awareness","revisability","choice_awareness"]:
@@ -410,6 +488,8 @@ export function emotionUniversal(packet,source){
 }
 function describeChoice(packet,source,brief=false){
  const choice=packet.canonical_choice;
+ const a=packet.meaning.choiceAnalysis;
+ if(a.operation==="directed_decision")return a.initial.recap+" "+a.response.recap;
  if(source.familyId==="balance_move"){
   const a=source.allocation;
   const chosen=choice.amounts.map((n,i)=>({n,label:a.choices[i].label}));
@@ -440,6 +520,7 @@ function describeChoice(packet,source,brief=false){
   "”, then chose "+next+".";
 }
 function minimalChoice(packet,source){
+ if(source.director)return describeChoice(packet,source,true);
  if(source.familyId==="decision_cards"||source.familyId==="flip_reveal"){
   const t=packet.meaning.selectedTimeline;
   return "You chose "+quoteAction(t.startLabel)+
@@ -448,6 +529,7 @@ function minimalChoice(packet,source){
  return describeChoice(packet,source,true);
 }
 function briefResponseChoice(packet,source){
+ if(source.director)return describeChoice(packet,source,true);
  if(source.familyId==="decision_cards"||source.familyId==="flip_reveal"){
   const t=packet.meaning.selectedTimeline;
   return "After one imagined development, you chose "+quoteAction(t.responseLabel)+".";
@@ -471,6 +553,11 @@ const startRole=(source,id)=>source.philosophicalOperation.startRoles?.find(x=>x
 function philosophicalReading(packet,emotion,source){
  const op=source.philosophicalOperation,a=packet.meaning.choiceAnalysis;
  const bound=["source:central","scenario:fictional","source:boundary"];
+ if(a.operation==="directed_decision"){
+  const inference=packet.meaning.selectedClaim;
+  return {long:inference+" "+sentence(source.evidenceClaim),short:inference,minimal:inference,
+   evidence:a.sourceWarrantIds};
+ }
  if(a.operation==="finite_resource"){
   const high=a.primary.map(x=>x.label).join(" and ");
   const low=a.constrained.map(x=>x.label).join(" and ");
@@ -641,6 +728,7 @@ function philosophicalReading(packet,emotion,source){
 }
 function philosophicalQuestions(packet,emotion,source){
  const op=source.philosophicalOperation,a=packet.meaning.choiceAnalysis;
+ if(a.operation==="directed_decision")return [a.judgment.question];
  if(a.operation==="finite_resource"){
   const high=a.primary.map(x=>x.label).join(" and ");
   if(op.kind==="deliberate_use"){
@@ -958,6 +1046,7 @@ export function expressUniversal(packet,emotion,source){
   "No concise source-grounded path-sensitive rendering satisfies the 40–65-word policy",
   "needs_editorial_review");
  const fullFirsts=unique([
+  ...(source.director?[chosen+" "+packet.meaning.choiceAnalysis.development.text]:[]),
   chosen+" "+humanTensionSentence(source.humanTension),
   choiceBrief+" "+humanTensionSentence(source.humanTension),
   chosen+" This fictional choice does not establish what you actually do.",

@@ -3,6 +3,7 @@ import {readFile,stat} from "node:fs/promises";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {handleDiscoverAI, discoverAIEnabled} from "./discover-ai-server.mjs";
+import {resolvePilot, runPilot} from "./experiments/yl-cz155-pilot.mjs";
 import {resolveQuoteB27, runQuoteEncounterB27} from "./experiments/yl-b27-route.mjs";
 
 const ROOT=path.dirname(fileURLToPath(import.meta.url));
@@ -105,8 +106,10 @@ createServer(async(req,res)=>{
         body+=chunk;
       }
       const request=JSON.parse(body);
-      const result=pathname==="/api/b27/start"?
-        resolveQuoteB27(request):runQuoteEncounterB27(request);
+      const starting=pathname==="/api/b27/start";
+      const review=process.env.YOURLOGOS_CZ155_PREVIEW==="1" && request?.cz155Preview===true;
+      const pilot=review?(starting?resolvePilot(request):runPilot(request)):null;
+      const result=pilot??(starting?resolveQuoteB27(request):runQuoteEncounterB27(request));
       const status=result.status==="blocked"?422:
         result.status==="needs_editorial_review"?422:200;
       res.writeHead(status,{"Content-Type":"application/json; charset=utf-8",

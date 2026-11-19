@@ -284,6 +284,16 @@ body:has(.b27-shell) .discover-cover{
 
 
 
+/* CZ-153 M1: The persistent account launcher is mounted at body level and
+   occupies the same mobile corner as the Encounter close action. Keep the
+   launcher in place for all normal routes, but remove it from hit-testing and
+   accessibility exposure while this specific B2.7 dialog is present.
+   Visibility is restored immediately on closing the Encounter. */
+body:has(.b27-shell) > .settings-launch{
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+
 /* CZ-150 — Waterline continuity. Presentation-only; host tokens are authoritative.
    No standalone green palette, score, leaderboard, or fabricated engine content. */
 .b27-shell{
@@ -742,3 +752,622 @@ body:has(.b27-shell) .discover-cover{
   transition:none!important
  }
 }
+
+/* A sent message remains legible beside the independent development. */
+.b27-game .b27-message-choices{grid-template-columns:1fr}
+.b27-game .b27-message-choices .b27-choice{min-height:60px;align-items:flex-start;gap:.45rem}
+.b27-message-choices .b27-choice span,.b27-transcript,.b27-observation{line-height:1.5}
+.b27-transcript{border-left:2px solid var(--b27-gold);padding-left:.9rem}
+.b27-transcript h3{font-size:1rem}
+.b27-transcript blockquote,.b27-reading blockquote{margin:.6rem 0}
+.b27-reading>a{display:inline-flex;align-items:center;min-height:44px;color:var(--b27-gold)}
+
+
+/* CZ-155 R2 / reconsideration only. The focused decision-card outline
+   extends 3px beyond its border and the card lifts 2px on focus. Reserve
+   a full text-to-outline clearance, including at narrow phone widths.
+   No animation or touch-target changes; Waterline tokens stay untouched. */
+.b27-game[data-b27-family="decision_cards"][data-b27-phase="reconsider"] .b27-choice-question{
+  margin:8px 0 18px;
+  line-height:1.38;
+  text-wrap:pretty;
+}
+.b27-game[data-b27-family="decision_cards"][data-b27-phase="reconsider"] .b27-message-choices{
+  margin-top:0;
+}
+.b27-game[data-b27-family="decision_cards"][data-b27-phase="reconsider"] .b27-message-choices .b27-choice{
+  min-height:60px;
+  scroll-margin-block:18px;
+}
+
+
+/* CZ-153 M2 · Source-authored Social Simulator, a presentation on the existing
+   decision_cards Director. Never alter ordinary families or scenario facts. */
+.b27-game:has(.b27-social){padding:0;overflow:hidden;
+ border-color:var(--b27-line);background:rgba(12,13,12,.68)}
+.b27-social{display:grid;gap:15px;padding:clamp(12px,3.6vw,18px);min-width:0}
+.b27-social-thread{overflow:hidden;border:1px solid var(--b27-line);
+ border-radius:18px;background:linear-gradient(165deg,rgba(35,35,33,.93),rgba(14,14,14,.96))}
+.b27-social-contact{display:flex;align-items:center;gap:10px;padding:11px 13px;
+ border-bottom:1px solid var(--b27-line);background:rgba(255,255,255,.025)}
+.b27-social-avatar{display:grid;place-items:center;width:33px;height:33px;flex:0 0 33px;
+ border-radius:50%;background:rgba(196,181,154,.14);border:1px solid rgba(196,181,154,.35);
+ font:500 20px Georgia,serif;color:var(--b27-gold)}
+.b27-social-contact strong{display:block;font:600 13px/1.3 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory)}
+.b27-social-contact small{display:block;color:var(--b27-muted);
+ font:600 9px/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.12em}
+.b27-social-chatlog{display:flex;flex-direction:column;gap:12px;padding:15px 12px;
+ min-width:0}
+.b27-social-unsent{padding:22px 12px;text-align:center;color:var(--b27-muted);
+ font:400 13px/1.5 "DM Sans",system-ui,sans-serif;font-style:italic}
+.b27-game .b27-social-message{align-self:flex-end;width:fit-content;max-width:min(94%,400px);
+ border:1px solid rgba(196,181,154,.4);border-radius:17px 17px 4px 17px;
+ background:linear-gradient(145deg,rgba(196,181,154,.20),rgba(196,181,154,.07));
+ padding:12px 13px 10px;margin:0;overflow-wrap:anywhere}
+.b27-social-message h3,.b27-social-private h3{margin:0 0 6px!important;
+ font:700 10px/1.35 "DM Sans",system-ui,sans-serif!important;
+ letter-spacing:.11em;color:var(--b27-gold)!important}
+.b27-game .b27-social-message blockquote{border:0;padding:0;margin:0!important;
+ font:400 clamp(13px,3.8vw,15px)/1.5 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory)}
+.b27-social-message small{display:block;margin-top:8px;
+ color:var(--b27-muted);font:400 10px/1.35 "DM Sans",system-ui,sans-serif}
+.b27-social-event{align-self:center;width:min(100%,360px);text-align:center;
+ border-top:1px solid var(--b27-line);padding:12px 8px 2px}
+.b27-game .b27-social-event .b27-observation{margin:0!important;
+ color:var(--b27-ivory);font:500 12px/1.5 "DM Sans",system-ui,sans-serif}
+.b27-social-event small{display:block;margin-top:6px;color:var(--b27-muted);
+ font:600 9px/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.10em}
+.b27-social-private{border:1px dashed rgba(196,181,154,.5);border-radius:14px;
+ padding:12px;max-width:94%;background:rgba(196,181,154,.055)}
+.b27-social-private p{font:400 13px/1.55 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory);margin:0!important}
+.b27-social-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px}
+.b27-social-facts>div{display:flex;flex-direction:column;gap:5px;min-width:0;
+ border:1px solid var(--b27-line);background:rgba(255,255,255,.025);
+ border-radius:12px;padding:10px}
+.b27-social-facts>div:last-child{grid-column:1/-1}
+.b27-social-facts small{font:700 9px/1.4 "DM Sans",system-ui,sans-serif;
+ letter-spacing:.09em;color:var(--b27-gold)}
+.b27-social-facts strong{font:500 12px/1.5 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory);overflow-wrap:break-word}
+.b27-social-reconsider{padding:13px 12px 0;border-top:1px solid var(--b27-line)}
+.b27-social-step{margin:0 0 7px!important;color:var(--b27-gold)!important;
+ font:700 10px/1.4 "DM Sans",system-ui,sans-serif!important;letter-spacing:.12em}
+.b27-social-lead{margin:0 0 10px!important;color:var(--b27-muted)!important;
+ font:400 13px/1.52 "DM Sans",system-ui,sans-serif!important}
+.b27-game .b27-social .b27-choice-question{margin:7px 0 18px;
+ color:var(--b27-ivory);font:500 clamp(19px,5.5vw,25px)/1.26
+ "Cormorant Garamond",Georgia,serif;text-wrap:pretty}
+.b27-game .b27-social .b27-social-options{display:grid;grid-template-columns:1fr;
+ gap:9px;margin-top:0}
+.b27-game[data-b27-family="decision_cards"] .b27-social .b27-social-options .b27-choice{
+ min-height:90px;width:100%;padding:13px 14px;text-align:left;display:flex;
+ flex-direction:column;gap:6px;justify-content:center;align-items:flex-start;
+ border:1px solid rgba(196,181,154,.35);border-radius:14px;
+ background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+ box-shadow:inset 0 1px rgba(255,255,255,.08),0 3px 0 rgba(0,0,0,.26);
+ scroll-margin-block:24px}
+.b27-game[data-b27-family="decision_cards"] .b27-social .b27-choice strong{
+ color:var(--b27-ivory);font:500 clamp(17px,4.8vw,20px)/1.25
+ "Cormorant Garamond",Georgia,serif}
+.b27-social-choice-literal{color:var(--b27-ivory);font:400 12px/1.5
+ "DM Sans",system-ui,sans-serif;overflow-wrap:anywhere}
+.b27-social-option small{color:var(--b27-gold);font:700 9px/1.4
+ "DM Sans",system-ui,sans-serif;letter-spacing:.1em}
+.b27-social-complete{padding:12px;border-top:1px solid var(--b27-line);
+ color:var(--b27-ivory);font:400 13px/1.5 "DM Sans",system-ui,sans-serif}
+.b27-game.b27-action-settling .b27-social-event,
+.b27-game.b27-action-settling .b27-social-second,
+.b27-game.b27-action-settling .b27-social-private{
+ animation:b27-social-record .26s ease-out both}
+@keyframes b27-social-record{from{opacity:.65;transform:translateY(4px)}
+ to{opacity:1;transform:translateY(0)}}
+@media(max-width:359px){
+ .b27-social{gap:12px;padding:10px}
+ .b27-social-chatlog{padding:12px 10px}
+ .b27-social-facts{gap:6px}
+ .b27-social-facts>div{padding:8px}
+ .b27-social-facts strong{font-size:11px}
+ .b27-game[data-b27-family="decision_cards"] .b27-social .b27-social-options .b27-choice{padding:12px;min-height:88px}
+}
+@media(prefers-reduced-motion:reduce){
+ .b27-game.b27-action-settling .b27-social-event,
+ .b27-game.b27-action-settling .b27-social-second,
+ .b27-game.b27-action-settling .b27-social-private{animation:none!important;transform:none!important}
+}
+
+/* M2 saved and live readback: preserve sent/unsent and independent-event roles. */
+.b27-result-trace{margin-top:20px;padding:12px 13px;border:1px solid var(--b27-line);
+ border-left:2px solid var(--b27-gold);border-radius:12px;background:rgba(255,255,255,.025)}
+.b27-result-trace h3{font:700 10px/1.4 "DM Sans",system-ui,sans-serif;
+ letter-spacing:.1em;color:var(--b27-gold);margin:0 0 5px}
+.b27-result-trace blockquote{font:400 13px/1.55 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory);overflow-wrap:anywhere;margin:4px 0!important}
+.b27-result-external,.b27-result-followup{border-top:1px solid var(--b27-line);
+ margin-top:12px;padding-top:12px}
+.b27-result-external small{color:var(--b27-gold);font:700 10px/1.5
+ "DM Sans",system-ui,sans-serif;letter-spacing:.1em}
+.b27-result-trace p{margin:4px 0!important;color:var(--b27-ivory);font:400 13px/1.5
+ "DM Sans",system-ui,sans-serif;overflow-wrap:anywhere}
+
+
+/* CZ-153 M2 R1: the completed first message and independent event are
+   compact evidence, not an interpretation dashboard. Keep the literal message
+   visible, full-size and accessible so the next decision fits on mobile. */
+.b27-game[data-b27-phase="reconsider"]:has(.b27-social) .b27-social{
+ gap:10px;padding:11px 12px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-contact{
+ display:none}
+.b27-game[data-b27-phase="reconsider"] .b27-social-chatlog{
+ gap:7px;padding:9px 10px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-message{
+ max-width:100%;padding:9px 11px 8px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-message h3{
+ margin-bottom:4px!important}
+.b27-game[data-b27-phase="reconsider"] .b27-social-message blockquote{
+ font-size:14px;line-height:1.43}
+.b27-game[data-b27-phase="reconsider"] .b27-social-event{
+ width:100%;padding:7px 6px 0}
+.b27-game[data-b27-phase="reconsider"] .b27-social-event small{
+ margin:0 0 3px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-event small:last-child{
+ margin:3px 0 0}
+.b27-game[data-b27-phase="reconsider"] .b27-social-reconsider{
+ padding:9px 0 0}
+.b27-game[data-b27-phase="reconsider"] .b27-social-step{
+ margin:0 0 5px!important}
+.b27-game[data-b27-phase="reconsider"] .b27-social .b27-choice-question{
+ margin:4px 0 11px;line-height:1.28;scroll-margin-top:78px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-options{
+ gap:8px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-options .b27-choice{
+ min-height:84px;padding:11px 12px}
+.b27-game[data-b27-phase="reconsider"] .b27-social-choice-literal{
+ font-size:13px;line-height:1.4}
+.b27-result-followup>small{display:block;margin-top:7px;
+ color:var(--b27-muted);font:400 11px/1.48 "DM Sans",system-ui,sans-serif}
+@media(max-width:359px){
+ .b27-game[data-b27-phase="reconsider"]:has(.b27-social) .b27-social{
+  gap:8px;padding:9px}
+ .b27-game[data-b27-phase="reconsider"] .b27-social-chatlog{
+  padding:8px}
+ .b27-game[data-b27-phase="reconsider"] .b27-social .b27-choice-question{
+  font-size:20px}
+}
+
+
+/* CZ-153 M2 R2 · Concept 01: CHOOSE → SEND → WAIT → RECONSIDER.
+   Source-authored opt-in only. One immersive surface; no diagnostic panel
+   collection or generic Decision Cards visuals. The Director is unchanged. */
+.b27-play:has(.b27-chat-sim){padding-top:10px}
+.b27-play:has(.b27-chat-sim)>.b27-play-thread,
+.b27-play:has(.b27-chat-sim)>.b27-kicker,
+.b27-play:has(.b27-chat-sim)>.b27-play-prompt{display:none!important}
+.b27-play .b27-game:has(.b27-chat-sim){
+ margin-top:0!important;padding:0!important;min-height:0!important;
+ border:0!important;overflow:visible!important;background:none!important;
+ box-shadow:none!important;border-radius:21px}
+.b27-game .b27-chat-sim{
+ position:relative;isolation:isolate;display:flex;flex-direction:column;
+ gap:0;min-height:0;padding:0;overflow:hidden;border:1px solid rgba(201,179,139,.27);
+ border-radius:21px;background:
+  radial-gradient(ellipse at 84% 95%,rgba(128,116,79,.13),transparent 51%),
+  linear-gradient(155deg,#151613 0%,#090a09 72%,#141511 100%);
+ box-shadow:inset 0 1px rgba(255,255,255,.07),0 16px 38px rgba(0,0,0,.18);
+ color:var(--b27-ivory)}
+.b27-chat-contact{display:flex;align-items:center;gap:11px;padding:13px 16px;
+ border-bottom:1px solid var(--b27-line);min-height:62px}
+.b27-chat-avatar{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;
+ border-radius:50%;background:radial-gradient(circle at 24% 25%,#877858,#34372d);
+ color:#e0c99b;font:24px Georgia,serif}
+.b27-chat-contact strong{display:block;font:500 16px/1.25 "Cormorant Garamond",Georgia,serif;
+ color:var(--b27-ivory)}
+.b27-chat-contact small{display:block;color:var(--b27-muted);
+ font:600 9px/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.1em}
+.b27-chat-thread{display:flex;flex-direction:column;flex:1;position:relative;
+ padding:16px;min-width:0;gap:13px}
+.b27-chat-context{margin:0!important;color:var(--b27-muted)!important;
+ max-width:42ch;font:400 13px/1.58 "DM Sans",system-ui,sans-serif!important}
+.b27-chat-empty{margin:auto 0!important;align-self:center;
+ font:italic 500 16px/1.35 "Cormorant Garamond",Georgia,serif!important;
+ color:rgba(213,198,167,.63)!important;text-align:center}
+.b27-chat-sim[data-social-beat="choose"] .b27-chat-choose{min-height:105px}
+.b27-chat-composer{padding:15px 14px 16px;
+ border-top:1px solid rgba(205,180,133,.2);
+ background:linear-gradient(0deg,rgba(5,6,5,.6),transparent)}
+.b27-chat-composer .b27-choice-question{font:italic 500 25px/1.2
+ "Cormorant Garamond",Georgia,serif;color:var(--b27-ivory);margin:0 0 14px}
+.b27-game .b27-chat-actions{display:grid;grid-template-columns:1fr!important;gap:9px}
+.b27-game[data-b27-family="decision_cards"] .b27-chat-actions .b27-chat-action{
+ position:relative;display:flex;flex-direction:column;justify-content:center;
+ align-items:flex-start;text-align:left;min-height:73px;width:100%;
+ padding:11px 13px;gap:4px;background:linear-gradient(110deg,
+ rgba(146,152,116,.095),rgba(255,255,255,.018))!important;
+ border:1px solid rgba(196,181,154,.25)!important;border-radius:13px!important;
+ box-shadow:none!important;transform:none!important;
+ transition:background .15s ease,border-color .15s ease!important}
+.b27-game[data-b27-family="decision_cards"] .b27-chat-actions .b27-chat-action:hover,
+.b27-game[data-b27-family="decision_cards"] .b27-chat-actions .b27-chat-action:focus-visible{
+ background:linear-gradient(115deg,rgba(172,167,126,.2),rgba(255,255,255,.032))!important;
+ border-color:rgba(225,198,139,.7)!important;box-shadow:none!important;
+ transform:none!important}
+.b27-game[data-b27-family="decision_cards"] .b27-chat-action strong{
+ font:500 16px/1.18 "Cormorant Garamond",Georgia,serif;color:var(--b27-ivory)}
+.b27-game .b27-chat-action .b27-social-choice-literal{
+ font:400 12px/1.42 "DM Sans",system-ui,sans-serif;color:#eee7d7}
+.b27-chat-action small{font:700 9px/1.3 "DM Sans",system-ui,sans-serif;
+ letter-spacing:.10em;color:var(--b27-gold);align-self:flex-end}
+.b27-chat-sim[data-social-beat="send"],
+.b27-chat-sim[data-social-beat="wait"]{min-height:min(66dvh,510px)}
+.b27-chat-sim[data-social-beat="send"] .b27-chat-thread,
+.b27-chat-sim[data-social-beat="wait"] .b27-chat-thread{padding-top:32px}
+.b27-game .b27-chat-sim .b27-chat-outgoing{
+ align-self:flex-end;width:fit-content;max-width:90%;margin:0;padding:12px 14px;
+ border:1px solid rgba(167,180,134,.31);border-radius:16px 16px 4px 16px;
+ background:linear-gradient(125deg,rgba(100,121,83,.63),rgba(70,88,67,.65));
+ box-shadow:0 10px 22px rgba(0,0,0,.18)}
+.b27-game .b27-chat-outgoing h3{margin:0 0 5px!important;color:#efe6d3!important;
+ letter-spacing:.08em;font:700 9px/1.3 "DM Sans",system-ui,sans-serif!important}
+.b27-game .b27-chat-outgoing blockquote{
+ font:400 14px/1.48 "DM Sans",system-ui,sans-serif!important;
+ color:#f5efe3!important;margin:0!important;padding:0!important;border:0!important;
+ overflow-wrap:anywhere}
+.b27-chat-outgoing small{display:block;margin-top:7px;color:#e0d8c6;
+ font:400 10px/1.38 "DM Sans",system-ui,sans-serif}
+.b27-chat-sending-cue{align-self:flex-end;padding-right:2px;
+ color:var(--b27-gold);font:500 11px/1.45 "DM Sans",system-ui,sans-serif}
+.b27-chat-horizon{height:92px;max-height:92px;min-height:48px;position:relative;
+ overflow:hidden;flex:0 0 auto;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 86%,rgba(206,164,90,.27),transparent 38%)}
+.b27-chat-horizon:before{content:"";position:absolute;left:8%;right:8%;bottom:18%;
+ height:1px;background:linear-gradient(90deg,transparent,rgba(219,181,107,.65),transparent);
+ box-shadow:0 0 20px 3px rgba(210,170,95,.23)}
+.b27-chat-horizon i{position:absolute;bottom:7%;left:32%;width:36%;height:25px;
+ border-top:1px solid rgba(230,193,126,.37);border-radius:50%;
+ transform:perspective(80px) rotateX(65deg)}
+.b27-chat-waiting .b27-chat-horizon{margin-top:auto}
+.b27-chat-waiting .b27-chat-observation{margin-top:0}
+.b27-game .b27-chat-observation{
+ text-align:center;align-self:center;max-width:95%;width:100%;
+ padding:10px 8px;border:0!important;background:transparent}
+.b27-chat-observation small{display:block;margin:0!important;line-height:1.4!important;
+ font:600 9px/1.4 "DM Sans",system-ui,sans-serif!important;
+ letter-spacing:.1em;color:var(--b27-gold)}
+.b27-game .b27-chat-observation .b27-observation{
+ margin:5px 0!important;color:#eee7d5!important;
+ font:400 13px/1.5 "DM Sans",system-ui,sans-serif!important}
+.b27-chat-wait-caption{align-self:center;margin:0 0 16px!important;
+ color:var(--b27-muted)!important;font:italic 15px/1.35
+ "Cormorant Garamond",Georgia,serif!important}
+.b27-chat-reflection{position:relative;display:flex;flex-direction:column;gap:0;
+ overflow:hidden;padding:10px 14px 14px;
+ background:radial-gradient(ellipse at 50% 12%,rgba(192,155,83,.12),transparent 45%),
+ linear-gradient(170deg,#11110f,#080908 60%,#151510)}
+.b27-chat-reflection>.b27-chat-horizon{height:54px;max-height:54px;min-height:54px}
+.b27-chat-retained{display:flex;flex-direction:column;align-items:stretch;gap:5px;
+ padding-bottom:8px;border-bottom:1px solid rgba(207,179,115,.24)}
+.b27-chat-reflection .b27-chat-outgoing{max-width:100%;padding:8px 10px}
+.b27-chat-reflection .b27-chat-outgoing h3{margin-bottom:2px!important}
+.b27-chat-reflection .b27-chat-outgoing blockquote{
+ font-size:13px!important;line-height:1.39!important}
+.b27-chat-reflection .b27-chat-outgoing small{display:none}
+.b27-chat-reflection .b27-chat-observation{padding:4px 3px}
+.b27-chat-reflection .b27-chat-observation small:last-child{display:none}
+.b27-chat-reflection .b27-chat-observation .b27-observation{
+ font-size:12px!important;line-height:1.38!important;margin:3px 0!important}
+.b27-chat-reflection .b27-social-reconsider{
+ border:0;padding:11px 3px 0;margin:0;text-align:left}
+.b27-chat-reflection .b27-social-step{color:var(--b27-gold)!important;
+ font:700 10px/1.4 "DM Sans",system-ui,sans-serif!important;
+ letter-spacing:.17em;margin:0 0 6px!important}
+.b27-game .b27-chat-reflection .b27-choice-question{
+ color:var(--b27-ivory);font:italic 500 clamp(22px,6vw,28px)/1.17
+ "Cormorant Garamond",Georgia,serif;text-wrap:balance;
+ margin:0 0 13px;scroll-margin-top:75px}
+.b27-chat-reflection .b27-chat-actions{gap:9px}
+.b27-game[data-b27-family="decision_cards"] .b27-chat-reflection .b27-chat-action{
+ min-height:74px;padding:10px 12px}
+.b27-chat-sim[data-social-beat="complete"] .b27-chat-thread{gap:10px}
+.b27-chat-private{align-self:flex-start;max-width:95%;
+ padding:11px 13px;border-left:2px solid var(--b27-gold);
+ background:rgba(197,178,140,.055);border-radius:4px 10px 10px 4px}
+.b27-chat-private h3{font:700 10px/1.4 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-gold);margin:0 0 5px}
+.b27-chat-private p{font:400 13px/1.45 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-ivory);margin:0}
+.b27-chat-ending{margin-top:10px;border-top:1px solid var(--b27-line);
+ padding:13px 3px 2px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.b27-chat-ending p{font:700 10px/1.4 "DM Sans",system-ui,sans-serif!important;
+ color:var(--b27-gold)!important;letter-spacing:.14em;margin:0!important}
+.b27-chat-ending strong{font:italic 500 23px/1.2 "Cormorant Garamond",Georgia,serif;
+ color:var(--b27-ivory)}
+.b27-chat-ending small{font:400 11px/1.4 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-muted)}
+.b27-chat-sim[data-social-beat="send"] .b27-chat-outgoing{
+ animation:b27-chat-sent .22s cubic-bezier(.21,.85,.36,1) both}
+.b27-chat-sim[data-social-beat="wait"] .b27-chat-observation{
+ animation:b27-chat-observed .3s ease-out both}
+.b27-chat-sim[data-social-beat="reconsider"] .b27-chat-reflection{
+ animation:b27-chat-reflect .3s ease-out both}
+@keyframes b27-chat-sent{from{transform:translateY(9px);opacity:.72}
+ to{transform:translateY(0);opacity:1}}
+@keyframes b27-chat-observed{from{opacity:.55}to{opacity:1}}
+@keyframes b27-chat-reflect{from{opacity:.78}to{opacity:1}}
+@media(max-width:359px){
+ .b27-chat-reflection{padding:7px 10px 10px}
+ .b27-chat-reflection>.b27-chat-horizon{height:43px;max-height:43px;min-height:43px}
+ .b27-game .b27-chat-reflection .b27-choice-question{font-size:21px}
+ .b27-game[data-b27-family="decision_cards"] .b27-chat-reflection .b27-chat-action{
+  min-height:70px;padding:9px 10px}
+ .b27-chat-composer{padding:11px}
+ .b27-chat-context{font-size:12px!important}
+ .b27-chat-retained{gap:4px}
+}
+@media(prefers-reduced-motion:reduce){
+ .b27-chat-sim[data-social-beat="send"] .b27-chat-outgoing,
+ .b27-chat-sim[data-social-beat="wait"] .b27-chat-observation,
+ .b27-chat-sim[data-social-beat="reconsider"] .b27-chat-reflection{
+  animation:none!important;transform:none!important}
+}
+
+/* M2 R2 factual uncertainty must remain readable before reconsideration. */
+.b27-chat-reflection .b27-chat-observation small:last-child{
+ display:block;font-size:9px;line-height:1.25;margin-top:1px!important}
+
+/* M2 R2: a touch browser can retain :hover from the previous Begin tap.
+   Never paint the first possible message/follow-up as pre-endorsed.
+   Keyboard :focus-visible and real desktop :hover remain meaningful. */
+@media(hover:none){
+ .b27-game[data-b27-family="decision_cards"] .b27-chat-actions
+ .b27-chat-action:hover:not(:focus-visible){
+  background:linear-gradient(110deg,rgba(146,152,116,.095),rgba(255,255,255,.018))!important;
+  border-color:rgba(196,181,154,.25)!important;
+  box-shadow:none!important;
+ }
+}
+
+
+/* CZ-153 M2 R3: dedicated, participant-led messenger. The older R2 chat
+   classes do not target this composition; source-authorized mode only. */
+.b27-play:has(.b27-r3-simulator){padding-top:9px}
+.b27-play:has(.b27-r3-simulator)>.b27-play-thread{display:none!important}
+.b27-play .b27-game:has(.b27-r3-simulator){
+ padding:0!important;min-height:0!important;margin:0!important;overflow:visible!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important}
+.b27-r3-simulator{
+ display:flex;flex-direction:column;min-width:0;position:relative;overflow:hidden;
+ min-height:min(72dvh,615px);
+ border:1px solid rgba(202,184,145,.19);border-radius:20px;
+ background:radial-gradient(ellipse at 52% 120%,rgba(127,122,83,.08),transparent 55%),
+  linear-gradient(170deg,#161713,#080a08 75%,#0c0d0b);
+ color:var(--b27-ivory);box-shadow:inset 0 1px rgba(255,255,255,.065)}
+.b27-r3-contact{
+ display:flex;align-items:center;gap:12px;padding:12px 16px;
+ min-height:60px;border-bottom:1px solid rgba(229,212,174,.12);flex-shrink:0}
+.b27-r3-avatar{
+ display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;
+ font:500 24px/1 Georgia,serif;color:#e3c995;
+ background:radial-gradient(circle at 30% 25%,#857b61 0%,#3b4233 70%)}
+.b27-r3-contact strong{
+ display:block;font:500 19px/1.18 "Cormorant Garamond",Georgia,serif;
+ color:var(--b27-ivory)}
+.b27-r3-contact small{
+ display:block;margin-top:3px;letter-spacing:.11em;
+ color:var(--b27-muted);font:600 9px/1.35 "DM Sans",system-ui,sans-serif}
+.b27-r3-conversation{
+ position:relative;display:flex;flex-direction:column;gap:14px;
+ flex:1;min-height:0;padding:17px 17px 20px}
+.b27-r3-context{
+ margin:0!important;max-width:40ch;font:400 13px/1.55
+ "DM Sans",system-ui,sans-serif!important;color:#d3d0c3!important;
+ letter-spacing:0}
+.b27-r3-thread-quiet{margin:auto;opacity:.17;font:400 46px/1 Georgia,serif;color:#c6b89e}
+.b27-r3-composer{
+ flex-shrink:0;background:linear-gradient(180deg,rgba(21,24,20,.65),#11140f);
+ border-top:1px solid rgba(222,197,145,.16);padding:13px 14px 13px}
+.b27-r3-composer-title{
+ margin:0 0 10px!important;font:italic 500 22px/1.18
+ "Cormorant Garamond",Georgia,serif;color:#ede4d0}
+.b27-r3-drafts{display:flex;flex-direction:column;gap:0;
+ border-top:1px solid rgba(222,203,162,.12)}
+.b27-game .b27-r3-draft{
+ display:flex;align-items:center;gap:12px;min-height:62px;width:100%;
+ border:0!important;border-bottom:1px solid rgba(222,203,162,.13)!important;
+ border-radius:0!important;background:transparent!important;box-shadow:none!important;
+ text-align:left;padding:10px 4px!important;color:#ece8db;
+ transform:none!important;transition:background .13s ease}
+.b27-r3-draft.is-selected{background:rgba(147,156,117,.13)!important}
+.b27-game .b27-r3-draft:hover,.b27-game .b27-r3-draft:focus-visible{
+ background:rgba(164,161,122,.13)!important}
+.b27-r3-select-circle{
+ display:grid;place-items:center;flex:0 0 23px;width:23px;height:23px;
+ border:1px solid rgba(212,191,153,.48);border-radius:50%;
+ color:#f0e2b8;font:600 12px "DM Sans",system-ui,sans-serif}
+.b27-r3-draft.is-selected .b27-r3-select-circle{
+ background:rgba(146,164,120,.37);border-color:#c0c69f}
+.b27-r3-draft-copy{
+ font:400 12.6px/1.43 "DM Sans",system-ui,sans-serif;overflow-wrap:anywhere;
+ color:var(--b27-ivory)}
+.b27-r3-sendbar{display:flex;align-items:center;gap:10px;margin-top:11px;
+ justify-content:space-between}
+.b27-r3-send-caption{
+ flex:1;margin:0!important;font:400 11px/1.35
+ "DM Sans",system-ui,sans-serif!important;color:var(--b27-muted)!important}
+.b27-game .b27-r3-send-button{
+ display:flex;align-items:center;justify-content:center;gap:12px;
+ min-width:120px;min-height:46px;padding:9px 14px!important;
+ border:1px solid rgba(211,193,152,.65);border-radius:25px;
+ background:linear-gradient(125deg,rgba(85,100,70,.75),rgba(51,66,53,.88));
+ color:#f6f1e5;font:600 13px/1.2 "DM Sans",system-ui,sans-serif}
+.b27-r3-send-button[disabled]{opacity:.4;cursor:default}
+.b27-r3-send-button span:last-child{font-size:18px}
+.b27-r3-sending,.b27-r3-waiting{min-height:min(58dvh,475px)}
+.b27-game .b27-r3-sent{
+ align-self:flex-end;max-width:91%;width:fit-content;
+ margin:0!important;padding:13px 14px 9px;
+ border:1px solid rgba(164,184,142,.38);border-radius:17px 17px 5px 17px;
+ background:linear-gradient(130deg,#43523b,#364737);
+ box-shadow:0 9px 22px rgba(0,0,0,.19)}
+.b27-game .b27-r3-sent blockquote{
+ margin:0!important;padding:0!important;border:0!important;
+ color:#f5efdf!important;font:400 14px/1.5
+ "DM Sans",system-ui,sans-serif!important;overflow-wrap:anywhere}
+.b27-r3-sent small{display:block;margin-top:6px;
+ color:#ddd9c5;font:400 10px/1.4 "DM Sans",system-ui,sans-serif}
+.b27-r3-sent-cue{margin:0!important;align-self:flex-end;
+ color:var(--b27-gold)!important;
+ font:400 11px/1.45 "DM Sans",system-ui,sans-serif!important}
+.b27-r3-quiet-horizon{
+ position:relative;flex:1;min-height:95px;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 83%,rgba(199,155,82,.15),transparent 50%)}
+.b27-r3-quiet-horizon:after{
+ content:"";position:absolute;left:8%;right:8%;bottom:22%;height:1px;
+ background:linear-gradient(90deg,transparent,rgba(216,179,109,.6),transparent);
+ box-shadow:0 0 16px 3px rgba(208,163,79,.15)}
+.b27-r3-quiet-horizon i{
+ position:absolute;left:29%;bottom:4%;width:42%;height:27px;
+ border-top:1px solid rgba(213,177,117,.26);border-radius:50%;
+ transform:perspective(78px) rotateX(65deg)}
+.b27-r3-event{text-align:center;align-self:center;width:100%;
+ padding:6px 4px!important;border:0!important;margin:0!important;
+ background:none!important}
+.b27-r3-event small{
+ display:block;margin:0!important;color:var(--b27-gold);
+ font:600 9px/1.4 "DM Sans",system-ui,sans-serif!important;letter-spacing:.09em}
+.b27-game .b27-r3-event p{
+ margin:7px 0!important;font:400 13px/1.5
+ "DM Sans",system-ui,sans-serif!important;color:#e8e1d2!important}
+.b27-r3-quiet-line{
+ text-align:center;margin:0!important;color:var(--b27-muted)!important;
+ font:italic 16px/1.3 "Cormorant Garamond",Georgia,serif!important}
+.b27-r3-wait-control{padding-top:12px}
+.b27-game .b27-r3-continue{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ margin:0 auto;max-width:330px;min-height:48px;width:100%;padding:10px 16px;
+ border:1px solid rgba(211,185,133,.56);border-radius:24px;
+ background:linear-gradient(105deg,rgba(50,48,38,.93),rgba(43,45,34,.7));
+ color:#f1e9d4;font:500 13px/1.3 "DM Sans",system-ui,sans-serif}
+.b27-r3-continue span:last-child{font-size:19px;color:var(--b27-gold)}
+.b27-r3-reflection{
+ position:relative;display:flex;flex-direction:column;
+ min-height:min(67dvh,575px);
+ padding:0 16px 17px;overflow:hidden;
+ background:radial-gradient(ellipse at 50% 5%,rgba(203,171,103,.15),transparent 49%),
+ linear-gradient(160deg,#10120f 10%,#080908 65%,#121310)}
+.b27-r3-reflection-horizon{height:145px;flex:0 0 145px;position:relative;
+ background:radial-gradient(ellipse at 50% 80%,rgba(222,177,92,.36),transparent 29%);
+ pointer-events:none}
+.b27-r3-reflection-horizon:before{content:"";position:absolute;
+ left:0;right:0;bottom:32%;height:1px;
+ background:linear-gradient(90deg,transparent,rgba(246,198,114,.8),transparent);
+ box-shadow:0 0 24px 5px rgba(222,178,102,.18)}
+.b27-r3-reflection-horizon i{position:absolute;left:27%;width:46%;bottom:10%;
+ height:39px;border-top:1px solid rgba(236,202,143,.28);border-radius:50%;
+ transform:perspective(80px) rotateX(62deg)}
+.b27-r3-reflection .b27-social-reconsider{
+ margin:0;padding:0 1px;border:0!important;text-align:left}
+.b27-r3-reflection-eyebrow{
+ margin:0 0 7px!important;font:700 9px/1.4
+ "DM Sans",system-ui,sans-serif!important;letter-spacing:.15em;
+ color:var(--b27-gold)!important}
+.b27-game .b27-r3-reflection .b27-choice-question{
+ margin:0 0 9px!important;font:italic 500 clamp(21px,6.2vw,28px)/1.18
+ "Cormorant Garamond",Georgia,serif!important;
+ color:#f5ecdc!important;scroll-margin-top:77px;
+ text-wrap:pretty}
+.b27-r3-reflection-cue{
+ margin:0 0 12px!important;font:400 11px/1.4
+ "DM Sans",system-ui,sans-serif!important;color:var(--b27-muted)!important}
+.b27-r3-followups{
+ display:flex!important;flex-direction:column;gap:0!important;
+ border-top:1px solid rgba(225,205,165,.23)}
+.b27-game[data-b27-family="decision_cards"] .b27-r3-simulator .b27-r3-followup{
+ display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+ min-height:72px;padding:11px 2px!important;
+ border:0!important;border-bottom:1px solid rgba(225,205,165,.21)!important;
+ border-radius:0!important;background:none!important;box-shadow:none!important;
+ transform:none!important;transition:background .15s ease!important;
+ overflow:visible}
+.b27-game[data-b27-family="decision_cards"] .b27-r3-followup:hover,
+.b27-game[data-b27-family="decision_cards"] .b27-r3-followup:focus-visible{
+ background:rgba(197,175,122,.06)!important;box-shadow:none!important;
+ transform:none!important}
+.b27-r3-action-symbol{
+ display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;
+ border-radius:50%;border:1px solid rgba(216,190,140,.38);
+ color:var(--b27-gold);font:400 17px/1 "DM Sans",system-ui,sans-serif}
+.b27-r3-action-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.b27-game[data-b27-family="decision_cards"] .b27-r3-followup strong{
+ color:#eee7d6;font:500 18px/1.19 "Cormorant Garamond",Georgia,serif}
+.b27-r3-followup .b27-social-choice-literal{
+ font:400 12px/1.42 "DM Sans",system-ui,sans-serif;
+ color:#d4cdbf;overflow-wrap:anywhere}
+.b27-r3-recall{margin-top:12px;color:#d5cbb5}
+.b27-r3-recall summary{
+ cursor:pointer;min-height:44px;display:flex;align-items:center;
+ font:400 11px/1.3 "DM Sans",system-ui,sans-serif;
+ color:var(--b27-muted);padding:6px 0;list-style:disclosure-closed}
+.b27-r3-recall summary:focus-visible{outline:3px solid #e0c694;outline-offset:2px}
+.b27-r3-recall-body{
+ padding:12px 6px;display:flex;flex-direction:column;gap:8px;
+ border-top:1px solid var(--b27-line)}
+.b27-r3-recall .b27-r3-sent{max-width:100%;padding:8px 10px}
+.b27-r3-recall .b27-r3-event{padding:5px 0!important}
+.b27-r3-finished{gap:14px}
+.b27-r3-note{padding:10px 12px;border-left:2px solid var(--b27-gold);
+ background:rgba(205,187,145,.06);border-radius:4px 11px 11px 4px}
+.b27-r3-note h3{
+ margin:0 0 6px!important;color:var(--b27-gold);
+ font:700 10px/1.4 "DM Sans",system-ui,sans-serif}
+.b27-r3-note p{margin:0!important;color:var(--b27-ivory);
+ font:400 13px/1.45 "DM Sans",system-ui,sans-serif}
+.b27-r3-ending{margin-top:18px;border-top:1px solid var(--b27-line);
+ padding:13px 4px;text-align:center}
+.b27-r3-ending span{
+ color:var(--b27-gold);font:700 9px/1.4 "DM Sans",system-ui,sans-serif;letter-spacing:.1em}
+.b27-r3-ending h3{
+ color:var(--b27-ivory);font:italic 500 23px/1.2 "Cormorant Garamond",Georgia,serif;
+ margin:8px 0}
+.b27-r3-ending p{color:var(--b27-muted);
+ font:400 11px/1.4 "DM Sans",system-ui,sans-serif}
+.b27-r3-simulator[data-social-beat="send"] .b27-r3-sent{
+ animation:b27-r3-send .24s cubic-bezier(.2,.8,.3,1) both}
+.b27-r3-simulator[data-social-beat="wait"] .b27-r3-event{
+ animation:b27-r3-reveal .28s ease-out both}
+@keyframes b27-r3-send{
+ from{transform:translateY(8px);opacity:.52}to{transform:translateY(0);opacity:1}}
+@keyframes b27-r3-reveal{from{opacity:.68}to{opacity:1}}
+@media(max-width:359px){
+ .b27-r3-simulator{min-height:0}
+ .b27-r3-contact{padding:10px 12px;min-height:56px}
+ .b27-r3-conversation{padding:12px}
+ .b27-r3-composer{padding:10px}
+ .b27-r3-draft{min-height:60px!important;padding:8px 3px!important}
+ .b27-r3-draft-copy{font-size:12px}
+ .b27-r3-reflection{min-height:0;padding:0 11px 9px}
+ .b27-r3-reflection-horizon{height:93px;flex-basis:93px}
+ .b27-game .b27-r3-reflection .b27-choice-question{font-size:21px!important}
+ .b27-game[data-b27-family="decision_cards"] .b27-r3-followup{
+  padding:9px 0!important;min-height:67px}
+}
+@media(prefers-reduced-motion:reduce){
+ .b27-r3-simulator *{animation:none!important;transition:none!important;transform:none!important}
+}
+@media(hover:none){
+ .b27-game[data-b27-family="decision_cards"] .b27-r3-followup:hover:not(:focus-visible){
+  background:none!important}
+ .b27-game .b27-r3-draft:hover:not(.is-selected):not(:focus-visible){
+  background:transparent!important}
+}
+
+/* M2 R3 composition isolation: previous R2 .b27-social spacing and
+   reconsider-specific game styles must not create nested card panels. */
+.b27-game[data-b27-family="decision_cards"] .b27-r3-simulator{
+ display:flex!important;flex-direction:column;gap:0!important;padding:0!important;
+ background:linear-gradient(170deg,#161713,#080a08 75%,#0c0d0b)!important}
+.b27-game[data-b27-family="decision_cards"] .b27-r3-simulator[data-social-beat="reconsider"]{
+ background:radial-gradient(ellipse at 50% 10%,rgba(211,178,108,.12),transparent 48%),#090a08!important}

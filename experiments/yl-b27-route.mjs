@@ -131,6 +131,12 @@ export function resolveQuoteB27(input){
    status:"no_fit",version:B27_ROUTE_VERSION,quoteId,
    quoteFingerprint,quote:{text:quote[0],author:quote[1],
     work:quote[3],question:quote[4]},
+   // Witness for this exact Long quotation only; this does not confer play eligibility.
+   ...(quoteId===47?{reading:{
+    context:"Epictetus counts judgment among our own acts. He counts reputation among the things that depend on others.",
+    question:"If you correct a mistake and someone still thinks badly of you, which part can you answer for?",
+    url:"https://scaife.perseus.org/reader/urn:cts:greekLit:tlg0557.tlg002.perseus-eng3:1/"
+   }}:{}),
    sourceReview:editorial?.sourceStatus??"catalogue_source_not_admitted_for_game",
    editorialCoverageStatus:coverage,
    reason:coverage==="no_fit"?

@@ -1,0 +1,2150 @@
+{
+  "appSha": "493cb1471814fba9feb4cbeab6ae96b8e46565d6",
+  "validatedBlobs": {
+    "experiments/yl-b27-route.mjs": "c1d6f99d8c35eaa4a230d4db0e74f82da6c84263",
+    "experiments/yl-cz147-sources.mjs": "f5ea3ef28c71539fb80b71997001492c3f124428",
+    "experiments/yl-cz147-engines.mjs": "9500612a8b902b8b5051cc19e4382cfb3d62874e",
+    "experiments/yl-b27-quote-ledger.mjs": "c7004e5e4c7deaa9a9918ab578d64f626f0b24ae"
+  },
+  "quote": {
+    "text": "A foolish consistency is the hobgoblin of little minds.",
+    "author": "Ralph Waldo Emerson",
+    "work": "Essays: First Series, Self-Reliance",
+    "question": "What belief deserves to be revised?"
+  },
+  "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+  "record": {
+    "recordId": "cz147:quoted-source:55",
+    "quoteId": 55,
+    "version": "cz147-editorial-research/1",
+    "status": "development_provisional",
+    "developmentOnly": false,
+    "source": {
+      "text": "A foolish consistency is the hobgoblin of little minds.",
+      "author": "Ralph Waldo Emerson",
+      "work": "Essays: First Series, Self-Reliance",
+      "referenceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+    },
+    "evidenceIds": [
+      "source:central",
+      "scenario:fictional",
+      "source:boundary"
+    ],
+    "publicationAllowed": false,
+    "prohibitedInferences": [
+      "actual emotion",
+      "personality diagnosis",
+      "moral ranking",
+      "historical prediction"
+    ],
+    "philosophicalOperation": {
+      "kind": "independent_judgment",
+      "focus": "present reasons behind a commitment",
+      "contrast": "independent judgment versus foolish consistency",
+      "startRoles": [
+        {
+          "id": "maintain",
+          "role": "retain_prior"
+        },
+        {
+          "id": "revisit",
+          "role": "reexamine_prior"
+        }
+      ],
+      "sourceWarrantIds": [
+        "source:central"
+      ]
+    },
+    "exposeInApp": true,
+    "familyId": "decision_cards",
+    "title": "When a past opinion meets today",
+    "narrativeBridge": {
+      "version": "cz152-narrative/1",
+      "bridgeFromSource": "Emerson questions whether yesterday's public opinion must govern the judgment you make with today's reasons.",
+      "situationHook": "You publicly supported a neighborhood plan. New facts raise doubts, but neighbors expect you to stay consistent. Changing course might help—or might not.",
+      "playPrompt": "Keep the plan, or open it to reconsideration?",
+      "sourceWarrantIds": [
+        "source:central",
+        "scenario:fictional"
+      ]
+    },
+    "intro": "A neighborhood group must revisit a public plan. New details emerge, and everyone remembers what you previously said. The dilemma is whether consistency is serving the question or merely your reputation.",
+    "humanTension": "Keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+    "sourceThesis": "Fidelity to earlier words is not always faithful to present judgment",
+    "evidenceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+    "epistemicLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+    "compactLimit": "Revision itself cannot guarantee a better judgment",
+    "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+    "readerAgency": "Choose a stance before seeing an invented complication and reconsider",
+    "reflectionQuestion": "When might a changed answer express integrity rather than mere inconsistency?",
+    "supportedConclusions": [
+      "Past statements are not sufficient evidence for a present judgment"
+    ],
+    "affordances": [
+      "revisability",
+      "choice_awareness",
+      "uncertainty_awareness"
+    ],
+    "referenceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+    "timeline": [
+      {
+        "startId": "maintain",
+        "startLabel": "You keep the original plan",
+        "sceneId": "details",
+        "sceneLabel": "new facts complicate the plan",
+        "authoredText": [
+          "Additional fictional details raise questions about the original decision"
+        ],
+        "responseId": "consider",
+        "responseLabel": "You reconsider the evidence",
+        "responseStance": "reconsider",
+        "authoredFutureIsPrediction": false,
+        "path": [
+          "maintain",
+          "details",
+          "consider"
+        ]
+      },
+      {
+        "startId": "maintain",
+        "startLabel": "You keep the original plan",
+        "sceneId": "details",
+        "sceneLabel": "new facts complicate the plan",
+        "authoredText": [
+          "Additional fictional details raise questions about the original decision"
+        ],
+        "responseId": "explain",
+        "responseLabel": "You explain your present reasons",
+        "responseStance": "hold",
+        "authoredFutureIsPrediction": false,
+        "path": [
+          "maintain",
+          "details",
+          "explain"
+        ]
+      },
+      {
+        "startId": "maintain",
+        "startLabel": "You keep the original plan",
+        "sceneId": "critique",
+        "sceneLabel": "a neighbor raises an objection",
+        "authoredText": [
+          "An invented neighbor asks for reasons rather than a declaration"
+        ],
+        "responseId": "consider",
+        "responseLabel": "You reconsider the evidence",
+        "responseStance": "reconsider",
+        "authoredFutureIsPrediction": false,
+        "path": [
+          "maintain",
+          "critique",
+          "consider"
+        ]
+      },
+      {
+        "startId": "maintain",
+        "startLabel": "You keep the original plan",
+        "sceneId": "critique",
+        "sceneLabel": "a neighbor raises an objection",
+        "authoredText": [
+          "An invented neighbor asks for reasons rather than a declaration"
+        ],
+        "responseId": "explain",
+        "responseLabel": "You explain your present reasons",
+        "responseStance": "hold",
+        "authoredFutureIsPrediction": false,
+        "path": [
+          "maintain",
+          "critique",
+          "explain"
+        ]
+      },
+      {
+        "startId": "revisit",
+        "startLabel": "You open the plan to revision",
+        "sceneId": "details",
+        "sceneLabel": "new facts complicate the plan",
+        "authoredText": [
+          "Additional fictional details raise questions about the original decision"
+        ],
+        "responseId": "consider",
+        "responseLabel": "You reconsider the evidence",
+        "responseStance": "reconsider",
+        "authoredFutureIsPrediction": false,
+        "path": [
+          "revisit",
+          "details",
+          "consider"
+        ]
+      },
+      {
+        "startId": "revisit",
+        "startLabel": "You open the plan to revision",
+        "sceneId": "details",
+        "sceneLabel": "new facts complicate the plan",
+        "authoredText": [
+          "Additional fictional details raise questions about the original decision"
+        ],
+        "responseId": "explain",
+        "responseLabel": "You explain your present reasons",
+        "responseStance": "hold",
+        "authoredFutureIsPrediction": false,
+        "path": [
+          "revisit",
+          "details",
+          "explain"
+        ]
+      },
+      {
+        "startId": "revisit",
+        "startLabel": "You open the plan to revision",
+        "sceneId": "critique",
+        "sceneLabel": "a neighbor raises an objection",
+        "authoredText": [
+          "An invented neighbor asks for reasons rather than a declaration"
+        ],
+        "responseId": "consider",
+        "responseLabel": "You reconsider the evidence",
+        "responseStance": "reconsider",
+        "authoredFutureIsPrediction": false,
+        "path": [
+          "revisit",
+          "critique",
+          "consider"
+        ]
+      },
+      {
+        "startId": "revisit",
+        "startLabel": "You open the plan to revision",
+        "sceneId": "critique",
+        "sceneLabel": "a neighbor raises an objection",
+        "authoredText": [
+          "An invented neighbor asks for reasons rather than a declaration"
+        ],
+        "responseId": "explain",
+        "responseLabel": "You explain your present reasons",
+        "responseStance": "hold",
+        "authoredFutureIsPrediction": false,
+        "path": [
+          "revisit",
+          "critique",
+          "explain"
+        ]
+      }
+    ]
+  },
+  "paths": [
+    {
+      "path": [
+        "maintain",
+        "details",
+        "consider"
+      ],
+      "canonical": {
+        "path": [
+          "maintain",
+          "details",
+          "consider"
+        ]
+      },
+      "reasoning": {
+        "status": "ready",
+        "version": "reason:universal-three-engine/1.0.0",
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "selectedFamilyId": "decision_cards",
+        "canonical_choice": {
+          "path": [
+            "maintain",
+            "details",
+            "consider"
+          ]
+        },
+        "meaning": {
+          "kind": "decision_cards",
+          "centralClaim": "Fidelity to earlier words is not always faithful to present judgment",
+          "philosophicalOperation": {
+            "kind": "independent_judgment",
+            "focus": "present reasons behind a commitment",
+            "contrast": "independent judgment versus foolish consistency",
+            "startRoles": [
+              {
+                "id": "maintain",
+                "role": "retain_prior"
+              },
+              {
+                "id": "revisit",
+                "role": "reexamine_prior"
+              }
+            ],
+            "sourceWarrantIds": [
+              "source:central"
+            ]
+          },
+          "sourceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+          "selectedClaim": "The opening commitment “You keep the original plan” meets the invented “new facts complicate the plan”. Your later response “You reconsider the evidence” can be evaluated by present reasons, not loyalty to earlier words.",
+          "choiceAnalysis": {
+            "operation": "sequential_commitment",
+            "initial": {
+              "id": "maintain",
+              "label": "You keep the original plan"
+            },
+            "development": {
+              "id": "details",
+              "label": "new facts complicate the plan",
+              "authoredText": [
+                "Additional fictional details raise questions about the original decision"
+              ],
+              "fictional": true,
+              "causedByInitialChoice": false
+            },
+            "response": {
+              "id": "consider",
+              "label": "You reconsider the evidence",
+              "stance": "reconsider"
+            },
+            "alternativeFutureObserved": false,
+            "outcomeGuaranteed": false,
+            "sourceWarrantIds": [
+              "source:central",
+              "scenario:fictional"
+            ]
+          },
+          "selectedTimeline": {
+            "startId": "maintain",
+            "startLabel": "You keep the original plan",
+            "sceneId": "details",
+            "sceneLabel": "new facts complicate the plan",
+            "authoredText": [
+              "Additional fictional details raise questions about the original decision"
+            ],
+            "responseId": "consider",
+            "responseLabel": "You reconsider the evidence",
+            "responseStance": "reconsider",
+            "authoredFutureIsPrediction": false,
+            "path": [
+              "maintain",
+              "details",
+              "consider"
+            ]
+          },
+          "selectedRelations": null,
+          "limitations": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+          "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+          "prohibitedInferences": [
+            "actual emotion",
+            "personality diagnosis",
+            "moral ranking",
+            "historical prediction"
+          ],
+          "supportedConclusions": [
+            "Past statements are not sufficient evidence for a present judgment"
+          ]
+        },
+        "choiceFeature": "revision",
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "hypothetical": true,
+        "realReaderEmotionInferred": false,
+        "publicationAllowed": false
+      },
+      "emotion": {
+        "status": "ready",
+        "version": "emotion:universal-three-engine/1.0.0",
+        "strategy": "revisability",
+        "move": "introduce_counterconsideration",
+        "chosenFrom": "revision",
+        "attention": {
+          "operation": "sequential_commitment",
+          "philosophicalOperation": "independent_judgment",
+          "primary": [],
+          "selectedRelations": [],
+          "initialAction": "maintain",
+          "fictionalDevelopment": "details",
+          "responseStance": "reconsider"
+        },
+        "rhetoricSupported": true,
+        "inferredActualEmotion": false,
+        "inferredMoralRank": false,
+        "inferredPersonality": false,
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "noMindReading": true,
+        "publicationAllowed": false
+      },
+      "full": {
+        "status": "ready",
+        "version": "expression:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to keep the original plan, encountered the invented scene “new facts complicate the plan”, then chose to reconsider the evidence. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+            "evidenceIds": [
+              "choice:canonical",
+              "scenario:fictional"
+            ]
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          }
+        ],
+        "wordCount": 115,
+        "sectionWordCounts": [
+          38,
+          58,
+          19
+        ],
+        "sourceFingerprint": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "author": "Ralph Waldo Emerson",
+        "quote": "A foolish consistency is the hobgoblin of little minds.",
+        "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+        "publicationAllowed": false
+      },
+      "compact": {
+        "status": "ready",
+        "version": "compact:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to keep the original plan, saw “new facts complicate the plan”, then chose to reconsider the evidence."
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words. Revision itself cannot guarantee a better judgment."
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "After considering the imagined development, what evidence still warrants keeping the plan?"
+          }
+        ],
+        "visibleWordCount": 63,
+        "fullWordCount": 115,
+        "unchangedFullExpression": true,
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "sourceReview": "founder_provisional_development_only",
+        "philosopher": {
+          "author": "Ralph Waldo Emerson",
+          "work": "Essays: First Series, Self-Reliance",
+          "highlight": "A foolish consistency is the",
+          "exactQuote": "A foolish consistency is the hobgoblin of little minds.",
+          "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+        },
+        "deepening": {
+          "fullSections": [
+            {
+              "label": "Your Choice",
+              "text": "You chose to keep the original plan, encountered the invented scene “new facts complicate the plan”, then chose to reconsider the evidence. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift."
+            },
+            {
+              "label": "Back to the Philosopher",
+              "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment."
+            },
+            {
+              "label": "One Last Thing…",
+              "text": "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?"
+            }
+          ],
+          "sourceQualification": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+          "originalSourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+          "necessaryLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly"
+        },
+        "publicationAllowed": false
+      }
+    },
+    {
+      "path": [
+        "maintain",
+        "details",
+        "explain"
+      ],
+      "canonical": {
+        "path": [
+          "maintain",
+          "details",
+          "explain"
+        ]
+      },
+      "reasoning": {
+        "status": "ready",
+        "version": "reason:universal-three-engine/1.0.0",
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "selectedFamilyId": "decision_cards",
+        "canonical_choice": {
+          "path": [
+            "maintain",
+            "details",
+            "explain"
+          ]
+        },
+        "meaning": {
+          "kind": "decision_cards",
+          "centralClaim": "Fidelity to earlier words is not always faithful to present judgment",
+          "philosophicalOperation": {
+            "kind": "independent_judgment",
+            "focus": "present reasons behind a commitment",
+            "contrast": "independent judgment versus foolish consistency",
+            "startRoles": [
+              {
+                "id": "maintain",
+                "role": "retain_prior"
+              },
+              {
+                "id": "revisit",
+                "role": "reexamine_prior"
+              }
+            ],
+            "sourceWarrantIds": [
+              "source:central"
+            ]
+          },
+          "sourceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+          "selectedClaim": "The opening commitment “You keep the original plan” meets the invented “new facts complicate the plan”. Your later response “You explain your present reasons” can be evaluated by present reasons, not loyalty to earlier words.",
+          "choiceAnalysis": {
+            "operation": "sequential_commitment",
+            "initial": {
+              "id": "maintain",
+              "label": "You keep the original plan"
+            },
+            "development": {
+              "id": "details",
+              "label": "new facts complicate the plan",
+              "authoredText": [
+                "Additional fictional details raise questions about the original decision"
+              ],
+              "fictional": true,
+              "causedByInitialChoice": false
+            },
+            "response": {
+              "id": "explain",
+              "label": "You explain your present reasons",
+              "stance": "hold"
+            },
+            "alternativeFutureObserved": false,
+            "outcomeGuaranteed": false,
+            "sourceWarrantIds": [
+              "source:central",
+              "scenario:fictional"
+            ]
+          },
+          "selectedTimeline": {
+            "startId": "maintain",
+            "startLabel": "You keep the original plan",
+            "sceneId": "details",
+            "sceneLabel": "new facts complicate the plan",
+            "authoredText": [
+              "Additional fictional details raise questions about the original decision"
+            ],
+            "responseId": "explain",
+            "responseLabel": "You explain your present reasons",
+            "responseStance": "hold",
+            "authoredFutureIsPrediction": false,
+            "path": [
+              "maintain",
+              "details",
+              "explain"
+            ]
+          },
+          "selectedRelations": null,
+          "limitations": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+          "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+          "prohibitedInferences": [
+            "actual emotion",
+            "personality diagnosis",
+            "moral ranking",
+            "historical prediction"
+          ],
+          "supportedConclusions": [
+            "Past statements are not sufficient evidence for a present judgment"
+          ]
+        },
+        "choiceFeature": "commitment",
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "hypothetical": true,
+        "realReaderEmotionInferred": false,
+        "publicationAllowed": false
+      },
+      "emotion": {
+        "status": "ready",
+        "version": "emotion:universal-three-engine/1.0.0",
+        "strategy": "revisability",
+        "move": "introduce_counterconsideration",
+        "chosenFrom": "commitment",
+        "attention": {
+          "operation": "sequential_commitment",
+          "philosophicalOperation": "independent_judgment",
+          "primary": [],
+          "selectedRelations": [],
+          "initialAction": "maintain",
+          "fictionalDevelopment": "details",
+          "responseStance": "hold"
+        },
+        "rhetoricSupported": true,
+        "inferredActualEmotion": false,
+        "inferredMoralRank": false,
+        "inferredPersonality": false,
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "noMindReading": true,
+        "publicationAllowed": false
+      },
+      "full": {
+        "status": "ready",
+        "version": "expression:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to keep the original plan, encountered the invented scene “new facts complicate the plan”, then chose to explain your present reasons. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+            "evidenceIds": [
+              "choice:canonical",
+              "scenario:fictional"
+            ]
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          }
+        ],
+        "wordCount": 116,
+        "sectionWordCounts": [
+          39,
+          58,
+          19
+        ],
+        "sourceFingerprint": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "author": "Ralph Waldo Emerson",
+        "quote": "A foolish consistency is the hobgoblin of little minds.",
+        "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+        "publicationAllowed": false
+      },
+      "compact": {
+        "status": "ready",
+        "version": "compact:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to keep the original plan, saw “new facts complicate the plan”, then chose to explain your present reasons."
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words. Revision itself cannot guarantee a better judgment."
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "After considering the imagined development, what evidence still warrants keeping the plan?"
+          }
+        ],
+        "visibleWordCount": 64,
+        "fullWordCount": 116,
+        "unchangedFullExpression": true,
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "sourceReview": "founder_provisional_development_only",
+        "philosopher": {
+          "author": "Ralph Waldo Emerson",
+          "work": "Essays: First Series, Self-Reliance",
+          "highlight": "A foolish consistency is the",
+          "exactQuote": "A foolish consistency is the hobgoblin of little minds.",
+          "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+        },
+        "deepening": {
+          "fullSections": [
+            {
+              "label": "Your Choice",
+              "text": "You chose to keep the original plan, encountered the invented scene “new facts complicate the plan”, then chose to explain your present reasons. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift."
+            },
+            {
+              "label": "Back to the Philosopher",
+              "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment."
+            },
+            {
+              "label": "One Last Thing…",
+              "text": "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?"
+            }
+          ],
+          "sourceQualification": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+          "originalSourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+          "necessaryLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly"
+        },
+        "publicationAllowed": false
+      }
+    },
+    {
+      "path": [
+        "maintain",
+        "critique",
+        "consider"
+      ],
+      "canonical": {
+        "path": [
+          "maintain",
+          "critique",
+          "consider"
+        ]
+      },
+      "reasoning": {
+        "status": "ready",
+        "version": "reason:universal-three-engine/1.0.0",
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "selectedFamilyId": "decision_cards",
+        "canonical_choice": {
+          "path": [
+            "maintain",
+            "critique",
+            "consider"
+          ]
+        },
+        "meaning": {
+          "kind": "decision_cards",
+          "centralClaim": "Fidelity to earlier words is not always faithful to present judgment",
+          "philosophicalOperation": {
+            "kind": "independent_judgment",
+            "focus": "present reasons behind a commitment",
+            "contrast": "independent judgment versus foolish consistency",
+            "startRoles": [
+              {
+                "id": "maintain",
+                "role": "retain_prior"
+              },
+              {
+                "id": "revisit",
+                "role": "reexamine_prior"
+              }
+            ],
+            "sourceWarrantIds": [
+              "source:central"
+            ]
+          },
+          "sourceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+          "selectedClaim": "The opening commitment “You keep the original plan” meets the invented “a neighbor raises an objection”. Your later response “You reconsider the evidence” can be evaluated by present reasons, not loyalty to earlier words.",
+          "choiceAnalysis": {
+            "operation": "sequential_commitment",
+            "initial": {
+              "id": "maintain",
+              "label": "You keep the original plan"
+            },
+            "development": {
+              "id": "critique",
+              "label": "a neighbor raises an objection",
+              "authoredText": [
+                "An invented neighbor asks for reasons rather than a declaration"
+              ],
+              "fictional": true,
+              "causedByInitialChoice": false
+            },
+            "response": {
+              "id": "consider",
+              "label": "You reconsider the evidence",
+              "stance": "reconsider"
+            },
+            "alternativeFutureObserved": false,
+            "outcomeGuaranteed": false,
+            "sourceWarrantIds": [
+              "source:central",
+              "scenario:fictional"
+            ]
+          },
+          "selectedTimeline": {
+            "startId": "maintain",
+            "startLabel": "You keep the original plan",
+            "sceneId": "critique",
+            "sceneLabel": "a neighbor raises an objection",
+            "authoredText": [
+              "An invented neighbor asks for reasons rather than a declaration"
+            ],
+            "responseId": "consider",
+            "responseLabel": "You reconsider the evidence",
+            "responseStance": "reconsider",
+            "authoredFutureIsPrediction": false,
+            "path": [
+              "maintain",
+              "critique",
+              "consider"
+            ]
+          },
+          "selectedRelations": null,
+          "limitations": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+          "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+          "prohibitedInferences": [
+            "actual emotion",
+            "personality diagnosis",
+            "moral ranking",
+            "historical prediction"
+          ],
+          "supportedConclusions": [
+            "Past statements are not sufficient evidence for a present judgment"
+          ]
+        },
+        "choiceFeature": "revision",
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "hypothetical": true,
+        "realReaderEmotionInferred": false,
+        "publicationAllowed": false
+      },
+      "emotion": {
+        "status": "ready",
+        "version": "emotion:universal-three-engine/1.0.0",
+        "strategy": "revisability",
+        "move": "introduce_counterconsideration",
+        "chosenFrom": "revision",
+        "attention": {
+          "operation": "sequential_commitment",
+          "philosophicalOperation": "independent_judgment",
+          "primary": [],
+          "selectedRelations": [],
+          "initialAction": "maintain",
+          "fictionalDevelopment": "critique",
+          "responseStance": "reconsider"
+        },
+        "rhetoricSupported": true,
+        "inferredActualEmotion": false,
+        "inferredMoralRank": false,
+        "inferredPersonality": false,
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "noMindReading": true,
+        "publicationAllowed": false
+      },
+      "full": {
+        "status": "ready",
+        "version": "expression:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to keep the original plan, encountered the invented scene “a neighbor raises an objection”, then chose to reconsider the evidence. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+            "evidenceIds": [
+              "choice:canonical",
+              "scenario:fictional"
+            ]
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          }
+        ],
+        "wordCount": 115,
+        "sectionWordCounts": [
+          38,
+          58,
+          19
+        ],
+        "sourceFingerprint": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "author": "Ralph Waldo Emerson",
+        "quote": "A foolish consistency is the hobgoblin of little minds.",
+        "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+        "publicationAllowed": false
+      },
+      "compact": {
+        "status": "ready",
+        "version": "compact:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to keep the original plan, saw “a neighbor raises an objection”, then chose to reconsider the evidence."
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words. Revision itself cannot guarantee a better judgment."
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "After considering the imagined development, what evidence still warrants keeping the plan?"
+          }
+        ],
+        "visibleWordCount": 63,
+        "fullWordCount": 115,
+        "unchangedFullExpression": true,
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "sourceReview": "founder_provisional_development_only",
+        "philosopher": {
+          "author": "Ralph Waldo Emerson",
+          "work": "Essays: First Series, Self-Reliance",
+          "highlight": "A foolish consistency is the",
+          "exactQuote": "A foolish consistency is the hobgoblin of little minds.",
+          "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+        },
+        "deepening": {
+          "fullSections": [
+            {
+              "label": "Your Choice",
+              "text": "You chose to keep the original plan, encountered the invented scene “a neighbor raises an objection”, then chose to reconsider the evidence. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift."
+            },
+            {
+              "label": "Back to the Philosopher",
+              "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment."
+            },
+            {
+              "label": "One Last Thing…",
+              "text": "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?"
+            }
+          ],
+          "sourceQualification": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+          "originalSourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+          "necessaryLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly"
+        },
+        "publicationAllowed": false
+      }
+    },
+    {
+      "path": [
+        "maintain",
+        "critique",
+        "explain"
+      ],
+      "canonical": {
+        "path": [
+          "maintain",
+          "critique",
+          "explain"
+        ]
+      },
+      "reasoning": {
+        "status": "ready",
+        "version": "reason:universal-three-engine/1.0.0",
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "selectedFamilyId": "decision_cards",
+        "canonical_choice": {
+          "path": [
+            "maintain",
+            "critique",
+            "explain"
+          ]
+        },
+        "meaning": {
+          "kind": "decision_cards",
+          "centralClaim": "Fidelity to earlier words is not always faithful to present judgment",
+          "philosophicalOperation": {
+            "kind": "independent_judgment",
+            "focus": "present reasons behind a commitment",
+            "contrast": "independent judgment versus foolish consistency",
+            "startRoles": [
+              {
+                "id": "maintain",
+                "role": "retain_prior"
+              },
+              {
+                "id": "revisit",
+                "role": "reexamine_prior"
+              }
+            ],
+            "sourceWarrantIds": [
+              "source:central"
+            ]
+          },
+          "sourceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+          "selectedClaim": "The opening commitment “You keep the original plan” meets the invented “a neighbor raises an objection”. Your later response “You explain your present reasons” can be evaluated by present reasons, not loyalty to earlier words.",
+          "choiceAnalysis": {
+            "operation": "sequential_commitment",
+            "initial": {
+              "id": "maintain",
+              "label": "You keep the original plan"
+            },
+            "development": {
+              "id": "critique",
+              "label": "a neighbor raises an objection",
+              "authoredText": [
+                "An invented neighbor asks for reasons rather than a declaration"
+              ],
+              "fictional": true,
+              "causedByInitialChoice": false
+            },
+            "response": {
+              "id": "explain",
+              "label": "You explain your present reasons",
+              "stance": "hold"
+            },
+            "alternativeFutureObserved": false,
+            "outcomeGuaranteed": false,
+            "sourceWarrantIds": [
+              "source:central",
+              "scenario:fictional"
+            ]
+          },
+          "selectedTimeline": {
+            "startId": "maintain",
+            "startLabel": "You keep the original plan",
+            "sceneId": "critique",
+            "sceneLabel": "a neighbor raises an objection",
+            "authoredText": [
+              "An invented neighbor asks for reasons rather than a declaration"
+            ],
+            "responseId": "explain",
+            "responseLabel": "You explain your present reasons",
+            "responseStance": "hold",
+            "authoredFutureIsPrediction": false,
+            "path": [
+              "maintain",
+              "critique",
+              "explain"
+            ]
+          },
+          "selectedRelations": null,
+          "limitations": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+          "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+          "prohibitedInferences": [
+            "actual emotion",
+            "personality diagnosis",
+            "moral ranking",
+            "historical prediction"
+          ],
+          "supportedConclusions": [
+            "Past statements are not sufficient evidence for a present judgment"
+          ]
+        },
+        "choiceFeature": "commitment",
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "hypothetical": true,
+        "realReaderEmotionInferred": false,
+        "publicationAllowed": false
+      },
+      "emotion": {
+        "status": "ready",
+        "version": "emotion:universal-three-engine/1.0.0",
+        "strategy": "revisability",
+        "move": "introduce_counterconsideration",
+        "chosenFrom": "commitment",
+        "attention": {
+          "operation": "sequential_commitment",
+          "philosophicalOperation": "independent_judgment",
+          "primary": [],
+          "selectedRelations": [],
+          "initialAction": "maintain",
+          "fictionalDevelopment": "critique",
+          "responseStance": "hold"
+        },
+        "rhetoricSupported": true,
+        "inferredActualEmotion": false,
+        "inferredMoralRank": false,
+        "inferredPersonality": false,
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "noMindReading": true,
+        "publicationAllowed": false
+      },
+      "full": {
+        "status": "ready",
+        "version": "expression:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to keep the original plan, encountered the invented scene “a neighbor raises an objection”, then chose to explain your present reasons. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+            "evidenceIds": [
+              "choice:canonical",
+              "scenario:fictional"
+            ]
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          }
+        ],
+        "wordCount": 116,
+        "sectionWordCounts": [
+          39,
+          58,
+          19
+        ],
+        "sourceFingerprint": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "author": "Ralph Waldo Emerson",
+        "quote": "A foolish consistency is the hobgoblin of little minds.",
+        "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+        "publicationAllowed": false
+      },
+      "compact": {
+        "status": "ready",
+        "version": "compact:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to keep the original plan, saw “a neighbor raises an objection”, then chose to explain your present reasons."
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words. Revision itself cannot guarantee a better judgment."
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "After considering the imagined development, what evidence still warrants keeping the plan?"
+          }
+        ],
+        "visibleWordCount": 64,
+        "fullWordCount": 116,
+        "unchangedFullExpression": true,
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "sourceReview": "founder_provisional_development_only",
+        "philosopher": {
+          "author": "Ralph Waldo Emerson",
+          "work": "Essays: First Series, Self-Reliance",
+          "highlight": "A foolish consistency is the",
+          "exactQuote": "A foolish consistency is the hobgoblin of little minds.",
+          "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+        },
+        "deepening": {
+          "fullSections": [
+            {
+              "label": "Your Choice",
+              "text": "You chose to keep the original plan, encountered the invented scene “a neighbor raises an objection”, then chose to explain your present reasons. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift."
+            },
+            {
+              "label": "Back to the Philosopher",
+              "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment."
+            },
+            {
+              "label": "One Last Thing…",
+              "text": "Would you still keep the plan if no one remembered your earlier words, and what reasons support it today?"
+            }
+          ],
+          "sourceQualification": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Keeping the earlier position calls for present reasons rather than loyalty to past words after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+          "originalSourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+          "necessaryLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly"
+        },
+        "publicationAllowed": false
+      }
+    },
+    {
+      "path": [
+        "revisit",
+        "details",
+        "consider"
+      ],
+      "canonical": {
+        "path": [
+          "revisit",
+          "details",
+          "consider"
+        ]
+      },
+      "reasoning": {
+        "status": "ready",
+        "version": "reason:universal-three-engine/1.0.0",
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "selectedFamilyId": "decision_cards",
+        "canonical_choice": {
+          "path": [
+            "revisit",
+            "details",
+            "consider"
+          ]
+        },
+        "meaning": {
+          "kind": "decision_cards",
+          "centralClaim": "Fidelity to earlier words is not always faithful to present judgment",
+          "philosophicalOperation": {
+            "kind": "independent_judgment",
+            "focus": "present reasons behind a commitment",
+            "contrast": "independent judgment versus foolish consistency",
+            "startRoles": [
+              {
+                "id": "maintain",
+                "role": "retain_prior"
+              },
+              {
+                "id": "revisit",
+                "role": "reexamine_prior"
+              }
+            ],
+            "sourceWarrantIds": [
+              "source:central"
+            ]
+          },
+          "sourceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+          "selectedClaim": "The opening commitment “You open the plan to revision” meets the invented “new facts complicate the plan”. Your later response “You reconsider the evidence” can be evaluated by present reasons, not loyalty to earlier words.",
+          "choiceAnalysis": {
+            "operation": "sequential_commitment",
+            "initial": {
+              "id": "revisit",
+              "label": "You open the plan to revision"
+            },
+            "development": {
+              "id": "details",
+              "label": "new facts complicate the plan",
+              "authoredText": [
+                "Additional fictional details raise questions about the original decision"
+              ],
+              "fictional": true,
+              "causedByInitialChoice": false
+            },
+            "response": {
+              "id": "consider",
+              "label": "You reconsider the evidence",
+              "stance": "reconsider"
+            },
+            "alternativeFutureObserved": false,
+            "outcomeGuaranteed": false,
+            "sourceWarrantIds": [
+              "source:central",
+              "scenario:fictional"
+            ]
+          },
+          "selectedTimeline": {
+            "startId": "revisit",
+            "startLabel": "You open the plan to revision",
+            "sceneId": "details",
+            "sceneLabel": "new facts complicate the plan",
+            "authoredText": [
+              "Additional fictional details raise questions about the original decision"
+            ],
+            "responseId": "consider",
+            "responseLabel": "You reconsider the evidence",
+            "responseStance": "reconsider",
+            "authoredFutureIsPrediction": false,
+            "path": [
+              "revisit",
+              "details",
+              "consider"
+            ]
+          },
+          "selectedRelations": null,
+          "limitations": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+          "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+          "prohibitedInferences": [
+            "actual emotion",
+            "personality diagnosis",
+            "moral ranking",
+            "historical prediction"
+          ],
+          "supportedConclusions": [
+            "Past statements are not sufficient evidence for a present judgment"
+          ]
+        },
+        "choiceFeature": "revision",
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "hypothetical": true,
+        "realReaderEmotionInferred": false,
+        "publicationAllowed": false
+      },
+      "emotion": {
+        "status": "ready",
+        "version": "emotion:universal-three-engine/1.0.0",
+        "strategy": "revisability",
+        "move": "introduce_counterconsideration",
+        "chosenFrom": "revision",
+        "attention": {
+          "operation": "sequential_commitment",
+          "philosophicalOperation": "independent_judgment",
+          "primary": [],
+          "selectedRelations": [],
+          "initialAction": "revisit",
+          "fictionalDevelopment": "details",
+          "responseStance": "reconsider"
+        },
+        "rhetoricSupported": true,
+        "inferredActualEmotion": false,
+        "inferredMoralRank": false,
+        "inferredPersonality": false,
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "noMindReading": true,
+        "publicationAllowed": false
+      },
+      "full": {
+        "status": "ready",
+        "version": "expression:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to open the plan to revision, encountered the invented scene “new facts complicate the plan”, then chose to reconsider the evidence. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+            "evidenceIds": [
+              "choice:canonical",
+              "scenario:fictional"
+            ]
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          }
+        ],
+        "wordCount": 111,
+        "sectionWordCounts": [
+          39,
+          56,
+          16
+        ],
+        "sourceFingerprint": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "author": "Ralph Waldo Emerson",
+        "quote": "A foolish consistency is the hobgoblin of little minds.",
+        "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+        "publicationAllowed": false
+      },
+      "compact": {
+        "status": "ready",
+        "version": "compact:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to open the plan to revision, saw “new facts complicate the plan”, then chose to reconsider the evidence."
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency. Revision itself cannot guarantee a better judgment."
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "What evidence makes revising the plan your own judgment, rather than a reaction to criticism?"
+          }
+        ],
+        "visibleWordCount": 65,
+        "fullWordCount": 111,
+        "unchangedFullExpression": true,
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "sourceReview": "founder_provisional_development_only",
+        "philosopher": {
+          "author": "Ralph Waldo Emerson",
+          "work": "Essays: First Series, Self-Reliance",
+          "highlight": "A foolish consistency is the",
+          "exactQuote": "A foolish consistency is the hobgoblin of little minds.",
+          "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+        },
+        "deepening": {
+          "fullSections": [
+            {
+              "label": "Your Choice",
+              "text": "You chose to open the plan to revision, encountered the invented scene “new facts complicate the plan”, then chose to reconsider the evidence. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift."
+            },
+            {
+              "label": "Back to the Philosopher",
+              "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment."
+            },
+            {
+              "label": "One Last Thing…",
+              "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?"
+            }
+          ],
+          "sourceQualification": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+          "originalSourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+          "necessaryLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly"
+        },
+        "publicationAllowed": false
+      }
+    },
+    {
+      "path": [
+        "revisit",
+        "details",
+        "explain"
+      ],
+      "canonical": {
+        "path": [
+          "revisit",
+          "details",
+          "explain"
+        ]
+      },
+      "reasoning": {
+        "status": "ready",
+        "version": "reason:universal-three-engine/1.0.0",
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "selectedFamilyId": "decision_cards",
+        "canonical_choice": {
+          "path": [
+            "revisit",
+            "details",
+            "explain"
+          ]
+        },
+        "meaning": {
+          "kind": "decision_cards",
+          "centralClaim": "Fidelity to earlier words is not always faithful to present judgment",
+          "philosophicalOperation": {
+            "kind": "independent_judgment",
+            "focus": "present reasons behind a commitment",
+            "contrast": "independent judgment versus foolish consistency",
+            "startRoles": [
+              {
+                "id": "maintain",
+                "role": "retain_prior"
+              },
+              {
+                "id": "revisit",
+                "role": "reexamine_prior"
+              }
+            ],
+            "sourceWarrantIds": [
+              "source:central"
+            ]
+          },
+          "sourceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+          "selectedClaim": "The opening commitment “You open the plan to revision” meets the invented “new facts complicate the plan”. Your later response “You explain your present reasons” can be evaluated by present reasons, not loyalty to earlier words.",
+          "choiceAnalysis": {
+            "operation": "sequential_commitment",
+            "initial": {
+              "id": "revisit",
+              "label": "You open the plan to revision"
+            },
+            "development": {
+              "id": "details",
+              "label": "new facts complicate the plan",
+              "authoredText": [
+                "Additional fictional details raise questions about the original decision"
+              ],
+              "fictional": true,
+              "causedByInitialChoice": false
+            },
+            "response": {
+              "id": "explain",
+              "label": "You explain your present reasons",
+              "stance": "hold"
+            },
+            "alternativeFutureObserved": false,
+            "outcomeGuaranteed": false,
+            "sourceWarrantIds": [
+              "source:central",
+              "scenario:fictional"
+            ]
+          },
+          "selectedTimeline": {
+            "startId": "revisit",
+            "startLabel": "You open the plan to revision",
+            "sceneId": "details",
+            "sceneLabel": "new facts complicate the plan",
+            "authoredText": [
+              "Additional fictional details raise questions about the original decision"
+            ],
+            "responseId": "explain",
+            "responseLabel": "You explain your present reasons",
+            "responseStance": "hold",
+            "authoredFutureIsPrediction": false,
+            "path": [
+              "revisit",
+              "details",
+              "explain"
+            ]
+          },
+          "selectedRelations": null,
+          "limitations": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+          "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+          "prohibitedInferences": [
+            "actual emotion",
+            "personality diagnosis",
+            "moral ranking",
+            "historical prediction"
+          ],
+          "supportedConclusions": [
+            "Past statements are not sufficient evidence for a present judgment"
+          ]
+        },
+        "choiceFeature": "commitment",
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "hypothetical": true,
+        "realReaderEmotionInferred": false,
+        "publicationAllowed": false
+      },
+      "emotion": {
+        "status": "ready",
+        "version": "emotion:universal-three-engine/1.0.0",
+        "strategy": "revisability",
+        "move": "introduce_counterconsideration",
+        "chosenFrom": "commitment",
+        "attention": {
+          "operation": "sequential_commitment",
+          "philosophicalOperation": "independent_judgment",
+          "primary": [],
+          "selectedRelations": [],
+          "initialAction": "revisit",
+          "fictionalDevelopment": "details",
+          "responseStance": "hold"
+        },
+        "rhetoricSupported": true,
+        "inferredActualEmotion": false,
+        "inferredMoralRank": false,
+        "inferredPersonality": false,
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "noMindReading": true,
+        "publicationAllowed": false
+      },
+      "full": {
+        "status": "ready",
+        "version": "expression:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to open the plan to revision, encountered the invented scene “new facts complicate the plan”, then chose to explain your present reasons. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+            "evidenceIds": [
+              "choice:canonical",
+              "scenario:fictional"
+            ]
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          }
+        ],
+        "wordCount": 112,
+        "sectionWordCounts": [
+          40,
+          56,
+          16
+        ],
+        "sourceFingerprint": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "author": "Ralph Waldo Emerson",
+        "quote": "A foolish consistency is the hobgoblin of little minds.",
+        "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+        "publicationAllowed": false
+      },
+      "compact": {
+        "status": "ready",
+        "version": "compact:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to open the plan to revision, then to explain your present reasons."
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency. Revision itself cannot guarantee a better judgment."
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?"
+          }
+        ],
+        "visibleWordCount": 63,
+        "fullWordCount": 112,
+        "unchangedFullExpression": true,
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "sourceReview": "founder_provisional_development_only",
+        "philosopher": {
+          "author": "Ralph Waldo Emerson",
+          "work": "Essays: First Series, Self-Reliance",
+          "highlight": "A foolish consistency is the",
+          "exactQuote": "A foolish consistency is the hobgoblin of little minds.",
+          "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+        },
+        "deepening": {
+          "fullSections": [
+            {
+              "label": "Your Choice",
+              "text": "You chose to open the plan to revision, encountered the invented scene “new facts complicate the plan”, then chose to explain your present reasons. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift."
+            },
+            {
+              "label": "Back to the Philosopher",
+              "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment."
+            },
+            {
+              "label": "One Last Thing…",
+              "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?"
+            }
+          ],
+          "sourceQualification": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “new facts complicate the plan”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+          "originalSourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+          "necessaryLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly"
+        },
+        "publicationAllowed": false
+      }
+    },
+    {
+      "path": [
+        "revisit",
+        "critique",
+        "consider"
+      ],
+      "canonical": {
+        "path": [
+          "revisit",
+          "critique",
+          "consider"
+        ]
+      },
+      "reasoning": {
+        "status": "ready",
+        "version": "reason:universal-three-engine/1.0.0",
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "selectedFamilyId": "decision_cards",
+        "canonical_choice": {
+          "path": [
+            "revisit",
+            "critique",
+            "consider"
+          ]
+        },
+        "meaning": {
+          "kind": "decision_cards",
+          "centralClaim": "Fidelity to earlier words is not always faithful to present judgment",
+          "philosophicalOperation": {
+            "kind": "independent_judgment",
+            "focus": "present reasons behind a commitment",
+            "contrast": "independent judgment versus foolish consistency",
+            "startRoles": [
+              {
+                "id": "maintain",
+                "role": "retain_prior"
+              },
+              {
+                "id": "revisit",
+                "role": "reexamine_prior"
+              }
+            ],
+            "sourceWarrantIds": [
+              "source:central"
+            ]
+          },
+          "sourceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+          "selectedClaim": "The opening commitment “You open the plan to revision” meets the invented “a neighbor raises an objection”. Your later response “You reconsider the evidence” can be evaluated by present reasons, not loyalty to earlier words.",
+          "choiceAnalysis": {
+            "operation": "sequential_commitment",
+            "initial": {
+              "id": "revisit",
+              "label": "You open the plan to revision"
+            },
+            "development": {
+              "id": "critique",
+              "label": "a neighbor raises an objection",
+              "authoredText": [
+                "An invented neighbor asks for reasons rather than a declaration"
+              ],
+              "fictional": true,
+              "causedByInitialChoice": false
+            },
+            "response": {
+              "id": "consider",
+              "label": "You reconsider the evidence",
+              "stance": "reconsider"
+            },
+            "alternativeFutureObserved": false,
+            "outcomeGuaranteed": false,
+            "sourceWarrantIds": [
+              "source:central",
+              "scenario:fictional"
+            ]
+          },
+          "selectedTimeline": {
+            "startId": "revisit",
+            "startLabel": "You open the plan to revision",
+            "sceneId": "critique",
+            "sceneLabel": "a neighbor raises an objection",
+            "authoredText": [
+              "An invented neighbor asks for reasons rather than a declaration"
+            ],
+            "responseId": "consider",
+            "responseLabel": "You reconsider the evidence",
+            "responseStance": "reconsider",
+            "authoredFutureIsPrediction": false,
+            "path": [
+              "revisit",
+              "critique",
+              "consider"
+            ]
+          },
+          "selectedRelations": null,
+          "limitations": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+          "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+          "prohibitedInferences": [
+            "actual emotion",
+            "personality diagnosis",
+            "moral ranking",
+            "historical prediction"
+          ],
+          "supportedConclusions": [
+            "Past statements are not sufficient evidence for a present judgment"
+          ]
+        },
+        "choiceFeature": "revision",
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "hypothetical": true,
+        "realReaderEmotionInferred": false,
+        "publicationAllowed": false
+      },
+      "emotion": {
+        "status": "ready",
+        "version": "emotion:universal-three-engine/1.0.0",
+        "strategy": "revisability",
+        "move": "introduce_counterconsideration",
+        "chosenFrom": "revision",
+        "attention": {
+          "operation": "sequential_commitment",
+          "philosophicalOperation": "independent_judgment",
+          "primary": [],
+          "selectedRelations": [],
+          "initialAction": "revisit",
+          "fictionalDevelopment": "critique",
+          "responseStance": "reconsider"
+        },
+        "rhetoricSupported": true,
+        "inferredActualEmotion": false,
+        "inferredMoralRank": false,
+        "inferredPersonality": false,
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "noMindReading": true,
+        "publicationAllowed": false
+      },
+      "full": {
+        "status": "ready",
+        "version": "expression:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to open the plan to revision, encountered the invented scene “a neighbor raises an objection”, then chose to reconsider the evidence. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+            "evidenceIds": [
+              "choice:canonical",
+              "scenario:fictional"
+            ]
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          }
+        ],
+        "wordCount": 111,
+        "sectionWordCounts": [
+          39,
+          56,
+          16
+        ],
+        "sourceFingerprint": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "author": "Ralph Waldo Emerson",
+        "quote": "A foolish consistency is the hobgoblin of little minds.",
+        "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+        "publicationAllowed": false
+      },
+      "compact": {
+        "status": "ready",
+        "version": "compact:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to open the plan to revision, saw “a neighbor raises an objection”, then chose to reconsider the evidence."
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency. Revision itself cannot guarantee a better judgment."
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "What evidence makes revising the plan your own judgment, rather than a reaction to criticism?"
+          }
+        ],
+        "visibleWordCount": 65,
+        "fullWordCount": 111,
+        "unchangedFullExpression": true,
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "sourceReview": "founder_provisional_development_only",
+        "philosopher": {
+          "author": "Ralph Waldo Emerson",
+          "work": "Essays: First Series, Self-Reliance",
+          "highlight": "A foolish consistency is the",
+          "exactQuote": "A foolish consistency is the hobgoblin of little minds.",
+          "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+        },
+        "deepening": {
+          "fullSections": [
+            {
+              "label": "Your Choice",
+              "text": "You chose to open the plan to revision, encountered the invented scene “a neighbor raises an objection”, then chose to reconsider the evidence. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift."
+            },
+            {
+              "label": "Back to the Philosopher",
+              "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment."
+            },
+            {
+              "label": "One Last Thing…",
+              "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?"
+            }
+          ],
+          "sourceQualification": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+          "originalSourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+          "necessaryLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly"
+        },
+        "publicationAllowed": false
+      }
+    },
+    {
+      "path": [
+        "revisit",
+        "critique",
+        "explain"
+      ],
+      "canonical": {
+        "path": [
+          "revisit",
+          "critique",
+          "explain"
+        ]
+      },
+      "reasoning": {
+        "status": "ready",
+        "version": "reason:universal-three-engine/1.0.0",
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "selectedFamilyId": "decision_cards",
+        "canonical_choice": {
+          "path": [
+            "revisit",
+            "critique",
+            "explain"
+          ]
+        },
+        "meaning": {
+          "kind": "decision_cards",
+          "centralClaim": "Fidelity to earlier words is not always faithful to present judgment",
+          "philosophicalOperation": {
+            "kind": "independent_judgment",
+            "focus": "present reasons behind a commitment",
+            "contrast": "independent judgment versus foolish consistency",
+            "startRoles": [
+              {
+                "id": "maintain",
+                "role": "retain_prior"
+              },
+              {
+                "id": "revisit",
+                "role": "reexamine_prior"
+              }
+            ],
+            "sourceWarrantIds": [
+              "source:central"
+            ]
+          },
+          "sourceClaim": "A mistaken insistence on consistency can inhibit independent thought",
+          "selectedClaim": "The opening commitment “You open the plan to revision” meets the invented “a neighbor raises an objection”. Your later response “You explain your present reasons” can be evaluated by present reasons, not loyalty to earlier words.",
+          "choiceAnalysis": {
+            "operation": "sequential_commitment",
+            "initial": {
+              "id": "revisit",
+              "label": "You open the plan to revision"
+            },
+            "development": {
+              "id": "critique",
+              "label": "a neighbor raises an objection",
+              "authoredText": [
+                "An invented neighbor asks for reasons rather than a declaration"
+              ],
+              "fictional": true,
+              "causedByInitialChoice": false
+            },
+            "response": {
+              "id": "explain",
+              "label": "You explain your present reasons",
+              "stance": "hold"
+            },
+            "alternativeFutureObserved": false,
+            "outcomeGuaranteed": false,
+            "sourceWarrantIds": [
+              "source:central",
+              "scenario:fictional"
+            ]
+          },
+          "selectedTimeline": {
+            "startId": "revisit",
+            "startLabel": "You open the plan to revision",
+            "sceneId": "critique",
+            "sceneLabel": "a neighbor raises an objection",
+            "authoredText": [
+              "An invented neighbor asks for reasons rather than a declaration"
+            ],
+            "responseId": "explain",
+            "responseLabel": "You explain your present reasons",
+            "responseStance": "hold",
+            "authoredFutureIsPrediction": false,
+            "path": [
+              "revisit",
+              "critique",
+              "explain"
+            ]
+          },
+          "selectedRelations": null,
+          "limitations": "A revised view is not automatically wiser, nor is keeping a view always cowardly",
+          "counterexample": "Emerson criticizes foolish consistency, not every principled commitment",
+          "prohibitedInferences": [
+            "actual emotion",
+            "personality diagnosis",
+            "moral ranking",
+            "historical prediction"
+          ],
+          "supportedConclusions": [
+            "Past statements are not sufficient evidence for a present judgment"
+          ]
+        },
+        "choiceFeature": "commitment",
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "hypothetical": true,
+        "realReaderEmotionInferred": false,
+        "publicationAllowed": false
+      },
+      "emotion": {
+        "status": "ready",
+        "version": "emotion:universal-three-engine/1.0.0",
+        "strategy": "revisability",
+        "move": "introduce_counterconsideration",
+        "chosenFrom": "commitment",
+        "attention": {
+          "operation": "sequential_commitment",
+          "philosophicalOperation": "independent_judgment",
+          "primary": [],
+          "selectedRelations": [],
+          "initialAction": "revisit",
+          "fictionalDevelopment": "critique",
+          "responseStance": "hold"
+        },
+        "rhetoricSupported": true,
+        "inferredActualEmotion": false,
+        "inferredMoralRank": false,
+        "inferredPersonality": false,
+        "evidenceIds": [
+          "source:central",
+          "scenario:fictional",
+          "source:boundary"
+        ],
+        "noMindReading": true,
+        "publicationAllowed": false
+      },
+      "full": {
+        "status": "ready",
+        "version": "expression:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to open the plan to revision, encountered the invented scene “a neighbor raises an objection”, then chose to explain your present reasons. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift.",
+            "evidenceIds": [
+              "choice:canonical",
+              "scenario:fictional"
+            ]
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?",
+            "evidenceIds": [
+              "source:central",
+              "scenario:fictional",
+              "source:boundary"
+            ]
+          }
+        ],
+        "wordCount": 112,
+        "sectionWordCounts": [
+          40,
+          56,
+          16
+        ],
+        "sourceFingerprint": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "author": "Ralph Waldo Emerson",
+        "quote": "A foolish consistency is the hobgoblin of little minds.",
+        "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+        "publicationAllowed": false
+      },
+      "compact": {
+        "status": "ready",
+        "version": "compact:universal-three-engine/1.0.0",
+        "sections": [
+          {
+            "label": "Your Choice",
+            "text": "You chose to open the plan to revision, then to explain your present reasons."
+          },
+          {
+            "label": "Back to the Philosopher",
+            "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency. Revision itself cannot guarantee a better judgment."
+          },
+          {
+            "label": "One Last Thing…",
+            "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?"
+          }
+        ],
+        "visibleWordCount": 63,
+        "fullWordCount": 112,
+        "unchangedFullExpression": true,
+        "sourceRecordId": "cz147:quoted-source:55",
+        "sourceVersionHash": "sha256:f2209f12a3a0295b3c62f1d516eaafa640c328df9c0db49e85c7d9a2878e2a6b",
+        "sourceReview": "founder_provisional_development_only",
+        "philosopher": {
+          "author": "Ralph Waldo Emerson",
+          "work": "Essays: First Series, Self-Reliance",
+          "highlight": "A foolish consistency is the",
+          "exactQuote": "A foolish consistency is the hobgoblin of little minds.",
+          "sourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+        },
+        "deepening": {
+          "fullSections": [
+            {
+              "label": "Your Choice",
+              "text": "You chose to open the plan to revision, encountered the invented scene “a neighbor raises an objection”, then chose to explain your present reasons. The dilemma involves keeping a public promise of consistency or revisiting your judgment when circumstances shift."
+            },
+            {
+              "label": "Back to the Philosopher",
+              "text": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment."
+            },
+            {
+              "label": "One Last Thing…",
+              "text": "What new evidence would justify revising the plan rather than changing it merely to avoid criticism?"
+            }
+          ],
+          "sourceQualification": "Ralph Waldo Emerson: Fidelity to earlier words is not always faithful to present judgment. Reopening the earlier position may express independent judgment rather than mere inconsistency after the invented “a neighbor raises an objection”. A revised view is not automatically wiser, nor is keeping a view always cowardly. Emerson criticizes foolish consistency, not every principled commitment.",
+          "originalSourceUrl": "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance",
+          "necessaryLimits": "A revised view is not automatically wiser, nor is keeping a view always cowardly"
+        },
+        "publicationAllowed": false
+      }
+    }
+  ]
+}

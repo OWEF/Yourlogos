@@ -3,6 +3,7 @@
  * Pure markup/state helpers: existing app.js owns routing, persist(), Like,
  * My World, and the asynchronous server-side Reasoning/Emotion/Expression.
  */
+import {startEncounter,chooseAction} from "./experiments/yl-cz155-director.mjs";
 import {philosopherPortrait} from "./philosopher-portraits.js";
 const e=s=>String(s??"").replace(/[&<>"']/g,c=>({
  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
@@ -27,6 +28,7 @@ function responses(record,start,scene){
   .map(([id,label])=>({id,label}));
 }
 export function initializeB27Game(record){
+ if(record?.director)return startEncounter(record.director);
  const family=record?.familyId;
  if(family==="balance_move"){
   const a=record.allocation;
@@ -44,6 +46,7 @@ export function initializeB27Game(record){
 const counts=(game,n)=>Array.from({length:n},(_,i)=>
  game.owners.filter(x=>x===i).length);
 function gameStep(record,game){
+ if(record.director)return game?.phase==="complete";
  if(record.familyId==="balance_move")return game?.touched===true;
  if(record.familyId==="tap_pair")return game?.pairs?.length>=1;
  return game?.start!==null&&game?.scene!==null&&game?.response!==null;
@@ -113,6 +116,14 @@ export function adjustB27Game(enc,action,value,other=null){
    }
   }
  }
+ if(action==="branch"&&record.director){
+  if(!g.options.some(option=>option.id===value))return false;
+  const next=chooseAction(record.director,g.history,{choiceId:value,expectedRevision:g.revision});
+  if(next.phase!=="reconsider"&&next.phase!=="complete")return false;
+  enc.history.push(enc.game);
+  enc.game=next;enc.message="";enc.result=null;
+  return true;
+ }
  if(action==="branch"&&(family==="decision_cards"||family==="flip_reveal")){
   if(g.start===null&&starts(record).some(x=>x.id===value)){
    g.start=value;g.scene=null;g.response=null;changed=true;
@@ -138,6 +149,7 @@ export function adjustB27Game(enc,action,value,other=null){
 export function canonicalB27Input(enc){
  const rec=enc.record,g=enc.game;
  if(!canFinishB27(enc))return null;
+ if(rec.director)return structuredClone(g.canonicalInput);
  if(rec.familyId==="balance_move"){
   const alloc=rec.allocation;
   return {amounts:counts(g,alloc.choices.length),
@@ -296,7 +308,123 @@ function fullAuthoredDetail(record){
  // sentences can carry the true tension, causality boundary or limitation.
  return String(record.intro||record.humanTension||record.relation?.prompt||"").trim();
 }
+
+/* M2: an authored visual mode over the SAME derived Director state.
+   Only source-authored presentation data selects it; no author-name or
+   source-ID branching, new state machine or independent persistence. */
+/* M2 R2: genuine four-beat Social Simulator UI. These are presentational
+   projections of the SAME deterministic Director; no new event or fact.
+   The independently authored event is revealed after a sent-message beat,
+   and the reviewed follow-up choices remain the only participant actions. */
+/* CZ-153 M2 R3: the source-authored message_thread is a real messenger
+   presentation over the ONE existing Director. Draft selection, waiting and
+   revisiting prior context are UI-only; canonical history changes only when
+   the participant explicitly Sends or chooses one of the two warranted acts. */
+function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId){
+ const first=state.firstAction,second=state.secondAction,observed=state.observation;
+ const beat=state.phase==="opening"?"choose":state.phase==="complete"?"complete":
+  ["send","wait","reconsider"].includes(presentationBeat)?presentationBeat:"wait";
+ const contact=e(presentation.correspondent||"Your friend");
+ const contactBar='<header class="b27-r3-contact">'+
+  '<span class="b27-r3-avatar" aria-hidden="true">◇</span>'+
+  '<div><strong>'+contact+'</strong><small>FICTIONAL CONVERSATION</small></div>'+
+  '</header>';
+ const sent=first?
+  '<section class="b27-transcript b27-social-message b27-r3-sent" aria-label="Your first sent message">'+
+   '<blockquote>'+e(first.literal)+'</blockquote><small>Sent</small></section>':"";
+ // This independently authored fact describes the FIRST message only.
+ const event=observed?
+  '<div class="b27-social-event b27-r3-event" id="b27-observation" role="note" aria-label="Independent story observation after the first message">'+
+   '<small>AFTER THE FIRST MESSAGE</small>'+
+   '<p class="b27-observation">'+e(observed.text)+'</p>'+
+   '<small>READ STATUS UNKNOWN</small></div>':"";
+ const afterSecond=second?second.medium==="message"?
+  '<section class="b27-social-message b27-social-second b27-r3-sent" aria-label="Your second sent message">'+
+   '<blockquote>'+e(second.literal)+'</blockquote>'+
+   '<small>Sent · Delivery and reply not observed for this second message</small></section>':
+  '<aside class="b27-social-private b27-r3-note" role="note" aria-label="Private follow-up, not sent">'+
+   '<h3>'+e(second.medium==="private_note"?"PRIVATE NOTE · NOT SENT":"PRIVATE DECISION · NOT SENT")+'</h3>'+
+   '<p>'+e(second.literal)+'</p></aside>':"";
+ const drafts=state.options.map(choice=>{
+  const active=choice.id===selectedDraftId;
+  return b("social-pick",
+   '<span class="b27-r3-select-circle" aria-hidden="true">'+(active?"✓":"")+'</span>'+
+   '<span class="b27-r3-draft-copy">'+e(choice.literal)+'</span>',
+   "b27-r3-draft"+(active?" is-selected":""),
+   'data-value="'+e(choice.id)+'" aria-pressed="'+(active?"true":"false")+'"');
+ }).join("");
+ const choosing=beat==="choose"?
+  '<main class="b27-r3-conversation b27-r3-choose" aria-label="Conversation context">'+
+   '<p class="b27-r3-context">Yesterday you laughed at your friend’s idea in front of the group. They went quiet.</p>'+
+   '<span class="b27-r3-thread-quiet" aria-hidden="true">◇</span></main>'+
+  '<section class="b27-r3-composer" aria-label="Choose what to send">'+
+   '<h3 class="b27-r3-composer-title">Choose your words</h3>'+
+   '<div class="b27-r3-drafts" role="group" aria-label="Three possible messages">'+drafts+'</div>'+
+   '<div class="b27-r3-sendbar">'+
+    '<p class="b27-r3-send-caption" aria-live="polite">'+
+     (selectedDraftId?"Your message is ready.":"Select a message to compose.")+'</p>'+
+    b("social-send",'<span>Send</span><span aria-hidden="true">↗</span>',
+     "b27-r3-send-button",selectedDraftId?'':'disabled aria-disabled="true"')+
+   '</div></section>':"";
+ const sending=beat==="send"?
+  '<main class="b27-r3-conversation b27-r3-sending" aria-label="Message sent">'+
+   sent+'<p class="b27-r3-sent-cue" role="status">Message sent</p></main>':"";
+ const waiting=beat==="wait"?
+  '<main class="b27-r3-conversation b27-r3-waiting" aria-label="An unanswered message">'+
+   sent+'<div class="b27-r3-quiet-horizon" aria-hidden="true"><i></i></div>'+
+   event+'<p class="b27-r3-quiet-line">The conversation is quiet.</p>'+
+   '<div class="b27-r3-wait-control">'+
+    b("social-reflect",'<span>Consider your next step</span><span aria-hidden="true">↗</span>',
+     "b27-r3-continue")+'</div>'+
+   '</main>':"";
+ const followUps=state.options.map(choice=>b("branch",
+  '<span class="b27-r3-action-symbol" aria-hidden="true">↗</span>'+
+  '<span class="b27-r3-action-copy"><strong>'+e(choice.label)+'</strong>'+
+   '<span class="b27-social-choice-literal">'+e(choice.literal)+'</span></span>',
+  "b27-choice b27-social-option b27-r3-followup",
+  'data-value="'+e(choice.id)+'"')).join("");
+ const recollect=first?
+  '<details class="b27-r3-recall"><summary>Earlier in the conversation</summary>'+
+   '<div class="b27-r3-recall-body">'+sent+event+'</div></details>':"";
+ const reflection=beat==="reconsider"?
+  '<main class="b27-r3-reflection" aria-label="Reconsideration">'+
+   '<div class="b27-r3-reflection-horizon" aria-hidden="true"><i></i></div>'+
+   '<section class="b27-social-reconsider">'+
+    '<p class="b27-r3-reflection-eyebrow">A MOMENT TO RECONSIDER</p>'+
+    '<h3 class="b27-choice-question" tabindex="-1" aria-describedby="b27-r3-reflection-cue">'+
+     e(state.reconsiderationQuestion)+'</h3>'+
+    '<p id="b27-r3-reflection-cue" class="b27-r3-reflection-cue">What might you do next?</p>'+
+   '</section>'+
+   '<div class="b27-social-options b27-message-choices b27-r3-followups" role="group" aria-label="'+e(state.reconsiderationQuestion)+'">'+
+    followUps+'</div>'+recollect+
+   '</main>':"";
+ const complete=beat==="complete"?
+  '<main class="b27-r3-conversation b27-r3-finished" aria-label="Your actions so far">'+
+   sent+event+afterSecond+
+   '<div class="b27-r3-ending" role="status">'+
+    '<span>YOUR NEXT ACTION IS RECORDED</span>'+
+    '<h3>The story does not tell you their response.</h3>'+
+    '<p>Only the first message has an observed delivery status.</p></div>'+
+   '</main>':"";
+ return '<div class="b27-social b27-r3-simulator" data-director-presentation="message_thread"'+
+  ' data-social-beat="'+e(beat)+'">'+
+  (beat==="reconsider"?"":contactBar)+choosing+sending+waiting+reflection+complete+'</div>';
+}
+function directedDecisionHtml(state,presentation,presentationBeat,selectedDraftId){
+ if(presentation?.kind==="message_thread")return socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId);
+ const first=state.firstAction;
+ const transcript=first?'<section class="b27-transcript"><h3>What you sent</h3><blockquote>'+e(first.literal)+'</blockquote></section>':"";
+ const observation=state.observation?'<p id="b27-observation" class="b27-observation">'+e(state.observation.text)+'</p>':"";
+ const followup=state.secondAction?'<section class="b27-transcript"><h3>'+e(state.secondAction.label)+'</h3><p>'+
+  e(state.secondAction.literal)+'</p></section>':"";
+ const cards=state.options.map(choice=>b("branch",'<strong>'+e(choice.label)+'</strong><span>'+e(choice.literal)+'</span>',
+  "b27-choice",'data-value="'+e(choice.id)+'"')).join("");
+ const prompt=state.phase==="opening"?"What will you send?":state.phase==="reconsider"?state.reconsiderationQuestion:"";
+ return transcript+observation+followup+(prompt?'<h3 class="b27-choice-question" tabindex="-1"'+(state.observation?' aria-describedby="b27-observation"':'')+'>'+e(prompt)+'</h3>':"")+
+  (cards?'<div class="b27-cards b27-message-choices" role="group" aria-label="'+e(prompt)+'">'+cards+'</div>':"");
+}
 function gameHtml(enc){
+ if(enc.record.director)return directedDecisionHtml(enc.game,enc.record.narrativeBridge?.directorPresentation,enc.presentationBeat,enc.selectedDraftId);
  if(enc.record.familyId==="balance_move")return balanceHtml(enc);
  if(enc.record.familyId==="tap_pair")return pairHtml(enc);
  if(enc.record.familyId==="decision_cards")return decisionHtml(enc);
@@ -307,22 +435,43 @@ function resultHtml(enc){
  if(!v||v.status!=="ready"||!Array.isArray(v.sections)||v.sections.length!==3)
   return '<p>Unable to display a faithful interpretation.</p>';
  const sections=v.sections,ph=v.philosopher||{};
+ const transcript=enc.result.provenance?.directorTranscript;
+ // The existing saved fullMeaning already retains the reviewed action medium.
+ // Read it back instead of mislabeling a private note as a sent message.
+ const chosen=enc.result.fullMeaning?.meaning?.choiceAnalysis;
+ const firstMedium=chosen?.initial?.medium,secondMedium=chosen?.response?.medium;
+ const firstKind=firstMedium==="message"?"FIRST MESSAGE · SENT":
+  firstMedium==="public_statement"?"FIRST PUBLIC STATEMENT":"FIRST ACTION";
+ const secondKind=secondMedium==="message"?"SECOND MESSAGE · SENT":
+  secondMedium==="private_note"?"PRIVATE NOTE · NOT SENT":
+  secondMedium==="commitment"?"PRIVATE DECISION · NOT SENT":
+  secondMedium==="public_statement"?"SECOND PUBLIC STATEMENT":"FOLLOW-UP ACTION";
+ const originalText=transcript?'<section class="b27-transcript b27-result-trace" aria-label="Recorded fictional actions">'+
+  '<h3>'+e(firstKind)+'</h3><blockquote>'+e(transcript.firstMessage)+'</blockquote>'+
+  '<div class="b27-result-external"><small>INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE</small><p>'+e(transcript.event)+'</p></div>'+
+  '<div class="b27-result-followup"><h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p>'+
+   (secondMedium==="message"?'<small>Second message: sent; delivery and reply not observed.</small>':
+    secondMedium==="private_note"||secondMedium==="commitment"?'<small>Private action; not sent to the recipient.</small>':"")+
+   '</div>'+
+  '</section>':"";
+ const fullText=transcript?arr(enc.result.fullExpression?.sections).map(section=>
+  '<p>'+e(section.text)+'</p>').join(""):'<p>'+e(v.deepening?.sourceQualification||"")+'</p>';
  return '<div class="b27-result" aria-label="Three-part philosophical discovery">'+
   '<p class="b27-kicker">DISCOVER THE MEANING</p>'+
   '<h2 class="b27-result-headline" tabindex="-1">A different way to see it.</h2>'+
   '<article class="b27-result-section b27-result-personal"><h3>'+e(sections[0].label)+'</h3><p>'+e(sections[0].text)+'</p></article>'+
   '<article class="b27-result-section b27-result-philosophy"><h3>'+e(sections[1].label)+'</h3><p>'+e(sections[1].text)+'</p></article>'+
   '<article class="b27-result-section b27-result-question"><h3>'+e(sections[2].label)+'</h3><p>'+e(sections[2].text)+'</p></article>'+
-  '<details class="b27-deepen"><summary>Go deeper</summary>'+
+  originalText+'<details class="b27-deepen"><summary>Go deeper</summary>'+
    '<div class="b27-thinker"><span class="b27-portrait" aria-hidden="true">'+philosopherPortrait(ph.author||"")+'</span>'+
    '<div><strong>'+e(ph.author||"")+'</strong><small>'+e(ph.work||"")+'</small></div></div>'+
    (ph.highlight?'<div class="b27-quote-fragment">“'+e(ph.highlight)+'…”</div>':"")+
-   '<p>'+e(v.deepening?.sourceQualification||"")+'</p>'+
+   fullText+
    '<p>Full source-grounded interpretation: '+e(v.fullWordCount||"")+
    ' words. This imagined situation does not establish facts about your life or an alternative future.</p>'+
    (ph.sourceUrl?.startsWith("https://")?'<a href="'+e(ph.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Read source text</a>':"")+
    '</details>'+
-  '<div class="b27-buttons">'+b("revise","Revise","b27-secondary")+
+  '<div class="b27-buttons">'+(enc.record&&!transcript?b("revise","Revise","b27-secondary"):b("replay","Play again","b27-secondary"))+
    (enc.saved?b("world","View in My World","b27-primary"):
     b("save","Finish &amp; Save","b27-primary",enc.saving?"disabled":""))+
   '</div>'+
@@ -338,12 +487,16 @@ export function renderB27Encounter(enc,quote){
   return start+'<div class="b27-main b27-situation"><p class="b27-kicker">FINDING THE SOURCE</p><h2>From this thought, a possibility.</h2><p role="status">Finding a source-grounded experience…</p></div></section>';
  if(enc.stage==="error")
   return start+'<div class="b27-main"><h2>That thought needs another look.</h2><p role="alert">'+e(enc.message)+'</p></div></section>';
- if(enc.stage==="reading")
-  return start+'<div class="b27-main"><p class="b27-kicker">ABOUT THIS THOUGHT</p>'+
-   '<h2>Stay with the idea.</h2><blockquote>“'+e(quote?.[0]||enc.quote?.text)+'”</blockquote>'+
-   '<p>— '+e(quote?.[1]||enc.quote?.author)+'</p><p>'+e(enc.quote?.question||"What does this idea ask us to examine?")+'</p>'+
-   '<p class="b27-source-note">'+e(enc.reason||"This quotation does not yet have a source-warranted mini-game.")+'</p>'+
-   '<p class="b27-caveat">No philosophical result was invented.</p></div></section>';
+ if(enc.stage==="reading"){
+  const q=enc.quote,passage=enc.reading;
+  return start+'<div class="b27-main b27-reading"><blockquote>“'+e(q.text)+'”</blockquote>'+
+   '<p>— '+e(q.author)+'</p><p class="b27-source-note">'+e(q.work)+'</p>'+
+   (passage?.context?'<h2>In the passage</h2><p>'+e(passage.context)+'</p>':"")+
+   '<h2>A question to sit with</h2><p>'+e(passage?.question||q.question)+'</p>'+
+   (passage?.url?.startsWith("https://")?'<a href="'+e(passage.url)+
+    '" target="_blank" rel="noopener noreferrer">Read the passage</a>':"")+
+   '</div></section>';
+ }
  if(enc.stage==="result")
   return start+'<div class="b27-main b27-reveal">'+resultHtml(enc)+'</div></section>';
  const r=enc.record,author=e(enc.quote?.author||quote?.[1]||"");
@@ -370,16 +523,18 @@ export function renderB27Encounter(enc,quote){
    '<div class="b27-buttons">'+b("begin","Step into the moment","b27-primary")+'</div>'+
    '<p class="b27-byline">'+author+'</p>'+context+'</div></section>';
  const done=canFinishB27(enc);
- const phase=enc.game?.start===null?"opening":enc.game?.scene===null?"development":
+ const phase=r.director?enc.game.phase:enc.game?.start===null?"opening":enc.game?.scene===null?"development":
   enc.game?.response===null?"response":"finished";
  return start+'<div class="b27-main b27-play">'+
   '<div class="b27-play-thread" aria-hidden="true"><i></i><span>✦</span><i></i></div>'+
-  '<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>'+
-  '<p class="b27-play-prompt">'+e(bridge.playPrompt)+'</p>'+
-  '<div class="b27-game" role="region" tabindex="-1" aria-label="Interactive philosophical game" data-b27-family="'+e(r.familyId)+'" data-b27-phase="'+e(phase)+'">'+gameHtml(enc)+'</div>'+
+  (r.director&&bridge.directorPresentation?.kind==="message_thread"?"":'<p class="b27-kicker">YOUR TURN <span>· '+e(pretty[r.familyId]||"ENCOUNTER")+'</span></p>')+
+  (r.director&&bridge.directorPresentation?.kind==="message_thread"?"":
+   '<p class="b27-play-prompt">'+e(r.director&&bridge.directorPresentation?.kind==="message_thread"?
+    bridge.directorPresentation.openingPrompt:r.director?enc.game.opening:bridge.playPrompt)+'</p>')+
+  '<div class="b27-game" role="region" tabindex="-1" aria-label="'+e(r.director&&bridge.directorPresentation?.kind==="message_thread"?"Fictional social encounter":"Interactive philosophical game")+'" data-b27-family="'+e(r.familyId)+'" data-b27-phase="'+e(phase)+'">'+gameHtml(enc)+'</div>'+
   '<div class="b27-buttons">'+
    (arr(enc.history).length?b("undo","Undo","b27-secondary"):"")+
-   (enc.game?.touched?b("reset","Reset","b27-secondary"):"")+
+   ((enc.game?.touched||enc.game?.revision>0)?b("reset","Reset","b27-secondary"):"")+
    (done?b("complete","Reveal insight","b27-primary",enc.saving?"disabled":""):"")+
   '</div>'+
   (enc.message?'<p class="b27-feedback" role="status" aria-live="polite">'+e(enc.message)+'</p>':"")+
