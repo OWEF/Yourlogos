@@ -35,7 +35,8 @@ test("Every projected transition can be replayed by the server and an actual My 
     "Wait and Reconsider are different visible scenes");
    const middle=renderB27Encounter({...sheet,presentationBeat:"reconsider"});
    assert.match(middle,/Message delivered/);
-   assert.match(middle,/What am I asking the other person/);
+   assert.match(middle,/group notice|meeting will revisit/i);
+   assert.match(middle,/Tomorrow the group|tomorrow the group/i);
    assert.match(middle,/AFTER THE FIRST MESSAGE/);
    assert.match(middle,/READ STATUS UNKNOWN/);
    assert.doesNotMatch(middle,/b27-social-facts|YOUR NEXT RESPONSIBILITY|FURTHER REPAIR MAY STILL MATTER/i);
