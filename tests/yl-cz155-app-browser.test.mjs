@@ -101,7 +101,12 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(await firstButton.count(),3);
   const chosen=page.locator('[data-b27="branch"][data-value="'+first+'"]');
   const literal=await chosen.locator("span").innerText();
+  assert.equal(await page.locator('.b27-chat-sim[data-social-beat="choose"]').count(),1);
+  assert.equal(await page.getByText("Decision Cards",{exact:true}).count(),0);
+  if(first==="acknowledge"&&second==="invite")
+   await capture(page,"M2R2-390-choose",".b27-play");
   await chosen.press("Enter");
+  await page.locator('.b27-chat-sim[data-social-beat="reconsider"]').waitFor();
   assert.equal(await page.locator(".b27-social").count(),1,
    "Epictetus pilot must use the source-authored conversation presentation");
   const event=await page.locator(".b27-observation").innerText();
@@ -139,6 +144,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   }
   const next=page.locator('[data-b27="branch"][data-value="'+second+'"]');
   await next.press("Enter");
+  await page.locator('.b27-chat-sim[data-social-beat="complete"]').waitFor();
   const privateFollowUp=["correct","leave_request","prepare_question"].includes(second);
   assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
   assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
@@ -459,7 +465,7 @@ test("M2: 320/390/430/1024px reconsideration, motion and resumed focus preserve 
 });
 
 
-test("M2 R1: 320/390/430px second choice is discoverable at first paint with accessible focus",async t=>{
+test("M2 R2: 320/390/430px reconsideration remains visible and focused after the staged beat",async t=>{
  const base=await launchApp(t,true);
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
   {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
