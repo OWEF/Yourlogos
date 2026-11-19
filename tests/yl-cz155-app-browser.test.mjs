@@ -769,3 +769,67 @@ test("M2 R3: double Send, Undo and resumed Wait do not invent or duplicate event
  assert.equal((await state(page)).game.history.events.length,2,
   "Undo/re-Send must replay one choice, not duplicate observations");
 });
+
+test("M2 R4 R2: 430px keyboard focus stability across reload, motion settings and repeated tabbing",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ const observations=[];
+ for(const reducedMotion of ["reduce","no-preference"]){
+  const context=await browser.newContext({viewport:{width:430,height:844},
+   timezoneId:"UTC",reducedMotion,isMobile:true,hasTouch:true,serviceWorkers:"block"});
+  const page=await context.newPage();
+  try{
+   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+   await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+   await page.getByRole("button",{name:"Get started"}).click();
+   await page.getByRole("button",{name:"Skip",exact:true}).click();
+   await page.locator("#yl-enter").press("End");
+   await page.locator('[data-action="discover"]').click();
+   await waitForDirector(page,"opening");
+   await control(page,"begin").click();
+   await sendSocial(page,"request");
+   for(let repeat=0;repeat<8;repeat++){
+    if(repeat){
+     await page.reload({waitUntil:"domcontentloaded"});
+     await page.locator("#yl-enter").press("End");
+     await page.locator('[data-action="discover"]').click();
+     await waitForDirector(page,"reconsider");
+     await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
+     await reflectSocial(page);
+    }
+    assert.equal(await page.locator(".b27-r3-followup").count(),6);
+    await page.locator(".b27-choice-question").focus();
+    const questionWasFocused=await page.locator(".b27-choice-question")
+     .evaluate(el=>document.activeElement===el);
+    assert.equal(questionWasFocused,true,"Question must retain programmatic focus before Tab");
+    await page.keyboard.press("Tab");
+    const snapshot=await page.evaluate(()=>{
+     const first=document.querySelector(".b27-r3-followup");
+     const active=document.activeElement;
+     const title=document.querySelector(".b27-choice-question");
+     return {
+      activeTag:active?.tagName,activeClass:active?.className,
+      activeData:active?.getAttribute("data-b27"),
+      firstFocused:active===first,focusVisible:first.matches(":focus-visible"),
+      outline:getComputedStyle(first).outlineStyle,
+      gap:first.getBoundingClientRect().top-title.getBoundingClientRect().bottom
+     };
+    });
+    await page.waitForTimeout(120);
+    const persisted=await page.locator(".b27-r3-followup").first().evaluate(el=>
+     document.activeElement===el&&el.matches(":focus-visible"));
+    observations.push({reducedMotion,repeat,...snapshot,persisted});
+    assert.ok(snapshot.firstFocused&&snapshot.focusVisible&&snapshot.outline!=="none"&&persisted,
+      "430px focus must be immediate, visible and stable: "+JSON.stringify(observations.at(-1)));
+    assert.ok(snapshot.gap>=7,"Focus ring must clear the question");
+   }
+  }finally{await context.close();}
+ }
+ if(evidence){
+  await mkdir(evidence,{recursive:true});
+  await writeFile(evidence+"/M2R4R2-430px-focus-stress.json",
+   JSON.stringify({iterations:observations.length,results:observations},null,2)+"\n");
+ }
+});
