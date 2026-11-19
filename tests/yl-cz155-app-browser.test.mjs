@@ -52,6 +52,21 @@ async function capture(page,name,selector){
  await writeFile(evidence+"/"+name+".txt",await page.locator(selector).innerText());
 }
 
+async function reflectSocial(page){
+ await page.locator('[data-b27="social-reflect"]').click();
+ await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
+}
+async function sendSocial(page,id,{reflect=true}={}){
+ const draft=page.locator('[data-b27="social-pick"][data-value="'+id+'"]');
+ const literal=await draft.locator(".b27-r3-draft-copy").innerText();
+ await draft.click();
+ assert.equal(await draft.getAttribute("aria-pressed"),"true");
+ await page.locator('[data-b27="social-send"]').click();
+ await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
+ if(reflect)await reflectSocial(page);
+ return literal;
+}
+
 test("Both preview gates and exact edition are required for the Long pilot",async t=>{
  const ordinary=await launchApp(t,false);
  assert.equal((await start(ordinary,{...identity(47),cz155Preview:true})).status,"no_fit");
@@ -97,16 +112,13 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
  let commonEvent;
  for(const [first,second] of [["acknowledge","invite"],["acknowledge","correct"],["explain","unqualified"],
   ["explain","prepare_question"],["request","leave_request"],["request","name_harm"]]){
-  const firstButton=control(page,"branch").filter({has:page.locator("strong")});
-  assert.equal(await firstButton.count(),3);
-  const chosen=page.locator('[data-b27="branch"][data-value="'+first+'"]');
-  const literal=await chosen.locator("span").innerText();
-  assert.equal(await page.locator('.b27-chat-sim[data-social-beat="choose"]').count(),1);
+  assert.equal(await control(page,"social-pick").count(),3);
+  assert.equal(await control(page,"social-send").isDisabled(),true);
+  assert.equal(await page.locator('.b27-r3-simulator[data-social-beat="choose"]').count(),1);
   assert.equal(await page.getByText("Decision Cards",{exact:true}).count(),0);
   if(first==="acknowledge"&&second==="invite")
-   await capture(page,"M2R2-390-choose",".b27-play");
-  await chosen.press("Enter");
-  await page.locator('.b27-chat-sim[data-social-beat="reconsider"]').waitFor();
+   await capture(page,"M2R3-390-choose",".b27-play");
+  const literal=await sendSocial(page,first);
   assert.equal(await page.locator(".b27-social").count(),1,
    "Epictetus pilot must use the source-authored conversation presentation");
   const event=await page.locator(".b27-observation").innerText();
@@ -140,6 +152,8 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    await page.locator("#yl-enter").press("End");
    await discover.click();
    await waitForDirector(page,"reconsider");
+   await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
+   await reflectSocial(page);
    assert.equal((await state(page)).game.firstAction.id,first);
    assert.equal(await page.locator(".b27-transcript blockquote").innerText(),literal);
    assert.equal(await control(page,"branch").count(),2);
