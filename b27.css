@@ -1363,3 +1363,11 @@ body:has(.b27-shell) .discover-cover{
  .b27-game .b27-r3-draft:hover:not(.is-selected):not(:focus-visible){
   background:transparent!important}
 }
+
+/* M2 R3 composition isolation: previous R2 .b27-social spacing and
+   reconsider-specific game styles must not create nested card panels. */
+.b27-game[data-b27-family="decision_cards"] .b27-r3-simulator{
+ display:flex!important;flex-direction:column;gap:0!important;padding:0!important;
+ background:linear-gradient(170deg,#161713,#080a08 75%,#0c0d0b)!important}
+.b27-game[data-b27-family="decision_cards"] .b27-r3-simulator[data-social-beat="reconsider"]{
+ background:radial-gradient(ellipse at 50% 10%,rgba(211,178,108,.12),transparent 48%),#090a08!important}
