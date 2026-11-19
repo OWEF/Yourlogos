@@ -508,7 +508,7 @@ test("M2 R1: 320/390/430px second choice is discoverable at first paint with acc
    if(evidence){
     await mkdir(evidence,{recursive:true});
     await writeFile(evidence+"/M2R1-"+width+"-initial-viewport-metrics.json",
-     JSON.stringify({beforeFirstActionScrollTop:beforeScroll,afterEvent:metrics},null,2)+"\\n");
+     JSON.stringify({beforeFirstActionScrollTop:beforeScroll,afterEvent:metrics},null,2)+"\n");
    }
    await capture(page,"M2R1-"+width+"-immediate-reconsider",".b27-play");
    assert.equal(metrics.preChoiceDashboard,false,
