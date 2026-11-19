@@ -155,7 +155,9 @@ export function createB27AppRuntime({
      record:json.record,sourceVersionHash:json.sourceVersionHash,
      quoteFingerprint:json.quoteFingerprint,
      // Presentation-only beat; never part of the versioned replay ledger.
-     presentationBeat:restored?.game.phase??"choose",
+     presentationBeat:restored?.game.phase==="reconsider"?"wait":
+      restored?.game.phase??"choose",
+     selectedDraftId:null,
      message:restored?"Your earlier choices are restored on this device.":""};
    }else throw Error(json.reason||"Source admission failed");
   }catch{
@@ -224,7 +226,9 @@ export function createB27AppRuntime({
   if(kind==="undo"){
    if(!sheet.history.length)return false;
    epoch++;sheet.game=sheet.history.pop();sheet.result=null;
-   sheet.presentationBeat=sheet.game.phase==="opening"?"choose":sheet.game.phase;
+   sheet.presentationBeat=sheet.game.phase==="opening"?"choose":
+    sheet.game.phase==="reconsider"?"reconsider":sheet.game.phase;
+   sheet.selectedDraftId=null;
    sheet.stage="play";sheet.beat="play";sheet.message="Your previous choice is restored.";
    persistDraft();draw();return true;
   }
@@ -232,69 +236,85 @@ export function createB27AppRuntime({
    if(!sheet.record)return false;
    epoch++;sheet.game=initializeB27Game(sheet.record);sheet.history=[];
    sheet.result=null;sheet.saved=false;sheet.stage="play";sheet.beat="play";sheet.tunerOpen=false;
-   sheet.presentationBeat="choose";
+   sheet.presentationBeat="choose";sheet.selectedDraftId=null;
    sheet.message="A fresh start. Nothing was saved.";persistDraft();draw();return true;
   }
-  if(["move","pair","branch","focus"].includes(kind)){
-   const value=kind==="move"?el.dataset.b27Piece:el.dataset.value;
-   const changed=adjustB27Game(sheet,kind,value);
-   const social=!!sheet?.record?.director&&
-    sheet.record.narrativeBridge?.directorPresentation?.kind==="message_thread";
-   const justSent=changed&&social&&kind==="branch"&&sheet.game.phase==="reconsider";
+  // UI draft selection never touches the reviewed Director ledger.
+  // Its lifetime is only the current open messenger composer.
+  const social=!!sheet?.record?.director&&
+   sheet.record.narrativeBridge?.directorPresentation?.kind==="message_thread";
+  if(kind==="social-pick"){
+   if(!social||sheet.stage!=="play"||sheet.game.phase!=="opening"||
+      sheet.presentationBeat!=="choose"||
+      !sheet.game.options.some(option=>option.id===el.dataset.value))return false;
+   sheet.selectedDraftId=el.dataset.value;
+   draw();
+   requestAnimationFrame(()=>{
+    document.querySelector('[data-b27="social-pick"][data-value="'+
+     sheet?.selectedDraftId+'"]')?.focus({preventScroll:true});
+   });
+   return true;
+  }
+  if(kind==="social-reflect"){
+   if(!social||sheet.stage!=="play"||sheet.game.phase!=="reconsider"||
+      sheet.presentationBeat!=="wait")return false;
+   epoch++;sheet.presentationBeat="reconsider";draw();
+   requestAnimationFrame(()=>{
+    const game=document.querySelector(".b27-game"),
+     question=game?.querySelector(".b27-social-reconsider .b27-choice-question"),
+     firstOption=game?.querySelector(".b27-social-options .b27-choice"),
+     shell=document.querySelector(".b27-shell"),header=shell?.querySelector(".b27-head");
+    if(!question||!firstOption||!shell)return;
+    question.focus({preventScroll:true});
+    const q=question.getBoundingClientRect(),first=firstOption.getBoundingClientRect(),
+     box=shell.getBoundingClientRect(),h=header?.getBoundingClientRect();
+    const needed=Math.max(0,first.bottom-(box.bottom-12));
+    const allowed=Math.max(0,q.top-(h?.bottom??box.top)-10);
+    if(needed>0&&allowed>0)shell.scrollTop+=Math.min(needed,allowed);
+   });
+   return true;
+  }
+  if(["move","pair","branch","focus","social-send"].includes(kind)){
+   const isSend=social&&kind==="social-send";
+   if(isSend&&(sheet.stage!=="play"||sheet.game.phase!=="opening"||
+       sheet.presentationBeat!=="choose"||!sheet.selectedDraftId||
+       !sheet.game.options.some(option=>option.id===sheet.selectedDraftId)))
+    return false;
+   // A source-authored second choice must not be actionable during a visual
+   // send/wait beat even if another handler attempts to call it directly.
+   if(social&&kind==="branch"&&sheet.game.phase==="reconsider"&&
+      sheet.presentationBeat!=="reconsider")return false;
+   const value=kind==="move"?el.dataset.b27Piece:
+    isSend?sheet.selectedDraftId:el.dataset.value;
+   const changed=adjustB27Game(sheet,isSend?"branch":kind,value);
+   const justSent=changed&&isSend&&sheet.game.phase==="reconsider";
    if(changed){
     epoch++;
-    if(social)sheet.presentationBeat=justSent?"send":sheet.game.phase==="complete"?
-     "complete":sheet.game.phase==="opening"?"choose":"reconsider";
+    if(social){
+     sheet.presentationBeat=justSent?"send":sheet.game.phase==="complete"?
+      "complete":sheet.game.phase==="opening"?"choose":"reconsider";
+     if(justSent)sheet.selectedDraftId=null;
+    }
     persistDraft();
    }
    draw();
-   if(changed&&!justSent){
-    // Keep the established per-game tactile affordance. A newly sent message
-    // has its own authored beat and must not inherit the generic game effect.
+   if(changed&&!justSent)
     document.querySelector(".b27-game")?.classList.add("b27-action-settling");
-   }
    if(justSent){
-    // A single Director operation already recorded the independent event.
-    // These brief transitions present that fixed information in human order;
-    // they NEVER trigger a second game action or synthesize an event.
-    // No additional tap is required; reduced-motion skips the choreography.
     const token=epoch;
+    // The send transition only acknowledges the participant's action.
+    // It then reveals the independently authored event; the WAIT remains
+    // indefinitely until social-reflect is explicitly activated.
+    // No staged timeout can create a Director event or trigger reflection.
     const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const advance=beat=>{
-     if(!same(token)||sheet?.game?.phase!=="reconsider")return false;
-     sheet.presentationBeat=beat;draw();return true;
-    };
-    const focusReconsider=()=>{
-     if(!same(token))return;
-     const game=document.querySelector(".b27-game"),
-      question=game?.querySelector(".b27-social-reconsider .b27-choice-question"),
-      firstOption=game?.querySelector(".b27-social-options .b27-choice"),
-      shell=document.querySelector(".b27-shell"),
-      header=shell?.querySelector(".b27-head");
-     if(!question||!firstOption||!shell)return;
-     // Don't steal an intentional focus already placed on a live control.
-     const active=document.activeElement;
-     if(active&&active!==document.body&&active!==document.documentElement&&
-        game.contains(active)&&active!==game&&active!==question)return;
-     question.focus({preventScroll:true});
-     const shellBox=shell.getBoundingClientRect(),
-      headerBox=header?.getBoundingClientRect(),q=question.getBoundingClientRect(),
-      first=firstOption.getBoundingClientRect();
-     const needed=Math.max(0,first.bottom-(shellBox.bottom-12));
-     const allowed=Math.max(0,q.top-(headerBox?.bottom??shellBox.top)-9);
-     if(needed>0&&allowed>0)shell.scrollTop+=Math.min(needed,allowed);
-    };
-    // 180ms acknowledges sending; 380ms lets the independently authored
-    // no-reply observation register before the new philosophical choice.
-    // These are nonblocking UI beats, not invented elapsed story time.
     window.setTimeout(()=>{
-     if(!advance("wait"))return;
-     window.setTimeout(()=>{
-      if(!advance("reconsider"))return;
-      requestAnimationFrame(focusReconsider);
-     },reduced?0:380);
-    },reduced?0:180);
-    return changed;
+     if(!same(token)||sheet?.game?.phase!=="reconsider"||
+        sheet?.presentationBeat!=="send")return;
+     sheet.presentationBeat="wait";draw();
+     requestAnimationFrame(()=>document.querySelector('[data-b27="social-reflect"]')
+      ?.focus({preventScroll:true}));
+    },reduced?0:320);
+    return true;
    }
    if(changed)requestAnimationFrame(()=>{
     const game=document.querySelector(".b27-game");
