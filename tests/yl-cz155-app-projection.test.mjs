@@ -1,6 +1,7 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {resolvePilot,runPilot} from "../experiments/yl-cz155-pilot.mjs";
+import {derivePath} from "../experiments/yl-cz155-director.mjs";
 import {B27_APP_QUOTES} from "../experiments/yl-b27-quote-ledger.mjs";
 import {initializeB27Game,adjustB27Game,canonicalB27Input,canFinishB27,renderB27Encounter}
  from "../b27-encounter-ui.js";
@@ -15,7 +16,7 @@ test("Every projected transition can be replayed by the server and an actual My 
  let serialized=JSON.stringify(store);
  const io={persist:()=>{serialized=JSON.stringify(store)},readback:()=>JSON.parse(serialized)};
  for(const first of record.director.openingChoices){
-  for(const second of record.director.followUps[first.id]){
+  for(const second of derivePath(record.director,[first.id]).options){
    const sheet={stage:"play",beat:"play",quote,record,game:initializeB27Game(record),history:[]};
    assert.match(renderB27Encounter(sheet),/Choose your words/);
    assert.match(renderB27Encounter({...sheet,selectedDraftId:first.id}),/aria-pressed="true"/);
@@ -53,6 +54,9 @@ test("Every projected transition can be replayed by the server and an actual My 
    }else if(second.medium==="public_statement"){
     assert.match(afterSecond,/GROUP THREAD · YOUR POST/);
     assert.match(afterSecond,/Posted in this fictional thread/);
+    assert.match(afterSecond,/role="region" aria-label="Fictional public group thread, separate from your private messages"/);
+    assert.match(afterSecond,/Leaving the private conversation and entering the separate public group thread/);
+    assert.match(afterSecond,/Other group members’ reactions are not shown/);
     assert.doesNotMatch(afterSecond,/public correction planned|delivery and reply observed/i);
    }else{
     assert.match(afterSecond,/PRIVATE (?:NOTE|DECISION) · NOT SENT/);
@@ -73,6 +77,10 @@ test("Every projected transition can be replayed by the server and an actual My 
     /Second message: sent; delivery and reply not observed/:
     second.medium==="public_statement"?/Posted in the fictional group thread/:
     /Private action; not sent to the recipient/);
+   if(second.medium==="public_statement"){
+    assert.match(reread,/role="region" aria-label="Separate public group-thread post"/);
+    assert.match(reread,/PUBLIC GROUP THREAD · SEPARATE FROM PRIVATE CHAT/);
+   }
    assert.match(reread,second.medium==="message"?/SECOND MESSAGE · SENT/:
     second.medium==="public_statement"?/GROUP POST · COMPLETED/:
     second.medium==="private_note"?/PRIVATE NOTE · NOT SENT/:/PRIVATE DECISION · NOT SENT/,
