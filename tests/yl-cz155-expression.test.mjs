@@ -34,6 +34,20 @@ test("Eighteen computed grounded endings preserve agency status and distinct qua
       "No route may substitute generic source counterexample for its warranted contrast");
     assert.ok(compact.sections[1].text.includes(judgment.compactLimit),
       "Compact output must preserve its path-specific limitation");
+    // The authenticated George Long §1 warrant supplies an argumentative
+    // WHY, not just an agency/external-response dichotomy. It must survive
+    // both policy-constrained READY renderings on every actual path.
+    assert.match(scenario.source.warrants.mistaken_dependency,/§1/);
+    for(const output of [compact,fullExpression]){
+      const philosopher=output.sections[1].text;
+      assert.match(philosopher,/Epictetus:/);
+      assert.match(philosopher,/assent/i);
+      assert.match(philosopher,/hindrance and disturbance/i,
+       "No READY response may silently discard Long §1's argumentative reason");
+      assert.doesNotMatch(philosopher,/you (?:sought|feared|felt guilty|wanted approval|needed approval)/i,
+       "Do not ascribe invented reader motives");
+      assert.doesNotMatch(philosopher,/silence (?:was caused|proves|guarantees)|guarantees calm|obligations end/i);
+    }
     if(second.id!=="name_harm")
       assert.doesNotMatch(fullExpression.sections[1].text,/a promise can protect privacy today/i);
     if(second.id!=="unqualified")
