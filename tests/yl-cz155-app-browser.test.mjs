@@ -691,7 +691,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
  }
 });
 
-test("M2 R4 R2: unedited mobile video records TWO distinct opening choices reaching the same public post",async t=>{
+test("M2 R4 R3: unedited real-app video shows inspection before commitment from two opening messages",async t=>{
  const base=await launchApp(t,true);
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
   {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
@@ -728,7 +728,17 @@ test("M2 R4 R2: unedited mobile video records TWO distinct opening choices reach
    await control(page,"social-reflect").click();
    await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
    assert.equal(await control(page,"branch").count(),6);
-   await page.waitForTimeout(450);
+   assert.equal(await page.locator(".b27-r4-choice-summary").count(),6);
+   await capture(page,"M2R4R3-video-"+first+"-initial-six-options",".b27-play");
+   await page.waitForTimeout(500);
+   const inspection=await inspectFollowUp(page,"prepare_question");
+   assert.match(await inspection.locator(".b27-social-choice-literal").innerText(),/idea comes up/i);
+   await inspection.locator(".b27-r4-choice-details").scrollIntoViewIfNeeded();
+   await capture(page,"M2R4R3-video-"+first+"-mid-scroll-inspection",".b27-play");
+   await page.waitForTimeout(900);
+   await inspection.locator("summary").click();
+   assert.equal((await state(page)).game.history.events.length,2);
+   await page.waitForTimeout(400);
    await commitFollowUp(page,"unqualified");
    await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
    assert.equal((await state(page)).game.firstAction.id,first);
@@ -752,7 +762,7 @@ test("M2 R4 R2: unedited mobile video records TWO distinct opening choices reach
  }finally{
   await context.close();
   if(videoDir&&page.video())
-   await page.video().saveAs(evidence+"/M2R4R2-unaltered-two-initial-choices-one-public-action.webm");
+   await page.video().saveAs(evidence+"/M2R4R3-unaltered-two-openings-inspect-before-commit.webm");
  }
 });
 
@@ -793,6 +803,103 @@ test("M2 R3: double Send, Undo and resumed Wait do not invent or duplicate event
  await sendSocial(page,"acknowledge",{reflect:false});
  assert.equal((await state(page)).game.history.events.length,2,
   "Undo/re-Send must replay one choice, not duplicate observations");
+});
+
+test("M2 R4 R3: full neutral choice overview is visible, inspectable and keyboard navigable at 320/390/430px",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ for(const width of [320,390,430]){
+  const context=await browser.newContext({viewport:{width,height:844},
+   timezoneId:"UTC",reducedMotion:"reduce",isMobile:true,hasTouch:true,serviceWorkers:"block"});
+  const page=await context.newPage();
+  try{
+   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+   await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+   await page.getByRole("button",{name:"Get started"}).click();
+   await page.getByRole("button",{name:"Skip",exact:true}).click();
+   await page.locator("#yl-enter").press("End");
+   await page.locator('[data-action="discover"]').click();
+   await waitForDirector(page,"opening");
+   await control(page,"begin").click();
+   await sendSocial(page,"request");
+   await page.waitForFunction(()=>document.activeElement?.matches(".b27-choice-question"));
+   await page.waitForTimeout(130);
+   assert.equal(await page.locator(".b27-r4-choice-summary").count(),6);
+   const initial=await page.evaluate(()=>{
+    const sheet=document.querySelector(".b27-shell"),
+     head=sheet.querySelector(".b27-head"),
+     question=sheet.querySelector(".b27-choice-question"),
+     options=[...sheet.querySelectorAll(".b27-r4-choice-summary")],
+     bounds=sheet.getBoundingClientRect(),h=head.getBoundingClientRect();
+    return {shell:{top:bounds.top,bottom:bounds.bottom},headerBottom:h.bottom,
+     shellScrollTop:sheet.scrollTop,
+     titleInView:question.getBoundingClientRect().top>=h.bottom-3,
+     total:options.length,
+     summaries:options.map(el=>{
+      const r=el.getBoundingClientRect(),style=getComputedStyle(el),
+       parent=getComputedStyle(el.parentElement);
+      const target=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+      return {label:el.textContent.trim(),top:r.top,bottom:r.bottom,
+       width:r.width,height:r.height,fontSize:style.fontSize,
+       visible:r.top>=h.bottom-2&&r.bottom<=bounds.bottom-8&&r.width>=100,
+       unobscured:target===el||el.contains(target),
+       treatment:[style.backgroundColor,style.fontWeight,parent.borderColor].join("|"),
+       expanded:el.parentElement.open
+      };
+     })}
+   });
+   assert.equal(initial.total,6);
+   assert.equal(initial.titleInView,true,width+"px question obscured");
+   assert.ok(initial.summaries.every(x=>x.visible&&x.unobscured&&x.height>=44),
+    width+"px six actions not recognizable in first viewport: "+JSON.stringify(initial));
+   assert.equal(new Set(initial.summaries.map(x=>x.treatment)).size,1,
+    "All actions must start equally neutral");
+   assert.ok(initial.summaries.every(x=>!x.expanded));
+   assert.match(await page.locator(".b27-r4-decision-intro").innerText(),
+    /SIX POSSIBLE ACTIONS[\s\S]*Only.*Choose this action.*records/i);
+   await capture(page,"M2R4R3-"+width+"-initial-six-action-overview",".b27-play");
+   if(evidence){
+    await mkdir(evidence,{recursive:true});
+    await writeFile(evidence+"/M2R4R3-"+width+"-initial-six-viewport.json",
+     JSON.stringify(initial,null,2)+"\n");
+   }
+   const ids=["invite","correct","name_harm","leave_request","unqualified","prepare_question"];
+   for(const id of ids){
+    const card=await inspectFollowUp(page,id);
+    assert.equal((await state(page)).game.history.events.length,2);
+    assert.equal(await card.locator('[data-b27="branch"]').count(),1);
+    const literal=await card.locator(".b27-social-choice-literal").innerText();
+    assert.ok(literal.length>25);
+    assert.equal(await card.locator(".b27-r4-choice-confirm").isVisible(),true);
+    if(id==="unqualified"){
+     await card.locator(".b27-r4-choice-details").scrollIntoViewIfNeeded();
+     await capture(page,"M2R4R3-"+width+"-mid-scroll-open-action",".b27-play");
+    }
+    await card.locator("summary").click();
+    assert.equal(await card.getAttribute("open"),null,
+     "Closing inspection must not record an event");
+   }
+   assert.equal((await state(page)).game.history.events.length,2);
+   await page.locator(".b27-choice-question").focus();
+   for(let i=0;i<6;i++){
+    await page.keyboard.press("Tab");
+    const focus=await page.locator(".b27-r4-choice-summary").nth(i)
+     .evaluate(el=>document.activeElement===el&&el.matches(":focus-visible"));
+    assert.equal(focus,true,width+"px cannot navigate choice "+i+" via keyboard");
+   }
+   // Keyboard Enter on a disclosure only expands; Enter on the separate
+   // confirmation records the one and only second participant action.
+   const last=await inspectFollowUp(page,"prepare_question",{keyboard:true});
+   assert.equal((await state(page)).game.history.events.length,2);
+   await last.locator('[data-b27="branch"]').press("Enter");
+   await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
+   assert.equal((await state(page)).game.history.events.length,3);
+   assert.equal((await state(page)).game.secondAction.id,"prepare_question");
+   await capture(page,"M2R4R3-"+width+"-completed-choice",".b27-play");
+  }finally{await context.close();}
+ }
 });
 
 test("M2 R4 R2: 430px keyboard focus stability across reload, motion settings and repeated tabbing",async t=>{
