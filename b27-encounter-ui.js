@@ -327,18 +327,32 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
  const contact=e(presentation.correspondent||"Your friend");
  const contactBar='<header class="b27-r3-contact">'+
   '<span class="b27-r3-avatar" aria-hidden="true">◇</span>'+
-  '<div><strong>'+contact+'</strong><small>FICTIONAL CONVERSATION</small></div>'+
+  '<div><strong>'+contact+'</strong><small>PRIVATE MESSAGE · FICTIONAL</small></div>'+
   '</header>';
  const sent=first?
   '<section class="b27-transcript b27-social-message b27-r3-sent" aria-label="Your first sent message">'+
    '<blockquote>'+e(first.literal)+'</blockquote><small>Sent</small></section>':"";
- // This independently authored fact describes the FIRST message only.
+ // Both the unanswered FIRST message and the unrelated group announcement
+ // are source-authored observations. The notice is not a reaction to the sender.
+ const noticeIndex=presentation?.developmentLabel&&Array.isArray(observed?.observed)&&
+  observed.observed.length>2?observed.observed.length-1:-1;
+ const observedStatus=noticeIndex>1?
+  (presentation.firstMessageStatus||observed.observed.slice(0,noticeIndex).join(" ")):observed?.text;
+ const separateNotice=noticeIndex>1?
+  '<aside class="b27-r4-notice" aria-label="'+e(presentation.developmentLabel)+'">'+
+   '<strong>'+e(presentation.developmentLabel)+'</strong>'+
+   '<p>'+e(observed.observed[noticeIndex])+'</p></aside>':"";
  const event=observed?
   '<div class="b27-social-event b27-r3-event" id="b27-observation" role="note" aria-label="Independent story observation after the first message">'+
    '<small>AFTER THE FIRST MESSAGE</small>'+
-   '<p class="b27-observation">'+e(observed.text)+'</p>'+
-   '<small>READ STATUS UNKNOWN</small></div>':"";
- const afterSecond=second?second.medium==="message"?
+   '<p class="b27-observation">'+e(observedStatus)+'</p>'+
+   '<small>READ STATUS UNKNOWN</small>'+separateNotice+'</div>':"";
+ const afterSecond=second?second.medium==="public_statement"?
+  '<section class="b27-social-public b27-social-second b27-r3-group-post" role="note" aria-label="Your completed public group post">'+
+   '<strong>GROUP THREAD · YOUR POST</strong>'+
+   '<blockquote>'+e(second.literal)+'</blockquote>'+
+   '<small>Posted in this fictional thread · Others\' reactions not observed</small></section>':
+  second.medium==="message"?
   '<section class="b27-social-message b27-social-second b27-r3-sent" aria-label="Your second sent message">'+
    '<blockquote>'+e(second.literal)+'</blockquote>'+
    '<small>Sent · Delivery and reply not observed for this second message</small></section>':
@@ -372,17 +386,25 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
  const waiting=beat==="wait"?
   '<main class="b27-r3-conversation b27-r3-waiting" aria-label="An unanswered message">'+
    sent+'<div class="b27-r3-quiet-horizon" aria-hidden="true"><i></i></div>'+
-   event+'<p class="b27-r3-quiet-line">The conversation is quiet.</p>'+
+   event+'<p class="b27-r3-quiet-line">'+e(presentation.waitCue||"The conversation is quiet.")+'</p>'+
    '<div class="b27-r3-wait-control">'+
     b("social-reflect",'<span>Consider your next step</span><span aria-hidden="true">↗</span>',
      "b27-r3-continue")+'</div>'+
    '</main>':"";
- const followUps=state.options.map(choice=>b("branch",
-  '<span class="b27-r3-action-symbol" aria-hidden="true">↗</span>'+
-  '<span class="b27-r3-action-copy"><strong>'+e(choice.label)+'</strong>'+
-   '<span class="b27-social-choice-literal">'+e(choice.literal)+'</span></span>',
-  "b27-choice b27-social-option b27-r3-followup",
-  'data-value="'+e(choice.id)+'"')).join("");
+ // A summary INSPECTS one option; only the separate source-bound
+ // data-b27="branch" button commits it to the Director. Native details keep
+ // pointer, keyboard and screen-reader disclosure semantics without a new beat.
+ const followUps=state.options.map(choice=>
+  '<details class="b27-r4-choice" data-b27-option="'+e(choice.id)+'">'+
+   '<summary class="b27-r4-choice-summary">'+
+    '<span class="b27-r4-choice-label">'+e(choice.label)+'</span>'+
+    '<span class="b27-r4-choice-chevron" aria-hidden="true">⌄</span></summary>'+
+   '<div class="b27-r4-choice-details">'+
+    '<p class="b27-social-choice-literal">'+e(choice.literal)+'</p>'+
+    b("branch",'<span>Choose this action</span><span aria-hidden="true">↗</span>',
+     "b27-choice b27-social-option b27-r3-followup b27-r4-choice-confirm",
+     'data-value="'+e(choice.id)+'" aria-label="Choose action: '+e(choice.label)+'"')+
+   '</div></details>').join("");
  const recollect=first?
   '<details class="b27-r3-recall"><summary>Earlier in the conversation</summary>'+
    '<div class="b27-r3-recall-body">'+sent+event+'</div></details>':"";
@@ -395,16 +417,31 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
      e(state.reconsiderationQuestion)+'</h3>'+
     '<p id="b27-r3-reflection-cue" class="b27-r3-reflection-cue">What might you do next?</p>'+
    '</section>'+
-   '<div class="b27-social-options b27-message-choices b27-r3-followups" role="group" aria-label="'+e(state.reconsiderationQuestion)+'">'+
-    followUps+'</div>'+recollect+
+   '<section class="b27-r4-decision-space" aria-label="All six available next actions">'+
+    '<div class="b27-r4-decision-intro">'+
+     '<strong>YOUR SIX POSSIBLE ACTIONS</strong>'+
+     '<p>Open any option to read its words. Only “Choose this action” records a decision.</p>'+
+    '</div>'+
+    '<div class="b27-social-options b27-message-choices b27-r3-followups b27-r4-choice-grid" role="group" aria-label="Six equally available actions; open to inspect, choose to commit">'+
+     followUps+'</div>'+
+   '</section>'+recollect+
    '</main>':"";
+ const completedGroupThread=second?.medium==="public_statement"?
+  '<div class="b27-r4-context-switch" role="separator" aria-label="Leaving the private conversation and entering the separate public group thread">'+
+   '<span>PRIVATE CONVERSATION</span><span aria-hidden="true">↘</span><strong>PUBLIC GROUP THREAD</strong></div>'+
+  '<section class="b27-r4-group-thread" role="region" aria-label="Fictional public group thread, separate from your private messages">'+
+   '<header class="b27-r4-group-heading"><span aria-hidden="true">◈</span>'+
+    '<div><strong>PUBLIC GROUP THREAD</strong><small>Discussing the idea · separate from the private chat</small></div></header>'+
+   afterSecond+
+   '<p class="b27-r4-no-reaction">Other group members’ reactions are not shown. No reconciliation or public repair is confirmed.</p>'+
+  '</section>':afterSecond;
  const complete=beat==="complete"?
   '<main class="b27-r3-conversation b27-r3-finished" aria-label="Your actions so far">'+
-   sent+event+afterSecond+
+   sent+event+completedGroupThread+
    '<div class="b27-r3-ending" role="status">'+
     '<span>YOUR NEXT ACTION IS RECORDED</span>'+
     '<h3>The story does not tell you their response.</h3>'+
-    '<p>Only the first message has an observed delivery status.</p></div>'+
+    '<p>'+e(presentation.completionLead||"Only the first message has an observed delivery status.")+'</p></div>'+
    '</main>':"";
  return '<div class="b27-social b27-r3-simulator" data-director-presentation="message_thread"'+
   ' data-social-beat="'+e(beat)+'">'+
@@ -445,13 +482,19 @@ function resultHtml(enc){
  const secondKind=secondMedium==="message"?"SECOND MESSAGE · SENT":
   secondMedium==="private_note"?"PRIVATE NOTE · NOT SENT":
   secondMedium==="commitment"?"PRIVATE DECISION · NOT SENT":
-  secondMedium==="public_statement"?"SECOND PUBLIC STATEMENT":"FOLLOW-UP ACTION";
+  secondMedium==="public_statement"?"GROUP POST · COMPLETED":"FOLLOW-UP ACTION";
  const originalText=transcript?'<section class="b27-transcript b27-result-trace" aria-label="Recorded fictional actions">'+
   '<h3>'+e(firstKind)+'</h3><blockquote>'+e(transcript.firstMessage)+'</blockquote>'+
   '<div class="b27-result-external"><small>INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE</small><p>'+e(transcript.event)+'</p></div>'+
-  '<div class="b27-result-followup"><h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p>'+
-   (secondMedium==="message"?'<small>Second message: sent; delivery and reply not observed.</small>':
+  '<div class="b27-result-followup">'+
+   (secondMedium==="public_statement"?
+    '<div class="b27-r4-result-context" role="region" aria-label="Separate public group-thread post">'+
+     '<strong>PUBLIC GROUP THREAD · SEPARATE FROM PRIVATE CHAT</strong>':'')+
+   '<h3>'+e(secondKind)+'</h3><p>'+e(transcript.secondAction)+'</p>'+
+   (secondMedium==="public_statement"?'<small>Posted in the fictional group thread; others\' responses and repair are unknown.</small>':
+    secondMedium==="message"?'<small>Second message: sent; delivery and reply not observed.</small>':
     secondMedium==="private_note"||secondMedium==="commitment"?'<small>Private action; not sent to the recipient.</small>':"")+
+   (secondMedium==="public_statement"?'</div>':'')+
    '</div>'+
   '</section>':"";
  const fullText=transcript?arr(enc.result.fullExpression?.sections).map(section=>

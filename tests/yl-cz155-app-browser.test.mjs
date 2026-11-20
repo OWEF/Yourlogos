@@ -56,6 +56,25 @@ async function reflectSocial(page){
  await page.locator('[data-b27="social-reflect"]').click();
  await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
 }
+async function inspectFollowUp(page,id,{keyboard=false}={}){
+ const card=page.locator('.b27-r4-choice[data-b27-option="'+id+'"]');
+ assert.equal(await card.count(),1);
+ const summary=card.locator("summary");
+ if(keyboard)await summary.press("Enter");
+ else await summary.click();
+ assert.equal(await card.getAttribute("open"),"",
+  "Inspecting expands one action without committing it");
+ assert.equal((await state(page)).game.phase,"reconsider");
+ assert.equal((await state(page)).game.history.events.length,2);
+ return card;
+}
+async function commitFollowUp(page,id,{keyboard=false}={}){
+ const card=await inspectFollowUp(page,id,{keyboard});
+ const choose=card.locator('[data-b27="branch"]');
+ if(keyboard)await choose.press("Enter");
+ else await choose.click();
+}
+
 async function sendSocial(page,id,{reflect=true}={}){
  const draft=page.locator('[data-b27="social-pick"][data-value="'+id+'"]');
  const literal=await draft.locator(".b27-r3-draft-copy").innerText();
@@ -132,16 +151,21 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.match(await page.locator(".b27-social-event").textContent(),
    /AFTER THE FIRST MESSAGE[\s\S]*READ STATUS UNKNOWN/);
   assert.equal(await page.locator(".b27-social-reconsider").count(),1);
+   assert.equal(await page.locator(".b27-r4-notice").count(),1,
+    "The independently authored group notice must remain part of the fictional event");
+   assert.match(await page.locator(".b27-r4-notice").textContent(),/tomorrow/i);
   assert.doesNotMatch(await page.locator(".b27-social-reconsider").innerText(),
    /acknowledgment (?:sent|not sent)|further repair may|their response|external control/i);
   await capture(page,"M2-"+first+"-"+second+"-reconsider",".b27-play");
-  assert.match(await page.locator(".b27-choice-question").innerText(),/What am I asking the other person.s reply to prove/);
-  assert.equal(await control(page,"branch").count(),2);
+  assert.match(await page.locator(".b27-choice-question").innerText(),/Tomorrow the group|tomorrow the group/);
+  assert.equal(await control(page,"branch").count(),6);
   // Compare the neutral resting state, not the intentionally interactive
   // pointer hover on whichever choice happened to appear under the cursor.
   await page.mouse.move(2,2);
-  const optionBackgrounds=await page.locator(".b27-social-options .b27-choice")
-   .evaluateAll(options=>options.map(o=>getComputedStyle(o).backgroundImage));
+  const optionBackgrounds=await page.locator(".b27-r4-choice-summary")
+   .evaluateAll(options=>options.map(o=>[
+    getComputedStyle(o).backgroundColor,getComputedStyle(o).fontWeight,
+    getComputedStyle(o.parentElement).borderColor].join("|")));
   assert.equal(new Set(optionBackgrounds).size,1,
    "No choice may be highlighted as the philosopher-approved answer");
 
@@ -156,20 +180,28 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    await reflectSocial(page);
    assert.equal((await state(page)).game.firstAction.id,first);
    assert.equal(await page.locator(".b27-transcript blockquote").textContent(),literal);
-   assert.equal(await control(page,"branch").count(),2);
+   assert.equal(await control(page,"branch").count(),6);
    await capture(page,"03b-resumed-after-first",".b27-play");
   }
-  const next=page.locator('[data-b27="branch"][data-value="'+second+'"]');
-  await next.press("Enter");
+  await commitFollowUp(page,second,{keyboard:true});
   await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
   const privateFollowUp=["correct","leave_request","prepare_question"].includes(second);
+  const completedPublicPost=second==="unqualified";
   assert.equal(await page.locator(".b27-social-private").count(),privateFollowUp?1:0);
   assert.equal(await page.locator(".b27-social-second").count(),privateFollowUp?0:1);
   const eventAfterSecond=await page.locator(".b27-social-event").textContent();
-  assert.equal(eventAfterSecond.includes("Message delivered. Later, no reply has arrived."),true,
-   "Independent observation must remain attached to the first message only");
+  assert.ok(eventAfterSecond.includes("Message delivered. No reply yet."),
+   "First-message delivery and unanswered status must remain scoped to the first message");
+  assert.match(eventAfterSecond,/group notice|discussed tomorrow/i,
+   "The separate group development must remain available after the second action");
   if(privateFollowUp){
    assert.match(await page.locator(".b27-social-private").innerText(),/NOT SENT/);
+  }else if(completedPublicPost){
+   assert.equal(await page.locator(".b27-r3-group-post").count(),1);
+   assert.match(await page.locator(".b27-r3-group-post").innerText(),/GROUP THREAD · YOUR POST/);
+   assert.match(await page.locator(".b27-r3-group-post").innerText(),/Posted in this fictional thread/);
+   assert.doesNotMatch(await page.locator(".b27-r3-group-post").innerText(),/forgave|approved|successful repair/i);
+   await capture(page,"M2R4R1-present-public-agency",".b27-play");
   }else{
    assert.match(await page.locator(".b27-social-second").innerText(),
     /Delivery and reply not observed for this second message/);
@@ -193,15 +225,18 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   assert.equal(result.provenance.directorTranscript.firstMessage,literal);
   await page.locator(".b27-result").waitFor();
   const followupCaption=await page.locator(".b27-result-followup h3").innerText();
-  assert.equal(followupCaption,privateFollowUp?
+  assert.equal(followupCaption,completedPublicPost?"GROUP POST · COMPLETED":privateFollowUp?
    second==="leave_request"?"PRIVATE DECISION · NOT SENT":"PRIVATE NOTE · NOT SENT":
    "SECOND MESSAGE · SENT",
    "Full and saved result must distinguish a sent message from a private act");
   assert.match(await page.locator(".b27-result-external").innerText(),
    /INDEPENDENT STORY EVENT · AFTER FIRST MESSAGE/);
   const resultSecond=await page.locator(".b27-result-followup").innerText();
-  assert.match(resultSecond,privateFollowUp?
-   /Private action; not sent to the recipient/:/Second message: sent; delivery and reply not observed/);
+  assert.match(resultSecond,completedPublicPost?
+   /Posted in the fictional group thread; others' responses and repair are unknown/:
+   privateFollowUp?/Private action; not sent to the recipient/:
+   /Second message: sent; delivery and reply not observed/);
+  if(completedPublicPost)await capture(page,"M2R4R1-present-public-agency-insight",".b27-result");
   assert.doesNotMatch(resultSecond,/no reply (yet|has arrived)/i);
   await capture(page,"M2-"+first+"-"+second+"-insight",".b27-result");
   assert.equal(await page.locator(".b27-transcript blockquote").textContent(),literal);
@@ -336,7 +371,7 @@ test("R2: invalid drafts fail closed, valid drafts resume, and source versions r
     sessionStorage.getItem("yourlogos-b27-director-draft/1"));
    if(kind==="valid"){
     assert.equal(recovered.game.firstAction.id,"request");
-    assert.equal(recovered.game.observation.text,"Message delivered. Later, no reply has arrived.");
+    assert.equal(recovered.game.observation.text,"Message delivered. No reply yet. A group notice says tomorrow's meeting will revisit the same idea.");
     assert.ok(persisted,"valid draft should still be resumable");
    }else{
     assert.equal(recovered.beat,"situation");
@@ -431,7 +466,7 @@ test("M2: 320/390/430/1024px reconsideration, motion and resumed focus preserve 
     await page.keyboard.press("Tab");
     const details=await page.evaluate(()=>{
      const title=document.querySelector(".b27-choice-question");
-     const card=document.querySelector(".b27-message-choices .b27-choice");
+     const card=document.querySelector(".b27-r4-choice-summary");
      const a=title.getBoundingClientRect(),b=card.getBoundingClientRect();
      return {gap:b.top-a.bottom,width:document.documentElement.clientWidth,
       cardHeight:b.height,questionHeight:a.height,
@@ -513,14 +548,19 @@ test("M2 R2: 320/390/430px reconsideration remains visible and focused after the
     const shell=document.querySelector(".b27-shell"),
      head=shell.querySelector(".b27-head"),
      question=shell.querySelector(".b27-social-reconsider .b27-choice-question"),
-     action=shell.querySelector(".b27-social-options .b27-choice"),
+     action=shell.querySelector(".b27-r4-choice-summary"),
      event=shell.querySelector(".b27-social-event"),
      message=shell.querySelector(".b27-social-message"),
-     second=shell.querySelectorAll(".b27-social-options .b27-choice")[1];
+     second=shell.querySelectorAll(".b27-r4-choice-summary")[1],
+      allChoices=[...shell.querySelectorAll(".b27-r4-choice-summary")];
     const rect=el=>{const r=el.getBoundingClientRect();return {
      top:Math.round(r.top),bottom:Math.round(r.bottom),height:Math.round(r.height)};};
     const a=rect(action),q=rect(question),s=rect(shell),h=rect(head);
     return {scrollTop:shell.scrollTop,visibleSheet:s,stickyHeader:h,
+      allSixVisible:allChoices.length===6&&allChoices.every(choice=>{
+       const r=choice.getBoundingClientRect();
+       return r.top>=h.bottom-2&&r.bottom<=s.bottom-8&&r.width>=100&&r.height>=44;
+      }),
      question:q,firstAction:a,secondAction:rect(second),event:rect(event),message:rect(message),
      focusIsQuestion:document.activeElement===question,
      questionVisible:q.top>=h.bottom-2&&q.bottom<=s.bottom-7,
@@ -537,15 +577,15 @@ test("M2 R2: 320/390/430px reconsideration remains visible and focused after the
    await capture(page,"M2R1-"+width+"-immediate-reconsider",".b27-play");
    assert.equal(metrics.preChoiceDashboard,false,
     width+"px philosophical interpretation must not appear before reconsideration");
-   assert.ok(metrics.focusIsQuestion&&metrics.questionVisible&&metrics.firstActionVisible,
+   assert.ok(metrics.focusIsQuestion&&metrics.questionVisible&&metrics.allSixVisible,
     width+"px reconsideration or first available action is not initially visible: "+
      JSON.stringify(metrics));
    assert.ok(metrics.firstAction.height>=44,
     width+"px action violates minimum hit target");
    assert.match(metrics.initialMessageText,/Could we talk about yesterday/);
-   assert.match(metrics.initialEventText,/Message delivered[\s\S]*no reply has arrived/);
+   assert.match(metrics.initialEventText,/Message delivered[\s\S]*No reply yet/);
    await page.keyboard.press("Tab");
-   assert.ok(await page.locator(".b27-social-options .b27-choice").first().evaluate(
+   assert.ok(await page.locator(".b27-r4-choice-summary").first().evaluate(
     el=>document.activeElement===el&&el.matches(":focus-visible")),
     width+"px question must lead directly to visible next action by keyboard");
    await capture(page,"M2R1-"+width+"-keyboard-next-action",".b27-play");
@@ -593,14 +633,14 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
    assert.equal(await page.locator('.b27-r3-simulator[data-social-beat="send"]').count(),1);
    assert.equal((await state(page)).game.phase,"reconsider");
    assert.equal(await page.locator(".b27-r3-sent blockquote").innerText(),
-    "Could we talk about yesterday? I want to hear your side and explain what I meant.");
+    "Could we talk about yesterday? I'd like to hear how you saw it and explain what I meant.");
    assert.equal(await page.locator(".b27-r3-event").count(),0);
    await capture(page,"M2R3-"+width+"-02-sent",".b27-play");
    await page.clock.runFor(360);
    await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
    assert.equal(await page.locator(".b27-r3-event").count(),1);
    assert.match(await page.locator(".b27-r3-event").innerText(),
-    /Message delivered[\s\S]*no reply has arrived/);
+    /Message delivered[\s\S]*No reply yet/);
    assert.equal(await page.locator(".b27-social-reconsider").count(),0);
    await capture(page,"M2R3-"+width+"-03-wait",".b27-play");
    // The original R2 automatically transitioned at 380ms. Advancing virtual
@@ -615,14 +655,14 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
    await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
    await page.clock.resume();
    await page.waitForFunction(()=>document.activeElement?.matches(".b27-social-reconsider .b27-choice-question"));
-   assert.equal(await page.locator(".b27-social-options .b27-choice").count(),2);
+   assert.equal(await page.locator(".b27-r4-choice-summary").count(),6);
    assert.match(await page.locator(".b27-choice-question").innerText(),
-    /What am I asking the other person.s reply to prove/);
+    /Tomorrow the group|tomorrow the group/);
    const measure=await page.evaluate(()=>{
     const shell=document.querySelector(".b27-shell"),
      header=shell.querySelector(".b27-head"),
      q=shell.querySelector(".b27-choice-question"),
-     options=[...shell.querySelectorAll(".b27-social-options .b27-choice")];
+     options=[...shell.querySelectorAll(".b27-r4-choice-summary")];
     const rect=el=>{const x=el.getBoundingClientRect();return {
      top:Math.round(x.top),bottom:Math.round(x.bottom),height:Math.round(x.height)}};
     return {scrollTop:shell.scrollTop,question:rect(q),first:rect(options[0]),
@@ -643,7 +683,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
     measure.second.bottom<=measure.shell.bottom-8,
     width+"px all question and next actions must be visible: "+JSON.stringify(measure));
    await page.keyboard.press("Tab");
-   assert.ok(await page.locator(".b27-social-options .b27-choice").first()
+   assert.ok(await page.locator(".b27-r4-choice-summary").first()
     .evaluate(el=>document.activeElement===el&&el.matches(":focus-visible")),
     "Keyboard focus must move to the first source-authored follow-up");
    await capture(page,"M2R3-"+width+"-05-keyboard",".b27-play");
@@ -651,7 +691,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
  }
 });
 
-test("M2 R3: unedited real-browser video shows human-paced sending, enduring silence, and explicit reflection",async t=>{
+test("M2 R4 R3: unedited real-app video shows inspection before commitment from two opening messages",async t=>{
  const base=await launchApp(t,true);
  const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
   {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
@@ -661,7 +701,7 @@ test("M2 R3: unedited real-browser video shows human-paced sending, enduring sil
  const context=await browser.newContext({viewport:{width:390,height:844},
   timezoneId:"UTC",reducedMotion:"no-preference",isMobile:true,hasTouch:true,
   serviceWorkers:"block",...(videoDir?{recordVideo:{dir:videoDir,
-    size:{width:390,height:844}}}:{})});
+   size:{width:390,height:844}}}:{})});
  const page=await context.newPage();
  try{
   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
@@ -672,29 +712,57 @@ test("M2 R3: unedited real-browser video shows human-paced sending, enduring sil
   await page.locator('[data-action="discover"]').click();
   await waitForDirector(page,"opening");
   await control(page,"begin").click();
-  await page.waitForTimeout(500);
-  await page.locator('[data-b27="social-pick"][data-value="request"]').click();
-  assert.equal((await state(page)).game.phase,"opening");
-  await page.waitForTimeout(550);
-  await control(page,"social-send").click();
-  await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
-  // Real elapsed time, not virtual time or screenshot-only state.
-  await page.waitForTimeout(2400);
-  assert.equal(await page.locator('.b27-r3-simulator[data-social-beat="wait"]').count(),1);
-  await control(page,"social-reflect").click();
-  await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
-  await page.waitForTimeout(650);
-  await page.locator('[data-b27="branch"][data-value="name_harm"]').click();
-  await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
-  const resultResponse=page.waitForResponse(r=>r.url().endsWith("/api/b27/run"));
-  await control(page,"complete").click();
-  assert.equal((await(await resultResponse).json()).status,"ready");
-  await page.locator(".b27-result").waitFor();
-  await page.waitForTimeout(850);
-  assert.match(await page.locator(".b27-result-philosophy").innerText(),/Epictetus|power|control|reply/i);
+  for(const [index,first] of ["explain","request"].entries()){
+   if(index){
+    await control(page,"replay").click();
+    await control(page,"begin").click();
+   }
+   await page.waitForTimeout(550);
+   await page.locator('[data-b27="social-pick"][data-value="'+first+'"]').click();
+   assert.equal((await state(page)).game.phase,"opening");
+   await page.waitForTimeout(450);
+   await control(page,"social-send").click();
+   await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
+   await page.waitForTimeout(900);
+   assert.match(await page.locator(".b27-r4-notice").innerText(),/group|tomorrow/i);
+   await control(page,"social-reflect").click();
+   await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
+   assert.equal(await control(page,"branch").count(),6);
+   assert.equal(await page.locator(".b27-r4-choice-summary").count(),6);
+   await capture(page,"M2R4R3-video-"+first+"-initial-six-options",".b27-play");
+   await page.waitForTimeout(500);
+   const inspection=await inspectFollowUp(page,"prepare_question");
+   assert.match(await inspection.locator(".b27-social-choice-literal").innerText(),/idea comes up/i);
+   await inspection.locator(".b27-r4-choice-details").scrollIntoViewIfNeeded();
+   await capture(page,"M2R4R3-video-"+first+"-mid-scroll-inspection",".b27-play");
+   await page.waitForTimeout(900);
+   await inspection.locator("summary").click();
+   assert.equal((await state(page)).game.history.events.length,2);
+   await page.waitForTimeout(400);
+   await commitFollowUp(page,"unqualified");
+   await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
+   assert.equal((await state(page)).game.firstAction.id,first);
+   assert.equal((await state(page)).game.secondAction.medium,"public_statement");
+   assert.match(await page.locator(".b27-r4-context-switch").innerText(),/PRIVATE CONVERSATION[\s\S]*PUBLIC GROUP THREAD/);
+   assert.equal(await page.getByRole("region",{name:"Fictional public group thread, separate from your private messages"}).count(),1);
+   assert.match(await page.locator(".b27-r4-group-thread").innerText(),/GROUP THREAD · YOUR POST/);
+   assert.match(await page.locator(".b27-r4-no-reaction").innerText(),/reactions are not shown/i);
+   await capture(page,"M2R4R2-"+first+"-completed-group-post",".b27-play");
+   await page.waitForTimeout(800);
+   const resultResponse=page.waitForResponse(r=>r.url().endsWith("/api/b27/run"));
+   await control(page,"complete").click();
+   const answer=await(await resultResponse).json();
+   assert.equal(answer.status,"ready",JSON.stringify(answer));
+   assert.equal(answer.fullMeaning.meaning.choiceAnalysis.judgment.warrantId,"public_post");
+   await page.locator(".b27-result").waitFor();
+   assert.match(await page.locator(".b27-r4-result-context").innerText(),/PUBLIC GROUP THREAD · SEPARATE FROM PRIVATE CHAT/);
+   await capture(page,"M2R4R2-"+first+"-philosophy",".b27-result");
+   await page.waitForTimeout(850);
+  }
  }finally{
   await context.close();
-  if(videoDir&&page.video())await page.video().saveAs(evidence+"/M2R3-real-browser-unaltered-end-to-end.webm");
+  if(videoDir&&page.video())
+   await page.video().saveAs(evidence+"/M2R4R3-unaltered-two-openings-inspect-before-commit.webm");
  }
 });
 
@@ -735,4 +803,165 @@ test("M2 R3: double Send, Undo and resumed Wait do not invent or duplicate event
  await sendSocial(page,"acknowledge",{reflect:false});
  assert.equal((await state(page)).game.history.events.length,2,
   "Undo/re-Send must replay one choice, not duplicate observations");
+});
+
+test("M2 R4 R3: full neutral choice overview is visible, inspectable and keyboard navigable at 320/390/430px",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ for(const width of [320,390,430]){
+  const context=await browser.newContext({viewport:{width,height:844},
+   timezoneId:"UTC",reducedMotion:"reduce",isMobile:true,hasTouch:true,serviceWorkers:"block"});
+  const page=await context.newPage();
+  try{
+   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+   await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+   await page.getByRole("button",{name:"Get started"}).click();
+   await page.getByRole("button",{name:"Skip",exact:true}).click();
+   await page.locator("#yl-enter").press("End");
+   await page.locator('[data-action="discover"]').click();
+   await waitForDirector(page,"opening");
+   await control(page,"begin").click();
+   await sendSocial(page,"request");
+   await page.waitForFunction(()=>document.activeElement?.matches(".b27-choice-question"));
+   await page.waitForTimeout(130);
+   assert.equal(await page.locator(".b27-r4-choice-summary").count(),6);
+   const initial=await page.evaluate(()=>{
+    const sheet=document.querySelector(".b27-shell"),
+     head=sheet.querySelector(".b27-head"),
+     question=sheet.querySelector(".b27-choice-question"),
+     options=[...sheet.querySelectorAll(".b27-r4-choice-summary")],
+     bounds=sheet.getBoundingClientRect(),h=head.getBoundingClientRect();
+    return {shell:{top:bounds.top,bottom:bounds.bottom},headerBottom:h.bottom,
+     shellScrollTop:sheet.scrollTop,
+     titleInView:question.getBoundingClientRect().top>=h.bottom-3,
+     total:options.length,
+     summaries:options.map(el=>{
+      const r=el.getBoundingClientRect(),style=getComputedStyle(el),
+       parent=getComputedStyle(el.parentElement);
+      const target=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+      return {label:el.textContent.trim(),top:r.top,bottom:r.bottom,
+       width:r.width,height:r.height,fontSize:style.fontSize,
+       visible:r.top>=h.bottom-2&&r.bottom<=bounds.bottom-8&&r.width>=100,
+       unobscured:target===el||el.contains(target),
+       treatment:[style.backgroundColor,style.fontWeight,parent.borderColor].join("|"),
+       expanded:el.parentElement.open
+      };
+     })}
+   });
+   assert.equal(initial.total,6);
+   assert.equal(initial.titleInView,true,width+"px question obscured");
+   assert.ok(initial.summaries.every(x=>x.visible&&x.unobscured&&x.height>=44),
+    width+"px six actions not recognizable in first viewport: "+JSON.stringify(initial));
+   assert.equal(new Set(initial.summaries.map(x=>x.treatment)).size,1,
+    "All actions must start equally neutral");
+   assert.ok(initial.summaries.every(x=>!x.expanded));
+   assert.match(await page.locator(".b27-r4-decision-intro").innerText(),
+    /SIX POSSIBLE ACTIONS[\s\S]*Only.*Choose this action.*records/i);
+   await capture(page,"M2R4R3-"+width+"-initial-six-action-overview",".b27-play");
+   if(evidence){
+    await mkdir(evidence,{recursive:true});
+    await writeFile(evidence+"/M2R4R3-"+width+"-initial-six-viewport.json",
+     JSON.stringify(initial,null,2)+"\n");
+   }
+   const ids=["invite","correct","name_harm","leave_request","unqualified","prepare_question"];
+   for(const id of ids){
+    const card=await inspectFollowUp(page,id);
+    assert.equal((await state(page)).game.history.events.length,2);
+    assert.equal(await card.locator('[data-b27="branch"]').count(),1);
+    const literal=await card.locator(".b27-social-choice-literal").innerText();
+    assert.ok(literal.length>25);
+    assert.equal(await card.locator(".b27-r4-choice-confirm").isVisible(),true);
+    if(id==="unqualified"){
+     await card.locator(".b27-r4-choice-details").scrollIntoViewIfNeeded();
+     await capture(page,"M2R4R3-"+width+"-mid-scroll-open-action",".b27-play");
+    }
+    await card.locator("summary").click();
+    assert.equal(await card.getAttribute("open"),null,
+     "Closing inspection must not record an event");
+   }
+   assert.equal((await state(page)).game.history.events.length,2);
+   await page.locator(".b27-choice-question").focus();
+   for(let i=0;i<6;i++){
+    await page.keyboard.press("Tab");
+    const focus=await page.locator(".b27-r4-choice-summary").nth(i)
+     .evaluate(el=>document.activeElement===el&&el.matches(":focus-visible"));
+    assert.equal(focus,true,width+"px cannot navigate choice "+i+" via keyboard");
+   }
+   // Keyboard Enter on a disclosure only expands; Enter on the separate
+   // confirmation records the one and only second participant action.
+   const last=await inspectFollowUp(page,"prepare_question",{keyboard:true});
+   assert.equal((await state(page)).game.history.events.length,2);
+   await last.locator('[data-b27="branch"]').press("Enter");
+   await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
+   assert.equal((await state(page)).game.history.events.length,3);
+   assert.equal((await state(page)).game.secondAction.id,"prepare_question");
+   await capture(page,"M2R4R3-"+width+"-completed-choice",".b27-play");
+  }finally{await context.close();}
+ }
+});
+
+test("M2 R4 R2: 430px keyboard focus stability across reload, motion settings and repeated tabbing",async t=>{
+ const base=await launchApp(t,true);
+ const browser=await chromium.launch(process.env.YL_CHROMIUM_EXECUTABLE?
+  {executablePath:process.env.YL_CHROMIUM_EXECUTABLE,args:["--no-sandbox"]}:{channel:"chrome"});
+ t.after(()=>browser.close());
+ const observations=[];
+ for(const reducedMotion of ["reduce","no-preference"]){
+  const context=await browser.newContext({viewport:{width:430,height:844},
+   timezoneId:"UTC",reducedMotion,isMobile:true,hasTouch:true,serviceWorkers:"block"});
+  const page=await context.newPage();
+  try{
+   await page.clock.setFixedTime(new Date("2027-01-07T12:00:00Z"));
+   await page.goto(base+"/?b27=1&cz155=1",{waitUntil:"domcontentloaded"});
+   await page.getByRole("button",{name:"Get started"}).click();
+   await page.getByRole("button",{name:"Skip",exact:true}).click();
+   await page.locator("#yl-enter").press("End");
+   await page.locator('[data-action="discover"]').click();
+   await waitForDirector(page,"opening");
+   await control(page,"begin").click();
+   await sendSocial(page,"request");
+   for(let repeat=0;repeat<8;repeat++){
+    if(repeat){
+     await page.reload({waitUntil:"domcontentloaded"});
+     await page.locator("#yl-enter").press("End");
+     await page.locator('[data-action="discover"]').click();
+     await waitForDirector(page,"reconsider");
+     await page.locator('.b27-r3-simulator[data-social-beat="wait"]').waitFor();
+     await reflectSocial(page);
+    }
+    assert.equal(await page.locator(".b27-r3-followup").count(),6);
+    await page.locator(".b27-choice-question").focus();
+    const questionWasFocused=await page.locator(".b27-choice-question")
+     .evaluate(el=>document.activeElement===el);
+    assert.equal(questionWasFocused,true,"Question must retain programmatic focus before Tab");
+    await page.keyboard.press("Tab");
+    const snapshot=await page.evaluate(()=>{
+     const first=document.querySelector(".b27-r4-choice-summary");
+     const active=document.activeElement;
+     const title=document.querySelector(".b27-choice-question");
+     return {
+      activeTag:active?.tagName,activeClass:active?.className,
+      activeData:active?.getAttribute("data-b27"),
+      firstFocused:active===first,focusVisible:first.matches(":focus-visible"),
+      outline:getComputedStyle(first).outlineStyle,
+      gap:first.getBoundingClientRect().top-title.getBoundingClientRect().bottom
+     };
+    });
+    await page.waitForTimeout(120);
+    const persisted=await page.locator(".b27-r4-choice-summary").first().evaluate(el=>
+     document.activeElement===el&&el.matches(":focus-visible"));
+    observations.push({reducedMotion,repeat,...snapshot,persisted});
+    assert.ok(snapshot.firstFocused&&snapshot.focusVisible&&snapshot.outline!=="none"&&persisted,
+      "430px focus must be immediate, visible and stable: "+JSON.stringify(observations.at(-1)));
+    assert.ok(snapshot.gap>=7,"Focus ring must clear the question");
+   }
+  }finally{await context.close();}
+ }
+ if(evidence){
+  await mkdir(evidence,{recursive:true});
+  await writeFile(evidence+"/M2R4R2-430px-focus-stress.json",
+   JSON.stringify({iterations:observations.length,results:observations},null,2)+"\n");
+ }
 });

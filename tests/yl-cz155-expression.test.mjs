@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {mkdirSync, writeFileSync} from "node:fs";
 import {EPICTETUS_SCENARIO as scenario} from "../experiments/yl-cz155-epictetus.mjs";
+import {derivePath} from "../experiments/yl-cz155-director.mjs";
 import {resolvePilot, runPilot} from "../experiments/yl-cz155-pilot.mjs";
 import {B27_APP_QUOTES} from "../experiments/yl-b27-quote-ledger.mjs";
 import {resolveQuoteB27} from "../experiments/yl-b27-route.mjs";
@@ -13,17 +14,34 @@ const start = resolvePilot(entry);
 const run = (path, extra={}) => runPilot({...entry,sourceVersionHash:start.sourceVersionHash,
   canonicalInput:{path}, ...extra});
 
-test("Six server-computed endings retain both the agency boundary and the open duty",()=>{
+test("Eighteen computed grounded endings preserve agency status and distinct qualified warrants",()=>{
   const evidence=[];
-  for(const first of scenario.openingChoices)for(const second of scenario.followUps[first.id]){
+  for(const first of scenario.openingChoices)for(const second of derivePath(scenario,[first.id]).options){
     const path=[first.id,scenario.externalEvent.id,second.id];
     const result=run(path);
     assert.equal(result.status,"ready",JSON.stringify(result));
     assert.deepEqual(result,run(path));
     const {emotion,fullMeaning,compact,fullExpression}=result;
+    const judgment=fullMeaning.meaning.choiceAnalysis.judgment;
+    for(const field of ["qualification","compactLimit","counterexample"])
+      assert.equal(typeof judgment[field],"string");
+    assert.ok(fullExpression.sections[1].text.includes(judgment.counterexample),
+      "Full output must preserve the selected counterexample instead of generic fallback");
+    assert.ok(fullExpression.sections[1].text.includes(judgment.qualification),
+      "Full output must preserve the path-specific philosophical qualification");
+    assert.doesNotMatch(fullExpression.sections[1].text,
+      /Even a considerate action cannot guarantee another person's agreement/i,
+      "No route may substitute generic source counterexample for its warranted contrast");
+    assert.ok(compact.sections[1].text.includes(judgment.compactLimit),
+      "Compact output must preserve its path-specific limitation");
+    if(second.id!=="name_harm")
+      assert.doesNotMatch(fullExpression.sections[1].text,/a promise can protect privacy today/i);
+    if(second.id!=="unqualified")
+      assert.doesNotMatch(fullExpression.sections[1].text,/posting now may spotlight/i);
     assert.deepEqual(fullMeaning.canonical_choice,{path});
     const facts=fullMeaning.meaning.choiceAnalysis;
-    assert.equal(facts.establishedFacts.acknowledged,second.id!=="leave_request");
+    assert.equal(facts.establishedFacts.acknowledged,
+      first.id!=="request"||["name_harm","unqualified"].includes(second.id));
     assert.equal(facts.history.events[1].origin,"independent_fiction");
     assert.deepEqual(facts.history.events[1].observed,scenario.externalEvent.observed);
     assert.ok(compact.sections[1].text.includes(fullMeaning.meaning.selectedClaim));
@@ -31,7 +49,7 @@ test("Six server-computed endings retain both the agency boundary and the open d
       assert.equal(expression.sections.length,3);
       const words=expression.sections.flatMap(section=>section.text.trim().split(/\s+/)).length;
       assert.ok(words>=min&&words<=max);
-      assert.match(expression.sections[1].text,/repair.*owe/i);
+      assert.match(expression.sections[1].text,/Epictetus|judgment|chosen acts|power/i);
     }
     assert.equal(emotion.inferredActualEmotion,false);
     assert.equal(result.publicationAllowed,false);
@@ -39,20 +57,20 @@ test("Six server-computed endings retain both the agency boundary and the open d
     assert.equal(result.provenance.directorTranscript.firstMessage,first.literal);
     assert.equal(result.provenance.directorTranscript.secondAction,second.literal);
     evidence.push({path,firstMessage:first.literal,observed:scenario.externalEvent.text,
-      reconsideration:scenario.reconsiderationQuestion,secondAction:second.literal,
+      reconsideration:scenario.reconsiderationQuestions[first.id],secondAction:second.literal,
       canonical:result.canonical_choice,reasoning:fullMeaning,emotion,compact,full:fullExpression});
   }
-  assert.equal(evidence.length,6);
+  assert.equal(evidence.length,18);
   const root=process.env.YL_CZ155_EVIDENCE;
   if(root){
     mkdirSync(root,{recursive:true});
-    writeFileSync(root+"/epictetus-six-paths.json",
+    writeFileSync(root+"/epictetus-r2-all-paths.json",
       JSON.stringify({sourceHash:start.sourceVersionHash,scenarioHash:scenario.scenarioFingerprint,paths:evidence},null,2)+"\n");
     const lines=[
-      "# CZ-155 · Literal six-path audit from the unchanged three-engine runtime",
+      "# CZ-155 · Literal eighteen-path audit from the unchanged three-engine runtime",
       "",
       "This is generated from runPilot on the exact test checkout, not written as production results.",
-      "The Source, Reasoning, Emotion Strategy, full Expression and compact Expression are computed for each of six paths.",
+      "The Source, Reasoning, Emotion Strategy, full Expression and compact Expression are computed for all eighteen grounded paths.",
       ""
     ];
     for(const item of evidence){
@@ -68,6 +86,15 @@ test("Six server-computed endings retain both the agency boundary and the open d
         "**Emotion Strategy:** "+item.emotion.strategy,
         "",
         "**Source warrant IDs:** "+item.reasoning.meaning.choiceAnalysis.sourceWarrantIds.join(", "),
+        "**Exact source-warrant descriptions:**",
+        ...item.reasoning.meaning.choiceAnalysis.sourceWarrantIds.map(id=>
+          "- "+id+": "+scenario.source.warrants[id]),
+        "**Path-specific qualification:** "+item.reasoning.meaning.choiceAnalysis.judgment.qualification,
+        "**Path-specific counterexample:** "+item.reasoning.meaning.choiceAnalysis.judgment.counterexample,
+        "**Compact limitation:** "+item.reasoning.meaning.choiceAnalysis.judgment.compactLimit,
+        "**Full section word counts:** "+item.full.sectionWordCounts.join(" / "),
+        "**Compact section word counts:** "+item.compact.sections.map(x=>
+          x.text.trim().split(/\s+/).filter(Boolean).length).join(" / "),
         "",
         "**Refinement basis:** "+JSON.stringify(item.reasoning.meaning.choiceAnalysis.refinementBasis),
         "",
@@ -78,7 +105,7 @@ test("Six server-computed endings retain both the agency boundary and the open d
         ...item.full.sections.map(section=>"- "+section.label+": "+section.text),
         "");
     }
-    writeFileSync(root+"/epictetus-six-paths-literal.md",lines.join("\n")+"\n");
+    writeFileSync(root+"/epictetus-r2-all-paths-literal.md",lines.join("\n")+"\n");
   }
 });
 
@@ -89,11 +116,12 @@ test("Author preview is edition bound and rejects stale, forged and cross-openin
   assert.equal(resolvePilot({...entry,quoteWork:B27_APP_QUOTES[92][3]}).status,"blocked");
   assert.equal(run(["request","delivered_no_reply","name_harm"],{sourceVersionHash:"outdated"}).code,"stale_source");
   assert.equal(run(["request","forgiven","name_harm"]).code,"unexpected_event");
-  assert.equal(run(["request","delivered_no_reply","invite"]).code,"unsupported_path");
+  assert.equal(run(["request","delivered_no_reply","invite"]).status,"ready");
+  assert.equal(run(["request","delivered_no_reply","nonexistent"]).code,"unsupported_path");
   assert.equal(run(null,{canonicalInput:{path:["request","delivered_no_reply","name_harm"],motive:"prove sincerity"}}).status,"blocked");
 });
 
-test("Semantic comparison excludes click recap and retains only warranted distinctions",()=>{
+test("Semantic comparison masks action recaps and groups only equivalent action-status claims",()=>{
   const result=(first,second)=>run([first,"delivered_no_reply",second]);
   const interpretation=r=>({
     claim:r.fullMeaning.meaning.selectedClaim, strategy:r.emotion.strategy,
@@ -102,26 +130,24 @@ test("Semantic comparison excludes click recap and retains only warranted distin
     question:r.compact.sections[2].text,
     basis:r.fullMeaning.meaning.choiceAnalysis.refinementBasis
   });
-  const invited=interpretation(result("acknowledge","invite"));
-  const laterAcknowledged=interpretation(result("request","name_harm"));
-  const writtenPlan=interpretation(result("acknowledge","correct"));
-  const preparedQuestion=interpretation(result("explain","prepare_question"));
-  const secondApology=interpretation(result("explain","unqualified"));
-  const outstanding=interpretation(result("request","leave_request"));
-  // Same *established* agency facts, different chronology or literal message:
-  // differing recap is not a license to manufacture a new philosophical claim.
-  assert.deepEqual(invited,laterAcknowledged);
-  assert.deepEqual(writtenPlan,preparedQuestion);
-  assert.equal(invited.strategy,"boundary_awareness");
-  assert.equal(writtenPlan.strategy,"choice_awareness");
-  assert.equal(outstanding.strategy,"choice_awareness");
-  assert.match(writtenPlan.claim,/private preparation.*does not establish/i);
-  assert.match(secondApology.claim,/second apology.*cannot determine/i);
-  assert.match(invited.claim,/invitation.*reply/i);
-  assert.match(outstanding.claim,/cannot acknowledge the harm/i);
-  assert.equal(new Set([invited,writtenPlan,secondApology,outstanding]
-    .map(x=>JSON.stringify([x.claim,x.strategy,x.question]))).size,4);
-  for(const x of [invited,writtenPlan,secondApology,outstanding]){
-    for(const section of x.compact)assert.ok(!/read receipt|forgiven you|caused the silence/i.test(section));
-  }
+  const publicFromRequest=interpretation(result("request","name_harm"));
+  const completedPublicPost=interpretation(result("explain","unqualified"));
+  const privatePublicPlan=interpretation(result("acknowledge","correct"));
+  const privateListeningPlan=interpretation(result("explain","prepare_question"));
+  const invitation=interpretation(result("acknowledge","invite"));
+  const deferred=interpretation(result("request","leave_request"));
+  assert.notDeepEqual(publicFromRequest,completedPublicPost,
+    "An actual public post is not interchangeable with a private promise");
+  assert.deepEqual(privatePublicPlan,privateListeningPlan,
+    "Equivalent not-yet-executed preparation may rightly converge");
+  assert.match(publicFromRequest.claim,/promise is sent privately.*has not occurred/i);
+  assert.match(completedPublicPost.claim,/group post is complete.*repair remain undecided/i);
+  assert.match(privatePublicPlan.claim,/prepared a step privately.*not been performed/i);
+  assert.match(invitation.claim,/sent an invitation.*remain undecided/i);
+  assert.match(deferred.claim,/withheld another message.*listening has not happened/i);
+  assert.equal(new Set([publicFromRequest,completedPublicPost,privatePublicPlan,invitation,deferred]
+    .map(x=>JSON.stringify([x.claim,x.strategy,x.question]))).size,5);
+  for(const x of [publicFromRequest,completedPublicPost,privatePublicPlan,invitation,deferred])
+    for(const section of x.compact)
+      assert.doesNotMatch(section,/read receipt|forgiven you|caused the silence|you feared rejection/i);
 });

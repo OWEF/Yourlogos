@@ -3,7 +3,7 @@ on:
   push:
     branches: [feature/cz155-epictetus-director-proof]
   pull_request:
-    branches: [feature/cz152-final-interaction-polish]
+    branches: [feature/cz152-final-interaction-polish, feature/cz155-epictetus-director-proof]
 permissions:
   contents: read
 jobs:
