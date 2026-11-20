@@ -1,0 +1,46 @@
+name: CZ-154 M3 R1 isolated argument and authoring preflight
+on:
+  push:
+    branches: [feature/cz154-m3-r1-argument-and-prerequisites]
+permissions:
+  contents: read
+jobs:
+  m3-r1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      YL_CZ155_EVIDENCE: qa-evidence-cz155
+      YL_CZ155_BROWSER_EVIDENCE: qa-evidence-cz155
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install local browser and encoder
+        run: |
+          npm install --no-save --ignore-scripts playwright-core@1.56.1
+          npx playwright-core install ffmpeg
+      - name: Frozen M2 BEFORE - 18 actual original expressions
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/frozen-m2" de940a15b32a6ad3ac3fbd082d6e64efbdf05441
+          mkdir -p "$GITHUB_WORKSPACE/qa-evidence-cz155/frozen-m2"
+          cd "$RUNNER_TEMP/frozen-m2"
+          YL_CZ155_EVIDENCE="$GITHUB_WORKSPACE/qa-evidence-cz155/frozen-m2" node --test tests/yl-cz155-expression.test.mjs
+      - name: AFTER - public source prerequisite tests and all eighteen expressions
+        run: |
+          node --test tests/yl-cz154-m3-r1-authoring.test.mjs tests/yl-cz155-*.test.mjs
+      - name: Side-by-side BEFORE vs AFTER evidence with source and section counts
+        run: |
+          node scripts/cz154-m3-r1-compare.mjs qa-evidence-cz155/frozen-m2/epictetus-r2-all-paths.json qa-evidence-cz155/epictetus-r2-all-paths.json qa-evidence-cz155
+      - name: Existing source and four family semantic/persistence regressions
+        run: |
+          node --test tests/yl-b25-generalized-encounter.test.mjs tests/yl-b26-four-family*.test.mjs tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs tests/yl-cz147-engine.test.mjs tests/yl-cz147-r*-*.test.mjs
+          node --test tests/yl-cz147-browser.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m3r1-frozen-before-after-and-browser-evidence
+          path: qa-evidence-cz155/
+          if-no-files-found: warn
