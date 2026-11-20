@@ -391,12 +391,20 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
     b("social-reflect",'<span>Consider your next step</span><span aria-hidden="true">↗</span>',
      "b27-r3-continue")+'</div>'+
    '</main>':"";
- const followUps=state.options.map(choice=>b("branch",
-  '<span class="b27-r3-action-symbol" aria-hidden="true">↗</span>'+
-  '<span class="b27-r3-action-copy"><strong>'+e(choice.label)+'</strong>'+
-   '<span class="b27-social-choice-literal">'+e(choice.literal)+'</span></span>',
-  "b27-choice b27-social-option b27-r3-followup",
-  'data-value="'+e(choice.id)+'"')).join("");
+ // A summary INSPECTS one option; only the separate source-bound
+ // data-b27="branch" button commits it to the Director. Native details keep
+ // pointer, keyboard and screen-reader disclosure semantics without a new beat.
+ const followUps=state.options.map(choice=>
+  '<details class="b27-r4-choice" data-b27-option="'+e(choice.id)+'">'+
+   '<summary class="b27-r4-choice-summary">'+
+    '<span class="b27-r4-choice-label">'+e(choice.label)+'</span>'+
+    '<span class="b27-r4-choice-chevron" aria-hidden="true">⌄</span></summary>'+
+   '<div class="b27-r4-choice-details">'+
+    '<p class="b27-social-choice-literal">'+e(choice.literal)+'</p>'+
+    b("branch",'<span>Choose this action</span><span aria-hidden="true">↗</span>',
+     "b27-choice b27-social-option b27-r3-followup b27-r4-choice-confirm",
+     'data-value="'+e(choice.id)+'" aria-label="Choose action: '+e(choice.label)+'"')+
+   '</div></details>').join("");
  const recollect=first?
   '<details class="b27-r3-recall"><summary>Earlier in the conversation</summary>'+
    '<div class="b27-r3-recall-body">'+sent+event+'</div></details>':"";
@@ -409,8 +417,14 @@ function socialDirectorHtml(state,presentation,presentationBeat,selectedDraftId)
      e(state.reconsiderationQuestion)+'</h3>'+
     '<p id="b27-r3-reflection-cue" class="b27-r3-reflection-cue">What might you do next?</p>'+
    '</section>'+
-   '<div class="b27-social-options b27-message-choices b27-r3-followups" role="group" aria-label="'+e(state.reconsiderationQuestion)+'">'+
-    followUps+'</div>'+recollect+
+   '<section class="b27-r4-decision-space" aria-label="All six available next actions">'+
+    '<div class="b27-r4-decision-intro">'+
+     '<strong>YOUR SIX POSSIBLE ACTIONS</strong>'+
+     '<p>Open any option to read its words. Only “Choose this action” records a decision.</p>'+
+    '</div>'+
+    '<div class="b27-social-options b27-message-choices b27-r3-followups b27-r4-choice-grid" role="group" aria-label="Six equally available actions; open to inspect, choose to commit">'+
+     followUps+'</div>'+
+   '</section>'+recollect+
    '</main>':"";
  const completedGroupThread=second?.medium==="public_statement"?
   '<div class="b27-r4-context-switch" role="separator" aria-label="Leaving the private conversation and entering the separate public group thread">'+
