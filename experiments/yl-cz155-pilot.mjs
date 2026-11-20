@@ -25,7 +25,7 @@ const record = {
   sourceArgument: {
     version: "source-argument/1", warrantId: "mistaken_dependency",
     anchor: "you will be hindered, you will lament, you will be disturbed",
-    compactThesis: "Your acts are yours, not their assent",
+    compactThesis: "Your acts are yours; assent isn't",
     compactReason: "Depending on assent invites hindrance and disturbance",
     fullThesis: "Your acts are yours; another's assent isn't",
     fullReason: "Making their assent your measure exposes judgment to hindrance and disturbance"
