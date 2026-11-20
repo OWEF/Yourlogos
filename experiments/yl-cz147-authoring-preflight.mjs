@@ -80,13 +80,13 @@ const ARGUMENT=[
  def("sourceArgument.fullReason","string","The full WHY needs source reasoning.","Source-supported argumentative reason")
 ];
 function safeData(value){
- const seen=new WeakSet();let entries=0;
+ const active=new WeakSet();let entries=0;
  function visit(v,depth){
   if(v===null||typeof v==="boolean")return true;
   if(typeof v==="string")return v.length<=10000;
   if(typeof v==="number")return Number.isFinite(v);
-  if(typeof v!=="object"||depth>24||seen.has(v))return false;
-  seen.add(v);
+  if(typeof v!=="object"||depth>24||active.has(v))return false;
+  active.add(v);
   const proto=Object.getPrototypeOf(v);
   if(Array.isArray(v)){if(v.length>250)return false;}
   else if(proto!==Object.prototype&&proto!==null)return false;
@@ -99,6 +99,7 @@ function safeData(value){
    const d=descriptors[k];
    if(!("value" in d)||!visit(d.value,depth+1))return false;
   }
+  active.delete(v); // Reused immutable arrays/objects are not cycles.
   return true;
  }
  try{return visit(value,0);}catch{return false;}
