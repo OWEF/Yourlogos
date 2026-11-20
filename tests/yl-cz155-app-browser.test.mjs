@@ -56,6 +56,25 @@ async function reflectSocial(page){
  await page.locator('[data-b27="social-reflect"]').click();
  await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
 }
+async function inspectFollowUp(page,id,{keyboard=false}={}){
+ const card=page.locator('.b27-r4-choice[data-b27-option="'+id+'"]');
+ assert.equal(await card.count(),1);
+ const summary=card.locator("summary");
+ if(keyboard)await summary.press("Enter");
+ else await summary.click();
+ assert.equal(await card.getAttribute("open"),"",
+  "Inspecting expands one action without committing it");
+ assert.equal((await state(page)).game.phase,"reconsider");
+ assert.equal((await state(page)).game.history.events.length,2);
+ return card;
+}
+async function commitFollowUp(page,id,{keyboard=false}={}){
+ const card=await inspectFollowUp(page,id,{keyboard});
+ const choose=card.locator('[data-b27="branch"]');
+ if(keyboard)await choose.press("Enter");
+ else await choose.click();
+}
+
 async function sendSocial(page,id,{reflect=true}={}){
  const draft=page.locator('[data-b27="social-pick"][data-value="'+id+'"]');
  const literal=await draft.locator(".b27-r3-draft-copy").innerText();
@@ -143,8 +162,10 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
   // Compare the neutral resting state, not the intentionally interactive
   // pointer hover on whichever choice happened to appear under the cursor.
   await page.mouse.move(2,2);
-  const optionBackgrounds=await page.locator(".b27-social-options .b27-choice")
-   .evaluateAll(options=>options.map(o=>getComputedStyle(o).backgroundImage));
+  const optionBackgrounds=await page.locator(".b27-r4-choice-summary")
+   .evaluateAll(options=>options.map(o=>[
+    getComputedStyle(o).backgroundColor,getComputedStyle(o).fontWeight,
+    getComputedStyle(o.parentElement).borderColor].join("|")));
   assert.equal(new Set(optionBackgrounds).size,1,
    "No choice may be highlighted as the philosopher-approved answer");
 
@@ -162,8 +183,7 @@ test("Long card opens from an unseeded daily deck; six distinct paths, Deepen an
    assert.equal(await control(page,"branch").count(),6);
    await capture(page,"03b-resumed-after-first",".b27-play");
   }
-  const next=page.locator('[data-b27="branch"][data-value="'+second+'"]');
-  await next.press("Enter");
+  await commitFollowUp(page,second,{keyboard:true});
   await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
   const privateFollowUp=["correct","leave_request","prepare_question"].includes(second);
   const completedPublicPost=second==="unqualified";
@@ -446,7 +466,7 @@ test("M2: 320/390/430/1024px reconsideration, motion and resumed focus preserve 
     await page.keyboard.press("Tab");
     const details=await page.evaluate(()=>{
      const title=document.querySelector(".b27-choice-question");
-     const card=document.querySelector(".b27-message-choices .b27-choice");
+     const card=document.querySelector(".b27-r4-choice-summary");
      const a=title.getBoundingClientRect(),b=card.getBoundingClientRect();
      return {gap:b.top-a.bottom,width:document.documentElement.clientWidth,
       cardHeight:b.height,questionHeight:a.height,
@@ -528,14 +548,19 @@ test("M2 R2: 320/390/430px reconsideration remains visible and focused after the
     const shell=document.querySelector(".b27-shell"),
      head=shell.querySelector(".b27-head"),
      question=shell.querySelector(".b27-social-reconsider .b27-choice-question"),
-     action=shell.querySelector(".b27-social-options .b27-choice"),
+     action=shell.querySelector(".b27-r4-choice-summary"),
      event=shell.querySelector(".b27-social-event"),
      message=shell.querySelector(".b27-social-message"),
-     second=shell.querySelectorAll(".b27-social-options .b27-choice")[1];
+     second=shell.querySelectorAll(".b27-r4-choice-summary")[1],
+      allChoices=[...shell.querySelectorAll(".b27-r4-choice-summary")];
     const rect=el=>{const r=el.getBoundingClientRect();return {
      top:Math.round(r.top),bottom:Math.round(r.bottom),height:Math.round(r.height)};};
     const a=rect(action),q=rect(question),s=rect(shell),h=rect(head);
     return {scrollTop:shell.scrollTop,visibleSheet:s,stickyHeader:h,
+      allSixVisible:allChoices.length===6&&allChoices.every(choice=>{
+       const r=choice.getBoundingClientRect();
+       return r.top>=h.bottom-2&&r.bottom<=s.bottom-8&&r.width>=100&&r.height>=44;
+      }),
      question:q,firstAction:a,secondAction:rect(second),event:rect(event),message:rect(message),
      focusIsQuestion:document.activeElement===question,
      questionVisible:q.top>=h.bottom-2&&q.bottom<=s.bottom-7,
@@ -552,7 +577,7 @@ test("M2 R2: 320/390/430px reconsideration remains visible and focused after the
    await capture(page,"M2R1-"+width+"-immediate-reconsider",".b27-play");
    assert.equal(metrics.preChoiceDashboard,false,
     width+"px philosophical interpretation must not appear before reconsideration");
-   assert.ok(metrics.focusIsQuestion&&metrics.questionVisible&&metrics.firstActionVisible,
+   assert.ok(metrics.focusIsQuestion&&metrics.questionVisible&&metrics.allSixVisible,
     width+"px reconsideration or first available action is not initially visible: "+
      JSON.stringify(metrics));
    assert.ok(metrics.firstAction.height>=44,
@@ -560,7 +585,7 @@ test("M2 R2: 320/390/430px reconsideration remains visible and focused after the
    assert.match(metrics.initialMessageText,/Could we talk about yesterday/);
    assert.match(metrics.initialEventText,/Message delivered[\s\S]*No reply yet/);
    await page.keyboard.press("Tab");
-   assert.ok(await page.locator(".b27-social-options .b27-choice").first().evaluate(
+   assert.ok(await page.locator(".b27-r4-choice-summary").first().evaluate(
     el=>document.activeElement===el&&el.matches(":focus-visible")),
     width+"px question must lead directly to visible next action by keyboard");
    await capture(page,"M2R1-"+width+"-keyboard-next-action",".b27-play");
@@ -630,14 +655,14 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
    await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
    await page.clock.resume();
    await page.waitForFunction(()=>document.activeElement?.matches(".b27-social-reconsider .b27-choice-question"));
-   assert.equal(await page.locator(".b27-social-options .b27-choice").count(),6);
+   assert.equal(await page.locator(".b27-r4-choice-summary").count(),6);
    assert.match(await page.locator(".b27-choice-question").innerText(),
     /Tomorrow the group|tomorrow the group/);
    const measure=await page.evaluate(()=>{
     const shell=document.querySelector(".b27-shell"),
      header=shell.querySelector(".b27-head"),
      q=shell.querySelector(".b27-choice-question"),
-     options=[...shell.querySelectorAll(".b27-social-options .b27-choice")];
+     options=[...shell.querySelectorAll(".b27-r4-choice-summary")];
     const rect=el=>{const x=el.getBoundingClientRect();return {
      top:Math.round(x.top),bottom:Math.round(x.bottom),height:Math.round(x.height)}};
     return {scrollTop:shell.scrollTop,question:rect(q),first:rect(options[0]),
@@ -658,7 +683,7 @@ test("M2 R3: 320/390/430px messenger sends and stays in uncertainty until user a
     measure.second.bottom<=measure.shell.bottom-8,
     width+"px all question and next actions must be visible: "+JSON.stringify(measure));
    await page.keyboard.press("Tab");
-   assert.ok(await page.locator(".b27-social-options .b27-choice").first()
+   assert.ok(await page.locator(".b27-r4-choice-summary").first()
     .evaluate(el=>document.activeElement===el&&el.matches(":focus-visible")),
     "Keyboard focus must move to the first source-authored follow-up");
    await capture(page,"M2R3-"+width+"-05-keyboard",".b27-play");
@@ -704,7 +729,7 @@ test("M2 R4 R2: unedited mobile video records TWO distinct opening choices reach
    await page.locator('.b27-r3-simulator[data-social-beat="reconsider"]').waitFor();
    assert.equal(await control(page,"branch").count(),6);
    await page.waitForTimeout(450);
-   await page.locator('[data-b27="branch"][data-value="unqualified"]').click();
+   await commitFollowUp(page,"unqualified");
    await page.locator('.b27-r3-simulator[data-social-beat="complete"]').waitFor();
    assert.equal((await state(page)).game.firstAction.id,first);
    assert.equal((await state(page)).game.secondAction.medium,"public_statement");
@@ -806,7 +831,7 @@ test("M2 R4 R2: 430px keyboard focus stability across reload, motion settings an
     assert.equal(questionWasFocused,true,"Question must retain programmatic focus before Tab");
     await page.keyboard.press("Tab");
     const snapshot=await page.evaluate(()=>{
-     const first=document.querySelector(".b27-r3-followup");
+     const first=document.querySelector(".b27-r4-choice-summary");
      const active=document.activeElement;
      const title=document.querySelector(".b27-choice-question");
      return {
@@ -818,7 +843,7 @@ test("M2 R4 R2: 430px keyboard focus stability across reload, motion settings an
      };
     });
     await page.waitForTimeout(120);
-    const persisted=await page.locator(".b27-r3-followup").first().evaluate(el=>
+    const persisted=await page.locator(".b27-r4-choice-summary").first().evaluate(el=>
      document.activeElement===el&&el.matches(":focus-visible"));
     observations.push({reducedMotion,repeat,...snapshot,persisted});
     assert.ok(snapshot.firstFocused&&snapshot.focusVisible&&snapshot.outline!=="none"&&persisted,
