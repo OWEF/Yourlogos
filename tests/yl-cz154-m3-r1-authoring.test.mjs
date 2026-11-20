@@ -91,7 +91,7 @@ test("missing argument source excerpt is a precise request, not fabricated sourc
 });
 test("malformed, hostile, cyclical and dishonest authoring inputs fail closed",()=>{
  const cases=[
-  null,[],{__proto__:null},
+  null,[],Object.create({unexpectedPrototype:true}),
   Object.assign(Object.create(null),{constructor:"surprise"}),
   {get source(){throw Error("this accessor must never execute");}},
   (()=>{const o=fresh();o.self=o;return o;})(),
