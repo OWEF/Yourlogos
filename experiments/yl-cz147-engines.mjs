@@ -28,7 +28,7 @@ const size=(x,lo,hi)=>Array.isArray(x)&&x.length>=lo&&x.length<=hi;
 // A philosophical operation is separately authenticated source DATA.
 // Multiple philosophers may share an operation, and the same game family
 // can realize incompatible operations. Missing/unsupported kinds fail closed.
-const OPERATION_FAMILIES=Object.freeze({
+export const OPERATION_FAMILIES=Object.freeze({
  habitual_pattern:"balance_move",deliberate_use:"balance_move",
  attention_evasion:"balance_move",
  coordinated_work:"tap_pair",self_governance:"tap_pair",
@@ -71,6 +71,19 @@ function validateOperation(r){
  return true;
 }
 function validateRecord(r){
+ // Optional authenticated WHAT/WHY argument: the source's own warrant must
+ // exist and each consumer rendering must retain the complete authored reason.
+ const argument=r?.sourceArgument;
+ if(argument!==undefined&&(
+   !obj(argument)||!exact(argument,
+    ["version","warrantId","anchor","compactThesis","compactReason","fullThesis","fullReason"])||
+   argument.version!=="source-argument/1"||
+   !txt(argument.warrantId,1)||!txt(argument.anchor,6)||
+   !txt(argument.compactThesis,4)||!txt(argument.compactReason,6)||
+   !txt(argument.fullThesis,4)||!txt(argument.fullReason,8)||
+   !r.evidenceIds?.includes(argument.warrantId)||
+   !Object.hasOwn(r.director?.source?.warrants??{},argument.warrantId)
+ ))return false;
  if(!obj(r)||!Number.isSafeInteger(r.quoteId)||r.quoteId<0||
   !txt(r.recordId,1)||!txt(r.version,1)||r.status!=="development_provisional"||
   !FAMILIES.includes(r.familyId)||!txt(r.title,2)||!txt(r.intro,10)||
@@ -1032,6 +1045,15 @@ export function expressUniversal(packet,emotion,source){
  const questions=unique(reflectionQuestions(packet,emotion,source));
  const thesis=sentence(source.sourceThesis);
  const attributedThesis=formatSourceAttribution(author,thesis);
+ // The authoring record, not a philosopher-name runtime branch, controls
+ // whether the optional source-warranted argumentative reason is required.
+ const argument=source.sourceArgument;
+ const compactArgument=argument?
+  formatSourceAttribution(author,sentence(argument.compactThesis))+" "+
+   sentence(argument.compactReason):null;
+ const fullArgument=argument?
+  formatSourceAttribution(author,sentence(argument.fullThesis))+" "+
+   sentence(argument.fullReason):null;
  const judgment=packet.meaning.choiceAnalysis.operation==="directed_decision"?
   packet.meaning.choiceAnalysis.judgment:null;
  const customQualifier=["qualification","counterexample","compactLimit"]
@@ -1044,7 +1066,11 @@ export function expressUniversal(packet,emotion,source){
   briefResponseChoice(packet,source)]);
  // A compact output always contains an authenticated thesis AND a
  // choice-sensitive consequence; no source-key-specific fixed conclusions.
- const compactSeconds=unique([
+ const compactSeconds=argument?unique([
+  compactArgument+" "+sentence(interpretation.short)+" "+limit,
+  compactArgument+" "+sentence(interpretation.minimal)+" "+limit,
+  ...(interpretation.micro?[compactArgument+" "+sentence(interpretation.micro)+" "+limit]:[])
+ ]):unique([
   attributedThesis+" "+sentence(interpretation.short)+" "+limit,
   thesis+" "+sentence(interpretation.short)+" "+limit,
   attributedThesis+" "+sentence(interpretation.minimal)+" "+limit,
@@ -1067,7 +1093,12 @@ export function expressUniversal(packet,emotion,source){
   choiceBrief+" This fictional choice does not establish what you actually do.",
   chosen,choiceBrief
  ]);
- const fullSeconds=customQualifier?unique([
+ const fullSeconds=argument?unique([
+  // Do not drop a warrant, reason or path-specific counterexample to meet
+  // the budget; the existing fail-closed selection returns non-READY.
+  fullArgument+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,
+  fullArgument+" "+sentence(interpretation.minimal)+" "+uncertainty+" "+counter
+ ]):customQualifier?unique([
   // A warrant-specific qualification AND its counterexample are mandatory.
   // Do not silently fall back to generic source boilerplate to hit 120 words.
   attributedThesis+" "+sentence(interpretation.short)+" "+uncertainty+" "+counter,

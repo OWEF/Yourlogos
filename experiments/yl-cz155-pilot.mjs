@@ -18,6 +18,18 @@ const record = {
   source: {text: source.text, author: source.author, work: source.work,
     referenceUrl: source.referenceUrl},
   sourceThesis: "Epictetus places our judgment and chosen acts within our power, not others' assent.",
+  // George Long, Enchiridion §1: after naming the things in our power,
+  // the second and third paragraphs explain WHY false ownership of externals
+  // leads to hindrance and disturbance. This is authored source evidence,
+  // not an alleged motive of the player or a guarantee of tranquillity.
+  sourceArgument: {
+    version: "source-argument/1", warrantId: "mistaken_dependency",
+    anchor: "you will be hindered, you will lament, you will be disturbed",
+    compactThesis: "Your acts are yours; assent isn't",
+    compactReason: "Depending on assent invites hindrance and disturbance",
+    fullThesis: "Your acts are yours; another's assent isn't",
+    fullReason: "Making their assent your measure exposes judgment to hindrance and disturbance"
+  },
   evidenceClaim: "A posted group statement, a promise and a private plan are different choices; none commands another person's judgment.",
   humanTension: "Tomorrow the group returns to the interrupted idea while any private reply remains uncertain",
   epistemicLimits: "A missing reply reveals neither your friend's judgment nor what public responsibility remains appropriate.",
