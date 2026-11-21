@@ -41,7 +41,13 @@ for(let i=0;i<18;i++){
  for(const key of ["firstMessage","observed","secondAction","canonical","reconsideration"]){
    assert.deepEqual(b[key],a[key],label+" "+key+" changed");
  }
- assert.deepEqual(b.reasoning,a.reasoning,label+" reasoning changed");
+ const comparableReasoning=x=>{
+  const c=structuredClone(x);
+  delete c.sourceVersionHash; // changes because source-authored text changed
+  return c;
+ };
+ assert.deepEqual(comparableReasoning(b.reasoning),comparableReasoning(a.reasoning),
+  label+" reasoning changed beyond expected source fingerprint");
  assert.deepEqual(b.emotion,a.emotion,label+" emotion strategy changed");
  assert.deepEqual(b.full.sections,a.full.sections,label+" full expression changed");
  assert.equal(b.compact.sections.length,3);
