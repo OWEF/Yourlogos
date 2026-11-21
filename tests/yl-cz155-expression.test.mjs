@@ -41,7 +41,16 @@ test("Eighteen computed grounded endings preserve agency status and distinct qua
     for(const output of [compact,fullExpression]){
       const philosopher=output.sections[1].text;
       assert.match(philosopher,/Epictetus:/);
-      assert.match(philosopher,/assent/i);
+      if(output===compact){
+        // Stoic assent to impressions remains our own rational act;
+        // only another person's agreement/reply lies outside our agency.
+        assert.match(philosopher,/Epictetus: Your choices cannot command another's reply\./);
+        assert.match(philosopher,/Depending on replies invites hindrance and disturbance\./);
+        assert.doesNotMatch(philosopher,/Your acts are yours; assent isn't/i);
+      }else{
+        assert.match(philosopher,/another's assent isn't/i,
+          "Full expression retains the original accurate distinction");
+      }
       assert.match(philosopher,/hindrance and disturbance/i,
        "No READY response may silently discard Long §1's argumentative reason");
       assert.doesNotMatch(philosopher,/you (?:sought|feared|felt guilty|wanted approval|needed approval)/i,

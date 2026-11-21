@@ -10,7 +10,7 @@ const evidenceIds = [...new Set(["source:central", "source:boundary",
   "scenario:fictional", ...scenario.warrantIds])];
 
 const record = {
-  version: "cz155-author-proof/4", recordId: scenario.id, quoteId: source.quoteId,
+  version: "cz155-author-proof/5", recordId: scenario.id, quoteId: source.quoteId,
   status: "development_provisional", publicationAllowed: false,
   developmentOnly: false, exposeInApp: false,
   familyId: "decision_cards", title: "After the laughter",
@@ -25,8 +25,8 @@ const record = {
   sourceArgument: {
     version: "source-argument/1", warrantId: "mistaken_dependency",
     anchor: "you will be hindered, you will lament, you will be disturbed",
-    compactThesis: "Your acts are yours; assent isn't",
-    compactReason: "Depending on assent invites hindrance and disturbance",
+    compactThesis: "Your choices cannot command another's reply",
+    compactReason: "Depending on replies invites hindrance and disturbance",
     fullThesis: "Your acts are yours; another's assent isn't",
     fullReason: "Making their assent your measure exposes judgment to hindrance and disturbance"
   },

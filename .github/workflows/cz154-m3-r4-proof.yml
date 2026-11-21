@@ -1,0 +1,46 @@
+name: CZ-154 M3 R4 isolated source-copy regression proof
+on:
+  push:
+    branches: [feature/cz154-m3-r4-compact-agency-clarification]
+permissions:
+  contents: read
+jobs:
+  source-copy-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      YL_CZ155_EVIDENCE: qa-evidence-cz154-r4
+      YL_CZ155_BROWSER_EVIDENCE: qa-evidence-cz154-r4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Use existing local browser driver and encoder
+        run: |
+          npm install --no-save --ignore-scripts playwright-core@1.56.1
+          npx playwright-core install ffmpeg
+      - name: Frozen accepted R1 SHA BEFORE — actual 18 paths
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/frozen-r1" a2ed95a720a9a156c3003681b5fcf7a32cce5f41
+          mkdir -p "$GITHUB_WORKSPACE/qa-evidence-cz154-r4/accepted-r1"
+          cd "$RUNNER_TEMP/frozen-r1"
+          YL_CZ155_EVIDENCE="$GITHUB_WORKSPACE/qa-evidence-cz154-r4/accepted-r1" node --test tests/yl-cz155-expression.test.mjs
+      - name: R4 actual 18 paths and public authoring triage, Emerson and mobile app
+        run: |
+          node --test tests/yl-cz154-m3-r1-authoring.test.mjs tests/yl-cz155-*.test.mjs
+      - name: Compare frozen R1 vs R4 all 18 compact AND full literal expressions
+        run: |
+          node scripts/cz154-m3-r4-compare.mjs qa-evidence-cz154-r4/accepted-r1/epictetus-r2-all-paths.json qa-evidence-cz154-r4/epictetus-r2-all-paths.json qa-evidence-cz154-r4
+      - name: Existing semantic operation, four game family, storage and mobile regressions
+        run: |
+          node --test tests/yl-b25-generalized-encounter.test.mjs tests/yl-b26-four-family*.test.mjs tests/yl-b27-quote-compact.test.mjs tests/yl-b27-app-storage.test.mjs tests/yl-cz147-engine.test.mjs tests/yl-cz147-r*-*.test.mjs
+          node --test tests/yl-cz147-browser.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m3r4-exact-r1-before-after-mobile-evidence
+          path: qa-evidence-cz154-r4/
+          if-no-files-found: warn
